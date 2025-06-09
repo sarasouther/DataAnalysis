@@ -1,0 +1,90 @@
+---
+title: "PowerAnalysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Prework
+Install packages 'pwr', 'faraway', 'simr', 'simglm', and 'Superpower'.
+
+## Statistical power
+
+As we learned in lesson 3, Basic Statistical Test, statistical power is a measure of making a Type II error - saying that there is no treatment effect when, in fact, there is one. A power analysis is a way of estimating statistical power to either speak to the ability of your experiment to detect treatment effects or estimate sample size needed to answer the question that you are interested in with your experimental design. 
+
+```{r}
+library(pwr)
+library(tidyverse)
+library(simr)
+library(simglm)
+library(Superpower)
+#load data
+data('oatvar', package='faraway')
+```
+#Using power analysis to estimate needed sample size.
+
+To conduct a power analysis, you will need to know: 
+*The number of groups in your study
+*Significance level. It is standard to use a significance level of 0.05.
+*The power required for your experiment, which is typically set at 0.8.
+*Effect size, which can be calculated from data from a pilot study or estimated. 
+
+**Effect size** is a relativized estimate of difference between groups being compared. Generally, effect size is calculated by taking the difference between the two groups (e.g., the mean of treatment group minus the mean of the control group) and dividing it by the standard deviation of one of the groups.
+
+Because effect size is converted to standard deviations units, it tells you how many standard deviations lie between the two means, and can be compared across datasets regardless of the original units of the study (which is why effect sizes are calculated for meta-analyses).
+
+A classic effect size calculation is Cohen's D calculated as $\frac{\overline{x}_1 - \overline{x}_2}{s_{pooled}}$, where ${\overline{x}_1}$ is the mean of one group, ${\overline{x}_2}$ is the mean of the second group, and $s_{pooled}$ is standard deviation (typically pooled; sometimes of the control or pretest data) calculated as $s_{pooled} = \sqrt{\frac{sd_{a}^{2}+ sd_{b}^{2}}{2}}$. Note that Cohen's D is one of *many* ways of calculating effect size. Two other metrics are used by the 'pwr package': $f$, calculated as expected standard deviation of the group means divided by the pooled within-group standard deviation, is used in our example below. Another option is eta-squared (η2). The eta-squared is the proportion of the total variance explained by the means variance.
+
+It is harder to detect a smaller effect of the treatment, and easier to detect larger effects. Cohen in his 1988 book (citation below) classified effect sizes into 3 general categories for Cohen's D (CONFIRM): a small effect is typically set at 0.1 - 0.3, a medium effect at 0.3 - 0.5, and a large effect at > 0.5. **Note that the range for small, medium, and large effects differ by effect size calculation** Using these classifications, you can estimate the sample size for a proposed study even if you have **no** data. 
+
+**Cohen, J. (1988). Statistical power analysis for the behavioral sciences (2nd ed.). Hillsdale,NJ:
+Lawrence Erlbaum.**
+
+Below, we will run a power analysis with actual data, but let's start by running a power analysis to guide experimental planning for a study when no opportunity to conduct a pilot. Imagine you are planning an experiment in which you are trialing the effect of a new fertilizer on oat growth. You plan to include three levels, a control (no fertilizer added), a moderate fertilization treatment, and a high fertilization treatment and measure height as a dependent variable.
+
+In the code below, k indicates the number of groups (here: control, moderate, high), f indicates an effect size (we selected a medium effect size), sig.level indicates the significance level (0.05), and power (standard to use 0.8). To calculate the number of groups, if you have two factors, simply multiply the number of groups in each factor to get the value k. For instance, say you are looking at the effect of 2 levels of pesticide and 3 temperature levels on bee longevity, you would multiply 2 * 3, yielding 6 groups.
+
+**Why do we use 0.8?**
+It is by convention, much like we set a significance level ($\alpha$) of 0.05. At some point scientists agreed that a power level of 0.8, which means that the probability of rejecting a false null hypothesis is 0.8 (or 80%), is an acceptable risk of committing a Type II error.
+
+```{r}
+pwr.anova.test(k=3, f=0.3, sig.level=0.05, power=0.8) 
+```
+In this case, we'd should include at least 37 individuals (plus a few extra) to accommodate loss of individuals during the experiment.
+
+When possible, it is preferable to run a pilot experiment in order to improve experimental design. The 'pwr' package in R allows you to run a power analysis on various forms of data. Let's run through several quick analyses using the 'pwr' package. The effect size calculations will depend on your statistical test (for a full description of tests, go to the package).  
+
+Since Cohen's description of effect sizes as small, medium and large depend on each statistical test, there is an easy way to generate this information in the 'pwr' dataset. For example, if you are interested in determining the value associated with a small effect size for a regression, you would run the following code:
+
+```{r}
+cohen.ES(test = 'r', size = 'small')
+```
+Note that you have several test options here: 
+*r = regression
+*r; alternative = 'two.sided' = correlation (can specify direction 'greater') - not 100 percent sure I'm right here...
+*p = 
+*t = for t-test (type = 'paired'; you can select between two population to a repeated measure test)
+*anov = anova
+*chisq = chi sq tests
+*f2 = glms
+
+The 'pwr' package is nice for quick looks at power for simple analyses with no previous data. Note: that you can calculate effect sizes from data by hand and plug them into 'pwr' to generate sample sizes or power assessments. 
+
+Let's check this out with the 'oatvar dataset'. 
+
+```{r}
+ggplot(oatvar, aes(y=yield, x=block, color=variety)) + 
+    geom_point() +
+    geom_line(aes(x=as.integer(block)))
+```
+
+The cbpp is a dataset on contagious bovine pleuropneumonia. Data description is here:
+https://rdrr.io/cran/lme4/man/cbpp.html
+
+```{r}
+library(simr)
+head(cbpp)
+cbpp$obs <- 1:nrow(cbpp)
+```

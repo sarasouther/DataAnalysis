@@ -1,0 +1,7 @@
+"0","keeley_int <- psem("
+"0","  lm(cover ~ age_cent * fire_cent, data = keeley),"
+"0","  lm(fire_cent ~ age_cent, data = keeley),"
+"0","  data = keeley"
+"0",")"
+"0",""
+"0","summary(keeley_int)"

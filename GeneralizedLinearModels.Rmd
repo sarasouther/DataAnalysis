@@ -1,0 +1,245 @@
+---
+title: "Generalized Linear Models (GLMs)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Linear models
+
+What is a linear model, you say? 
+
+A linear model is a model where the data and parameters of interest interact only via addition and multiplication. 
+
+Most commonly, the term 'linear model' refers to statistical models that involve linear regression. Clearly, linear models include linear regression in all its beautiful forms, like ANCOVA, and logistic regression. However, ANOVA is actually considered a linear model as well, since it meets our basic definition. Though it may not seem so from the outset, ANOVA and regression, statistically are related. 
+
+Here's an example:
+Let's pretend we are looking at SLA (Specific Leaf Area) measurements of 3 different populations of plants, one population from Flagstaff, one from Sedona, and one from Camp Verde. 
+
+```{r}
+library(tidyverse)
+data <- tribble(~Population, ~SLA, 
+        "Flagstaff", 2, "Flagstaff", 1, "Flagstaff", 2,
+        "Sedona", 5, "Sedona", 6, "Sedona", 7,
+        "CampV", 10, "CampV", 11, "CampV", 10)
+
+pop <- group_by(data, Population)
+SLAtable <- summarise(pop, meanSLA = mean(SLA)); SLAtable
+
+#ANOVA
+model1 <- aov(SLA ~ Population, data=data)
+summary(model1)
+
+#ANOVA run as a linear model
+model2 <- lm(SLA ~ Population, data=data)
+summary(model2)
+
+#in this simple model, 
+#notice that the Intercept is the mean SLA of the 
+#reference group
+#then population Flagstaff Coefficient
+#is 10.333 - 8.667 = 1.67 (mean of the Flagstaff pop)
+#Sedona population =  10.3333 - 4.3333
+#6 = mean SLA of the Sedona population
+```
+In other words, ANOVA compares means and provides a p-value that tells us that at least two groups are different, while the linear model form reports 1 mean for the reference group (intercept), and p-values indicate whether each group is different from the reference group. Well, hopefully that was an interesting aside and served to connect a variety of different statistical techniques. 
+
+Now, let's have a b***ing session about old-school linear models, like ANOVA. They have SO many assumptions that need to be met - in particular, linear models assume a normal distribution of residuals. Then, if that assumption isn't met, you have to transform your dependent variable, and back transform your error bars, and on and on until you achieve normality, which - let's be honest - may never happen. If only there was an easy way to deal with the assumption of normality of residuals! Enter a new(ish) generation of models - Generalized Linear Models (GLMS)!
+
+# Generalized Linear Models
+
+A Generalized Linear Model (GLM) is an flexible statistical framework that allows us to model relationships between variables when the assumptions of ordinary linear regression are not met. Generalized Linear Models makes linear regression generalizable by using a link function to relate the linear model (i.e., relationship between x and y; systematic component) to the error (random component), allowing the magnitude of the variance for each measurement to be a function of the mean value and allowing us to specify different types of error distributions. Practically, GLMs allow you to analyze a variety of regression models, including linear regression, ANOVA, models for examining count data, models for predicting likelihood of events, under one statistical umbrella.
+
+*Model assumptions*
+What are the assumptions of GLMs?
+1. The data are independent. No problem - this is always important!
+2. The residuals do *NOT* need to be normally distributed, but you do need to specify a distribution from an exponential family that best fits your data (i.e., normal/Gaussian, binomial, Poisson, etc.)
+3. The homogeneity of variance does *NOT* need to be satisfied.
+
+Wow! This is great - let's go over the components of GLMs - like what is this "link" function that everyone is talking about?
+
+*A little aside*
+Don't confused *Generalized* linear models with *General* linear models. The term "general" linear model (GLM) usually refers to a linear regression models that assumes a Gaussian (normal) distribution, while *generalized* linear models allow you to specify other distribution from the exponential family (a set of distributions which include normal, Poisson, gamma and other commonly used distributions) for residuals. Parameter estimation uses maximum likelihood estimation (MLE) rather than ordinary least squares (OLS).
+
+Remember from our previous discussion of linear regression, that we determine the line of best fit for our data points by using *ordinary least squares*. 
+
+*Maximum likelihood estimation* is
+
+
+*Components of the GLM*
+
+1. The *linear predictor*:
+This is the function that describes the relationship between the independent variable/s and the dependent variable. This essentially has the same structure as a linear model:
+
+$\eta_{i}$ = $\beta_{0}$ + $\beta_{1}X_{i1}$ + ... $\beta_{p}X_{ip}$
+
+Where $\eta_{i}$ is the equivalent of y; the linear predictor - the predicted point on the y-axis according to the coefficients of predictors in combination with . $\beta$ values indicate coefficients of the predictors and x values indicate values of the predictors.
+
+2. The *error* or *random* component. 
+
+3. The *link function* which brings together the linear predictor and the error distribution.
+
+*How do link functions work?*
+
+Let's start with the formula for a line. 
+
+$y =\beta_{0} + \beta_{1}*x$
+where y is the y-value (point along the y-axis);
+x is the value along the x-axis;
+$\beta_{1}$ (aka m) is the slope, or how much the line rises for 1 unit increase in x;
+$\beta_{0}$ is the intercept, or the value of y, when x = 0.
+
+In GLMs, the y term is $\eta_{i}$, so:
+
+$\eta_{i}$ = $\beta_{0}$ + $\beta_{1}X_{i1}$ + ... $\beta_{p}X_{ip}$
+
+You can keep adding predictor variables (i.e., explanatory variables, independent variables) to the model as $\beta_{2}$ and so on! You can also specify non-linear relationships, like polynomial relationships, by including the second order term $\beta_{2}X_{i2}^2$ like so:   
+
+$\eta_{i}$ = $\beta_{0}$ + $\beta_{1}X_{i1}$ + $\beta_{2}X_{i2}^2$
+
+For our classic regression models, you obtain an equation for the line of best fit presented in the syntax above. These classic linear regression models make several important assumptions:
+*Additive relationships: Model variables have an additive relationship with each other, rather than multiplicative.
+*Homoskedastic data: Constant variance, in order words, variance does not increase or decrease as a function of the mean.
+*Normally distributed errors (residuals): Residuals are normally distributed, with mean 0
+*Non-correlated variables: Variables are independent.
+
+In standard linear model analysis, we use transformations to meet these assumptions, but GLMs are really cool, because we can avoid using transformation, by applying the link function. Through the beauty of link functions and conditional probabilities, we do not need to worry about homoskedasticity, normal distribution of residuals, or additive relations.
+
+## Link functions
+Let's talk link functions, as this is what modifies our regression models, depending on the error distribution of our response variable. You specify the link function based on error distribution of your response variables, let's go over the most common functions. Keep in mind that statisticians have developed many, many distributions! Some interesting ones include Pareto distribution, often applied to model Gross Domestic Product, and the von Mises distribution, for circular data, applied to days of the year! We will go over the most common link functions and their formulas used in the ecological sciences. 
+
+**Error distribution** = *Gaussian* or *Normal*
+**Link name** = Identity
+This is the generalized linear model corresponding to a Gaussian distribution, in other words, regression/ANOVA. We do not need to transform the data in anyway, so the link is called identity. 
+**Link function** = 
+Revisiting the standard equation for a line, $y =\beta_{0} + \beta_{1}*x$, we are saying that the mean y value will be what is calculated by the predicted model; we are not transforming anything. This is sometimes indicated with the following equation:
+$g(\pi)=\pi$
+where g indicates the link function, 
+and $\pi$ indicates the mean y. 
+
+**Error distribution** = *Binomial*
+**Link name** = Logit
+**Link function** = $g(\pi_i)=ln(\frac{\pi_i}{1-\pi_i})$
+This function can be rewritten to solve for y, as:
+$\pi_i=ln(\frac{e^{\pi_i\beta}}{1+e^{\pi_i\beta}})$
+Why would you want to do this? Back in the day, I used this function to create the line of best fit for logistic regressions! See excel example from my very first publication ever!
+
+**Error distribution** = *Poisson*
+Count data cannot be less than 0, so we use the Poisson distribution, so we transform the y variable by taking the natural log.
+**Link name** = Log
+**Link function** = $g(\pi_i)=ln(\pi_i)$
+This function can be rewritten to solve for y, as:
+$\pi_i=e^{\pi_i\beta}$
+
+**Error distribution** = *Gamma*
+Used for data that are continuous and positive but may have skewed distributions. Often uses for lengths, durations or amounts (i.e., time to death).
+**Link name** = Reciprocal
+**Link function** = $g(\pi_i)=1/pi_i)$
+This function can be rewritten to solve for y, as:
+
+## GLMs in R
+
+Let's generate some code for statistical analysis, and create some figures!
+
+First, we will start by examining data with a Gaussian/normal distribution.
+
+```{r}
+data(iris)
+#Is petal width related to petal length?
+
+#model <- glm(y-value ~ x-values, family = specifylinkingfunctions, data = dataset)
+iris_model <- glm(Petal.Length ~ Petal.Width, family = gaussian(), data = iris) #y data is continuous, use gaussian
+summary(iris_model)
+
+#for comparison run a linear regression for comparison
+iris_modelR <- lm(Petal.Length ~ Petal.Width, data = iris) #y data is continuous, use gaussian
+summary(iris_modelR)
+
+```
+When we call the summary, you can see several interesting things. First, the first species alphabetically is represented by the intercept - essentially each species is compared against this first species. Then, you see the *dispersion parameter* (smaller the better), and *AIC* for model comparison (smaller the better). The *dispersion parameter* is a measure of variance - how the actual data points scatter around a mean, similar to the sum of squares in a linear regression. The AIC or the Akaike Information Criterion is usually calculated for model comparison. Here, it is presented as a general assessment of goodness of fit. 
+
+AIC = 2K – 2ln(L)
+where:
+K: The number of model parameters.
+ln(L): The log-likelihood of the model. This tells us how likely the model is, given the data.
+
+Let's take a direct look at the results of a statistical test using the Anova function in the 'car' package.
+
+```{r}
+
+library(car)
+#glm
+#iris_model <- glm(Petal.Length ~ Petal.Width, family = gaussian(), data = iris) #y data is continuous, use gaussian
+Anova(iris_model)
+
+#for comparison run a linear regression for comparison
+#iris_modelR <- lm(Petal.Length ~ Petal.Width, data = iris) #y data is continuous, use gaussian
+Anova(iris_modelR)
+
+```
+
+
+```{r}
+#Look at residuals
+res_irismodel <- rstandard(iris_model)
+plot(iris_model$fitted.values, res_irismodel, pch=20, ylab = "Standarized residuals", xlab = "fitted values")
+
+```
+The residuals should have a random pattern, yet here we see a distinctive shape in which they increase at mid-size values and decrease, particularly at the largest values. We could try a different error distribution.
+
+```{r}
+iris_model <- glm(Petal.Length ~ Petal.Width, family = Gamma (), data = iris) #y data is continuous, use gaussian
+summary(iris_model)
+res_irismodel <- rstandard(iris_model)
+plot(iris_model$fitted.values, res_irismodel, pch=20, ylab = "Standarized residuals", xlab = "fitted values")
+
+```
+```{r}
+iris_model <- glm(Petal.Length ~ Petal.Width, family = gaussian (link="log"), data = iris) #y data is continuous, use gaussian
+summary(iris_model)
+res_irismodel <- rstandard(iris_model)
+plot(iris_model$fitted.values, res_irismodel, pch=20, ylab = "Standarized residuals", xlab = "fitted values")
+
+```
+
+
+```{r}
+iris_model <- glm(Petal.Length ~ Petal.Width, family = gaussian (link=power(0.25)), data = iris) #y data is continuous, use gaussian
+summary(iris_model)
+res_irismodel <- rstandard(iris_model)
+plot(iris_model$fitted.values, res_irismodel, pch=20, ylab = "Standarized residuals", xlab = "fitted values")
+
+```
+All of this to point out that you can in essence perform transformations within the link and you can use the AIC values to compare different models and select the best one for your data (lowest AIC value). In the end, our first model was the best fit to our data, though it wasn't perfect. 
+
+*Over Dispersion* is measured by comparing variance of the response variable to the variance of the linear predictors, when the variance of the response variable is larger than that of the linear predictor, we have overdispersion, meaning those data are more weidley spread than the explanatory variables, and indicates that additional covariates need to be identified.
+
+At this time, let's assume that we don't have additional variables to add to our GLM model. Let's run this and generate a nice plot!
+
+
+```{}
+iris_model <- glm(Petal.Length ~ Petal.Width, family = gaussian(), data = iris)
+
+SurvFig_Population <- ggplot(PECTISdata, aes(x=size, y=surv, group=DeerBrowseYear1)) + 
+  geom_point(aes(colour=DeerBrowseYear1)) + 
+  stat_smooth(method="glm", formula=y~x, method.args = "binomial", se=FALSE, aes(colour=DeerBrowseYear1), size=0.5) +
+  ylab("Survival (Proportion)") + 
+  xlab("Height 2021 (cm)") + 
+  scale_color_economist("Browse intensity") +
+  #scale_colour_discrete("Browsed (N/Y)") +
+  #annotate("text", x = 0, y = 1.05, label = paste("A)"), hjust=0, size = 5) +
+  #scale_x_continuous(breaks=seq(0,100,5)) +
+  facet_wrap(~Population) +
+  pubthemeleg; SurvFig_Population
+
+```
+
+
+
+If you want to make predictions: add this info if you want to helpful summary page 507.
+
+
+
+

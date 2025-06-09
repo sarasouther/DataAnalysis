@@ -1,0 +1,18 @@
+"0",""
+"0","# Log-transform variables"
+"0","cardinale$logN <- log10(cardinale$N + 1e-6)"
+"0","cardinale$logN2 <- cardinale$logN^2"
+"0","cardinale$logChl <- log10(cardinale$Chl)"
+"0",""
+"0","#Fit SEM with piecewiseSEM"
+"0",""
+"0","model1 <- psem("
+"0","  lm(SA ~ logN + logN2 + SR, data = cardinale),"
+"0","  lm(logChl ~ SA + logN + logN2, data = cardinale),"
+"0","  logN %~~% logN2,"
+"0","  data = cardinale"
+"0",")"
+"0",""
+"0","summary(model1)"
+"1","  |                                                                                                         |                                                                                                 |   0%  |                                                                                                         |=================================================================================================| 100%
+"

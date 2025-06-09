@@ -1,0 +1,11 @@
+"1","
+Structural Equation Model of model1 
+
+Call:
+  SA ~ logN + logN2 + SR
+  logChl ~ SA + logN + logN2
+  logN ~~ logN2
+
+    AIC
+ 1192.444
+"

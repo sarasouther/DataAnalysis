@@ -1,0 +1,61 @@
+"0","# Define the SEM"
+"0","model <- '"
+"0","  # Measurement model"
+"0","  Performance =~ perf1 + perf2 + perf3"
+"0",""
+"0","  # Structural model"
+"0","  Performance ~ Treatment"
+"0","'"
+"0",""
+"0","# Simulate data"
+"0","set.seed(123)"
+"0","n <- 200"
+"0","Treatment <- rnorm(n)"
+"0","perf1 <- 0.6*Treatment + rnorm(n, sd = 1)"
+"0","perf2 <- 0.6*Treatment + rnorm(n, sd = 1)"
+"0","perf3 <- 0.6*Treatment + rnorm(n, sd = 1)"
+"0","data <- data.frame(Treatment, perf1, perf2, perf3)"
+"0",""
+"0","# Fit the SEM"
+"0","fit <- sem(model, data = data)"
+"0","summary(fit, standardized = TRUE)"
+"1","lavaan 0.6-19 ended normally after 22 iterations
+
+  Estimator                                         ML
+  Optimization method                           NLMINB
+  Number of model parameters                         7
+
+  Number of observations                           200
+
+Model Test User Model:
+                                                      
+  Test statistic                                 1.871
+  Degrees of freedom                                 2
+  P-value (Chi-square)                           0.392
+
+Parameter Estimates:
+
+  Standard errors                             Standard
+  Information                                 Expected
+  Information saturated (h1) model          Structured
+
+Latent Variables:
+                   Estimate  Std.Err  z-value  P(>|z|)   Std.lv  Std.all
+  Performance =~                                                        
+    perf1             1.000                               0.552    0.489
+    perf2             0.995    0.180    5.522    0.000    0.549    0.499
+    perf3             0.968    0.183    5.288    0.000    0.535    0.467
+
+Regressions:
+                   Estimate  Std.Err  z-value  P(>|z|)   Std.lv  Std.all
+  Performance ~                                                         
+    Treatment         0.570    0.075    7.642    0.000    1.032    0.971
+
+Variances:
+                   Estimate  Std.Err  z-value  P(>|z|)   Std.lv  Std.all
+   .perf1             0.969    0.106    9.135    0.000    0.969    0.761
+   .perf2             0.910    0.100    9.058    0.000    0.910    0.751
+   .perf3             1.024    0.110    9.289    0.000    1.024    0.782
+   .Performance       0.017    0.042    0.410    0.682    0.056    0.056
+
+"

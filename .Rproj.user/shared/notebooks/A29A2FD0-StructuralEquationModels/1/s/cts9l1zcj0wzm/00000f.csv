@@ -1,0 +1,6 @@
+"0","mod_firesev  <- lm(firesev ~ age, data = keeley)"
+"0","mod_cover    <- lm(cover ~ firesev, data = keeley)"
+"0",""
+"0","firesev_model <- psem(mod_firesev, mod_cover)"
+"0",""
+"0","summary(firesev_model)"

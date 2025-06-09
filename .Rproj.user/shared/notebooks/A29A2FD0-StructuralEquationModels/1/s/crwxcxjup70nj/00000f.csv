@@ -1,0 +1,47 @@
+"0","lavaan_model <- '"
+"0","  fire_cent ~ age_cent"
+"0","  cover ~ fire_cent + age_cent + fire_cent:age_cent"
+"0","'"
+"0",""
+"0","lavaan_fit <- sem(lavaan_model, data = keeley)"
+"2","G2;H2;Warningh: lavaan->lav_data_full():  
+   some observed variances are (at least) a factor 1000 times larger than others; use varTable(fit) to 
+   investigateg
+"
+"0","summary(lavaan_fit)"
+"1","lavaan 0.6-19 ended normally after 29 iterations
+
+  Estimator                                         ML
+  Optimization method                           NLMINB
+  Number of model parameters                         7
+
+  Number of observations                            90
+
+Model Test User Model:
+                                                      
+  Test statistic                                 0.537
+  Degrees of freedom                                 2
+  P-value (Chi-square)                           0.765
+
+Parameter Estimates:
+
+  Standard errors                             Standard
+  Information                                 Expected
+  Information saturated (h1) model          Structured
+
+Regressions:
+                   Estimate  Std.Err  z-value  P(>|z|)
+  fire_cent ~                                         
+    age_cent          0.060    0.012    4.832    0.000
+  cover ~                                             
+    fire_cent        -0.068    0.020   -3.455    0.001
+    age_cent         -0.005    0.003   -1.926    0.054
+    fire_cnt:g_cnt   -0.002    0.001   -1.566    0.117
+
+Variances:
+                   Estimate  Std.Err  z-value  P(>|z|)
+   .fire_cent         2.144    0.320    6.708    0.000
+   .cover             0.076    0.011    6.708    0.000
+    fire_cnt:g_cnt  469.914   70.051    6.708    0.000
+
+"

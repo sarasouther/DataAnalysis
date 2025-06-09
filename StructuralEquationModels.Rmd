@@ -1,0 +1,1788 @@
+---
+title: "Structural Equation Models"
+output: html_document
+date: "2025-05-31"
+---
+
+# Structural equation models
+
+## What are structural equation models?
+
+Structural Equation Modeling (SEM) is a statistical technique that enables the modeling of complex causal relationships among variables. It extends regression by allowing:
+
+- Simultaneous estimation of multiple equations
+- Inclusion of both observed and **latent** (unmeasured) variables
+- Specification of indirect effects and feedback loops
+- Assessment of model fit against observed data
+
+SEM is often visualized as a path diagram, where arrows represent hypothesized relationships between variables.
+
+### When Should You Use SEM?
+
+Use SEM when:
+
+- You have **multiple dependent variables** that may influence one another
+- You want to estimate **direct and indirect effects** between variables
+- You need to account for **measurement error** in survey or ecological constructs
+- You are testing a **theory** or conceptual model with multiple pathways
+- Your system includes **latent constructs** like “habitat quality” or “disturbance pressure” inferred from several indicators
+
+> SEM is ideal when a single regression model is too simplistic to capture the interdependent relationships in your system.
+
+### How is SEM Different from Multiple Regression?
+
+| Feature                          | Multiple Regression            | SEM                                     |
+|----------------------------------|--------------------------------|-----------------------------------------|
+| Number of equations              | One                            | Many simultaneously                     |
+| Latent variables                 | ❌ Not allowed                 | ✅ Allowed                               |
+| Indirect effects                 | ❌ Manual calculation         | ✅ Modeled explicitly                    |
+| Measurement error (in predictors)| ❌ Ignored                    | ✅ Can be modeled                       |
+| Model fit assessment             | R², AIC, etc.                  | Chi-square test, RMSEA, CFI, TLI, etc.  |
+
+In multiple regression, you can only estimate **one equation at a time**, with no ability to model feedback loops or measurement error. In contrast, **SEM treats your whole system as a network**, testing how well your full model fits the data.
+
+### Summary
+
+SEM is a flexible and powerful framework for:
+
+- Exploring and testing theoretical models
+- Modeling complex causal chains
+- Incorporating unobservable constructs
+
+It provides more rigorous insights into systems where variables are interdependent, influenced by hidden factors, and subject to error.
+
+## Anatomy of a Structural Equation Model
+
+Structural Equation Modeling (SEM) provides a flexible framework for representing complex causal relationships between variables. In this chapter, we break down the structure of an SEM into its key components.
+
+### Types of Variables
+
+SEM uses two main types of variables:
+
+- **Observed variables**: Directly measured values (e.g., soil nitrogen, species richness).
+- **Latent variables**: Not directly observed, but inferred from multiple observed indicators  
+  (e.g., a latent "Disturbance Pressure" factor inferred from road density, fire frequency, and grazing).
+
+Each variable also plays one of two roles in the model:
+
+| Variable Role   | Description                                                                 |
+|------------------|-----------------------------------------------------------------------------|
+| **Exogenous**     | Predictor variables not explained by any other variables in the model.     |
+| **Endogenous**    | Response variables influenced by one or more other variables in the model. |
+
+> Note: Endogenous variables can act as both outcomes and predictors of other endogenous variables.
+
+### Path Diagrams
+
+Path diagrams are a central feature of SEM. They visually represent the hypothesized relationships between variables using arrows:
+
+- **Single-headed arrows (→)** represent **causal/predictive paths**
+- **Double-headed arrows (↔)** represent **covariances** (associations not assumed to be causal)
+
+## Building Multivariate Models
+
+### What is Causality?
+
+Causality refers to understanding the directional effect one variable has on another. In SEM, causal relationships are explicitly modeled, unlike in multiple regression where they may be implied but not specified.
+
+Judea Pearl’s Ladder of Causation is a framework for understanding levels of causal reasoning:
+
+	1.	Observation — associational reasoning (“what is”)
+	2.	Intervention — action-based reasoning (“what if I do”)
+	3.	Counterfactuals — imagining alternate realities (“what if I had done”)
+
+We ascend the ladder by incorporating more assumptions and a model of the system.
+
+### Why move beyond Multiple Regression?
+
+Multiple regression models:
+
+	•	Estimate associations while “controlling for” other variables
+	•	Assume independence among predictors
+	•	Do not explicitly encode causal structure
+
+Causal models (via SEM):
+
+	•	Represent direction and strength of causal pathways
+	•	Account for mediators, confounders, and latent variables
+	•	Enable testing of hypotheses about mechanisms
+
+### Meta-Modeling Your System
+
+Before diving into data, build a conceptual model:
+
+	1.	Define your research Purpose:
+	
+	•	Discovery: Are you exploring patterns or relationships for the first time?
+	•	Hypothesis Testing: Are you evaluating a specific theoretical prediction?
+	•	Prediction: Are you aiming to forecast outcomes under new conditions?
+
+🔍 Tip: Discovery-based models might be more flexible or exploratory, while hypothesis testing demands tighter causal logic and pre-specified relationships.
+	
+	2.	Identify the Focus:
+	
+What role do your variables play in the system?:
+
+	•	Drivers: Variables that initiate causal change (e.g., treatments, environmental context).
+	•	Responses: Outcome variables (e.g., pollinator abundance).
+	•	Mediators: Variables that transmit effects from causes to outcomes (e.g., plant cover).
+	•	Theory Testing: Are you evaluating a known causal pathway or testing a novel ecological hypothesis?
+
+🧠 Make sure the pieces of your model are causal! Avoid throwing in all your variables just because you measured them — each should have a theorized role.
+	
+	3.	Determine Span of Inference:
+	
+Are your findings meant to be context-specific or to inform broader generalizations?:
+
+	•	Local/System-Specific: Targeted insights for a particular site or management action.
+	•	Generalizable Process: Testing broad ecological principles or multi-site patterns.
+
+📏 This choice influences how you frame your model structure and what covariates (like “site”) you might treat as fixed or random.
+
+## From Concept to Model
+
+Once your meta-model is constructed:
+
+	•	Reify with data availability in mind
+	•	Ensure your DAG closes appropriate backdoors
+	•	Align structure with your research purpose
+
+“Make sure the pieces of your model are causal!”
+
+## Common Structures in Causal Diagrams
+
+In structural equation modeling (SEM) and causal inference, understanding the basic building blocks of causal diagrams is crucial. These structures form the foundation for determining what to control for and what to avoid controlling for. Below are the most common structures you’ll encounter in Directed Acyclic Graphs (DAGs), with brief explanations and examples.
+
+### Chains (Mediation Paths)
+
+Structure:
+
+Cause → Mediator → Effect
+
+Interpretation:
+
+	•	The mediator is an intermediate variable through which the cause affects the effect.
+	•	If you control for the mediator, you block the indirect path, potentially underestimating the total effect of the cause.
+
+Example:
+
+Fire frequency → Canopy cover → Soil moisture
+	•	If you control for canopy cover, you might miss the full effect that fire frequency has on soil moisture via changes in canopy cover.
+
+Visual:
+
+```{r}
+library(dagitty)
+library(ggdag)
+
+dag <- dagify(
+  SoilMoisture ~ CanopyCover,
+  CanopyCover ~ Fire,
+  labels = c(Fire = "Fire Frequency", CanopyCover = "Canopy Cover", SoilMoisture = "Soil Moisture"),
+  exposure = "Fire", outcome = "SoilMoisture"
+)
+ggdag(dag, text = FALSE, use_labels = "label") + theme_dag()
+```
+
+### Colliders
+
+Structure:
+
+Cause1 → Collider ← Cause2
+
+Interpretation:
+
+	•	A collider is a variable that is influenced by two (or more) variables.
+	•	Controlling for the collider opens a path between the two causes, creating spurious associations where none may exist.
+
+Example:
+
+Soil nitrogen → Plant growth ← Pathogen load
+	•	Both soil nitrogen and pathogen load affect plant growth. If you control for plant growth (the collider), it might look like soil nitrogen and pathogens are correlated—even if they’re not.
+
+Visual:
+
+```{r}
+dag <- dagify(
+  PlantGrowth ~ SoilNitrogen + PathogenLoad,
+  labels = c(SoilNitrogen = "Soil N", PathogenLoad = "Pathogens", PlantGrowth = "Plant Growth"),
+  exposure = "SoilNitrogen", outcome = "PathogenLoad"
+)
+ggdag(dag, text = FALSE, use_labels = "label") + theme_dag()
+```
+
+### Forks (Confounding Paths)
+
+Structure:
+
+CommonCause → Cause, CommonCause → Effect
+
+Interpretation:
+
+	•	This is a confounding structure, where the common cause explains the observed correlation between two variables.
+	•	Controlling for the common cause blocks the backdoor path, helping isolate the causal effect.
+
+Example:
+
+Soil type → Invasive species cover
+Soil type → Native species richness
+	•	If you don’t control for soil type, you may falsely conclude that invasive cover affects native richness, when both are simply driven by the soil.
+
+Visual:
+```{r}
+dag <- dagify(
+  InvasiveCover ~ SoilType,
+  NativeRichness ~ SoilType,
+  labels = c(SoilType = "Soil Type", InvasiveCover = "Invasive Cover", NativeRichness = "Native Richness"),
+  exposure = "InvasiveCover", outcome = "NativeRichness"
+)
+ggdag(dag, text = FALSE, use_labels = "label") + theme_dag()
+```
+
+### Descendants of Colliders
+
+Key Point:
+
+	•	Controlling for descendants of colliders can also open spurious paths.
+
+Example:
+
+Imagine you control for a variable like Plant biomass, which is a descendant of a collider (e.g., Herbivory ← Plant defense → Biomass). This can reintroduce bias just like controlling for the collider itself.
+
+### Summary of strcutures
+
+Structure	Do You Control For It?	Why?
+Chain (mediator)	❌ (if estimating total effect)	Controls block indirect paths
+Collider	❌	Conditioning opens spurious paths
+Fork (common cause)	✅	Controls block confounding
+Descendant of Collider	❌	Opens collider paths indirectly
+
+Understanding these structures helps you build better SEMs, choose correct adjustment sets, and avoid introducing bias into your models.
+
+### Identifying Causality
+
+You don’t need to know all mechanisms to make causal claims. But you do need to:
+
+	•	Map the system (e.g., using DAGs)
+	•	Identify and control for confounders
+	•	Avoid controlling for mediators
+
+### Backdoor Criterion
+
+To estimate a causal effect of X → Y, block all backdoor paths (those that flow into X) by conditioning on appropriate variables not affected by X.
+
+### Frontdoor Criterion
+
+Useful when you can’t block all backdoor paths. Identify a mediator that:
+
+	•	Is affected by X
+	•	Affects Y
+	•	Is not affected by any confounders of X and Y
+
+### Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management
+
+This research project explores how different Integrated Vegetation Management (IVM) treatments conducted by Arizona Public Service (APS) on powerline rights-of-way (ROWs) affect pollinator communities, using Structural Equation Modeling (SEM) to untangle direct and indirect effects.
+
+#### Study Context
+
+APS manages vegetation beneath powerlines for safety and access, using a mix of:
+
+	•	Mechanical removal
+	•	Herbicide application
+	•	Combined Mechanical + Herbicide
+	•	Untreated (Control) plots
+
+Understanding how these treatments influence floral resources is key to predicting changes in pollinator abundance and diversity.
+
+#### Data Collection
+
+At 3 sites, treatments were applied in a randomized block design across plots categorized as:
+
+	•	Control
+	•	Herbicide
+	•	Mechanical
+	•	Mechanical + Herbicide
+	
+Researchers want to test whether management effects on pollinators are mediated through floral resources, or whether there are residual (direct) effects of treatment type beyond vegetation structure.
+
+#### Key Variables and Their Roles
+
+Exogenous (Independent) Variables:
+
+	•	Treatment (main predictor—e.g., herbicide, mowing)
+	•	Soil substrate (moderator/stratifier of treatment effects)
+	•	Cattle presence (a confounder—not caused by treatment)
+
+Plant Community Mediators:
+
+	•	Plant richness
+	•	Plant cover
+	•	Plant height
+	•	Ceanothus presence/abundance
+	•	Woody debris
+
+Pollinator Response Variables:
+
+	•	Pollinator abundance
+	•	Pollinator richness
+
+```{r}
+library(dagitty)
+library(ggdag)
+library(tidyverse)
+
+
+# Define the DAG
+ivm_dag <- dagitty("
+dag {
+  Treatment
+  Soil_Substrate
+  Cattle
+  Plant_Richness
+  Plant_Cover
+  Plant_Height
+  Ceanothus
+  Woody_Debris
+  Pollinator_Richness
+  Pollinator_Abundance
+
+  Treatment -> Plant_Richness
+  Treatment -> Plant_Cover
+  Treatment -> Plant_Height
+  Treatment -> Ceanothus
+  Treatment -> Woody_Debris
+
+  Soil_Substrate -> Treatment
+  Soil_Substrate -> Plant_Richness
+  Soil_Substrate -> Plant_Cover
+  Soil_Substrate -> Woody_Debris
+
+  Cattle -> Plant_Richness
+  Cattle -> Plant_Cover
+  Cattle -> Pollinator_Abundance
+  Cattle -> Pollinator_Richness
+
+  Plant_Richness -> Pollinator_Richness
+  Plant_Richness -> Pollinator_Abundance
+  Plant_Cover -> Pollinator_Richness
+  Plant_Cover -> Pollinator_Abundance
+  Plant_Height -> Pollinator_Richness
+  Plant_Height -> Pollinator_Abundance
+  Ceanothus -> Pollinator_Richness
+  Ceanothus -> Pollinator_Abundance
+  Woody_Debris -> Pollinator_Richness
+  Woody_Debris -> Pollinator_Abundance
+}
+")
+
+node_roles <- tibble(
+  name = c(
+    "Treatment",
+    "Soil_Substrate",
+    "Cattle",
+    "Plant_Richness",
+    "Plant_Cover",
+    "Plant_Height",
+    "Ceanothus",
+    "Woody_Debris",
+    "Pollinator_Richness",
+    "Pollinator_Abundance"
+  ),
+  role = c(
+    "Treatment",
+    "Context",
+    "Context",
+    "Plant",
+    "Plant",
+    "Plant",
+    "Plant",
+    "Plant",
+    "Pollinator",
+    "Pollinator"
+  )
+)
+
+# Get layout and merge roles
+dag_df <- tidy_dagitty(ivm_dag, layout = "nicely") %>%
+  left_join(node_roles, by = "name")
+
+# Plot using ggplot2 with corrected edge structure
+ggplot() +
+  geom_segment(
+    data = dag_df %>% filter(!is.na(xend)),
+    aes(x = x, y = y, xend = xend, yend = yend),
+    arrow = arrow(length = unit(0.02, "npc")),
+    color = "grey40"
+  ) +
+  geom_point(
+    data = dag_df %>% filter(!is.na(x)), 
+    aes(x = x, y = y, color = role), 
+    size = 8, alpha = 0.85
+  ) +
+  geom_text(
+    data = dag_df %>% filter(!is.na(x)), 
+    aes(x = x, y = y, label = name), 
+    color = "black", size = 4
+  ) +
+  scale_color_manual(values = c(
+    "Treatment" = "#FB7E21FF",
+    "Context" = "#A91601FF",
+    "Plant" = "#18DDC2FF",
+    "Pollinator" = "#00468BFF"
+  )) +
+  labs(
+    title = "Hypothesized DAG for Pollinator Response to IVM Treatment",
+    color = "Variable Type"
+  ) +
+  theme_void()
+```
+
+### Adjustment Sets
+
+An adjustment set is a group of variables you control for (include as covariates) in order to estimate the causal effect of one variable (say, Treatment) on another (say, Pollinator_Richness) without bias.
+
+In short, it blocks backdoor paths — those sneaky alternative routes through which spurious associations can travel.
+
+To find variables to condition on:
+
+```{r}
+adjustmentSets(ivm_dag, exposure = "Treatment", outcome = "Pollinator_Richness")
+adjustmentSets(ivm_dag, exposure = "Treatment", outcome = "Pollinator_Abundance")
+```
+
+Interpretation:
+
+To estimate the total causal effect of Treatment on Pollinator_Richness, you only need to adjust for Soil_Substrate.
+
+This means:
+
+	•	Soil_Substrate is a backdoor variable — it opens a non-causal path because it influences both Treatment and plant variables that, in turn, influence pollinators.
+	•	Controlling for Soil_Substrate blocks that spurious path and gives you an unbiased estimate of the effect of Treatment.
+	
+Do not control for:
+
+	•	Mediators, like Plant_Richness, Plant_Cover, or Woody_Debris, if you want the total effect of treatment.
+	•	Colliders, such as anything caused by both Treatment and another variable (you don’t have a clear collider in this DAG, but good to keep in mind).
+
+Example in a model:
+
+	•	model <- lm(Pollinator_Richness ~ Treatment + Soil_Substrate, data = your_data)
+
+
+*GREG HERE YOU NEED TO CREATE YOUR FINAL DATASET BY SUMMARIZING THE VEG DATA AND ADDING YOUR POLLINATOR DATA PER PLOT. THEN WE CAN ADJUST THE CODE BELOW TO TEST WHETHER YOU REPLICATION / DATA ARE OK AND THEN MOVE ONTO NEXT STEPS*
+
+## Chapter 5: Covariance-Based Estimation in SEM
+
+```{r}
+library(lavaan)
+library(mvtnorm)
+library(mvnormtest)
+library(psych)
+library(Matrix)
+```
+
+### What is Covariance-Based SEM?
+
+Structural Equation Modeling (SEM) using covariance-based maximum likelihood estimation fits parameters so that the model-implied covariance matrix matches the observed covariance matrix as closely as possible. Unlike individual regression models:
+
+- SEM accounts for how estimation of one parameter affects others.
+- SEM allows for modeling feedbacks and latent variables.
+- SEM is based on maximum likelihood estimation (MLE).
+
+### Maximum Likelihood Estimation
+
+In SEM, MLE identifies parameters that maximize the likelihood of observing the data, given the model. This involves:
+
+- Exploring the parameter space iteratively.
+- Estimating model fit using a fitting function like ML.
+- Computationally intensive with more parameters.
+
+### Assumptions Behind ML Estimation
+
+- Multivariate normality (use `mvnormtest::mshapiro.test()`)
+
+```{r}
+# Simulate multivariate normal data
+set.seed(123)
+data <- data.frame(
+  x1 = rnorm(100),
+  x2 = rnorm(100),
+  x3 = rnorm(100)
+)
+
+# Use mshapiro.test from mvnormtest
+mshapiro.test(t(data))  # Note the transpose!
+```
+
+- No severe skew or missing data
+- No redundant variables (covariance matrix must be positive definite)
+
+```{r}
+# Check skew and kurtosis
+psych::describe(data)
+
+# Check for missing data
+summary(is.na(data))  # Should be all FALSE
+```
+
+- Sufficient sample size relative to parameters
+
+```{r}
+# Count parameters in a simple lavaan model
+model <- '
+  y1 ~ x1 + x2
+  y2 ~ y1
+'
+# Simulate data
+data <- data.frame(x1 = rnorm(100), x2 = rnorm(100), y1 = rnorm(100), y2 = rnorm(100))
+
+# Estimate number of parameters
+fit <- sem(model, data = data)
+summary(fit)
+
+# Count parameters
+n_params <- lavInspect(fit, "npar")
+n_obs <- nrow(data)
+
+# Portnoy’s Rule
+portnoy_value <- n_params^(3/2) / n_obs
+portnoy_value  # Should be close to 0
+```
+
+### Identifiability
+
+Before fitting a SEM, you must ensure it is **identified** — meaning you have enough unique information to estimate all model parameters.
+
+#### Key Rules
+
+- **T-rule**: Number of parameters ≤ unique entries in covariance matrix.
+
+```{r}
+# Number of unique observed covariances
+p <- ncol(data)
+n_cov <- p * (p + 1) / 2
+
+# Compare to number of free parameters
+n_cov
+lavInspect(fit, "npar")  # Should be ≤ n_cov
+```
+
+- **Order condition**: For each endogenous variable, incoming paths ≤ connected variables.
+
+There’s no direct test — but:
+	•	Draw your DAG.
+	•	Count how many arrows go into each endogenous variable.
+	•	Make sure that number ≤ number of variables related to it.
+
+- **Rank condition**: Variables in feedback loops must be influenced by different causes.
+
+	•	For feedback loops: ensure that each variable has at least one unique exogenous predictor.
+	•	Use DAG tools (ggdag or dagitty) to visualize and confirm.
+
+> If these rules are violated, the model is underidentified and cannot be estimated.
+
+### Degrees of Freedom
+
+- **DF = number of observed variances/covariances – number of estimated parameters**
+- Just-identified models (DF = 0): Can’t test fit
+- Overidentified models (DF > 0): Preferred — allows model fit evaluation
+
+```{r}
+library(lavaan)
+
+# define model as a lavaan-style string
+model <- '
+  cover ~ age + elev
+  firesev ~ age + cover
+'
+
+fit <- sem(model, data = keeley)
+fitMeasures(fit, c("chisq", "df", "pvalue", "cfi", "rmsea"))
+```
+### Sample Size Considerations
+
+A model’s complexity is limited by your sample size:
+
+- Rule of thumb: ≥ 5 observations per estimated parameter
+- Preferably: ≥ 20 observations per parameter
+- Use Portnoy’s rule:  ρ<sup>3/2</sup> / *n* → 0
+
+Account for:
+
+- Exogenous variable variances/covariances (often directly estimated from data)
+- Endogenous variable error variances (often derived, not estimated directly)
+
+### Summary
+
+Covariance-based SEM is powerful but demands careful model design:
+
+- Check identifiability before estimation
+- Be aware of sample size constraints
+- Use model diagnostics to evaluate fit after estimation
+
+### Chapter 6: Structural Equation Modeling in R with lavaan
+
+## Getting Started with lavaan – Model Specification, Estimation, and Interpretation
+
+Setting Up
+
+Before you begin, make sure the lavaan and lavaanPlot packages are installed:
+
+What is lavaan?
+
+	•	lavaan stands for Latent Variable Analysis.
+	•	Developed by Yves Rosseel (2010).
+	•	Syntax is similar to regression in R using formulas.
+	•	It supports latent and observed variables, covariance-based SEM, mediation, path analysis, and more.
+
+Example: Post-Fire Plant Recovery
+
+We’ll analyze a dataset from Keeley et al. (2006) studying how stand age, fire severity, and other factors affect plant cover.
+
+Step 1: Start Simple – A Regression as SEM
+
+```{r}
+# Load dataset
+# Example: keeley <- read.csv("path/to/your/keeley_data.csv")
+
+# Fit SEM
+#model1 <- 'cover ~ age'
+#fit1 <- sem(model1, data = keeley)
+#summary(fit1, standardized = TRUE, rsquare = TRUE)
+```
+
+Intercepts and Mean Structures
+
+To explicitly estimate intercepts:
+
+```{r}
+#fit1_mean <- sem(model1, data = keeley, meanstructure = TRUE)
+#summary(fit1_mean)
+```
+
+Viewing the Model
+
+```{r}
+#lavaanPlot(model = fit1, coefs = TRUE, stand = TRUE)
+```
+
+Standardized Estimates
+
+standardizedSolution(fit1)
+
+This gives standardized coefficients and helps compare the relative strength of predictors.
+
+Mediation Example: Indirect Effects
+
+```{r}
+#model2 <- '
+#  firesev ~ age
+#  cover ~ firesev + age
+#'
+#fit2 <- sem(model2, data = keeley)
+#summary(fit2, standardized = TRUE, rsquare = TRUE)
+```
+
+Direct, Indirect, and Total Effects
+
+```{r}
+#model3 <- '
+#  firesev ~ af*age
+#  cover ~ fc*firesev + ac*age
+
+  # Derived
+# indirect := af * fc
+#  total := ac + (af * fc)
+#'
+#fit3 <- sem(model3, data = keeley)
+#standardizedSolution(fit3)
+```
+
+Warnings: Variance Scaling
+
+```{r}
+#varTable(fit3)
+```
+
+If you get a warning about variances differing by orders of magnitude, consider rescaling your variables or using standardized solutions.
+
+Visualizing Complex Models
+
+```{r}
+#lavaanPlot(
+#  model = fit3,
+#  coefs = TRUE,
+#  stand = TRUE,
+#  sig = 0.05,
+#  graph_options = list(layout = "circo")
+#)
+```
+
+Final Exercise Prompt
+
+Try fitting the following model:
+
+```{r}
+#model_final <- '
+#  rich ~ distance + abiotic + hetero
+#  hetero ~ distance
+#  abiotic ~ distance
+#  abiotic ~~ hetero
+#'
+#fit_final <- sem(model_final, data = keeley)
+#summary(fit_final, standardized = TRUE)
+```
+
+### Chapter 7:Assessing Fit and Normality
+
+```{r}
+library(lavaan)
+library(mvnormtest)
+library(MVN)
+```
+
+Overview
+
+In this tutorial, we learn how to evaluate model fit and test for normality, key assumptions in covariance-based SEM. We’ll cover:
+
+	•	Standard fit indices (e.g., RMSEA, CFI)
+	•	Residuals and modification indices
+	•	Normality diagnostics
+	•	Remedies for assumption violations
+
+Example: Fully Mediated SEM
+
+```{r}
+#model_full <- '
+#  firesev ~ age
+#  cover ~ firesev
+#'
+
+#fit_full <- sem(model_full, data = keeley, meanstructure = TRUE)
+#summary(fit_full, fit.measures = TRUE)
+```
+
+Interpretation:
+
+	•	Chi-square (p > 0.05) → Model is not significantly different from the observed data.
+	•	Check additional fit indices: RMSEA, CFI, SRMR, AIC, BIC.
+
+Fit Indices (Kline 2023 Recommendations)
+
+Fit Measure	Interpretation
+Chi-square test	Prefer p > 0.05
+RMSEA	90% CI lower bound < 0.05
+CFI	> 0.90
+SRMR	< 0.10
+
+Diagnosing Misfit with Residuals
+
+```{r}
+#residuals(fit_full, type = "cor")  # residual correlations
+#modificationIndices(fit_full, standardized = FALSE, sort. = TRUE)
+```
+
+	•	Large residuals or modification indices > 3.84 suggest misfit.
+	•	Inspect residual correlation between rich and distance.
+
+Testing Normality of Residuals
+
+```{r}
+library(MVN)
+
+# Step 1: Get residuals from lavaan model
+#resids <- lavPredict(fit_full, type = "ov")  # residuals for observed variables
+
+# Optional: check univariate normality visually
+#apply(resids[, 1:2], 2, function(x) {
+#  qqnorm(x); qqline(x)
+#})
+
+# Step 2: Multivariate Shapiro-Wilk (for n ≤ 50)
+#mshapiro.test(t(resids[, 1:2]))
+
+# Step 3: Mardia's test for multivariate normality
+#MVN::mvn(data = resids[, 1:2], mvn_test = "mardia")
+
+# Step 1: Get residuals from lavaan model
+#tryCatch({
+#  resids <- lavPredict(fit_full, type = "ov")
+  
+  # Make sure residuals are numeric and have no missing values
+#  if (!is.null(resids) && is.matrix(resids) && all(is.finite(resids[, 1:2]))) {
+    # Step 2: Multivariate Shapiro-Wilk (for n ≤ 50)
+#    print(mshapiro.test(t(resids[, 1:2])))
+
+    # Step 3: Mardia's test
+#    print(MVN::mvn(data = resids[, 1:2], mvn_test = "mardia"))
+#  } else {
+#    message("Residuals are missing, not numeric, or contain NA/Inf values.")
+#  }
+#}, error = function(e) {
+#  message("MVN test failed: ", conditionMessage(e))
+#})
+```
+
+⸻
+
+If Assumptions Are Violated…
+
+Option 1: Satorra-Bentler Correction
+
+```{r}
+#fit_sb <- sem(model_full, data = keeley, test = "Satorra.Bentler")
+#summary(fit_sb)
+```
+
+Option 2: Bollen-Stine Bootstrap
+
+```{r}
+#fit_bs <- sem(model_full, data = keeley, test = "bollen.stine", se = "boot", bootstrap = 1000)
+#summary(fit_bs)
+```
+
+Summary:
+
+	•	Use fit indices and residuals to assess model performance.
+	•	Check assumptions of normality; consider corrections if violated.
+	•	Explore modification indices to identify potential improvements.
+
+
+### Chapter 8: Comparing Models and Testing Mediation
+
+This section introduces two major approaches for comparing SEM models:
+	•	Likelihood Ratio Tests (LRTs) for nested models.
+	•	Information Criteria (e.g., AIC, AICc) for both nested and non-nested models.
+
+We also explore mediation, which refers to how a relationship between two variables is explained by one or more intervening variables.
+
+```{r}
+# Load required libraries
+library(lavaan)
+library(AICcmodavg)
+
+# Fully Mediated Model
+fullMedModel <- '
+  firesev ~ age
+  cover ~ firesev
+'
+fullMedSEM <- sem(fullMedModel, data = keeley)
+
+# Partially Mediated Model
+partialMedModel <- '
+  firesev ~ age
+  cover ~ firesev + age
+'
+partialMedSEM <- sem(partialMedModel, data = keeley)
+
+# Likelihood Ratio Test (nested models)
+anova(partialMedSEM, fullMedSEM)
+```
+
+Interpretation: A non-significant LRT suggests that the simpler (fully mediated) model fits the data about as well as the more complex model.
+
+AIC-Based Model Comparison
+
+```{r}
+# AICc model comparison
+aictab(
+  cand.set = list(fullMedSEM, partialMedSEM),
+  modnames = c("Full", "Partial")
+)
+```
+
+Interpretation: Models within 2 ΔAICc units are considered roughly equivalent. Higher AIC weight (AICcWt) indicates stronger support for that model.
+
+Additional Example: Distance and Species Richness
+
+Key Takeaways:
+
+	•	Use LRT for nested models; lower chi-square and higher p-value = simpler model may suffice.
+	•	Use AICc for broader comparisons; lower AICc and higher weight = better.
+	•	Mediation is central to SEM and can be tested with both approaches.
+	•	Fully vs. Partially Mediated models differ by whether direct paths bypass mediators.
+
+### Chapter 8: Latent Variables as Drivers
+
+What is a Latent Variable?
+
+Latent variables are unobserved constructs that we infer from multiple observed indicators. They represent abstract concepts like intelligence, disturbance, or biodiversity.
+
+	•	In SEM, latent variables are drawn as circles.
+	•	Observed indicators are squares or rectangles.
+	•	Latent variables are typically estimated through Confirmatory Factor Analysis (CFA).
+
+Confirmatory Factor Analysis (CFA)
+
+CFA allows you to test whether certain observed variables co-vary in ways consistent with an underlying theoretical construct.
+
+Example: Aposematism in Poison Frogs
+
+```{r}
+# Sample covariance matrix from Santos & Cannatella (2011)
+# santosCov <- read.table("https://raw.githubusercontent.com/username/santosCov.txt", na.strings = #".")
+#santosCov <- as.matrix(santosCov)
+
+# Create covariance matrix manually (example values)
+santosCov <- matrix(c(
+  1.00,  0.45, 0.38,
+  0.45,  1.00, 0.50,
+  0.38,  0.50, 1.00
+), nrow = 3, byrow = TRUE)
+
+# Add row and column names (must match your CFA model exactly)
+colnames(santosCov) <- rownames(santosCov) <- c("Alkaloid.quantity", "Alkaloid.diversity", "Conspicuous.coloration")
+
+# Specify CFA model
+santosCFA1 <- '
+  Aposematism =~ Alkaloid.quantity + Alkaloid.diversity + Conspicuous.coloration
+'
+
+# Fit the model
+santosFit1 <- sem(santosCFA1, sample.cov = santosCov, sample.nobs = 21)
+summary(santosFit1, standardized = TRUE)
+```
+
+Why Use Latent Variables?
+
+	•	Increase accuracy by pooling information across multiple imperfect indicators.
+	•	Reduce measurement error.
+	•	Enable modeling of unobservable constructs.
+
+Identification Rules (How to Know Your Model Can Be Estimated):
+
+	1.	T-Rule: Number of estimated parameters ≤ number of unique elements in the covariance matrix.
+	2.	Three-indicator rule: Each latent variable has ≥ 3 uncorrelated indicators → SUFFICIENT.
+	3.	Two-indicator rule: Works for multiple latent variables if indicators don’t share variance → SUFFICIENT.
+	4.	Fixing scale:
+	
+	•	Set variance of latent = 1.0, or
+	•	Set one loading to 1.0 to put latent on that indicator’s scale.
+
+Models with 2 indicators and shared error may be underidentified.
+
+Fit a Second Latent Variable: Body Size
+
+```{r}
+#santosSize <- '
+#  Size =~ Log.Mass + Log.RMR + Log.Scope
+#'
+
+#santosSizeFit <- sem(santosSize, sample.cov = santosCov, sample.nobs = 21)
+#summary(santosSizeFit, standardized = TRUE)
+```
+
+Combine Latent Variables
+
+You can model multiple latent variables and test how they relate to each other.
+
+```{r}
+#santosCFA2 <- '
+#  Aposematism =~ Alkaloid.quantity + Alkaloid.diversity + Conspicuous.coloration + #Ant.Mite.Specialization + log.Prey
+#  Scale =~ Log.Mass + Log.RMR + Log.Scope + Conspicuous.coloration
+#'
+
+#santosFit2 <- sem(santosCFA2, sample.cov = santosCov, sample.nobs = 21)
+#summary(santosFit2, standardized = TRUE)
+```
+
+Summary:
+
+	•	Latent variables allow you to estimate unobservable concepts.
+	•	CFA is the method used to define latent variables in SEM.
+	•	Identification is critical—use the rules to check if your model can be estimated.
+	•	Measurement error is reduced by leveraging multiple indicators.
+
+### Chapter 10: Latent Responses and Measurement Error
+
+```{r}
+library(lavaan)
+library(semPlot)
+```
+
+Overview
+
+In this section, we explore how latent variables can be modeled as responses and how to account for measurement error in observed indicators.
+
+Latent variables are constructs that cannot be measured directly (e.g., biodiversity, ecosystem health, intelligence), but are inferred from multiple observed indicators.
+
+Key Concepts
+
+Latent Variables as Responses
+
+Latent variables can be endogenous (influenced by other variables in the model). For instance:
+
+	•	A latent construct such as “Habitat Quality” could be influenced by soil moisture, disturbance, and vegetation cover.
+	•	Each latent construct is defined by observed indicators, which are imperfect and contain measurement error.
+
+Measurement Error
+
+SEM is powerful because it separates true score variance from error variance. Each observed variable has two components:
+	•	The true score linked to the latent construct.
+	•	The error term (random noise or instrument error).
+
+Accounting for measurement error prevents biased parameter estimates and inflated correlations.
+
+Example: Latent Response Model with Measurement Error
+
+We model a latent response Performance, influenced by an observed predictor Treatment, and measured via three indicators: perf1, perf2, perf3.
+
+```{r}
+# Define the SEM
+model <- '
+  # Measurement model
+  Performance =~ perf1 + perf2 + perf3
+
+  # Structural model
+  Performance ~ Treatment
+'
+
+# Simulate data
+set.seed(123)
+n <- 200
+Treatment <- rnorm(n)
+perf1 <- 0.6*Treatment + rnorm(n, sd = 1)
+perf2 <- 0.6*Treatment + rnorm(n, sd = 1)
+perf3 <- 0.6*Treatment + rnorm(n, sd = 1)
+data <- data.frame(Treatment, perf1, perf2, perf3)
+
+# Fit the SEM
+fit <- sem(model, data = data)
+summary(fit, standardized = TRUE)
+```
+
+Visualizing the SEM
+
+```{r}
+semPaths(fit, "std", layout = "tree", whatLabels = "std")
+```
+
+Why Model Latent Responses?
+
+	•	More reliable constructs by combining multiple indicators.
+	•	Reduces noise from any single observed variable.
+	•	Better reflects theoretical constructs (e.g., stress, biodiversity).
+
+Key Assumptions
+
+	•	Indicators are unidimensional (reflect one latent factor).
+	•	Measurement errors are uncorrelated.
+	•	Sufficient variation and correlation among indicators.
+
+Takeaway
+
+Modeling latent responses allows you to capture complex, unobserved constructs while accounting for error in measurements. SEM enables estimation of both the relationships among constructs and their measurement structure.
+
+### Chapter 11: Local Estimation and D-Separation
+
+
+```{r setup, include=FALSE}
+library(piecewiseSEM)
+library(dagitty)
+library(ggdag)
+library(ggplot2)
+```
+
+Overview
+
+This chapter introduces local (piecewise) SEM — an approach that decomposes a full SEM into a series of local linear models. It contrasts with global covariance-based SEM in both assumptions and evaluation.
+
+Why Use Piecewise SEM?
+
+Covariance SEM	Piecewise SEM
+Requires multivariate normality	Robust to non-normal data
+Models all paths simultaneously	Fits multiple linear models separately
+Fit assessed globally (χ², RMSEA)	Fit assessed via D-separation tests
+Difficult with small N	More flexible with limited sample size
+
+Example: Breaking SEM Into Local Regressions
+
+```{r}
+
+library(piecewiseSEM)
+
+# Now check if the functions are available
+ls("package:piecewiseSEM")
+
+# Simulate data
+set.seed(123)
+n <- 100
+x <- rnorm(n)
+y2 <- 0.5 * x + rnorm(n)
+y1 <- 0.6 * x + 0.4 * y2 + rnorm(n)
+example_data <- data.frame(x, y1, y2)
+
+# Fit piecewise SEM
+mod_list <- psem(
+  lm(y2 ~ x, data = example_data),
+  lm(y1 ~ x + y2, data = example_data)
+)
+
+# Test model fit using Fisher's C
+fisherC(mod_list)
+
+# Extract standardized coefficients
+stdCoefs(mod_list)
+
+dag <- getDAG(mod_list)
+plot(dag)
+```
+
+Directed Separation (D-sep)
+
+D-sep tests whether missing paths in your model are truly unnecessary. It evaluates conditional independence assumptions implied by the model.
+
+Understanding D-separation
+	•	Two variables are D-separated if they are conditionally independent, given a set of other variables.
+	•	D-sep claims are testable and form the basis set of the model.
+
+```{r}
+# Define DAG
+g <- dagitty("dag {
+  x -> y2 -> y1
+  x -> y1
+}")
+
+# View conditional independencies implied by the DAG
+impliedConditionalIndependencies(g)
+```
+
+Model Fit via Fisher’s C
+
+```{r}
+library(piecewiseSEM)
+
+# Simulate example data
+set.seed(123)
+n <- 100
+x <- rnorm(n)
+y2 <- 0.5 * x + rnorm(n)
+y1 <- 0.6 * x + 0.4 * y2 + rnorm(n)
+example_data <- data.frame(x, y1, y2)
+
+# Fit piecewise SEM
+mod_list <- psem(
+  lm(y2 ~ x, data = example_data),
+  lm(y1 ~ x + y2, data = example_data)
+)
+
+# ✅ Get model fit statistics (replaces sem.fit)
+fisherC(mod_list)
+
+# ✅ Get standardized path coefficients (replaces sem.coefs)
+stdCoefs(mod_list)
+
+# ✅ Optional: View DAG
+plot(getDAG(mod_list))
+```
+
+Interpretation:
+
+	•	p > 0.05 → model is not rejected, D-sep claims hold.
+	•	p < 0.05 → model is rejected, missing paths may be important.
+
+Summary:
+
+	•	Piecewise SEM is ideal when:
+	•	Data violate global SEM assumptions.
+	•	Sample size is too small for global SEM.
+	•	You want to understand model fit using D-sep logic.
+	•	Use dagitty to derive implied independencies.
+	•	Use sem.fit() and sem.coefs() for piecewise evaluation.
+
+### Chapter 12: Introduction to Piecewise SEM in R
+
+Learning Objectives
+
+By the end of this tutorial, you will be able to:
+
+	•	Understand how piecewise SEM differs from traditional covariance-based SEM.
+	•	Fit a multi-equation SEM using the psem() function.
+	•	Evaluate model fit using d-separation tests and Fisher’s C statistic.
+	•	Extract path coefficients and R² values.
+	•	Visualize model structure and relationships using visreg, DiagrammeR, or plot().
+
+## Part 1: What is Piecewise SEM?
+
+Piecewise SEM uses a local estimation approach: each equation is estimated separately using standard regression (e.g., lm, lmer). This provides greater flexibility, such as:
+
+	•	Including non-normal or mixed-effect models.
+	•	Dealing with small sample sizes or nested structures.
+	•	Assessing model fit through d-sep tests (Shipley’s test of directed separation).
+
+Limitations:
+
+	•	Can’t handle latent variables.
+	•	Not suitable for cyclical feedback loops.
+	•	Difficult to interpret in overidentified models with correlated errors.
+
+Part 2: Load Packages and Data
+
+```{r}
+# Load libraries
+library(piecewiseSEM)
+library(visreg)
+library(DiagrammeR)
+
+# Load sample data (or use your own)
+data(keeley)  # from piecewiseSEM
+```
+
+Part 3: Specify and Fit Your Model
+
+```{r}
+# Fit individual models
+mod1 <- lm(abiotic ~ distance, data = keeley)
+mod2 <- lm(hetero ~ distance, data = keeley)
+mod3 <- lm(rich ~ abiotic + hetero, data = keeley)
+
+# Combine into a psem object
+keeley_sem <- psem(mod1, mod2, mod3)
+```
+
+Evaluate Model Fit
+
+```{r}
+# Directed separation test
+#dSep(keeley_sem)
+
+# Fisher's C statistic
+#fisherC(keeley_sem)
+```
+
+Interpret:
+
+	•	A non-significant p-value (> 0.05) = model fits.
+	•	Significant missing paths → consider adding them and reassessing fit.
+
+Part 5: Summarize Coefficients and R²
+
+```{r}
+# Coefficients
+coefs(keeley_sem)
+
+# R-squared values
+rsquared(keeley_sem)
+```
+
+Part 6: Plot Your Model
+
+Option A: Quick Base R Plot
+
+```{r}
+
+keeley_sem <- psem(
+  lm(firesev ~ age + cover, data = keeley),
+  lm(cover ~ age + elev + firesev, data = keeley),
+  data = keeley
+)
+
+plot(keeley_sem)
+
+#Option B: Refined Graph with DiagrammeR
+
+# Optional customization
+plot(keeley_sem,
+     node_attrs = list(
+       x = c(2.5, 2.5, 4, 1),
+       y = c(3, 1, 2, 2),
+       shape = "rectangle",
+       fillcolor = "white"
+     ))
+```
+
+Part 7: Mediation Example
+
+```{r}
+mod_firesev  <- lm(firesev ~ age, data = keeley)
+mod_cover    <- lm(cover ~ firesev, data = keeley)
+
+firesev_model <- psem(mod_firesev, mod_cover)
+
+summary(firesev_model)
+dSep(firesev_model)
+rsquared(firesev_model)
+```
+
+Bonus: Visualize with Covariates Held Constant
+
+```{r}
+# Visualize fire severity's effect on cover
+visreg(firesev_model[[2]], xvar = "firesev")
+```
+
+Wrap-Up
+
+Piecewise SEM offers flexibility and clarity for causal inference in ecology. By evaluating each path independently while testing the full model’s coherence through d-sep and Fisher’s C, you gain both transparency and statistical rigor.
+
+### Chapter 13: Nonlinearity and Interaction in SEM
+
+Overview
+
+In this tutorial, we’ll cover:
+
+	•	Nonlinearities (e.g., polynomial terms)
+	•	Centering variables to reduce multicollinearity
+	•	Interaction terms
+	•	Implementing these in SEM frameworks
+
+Example 1: Nonlinear Effects (Cardinale et al. 2009)
+
+Load and Prepare Data
+
+```{r}
+# Download data
+url <- "https://drive.google.com/uc?export=download&id=1oHBul4_JcqlPFZgYsH3WOIZJRQRw1O4F"
+cardinale <- read.csv(url)
+
+# Check it loaded
+head(cardinale)
+
+# Log-transform variables
+cardinale$logN <- log10(cardinale$N + 1e-6)
+cardinale$logN2 <- cardinale$logN^2
+cardinale$logChl <- log10(cardinale$Chl)
+
+#Fit SEM with piecewiseSEM
+
+model1 <- psem(
+  lm(SA ~ logN + logN2 + SR, data = cardinale),
+  lm(logChl ~ SA + logN + logN2, data = cardinale),
+  logN %~~% logN2,
+  data = cardinale
+)
+
+summary(model1)
+```
+
+Reducing Collinearity via Centering
+
+```{r}
+# Center predictors
+cardinale$logN.cen <- scale(cardinale$logN, scale = FALSE)
+cardinale$logN2.cen <- cardinale$logN.cen^2
+
+# Check correlation
+cor(cardinale$logN.cen, cardinale$logN2.cen)
+```
+
+Refit Model with Centered Predictors
+
+```{r}
+model2 <- psem(
+  lm(SA ~ logN.cen + logN2.cen + SR, data = cardinale),
+  lm(logChl ~ SA + logN.cen + logN2.cen, data = cardinale),
+  logN.cen %~~% logN2.cen,
+  data = cardinale
+)
+
+summary(model2)
+```
+
+Try lavaan for the Same Model
+
+Example 2: Interaction Effects (Keeley et al.)
+
+Center and Create Interaction
+
+```{r}
+
+url2 <- "https://drive.google.com/uc?export=download&id=1YTsFP1T__Hn13hTvj9TVOK-wbGDxLd01"
+
+# Try to read the CSV directly
+keeley <- read.csv(url2)
+
+keeley$age_cent <- scale(keeley$age, scale = FALSE)
+keeley$fire_cent <- scale(keeley$firesev, scale = FALSE)
+keeley$int_term <- keeley$age_cent * keeley$fire_cent
+```
+
+Fit SEM with Interaction in piecewiseSEM
+
+```{r}
+keeley_int <- psem(
+  lm(cover ~ age_cent * fire_cent, data = keeley),
+  lm(fire_cent ~ age_cent, data = keeley),
+  data = keeley
+)
+
+summary(keeley_int)
+```
+
+Optional: Fit Interaction SEM with lavaan
+
+Final Notes:
+
+	•	Polynomial terms allow us to model curvature.
+	•	Centering reduces collinearity and changes interpretation.
+	•	Interaction terms help model conditional effects.
+	•	Both lavaan and piecewiseSEM support these techniques.
+
+### Chapter 14: GLMs with SEM using PiecewiseSEM
+
+This section integrates Generalized Linear Models (GLMs) into Structural Equation Modeling, especially using piecewiseSEM. It also introduces important adjustments for working with non-normal data, and compares latent theoretic (LT) and observed error (OE) approaches for standardizing coefficients.
+
+## Overview
+
+In this tutorial, we’ll:
+
+	•	Learn how to incorporate GLMs into SEM using piecewiseSEM
+	•	Understand how to deal with non-normality and directed separation warnings
+	•	Compute standardized coefficients using both Latent Theoretic (LT) and Observed Error (OE) approaches
+
+Data from Anderson et al. 2010 Example
+
+```{r}
+# Simulated structure to mimic Anderson et al.
+set.seed(42)
+anderson <- data.frame(
+  biomass.kg = rnorm(100, mean = 10, sd = 2),
+  leafN = rnorm(100, mean = 3, sd = 0.5),
+  landscape = sample(0:1, 100, replace = TRUE),
+  hotspotYN = rbinom(100, 1, 0.4)
+)
+```
+
+Model: Using GLM in psem
+
+```{r}
+library(piecewiseSEM)
+
+anderson.sem <- psem(
+  lm(leafN ~ biomass.kg, data = anderson),
+  glm(hotspotYN ~ leafN + biomass.kg + landscape, family = "binomial", data = anderson)
+)
+
+summary(anderson.sem)
+```
+
+Directed Separation & Non-Normality
+
+```{r}
+# Add the 'conserve = TRUE' argument to be conservative in tests
+summary(anderson.sem, conserve = TRUE)
+```
+
+If the model includes non-normal endogenous variables (e.g., binary hotspotYN), the direction of independence tests matters. Use:
+
+```{r}
+dSep(anderson.sem, direction = c("hotspotYN <- leafN"))
+```
+
+Or specify a correlated error structure:
+
+```{r}
+anderson.sem2 <- update(anderson.sem, hotspotYN %~~% leafN)
+dSep(anderson.sem2)
+```
+
+Standardizing Coefficients
+
+Latent Theoretic (LT) Approach
+
+```{r}
+anderson.glm <- anderson.sem[[2]]
+Betas <- coefs(anderson.sem)[2:4, 3]  # GLM coefficients
+preds <- predict(anderson.glm, type = "link")
+
+sd.y.LT <- sqrt(var(preds) + pi^2/3)
+sd.x <- sapply(anderson[, c("leafN", "biomass.kg", "landscape")], sd)
+
+Betas.LT <- Betas * sd.x / sd.y.LT
+Betas.LT
+```
+
+Observed Error (OE) Approach
+
+```{r}
+preds_response <- predict(anderson.glm, type = "response")
+R <- cor(anderson$hotspotYN, preds_response)
+
+sd.y.OE <- sqrt(var(preds_response)) / R
+Betas.OE <- Betas * sd.x / sd.y.OE
+Betas.OE
+```
+
+Compare LT vs OE Approaches
+
+```{r}
+# Indirect effect: leafN → hotspotYN (through biomass.kg)
+Beta.leafN <- coefs(anderson.sem)$Std.Estimate[1]
+indirect_LT <- Beta.leafN * Betas.LT[1]
+indirect_OE <- Beta.leafN * Betas.OE[1]
+
+c(LT = indirect_LT, OE = indirect_OE)
+```
+
+Summary:
+
+	•	Use glm() in psem() for binary or count outcomes.
+	•	Add conserve = TRUE for directed separation when variables are non-normal.
+	•	Use both LT and OE standardization to interpret effect sizes.
+
+### Chapter 15: Categorical Predictors & Multigroup SEM
+
+```{r}
+library(lme4)
+library(piecewiseSEM)
+library(emmeans)
+library(lavaan)
+```
+
+Overview
+
+In this tutorial, we explore:
+
+	•	Using categorical predictors in SEM.
+	•	Accounting for random effects (e.g., genotype).
+	•	Conducting multigroup SEM across different contexts or study sites.
+
+1. Categorical Predictors and Random Effects
+
+Example: Bowen et al. (2017) tested whether Phragmites genotype affects soil microbes and productivity.
+
+```{r}
+
+library(multcompView)
+
+# Simulated structure: Genotype nested within Phragmites status (e.g., native, invasive)
+set.seed(1)
+n <- 90
+bowen <- data.frame(
+  status = factor(rep(c("native", "invasive", "introduced"), each = 30)),
+  Genotype = rep(paste0("G", 1:9), each = 10),
+  observed_otus = rnorm(n, mean = 2500, sd = 100),
+  RNA.DNA = rnorm(n, 0.7, 0.05),
+  below.C = rnorm(n, 43, 1),
+  abovebiomass_g = rnorm(n, 2, 0.5)
+)
+
+# Mixed models for each component
+div_mod <- lmer(observed_otus ~ status + (1 | Genotype), data = bowen)
+activity_mod <- lmer(RNA.DNA ~ status + observed_otus + (1 | Genotype), data = bowen)
+carbon_mod <- lmer(below.C ~ observed_otus + status + (1 | Genotype), data = bowen)
+biomass_mod <- lmer(abovebiomass_g ~ RNA.DNA + observed_otus + below.C + status + (1 | Genotype), data = bowen)
+
+# Build piecewise SEM
+bowen_mod <- psem(div_mod, activity_mod, carbon_mod, biomass_mod, data = bowen)
+summary(bowen_mod)
+```
+
+2. Visualizing Categorical Effects
+
+Estimated Marginal Means by status:
+
+```{r}
+lapply(bowen_mod[-length(bowen_mod)], emmeans, specs = ~status)
+
+# Post-hoc Tests (Tukey)
+
+generic_tukey <- function(x) emmeans(x, list(pairwise ~ status))
+lapply(bowen_mod[-length(bowen_mod)], generic_tukey)
+```
+
+3. Multigroup SEM in lavaan
+
+Fit the same SEM model to different groups and test whether path coefficients differ.
+
+```{r}
+# Create simulated dataset
+group_df <- data.frame(
+  site = rep(c("A", "B"), each = 50),
+  x = rnorm(100),
+  m = rnorm(100),
+  y = rnorm(100)
+)
+
+# Define a simple SEM model
+sem_model <- '
+  m ~ a*x
+  y ~ b*m + c*x
+'
+
+# Fit multi-group SEM
+fit_multi <- lavaan::sem(sem_model, data = group_df, group = "site")
+
+# View summary
+summary(fit_multi, fit.measures = TRUE, standardized = TRUE)
+```
+
+4. Constraining Parameters Across Groups
+
+You can test whether coefficients differ across groups:
+
+A significant p-value means the unconstrained model fits better — i.e., group differences do matter.
+
+Summary:
+
+	•	Use lme4 and piecewiseSEM for models with random effects.
+	•	lavaan enables multigroup comparisons to test generality across systems.
+	•	Post-hoc tools like emmeans help interpret categorical predictors.
+
+### Chapter 16: Multigroup SEM in R
+
+```{r}
+library(lavaan)
+```
+
+What is Multigroup SEM?
+
+Multigroup SEM allows you to:
+	•	Test whether path coefficients differ between groups.
+	•	Assess whether a model holds equally well across groups.
+	•	Investigate measurement invariance (i.e., whether constructs are perceived similarly).
+
+Example Model Setup
+
+We’ll build a simple mediation model where group is a binary factor ("A" vs "B").
+
+```{r}
+# Simulate data
+set.seed(123)
+n <- 100
+group <- rep(c("A", "B"), each = n)
+x <- rnorm(2 * n)
+m <- 0.5 * x + rnorm(2 * n)
+y <- 0.6 * m + 0.3 * x + rnorm(2 * n)
+data <- data.frame(group, x, m, y)
+```
+
+Define the SEM
+
+```{r}
+model <- '
+  m ~ a*x
+  y ~ b*m + c*x
+'
+```
+
+Fit Multigroup SEM
+
+```{r}
+fit_multi <- sem(model, data = data, group = "group")
+summary(fit_multi, fit.measures = TRUE, standardized = TRUE)
+```
+
+Test for Invariance
+
+To test for invariance, you can constrain parameters to be equal across groups.
+
+```{r}
+# Constrain 'a' and 'b' to be equal across groups
+model_constrained <- '
+  m ~ c(a, a)*x
+  y ~ c(b, b)*m + c*x
+'
+
+fit_constrained <- sem(model_constrained, data = data, group = "group")
+anova(fit_multi, fit_constrained)  # Chi-square test for invariance
+```
+
+Interpretation:
+
+	•	If the constrained model does not significantly worsen fit, the paths a and b are likely invariant.
+	•	If the fit gets significantly worse, the relationship differs between groups and should be modeled separately.
+
+Visualizing Standardized Results
+
+```{r}
+library(semPlot)
+semPaths(fit_multi, "std", layout = "tree", whatLabels = "std", edge.label.cex = 1.2)
+```
+
+Summary
+
+Multigroup SEM lets you:
+
+	•	Evaluate moderation by group.
+	•	Test for measurement invariance.
+	•	Gain deeper insight into context-dependent pathways.
+
+### Chapter 17: 
+
+Yes! Based on the content in SEM9.2 – Mixed Models Part 2, here’s an R Markdown tutorial on using mixed models in piecewise SEM, covering:
+
+	•	Fixed vs. random effects
+	•	Adding group-level predictors
+	•	Understanding R² and model comparison
+	•	Dealing with hierarchical structure and sample size
+
+Introduction
+
+This tutorial introduces how to incorporate mixed effects into Structural Equation Modeling using the piecewiseSEM package. Mixed models are essential when your data are hierarchically structured (e.g., plots within sites, streams within watersheds).
+
+Step 1: Load Data and Create Variables
+
+```{r}
+# Log-transform predictors
+cardinale$logN <- log10(cardinale$N + 1e-6)
+cardinale$logN2 <- cardinale$logN^2
+cardinale$logChl <- log10(cardinale$Chl)
+
+# Centering predictors to reduce multicollinearity
+cardinale$logN.cen <- scale(cardinale$logN, scale = FALSE)
+cardinale$logN2.cen <- scale(cardinale$logN^2, scale = FALSE)
+```
+
+Step 2: Fit Fixed Effects SEM
+
+```{r}
+cardinale.sem <- psem(
+  lm(SA ~ logN.cen + logN2.cen + SR, data = cardinale),
+  lm(logChl ~ SA + logN.cen + logN2.cen, data = cardinale),
+  logN.cen %~~% logN2.cen,
+  data = cardinale
+)
+
+summary(cardinale.sem)
+```
+Step 3: Add Random Effects with lme()
+
+```{r}
+#cardinale.mixed <- psem(
+#  lme(SA ~ logN.cen + logN2.cen + SR, random = ~1 | Stream, data = cardinale),
+#  lme(logChl ~ SA + logN.cen + logN2.cen, random = ~1 | Stream, data = cardinale),
+#  logN.cen %~~% logN2.cen,
+#  data = cardinale
+#)
+
+#summary(cardinale.mixed)
+```
+
+Step 4: Compare Models
+
+```{r}
+# Compare R-squared
+rsquared(cardinale.sem)
+#rsquared(cardinale.mixed)
+```
+
+	•	Marginal R²: Variance explained by fixed effects.
+	•	Conditional R²: Variance explained by both fixed and random effects.
+
+Step 5: Optional — Add Group-Level Predictors
+
+To address possible Simpson’s paradox or correlated random effects:
+
+```{r}
+# Example if "site_mean" were available
+cardinale$stream_mean_logN <- ave(cardinale$logN, cardinale$Stream)
+cardinale$deviation_logN <- cardinale$logN - cardinale$stream_mean_logN
+```
+
+This lets you include:
+
+	•	stream_mean_logN (group-level predictor)
+	•	deviation_logN (individual-level deviation)
+
+Step 6: Basis Set and Fisher’s C
+
+```{r}
+#fisherC(cardinale.mixed)
+```
+Summary:
+
+	•	Mixed models let you account for non-independence among groups.
+	•	Use piecewiseSEM with lme() to include random effects.
+	•	Be cautious of group-level confounding — use centering and group-level predictors.
+	•	Use rsquared() and fisherC() for model comparison and goodness-of-fit.

@@ -1,0 +1,46 @@
+"0","# Partial Mediation Model"
+"0","distModel <- '"
+"0","  rich ~ distance + abiotic + hetero"
+"0","  hetero ~ distance"
+"0","  abiotic ~ distance"
+"0","'"
+"0","distFit <- sem(distModel, data = keeley)"
+"2","G2;H2;Warningh: lavaan->lav_data_full():  
+   some observed variances are (at least) a factor 1000 times larger than others; use varTable(fit) to 
+   investigateg
+"
+"0","# Full Mediation Model"
+"0","distMedModel <- '"
+"0","  rich ~ abiotic + hetero"
+"0","  hetero ~ distance"
+"0","  abiotic ~ distance"
+"0","'"
+"0","distMedFit <- sem(distMedModel, data = keeley)"
+"2","G2;H2;Warningh: lavaan->lav_data_full():  
+   some observed variances are (at least) a factor 1000 times larger than others; use varTable(fit) to 
+   investigateg
+"
+"0","# Compare models with LRT"
+"0","anova(distFit, distMedFit)"
+"1","
+Chi-Squared Difference Test
+
+           Df    AIC    BIC   Chisq Chisq diff   RMSEA Df diff Pr(>Chisq)    
+distFit     1 1155.3 1175.3  1.8104                                          
+distMedFit  2 1169.3 1186.8 17.8307      16.02 0.40852       1  6.267e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+"
+"0","# Compare with AICc"
+"0","aictab("
+"0","  cand.set = list(distMedFit, distFit),"
+"0","  modnames = c(""Full"", ""Partial"")"
+"0",")"
+"1","
+Model selection based on AICc:
+
+        K    AICc Delta_AICc AICcWt Cum.Wt      LL
+Partial 8 1157.05       0.00      1      1 -569.63
+Full    7 1170.66      13.61      0      1 -577.64
+
+"

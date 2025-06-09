@@ -1,0 +1,8 @@
+"0",""
+"0","keeley_sem <- psem("
+"0","  lm(firesev ~ age + cover, data = keeley),"
+"0","  lm(cover ~ age + elev + firesev, data = keeley),"
+"0","  data = keeley"
+"0",")"
+"0",""
+"0","plot(keeley_sem)"

@@ -1,0 +1,16 @@
+bookdown::gitbook:
+  css: style.css
+  config:
+    toc:
+      before: |
+        <li><a href="./">Statistics for ecology</a></li>
+      after: |
+        <li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
+    edit:
+      link: https://github.com/sarasouther/DataAnalysis/edit/main/%s
+      text: "Edit this page"
+    download: ["epub"]
+  output_dir: "docs"
+
+bookdown::epub_book:
+  toc: true

@@ -1,0 +1,56 @@
+"0","# Sample covariance matrix from Santos & Cannatella (2011)"
+"0","# santosCov <- read.table(""https://raw.githubusercontent.com/username/santosCov.txt"", na.strings = #""."")"
+"0","#santosCov <- as.matrix(santosCov)"
+"0",""
+"0","# Create covariance matrix manually (example values)"
+"0","santosCov <- matrix(c("
+"0","  1.00,  0.45, 0.38,"
+"0","  0.45,  1.00, 0.50,"
+"0","  0.38,  0.50, 1.00"
+"0","), nrow = 3, byrow = TRUE)"
+"0",""
+"0","# Add row and column names (must match your CFA model exactly)"
+"0","colnames(santosCov) <- rownames(santosCov) <- c(""Alkaloid.quantity"", ""Alkaloid.diversity"", ""Conspicuous.coloration"")"
+"0",""
+"0","# Specify CFA model"
+"0","santosCFA1 <- '"
+"0","  Aposematism =~ Alkaloid.quantity + Alkaloid.diversity + Conspicuous.coloration"
+"0","'"
+"0",""
+"0","# Fit the model"
+"0","santosFit1 <- sem(santosCFA1, sample.cov = santosCov, sample.nobs = 21)"
+"0","summary(santosFit1, standardized = TRUE)"
+"1","lavaan 0.6-19 ended normally after 23 iterations
+
+  Estimator                                         ML
+  Optimization method                           NLMINB
+  Number of model parameters                         6
+
+  Number of observations                            21
+
+Model Test User Model:
+                                                      
+  Test statistic                                 0.000
+  Degrees of freedom                                 0
+
+Parameter Estimates:
+
+  Standard errors                             Standard
+  Information                                 Expected
+  Information saturated (h1) model          Structured
+
+Latent Variables:
+                   Estimate  Std.Err  z-value  P(>|z|)   Std.lv  Std.all
+  Aposematism =~                                                        
+    Alkaloid.qntty    1.000                               0.571    0.585
+    Alkalod.dvrsty    1.316    0.714    1.842    0.065    0.751    0.769
+    Conspics.clrtn    1.111    0.572    1.943    0.052    0.634    0.650
+
+Variances:
+                   Estimate  Std.Err  z-value  P(>|z|)   Std.lv  Std.all
+   .Alkaloid.qntty    0.627    0.249    2.514    0.012    0.627    0.658
+   .Alkalod.dvrsty    0.388    0.298    1.305    0.192    0.388    0.408
+   .Conspics.clrtn    0.550    0.258    2.133    0.033    0.550    0.578
+    Aposematism       0.326    0.272    1.199    0.230    1.000    1.000
+
+"

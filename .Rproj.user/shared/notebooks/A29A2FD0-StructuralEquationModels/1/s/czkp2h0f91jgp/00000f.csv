@@ -1,0 +1,12 @@
+"0","model2 <- psem("
+"0","  lm(SA ~ logN.cen + logN2.cen + SR, data = cardinale),"
+"0","  lm(logChl ~ SA + logN.cen + logN2.cen, data = cardinale),"
+"0","  logN.cen %~~% logN2.cen,"
+"0","  data = cardinale"
+"0",")"
+"2","G1;H1;Errorh in eval(predvars, data, env) : object 'logN.cen' not found
+Error during wrapup: not that many frames on the stack
+Error: no more error handlers available (recursive errors?); invoking 'abort' restart
+g"
+"0","summary(model2)"
+"1","  |                                                                                                         |                                                                                                 |   0%  |                                                                                                       "

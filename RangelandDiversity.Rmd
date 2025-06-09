@@ -1,0 +1,301 @@
+---
+title: "Rangeland Diversity"
+output: pdf_document
+date: "2022-11-21"
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction to Vegan
+
+Vegan is the most popular package for conducting community ecology analyses.
+There are two components to the package: **Multivariate analysis** and **diversity calculations**.
+Let's start with multivariate analysis, specifically, **Non-metric Multidimensional Scaling** (NMDS).
+
+*What is NMDS (in the context of community ecology)?* 
+
+It is a method to visualize differences in communities by plotting information along a pair of orthogonal axes (perpendicular) using a dissimilarity matrix. Unlike other ordination techniques (analyses that summarize a multidimensional dataset in such a way that when it is projected onto a low dimensional space (i.e., aforementioned orthogonal axes)), which use Euclidean distances for mapping, NMDS uses rank orders. The use of rank orders, rather than actual distances puts the 'non-metric' in NMDS, and means that NMDS can accommodate a variety of datatypes.
+
+**Several definitions**
+**Euclidean distance** is the distance between two points.
+
+*How does ordination work?*
+
+Let's go over a quick example.
+
+Pretend that you had collected abundance data on a single species in a wetland community and a dryland community.You have counted 1 individual of *Linum lewisii* in the dryland community and 5 individuals in the wetland community. You plot these abundances on a single axis:
+
+```{r}
+plot(0:10,0:10,type="n",axes=F,xlab="Abundance of Linum lewisii",ylab="") 
+axis(1)
+points(5,0); text(5.5,0.5,labels="Wetland community")
+points(1,0); text(0.8,0.5,labels="Dryland community")
+```
+
+Now, let's map a second species, *Juglans arizonica*, on a second axis.
+You count 5 *Juglans arizonica* in the wetland site, but no *Juglans arizonica* in the dryland site.
+Let's add *Juglans arizonica* to a second axis with our *Linum* species!
+
+```{r}
+plot(0:10,0:10,type="n",xlab="Abundance of Linum lewisii",
+     ylab="Abundance of Juglans arizonica")
+points(5,5); text(5,4.5,labels="Wetland community")
+points(1,0); text(0.8,5.5,labels="Dryland community")
+```
+
+Notice how the two dots, which represent communities, are diverging. OK, now you add a third species, *Quercus emoryi*. You count, 9 individuals of *Quercus emoryi* at the wetland site, and 3 at the dryland site. Let's add this content to a third axis:
+
+```{r}
+#install.packages("scatterplot3d")
+library(scatterplot3d)
+d=scatterplot3d(0:10,0:10,0:10,type="n",xlab="Abundance of Linum lewisii",
+  ylab="Abundance of Juglans arizonica",zlab="Abundance of Quercus emoryi"); d
+d$points3d(5,5,9); text(d$xyz.convert(5,5,0.5),labels="Wetland community")
+d$points3d(1,0,3); text(d$xyz.convert(0,5,5.5),labels="Dryland community")
+```
+
+You can keep adding axes for every species in your dataset! This would yield an insane, weird cloud of species abundances. This is where NMDS comes in - it reduces the complexity of insane species cloud to two orthogonal axes.
+
+NMDS is an iterative process (you will notice when you run the NMDS), in which multiple fits of the data are examined until the best solution is found.
+
+**In a nutshell, here are the steps in an NMDS**: 
+1. The program defines the position of the communities in multidimensional space (what we did above, but including all species).
+2. The user specifies how many dimensions use to plot the multidimensional data.
+We usually use two axes.
+3. The program constructs and initial community configuration (it's first hypothesis).
+4. Vegan calculates the distance between the communities mapped in multidimensional space, and regresses this against the distance between communities of this initial configuration (pairwise comparisons).We typically use Bray-Curtis as a dissimilarity measure.
+5. The program calculates **stress** or the disagreement between the distance values in the 2-D configuration and values predicted from the regression.
+If the 2-D configuration perfectly preserves the rank order of the original multidimensional plot, then the plot of one against the other must be a constant increasing relationship (i.e., monotonically increasing).
+6. Vegan keeps testing the stress of various community configurations until the stress is below a particular threshold (the 2-D configuration is a good representation of the multidimensional plot).
+
+**As in life low stress is good and high stress is bad!**
+Stress < 0.05 indicates an excellent representation in reduced dimensions; < 0.1 is great; < 0.2 is good/ok; and stress > 0.3 indicates a poor representation. *You a want below 0.2!*
+
+## Let's work through an example with your data.
+
+First, let's start by getting your data in order. NMDS is extremely flexible and can handle any form of data as long as the data were collected at the same scale / units - which is the case with this dataset.
+
+You have already summarized your data in excel, but we could also do that in R!
+For cover data, as you already know, we have the great example of Väre, Ohtonen, and Oksanen 1995 to model our methods after. In Vare et al 1995, they were examining the effect of reindeer grazing on lichen cover. They collected data at grazed and ungrazed sites, noting cover at 15 replicate subplots at each site. For their final dataset, they simple averaged the cover of each species across the subplots at each site and then multiplied by 100 (to convert to a scale representing percentages as 1% rather than 0.01 - we will see if we need to do that to your data).
+
+We can add code below to manipulate your raw data if you like!
+
+```{r}
+library(tidyverse)
+#potentially manipulate your data here
+```
+
+First, we need to standardize data! 
+
+Wisconsin Double standardization each element is divided by its column maximum and then divided by the row total. Note that output will range between 0 and 1. This will equalize emphasis among sample units (species).
+
+Here's an example of what The Wisconsin Double standardization is doing:
+```{r}
+rawdata<-matrix(c(1,1,1,3,3,1,
+                2,2,4,6,6,0,
+                10,10,20,30, 30,0,
+                3,3,2,1,1,0,
+                0,0,0,0,1,0,
+                0,0,0,0,20,0), 6, byrow =T)
+col.max<-apply(rawdata,2,max)
+wdt_data.1 <- rawdata %*% diag(1 /col.max)
+row.ttl<-apply(wdt_data.1,1,sum)
+wdt_data <- wdt_data.1 / row.ttl
+wdt_data
+```
+
+Here, we apply the Wisconsin Double Standardization to your data.
+```{r}
+library(vegan)
+library(MASS)
+library(devtools)
+install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+library(pairwiseAdonis)
+install_github("gavinsimpson/ggvegan")
+library(ggvegan)
+library(ggpubr)
+
+#set working directory
+#setwd("/Users/sks379/Desktop/Community Statistical Analyses/") 
+setwd("/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Community Statistical Analyses/")
+
+#read in your data
+test.data <- read.csv(file="2022VegData_VeganFormat.csv", header=TRUE, sep=",")
+
+#First standardize the data using the Wisconsin transformation
+data.trans <- wisconsin(test.data)
+
+```
+
+Now, let's run the actual NMDS and examine the Shepard plot, or a plot of the stress.
+
+```{r}
+#when we really run, we will increase the trymax to 10000
+example_NMDS=metaMDS(data.trans,distance="bray",k=2,trymax=100)
+
+#Let's look at the Shepard plot 
+stressplot(example_NMDS)
+```
+
+So, the stress = 0.18, which indicates a good representation.
+By running additional runs, we may be able to reduce the stress, but it will take a bit longer! For now, let's work with this run. First, we can visualize the NMDS output. If you can't get a solution, you can also increase the number of dimensions of the ordination (default is 2).
+
+```{r}
+ordiplot(example_NMDS)
+```
+
+In the plot above, each point indicates a sampling site and each plus sign indicates a species.
+
+```{r}
+#this adds taxa names and site numbers
+ordiplot(example_NMDS, type="t")
+```
+
+Let's work with ggplot to make graphs more beautiful!
+
+```{r}
+#use ggvegan
+autoplot(example_NMDS)
+
+#full control with fortified ordination output
+fort <- fortify(example_NMDS) #grabs output from NMDS and stores in a way that interfaces better with ggplot
+
+#check out fort object - this will tell you want names to use in your plots
+head(fort)
+
+#those that elements added first are plotted to the back of the plot
+p1 <- ggplot(fort, aes(NMDS1, NMDS2, label = label)) + 
+      theme(panel.background = element_rect(fill = NA),
+            axis.line=element_line(linewidth = 1, colour="black")) +
+      geom_abline(intercept = 0, slope = 0, linetype = "dashed", linewidth = 0.1, colour = "darkgray") +
+      geom_vline(aes(xintercept=0), linetype="dashed", linewidth=0.1, colour = "darkgray") +
+      geom_point(data=subset(fort, score == 'sites'),
+        mapping = aes(x = NMDS1, y = NMDS2),
+        colour = "black", #specify color of points
+        alpha = 0.5) + #just makes dots transparent
+      geom_segment(data = subset(fort, score == 'species'), #adds vectors, convention to show species as vect.
+        mapping=aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2), #tells it where to start and end mapping 
+        arrow = arrow(length = unit(0.015, "npc"),
+        type="closed"), #open or closed area
+        colour="darkgray", #arrow line color
+        size = 0.1) + #line thickness
+      geom_text(data = subset(fort, score == 'species'), 
+        mapping = aes(x = NMDS1, y = NMDS2, label=label)); p1 
+```
+
+How do we interpret this plot? Let's look at the axes. For x-axis, the communities to the left are characterized by high abundance of the species on the left. Similar for for NMDS2. The farther apart to communities the more different the assemblages. 
+
+We can also check out other plotting options. Here is one option plotting the information in two panels.
+
+```{r}
+p2 <- ggplot(fort, aes(NMDS1, NMDS2, label = label)) + 
+      theme(panel.background = element_rect(fill = NA),
+            axis.line=element_line(linewidth = 1, colour="black")) +
+      geom_abline(intercept = 0, slope = 0, linetype = "dashed", linewidth = 0.1, colour = "darkgray") +
+      geom_vline(aes(xintercept=0), linetype="dashed", linewidth=0.1, colour = "darkgray") +
+      geom_point(data=subset(fort, score == 'sites'),
+        mapping = aes(x = NMDS1, y = NMDS2),
+        colour = "black", #specify color of points
+        alpha = 0.5) + #just makes dots transparent
+      geom_segment(data = subset(fort, score == 'species'), #adds vectors, convention to show species as vect.
+        mapping=aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2), #tells it where to start and end mapping 
+        arrow = arrow(length = unit(0.015, "npc"),
+        type="closed"), #open or closed area
+        colour="darkgray", #arrow line color
+        size = 0, #just hiding the species points
+        alpha = 0) +
+      geom_text(data = subset(fort, score == 'sites'), 
+        mapping = aes(x = NMDS1, y = NMDS2, label=label),
+        nudge_y = 0.04); p2 #plot that just shows sampling sites, but maintains structure
+
+p3 <- ggplot(fort, aes(NMDS1, NMDS2, label = label)) + 
+      theme(panel.background = element_rect(fill = NA),
+            axis.line=element_line(linewidth = 1, colour="black")) +
+      geom_abline(intercept = 0, slope = 0, linetype = "dashed", linewidth = 0.1, colour = "darkgray") +
+      geom_vline(aes(xintercept=0), linetype="dashed", linewidth=0.1, colour = "darkgray") +
+      geom_point(data=subset(fort, score == 'sites'),
+        mapping = aes(x = NMDS1, y = NMDS2),
+        colour = "black", #specify color of points
+        alpha = 0) + #just makes dots transparent
+       geom_segment(data = subset(fort, score == 'species'), #adds vectors, convention to show species as vect.
+        mapping=aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2), #tells it where to start and end mapping 
+        arrow = arrow(length = unit(0.015, "npc"),
+        type="closed"), #open or closed area
+        colour="darkgray", #arrow line color
+        size = 0.1) + #line thickness
+      geom_text(data = subset(fort, score == 'species'), 
+        mapping = aes(x = NMDS1, y = NMDS2, label=label)); p3 #plot that just shows species, but maintains structure
+library(ggpubr)
+ggarrange(p1, p2, ncol=1)
+```
+Let's go ahead and test for community differences as a function of some environmental variable. We will use a permanova analysis.
+
+```{r}
+#read in your environmental data
+env.data <- read.csv(file="EnvVariables_VeganFormat.csv", header=TRUE, sep=",")
+
+#check out data
+summary(env.data)
+#want to examine something with a balanced design (similar number plots in each class)
+#
+
+#I'm starting with VegType
+adonis2(test.data~VegType, data=env.data)
+#Adonis runs a permanova; looking for differences in the abundances of different species among veg types
+#same as anything else - these communities differ p < 0.001 (it is a permutation test, so exact F and p values will differ a little each time you run) Veg type explains about 9% of the variation of the differences in these communities.
+```
+
+You will adjust this analysis - in particular looking at grazing effects! Let's plot this!
+
+```{r}
+p4 <- ggplot(fort, aes(NMDS1, NMDS2, label = label)) + 
+      theme(panel.background = element_rect(fill = NA),
+            axis.line=element_line(linewidth = 1, colour="black")) +
+      geom_abline(intercept = 0, slope = 0, linetype = "dashed", linewidth = 0.1, colour = "darkgray") +
+      geom_vline(aes(xintercept=0), linetype="dashed", linewidth=0.1, colour = "darkgray") +
+      geom_point(data=subset(fort, score == 'sites'),
+        mapping = aes(x = NMDS1, y = NMDS2, colour = env.data$VegType),
+        alpha = 0.5) + 
+      scale_color_discrete("Ecoregion") + 
+      geom_segment(data = subset(fort, score == 'species'), #adds vectors, convention to show species as vect.
+        mapping=aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2), #tells it where to start and end mapping 
+        arrow = arrow(length = unit(0.015, "npc"),
+        type="closed"), #open or closed area
+        colour="darkgray", #arrow line color
+        size = 0, #just hiding the species points
+        alpha = 0) +
+      geom_text(data = subset(fort, score == 'sites'), 
+        mapping = aes(x = NMDS1, y = NMDS2, label=label),
+        nudge_y = 0.04); p2 #plot that just shows sampling sites, but maintains structure
+
+p5 <- ggplot(fort, aes(NMDS1, NMDS2, label = label)) + 
+      theme(panel.background = element_rect(fill = NA),
+            axis.line=element_line(linewidth = 1, colour="black")) +
+      geom_abline(intercept = 0, slope = 0, linetype = "dashed", linewidth = 0.1, colour = "darkgray") +
+      geom_vline(aes(xintercept=0), linetype="dashed", linewidth=0.1, colour = "darkgray") +
+      geom_point(data=subset(fort, score == 'sites'),
+        mapping = aes(x = NMDS1, y = NMDS2),
+        colour = "black", #specify color of points
+        alpha = 0) + #just makes dots transparent
+       geom_segment(data = subset(fort, score == 'species'), #adds vectors, convention to show species as vect.
+        mapping=aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2), #tells it where to start and end mapping 
+        arrow = arrow(length = unit(0.015, "npc"),
+        type="closed"), #open or closed area
+        colour="darkgray", #arrow line color
+        size = 0.1) + #line thickness
+      geom_text(data = subset(fort, score == 'species'), 
+        mapping = aes(x = NMDS1, y = NMDS2, label=label)); p3 #plot that just shows species, but maintains structure
+#library(ggpubr)
+finalplot <- ggarrange(p4, p5, ncol=1)
+
+#export figure
+ggsave(finalplot, filename="finalplot.png", dpi=1000, width = 19, height = 14, units = "cm")
+
+```
+
+When reporting: You will report your stress values.

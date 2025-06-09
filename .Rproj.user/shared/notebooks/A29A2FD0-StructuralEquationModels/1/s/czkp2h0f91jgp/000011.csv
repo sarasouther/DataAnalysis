@@ -1,0 +1,12 @@
+"1","  |=================================================================================================| 100%
+
+Structural Equation Model of model2 
+
+Call:
+  SA ~ logN.cen + logN2.cen + SR
+  logChl ~ SA + logN.cen + logN2.cen
+  logN.cen ~~ logN2.cen
+
+    AIC
+ 1192.444
+"

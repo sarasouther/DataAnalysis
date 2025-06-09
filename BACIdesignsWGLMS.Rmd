@@ -1,0 +1,38 @@
+---
+title: "BACI designs with GLMS"
+output: pdf_document
+date: "2023-02-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Before-After-Control-Impact
+
+
+## Which design
+Four standard BACI DesignsFour standard BACI designs:
+1. Single impact site; single control site; one year before; oneyear after
+2. Single/multiple impact site; multiple control sites; one yearbefore; one year after
+3. Single impact site; single control site; multiple yearsbefore; multiple years after.
+4. Single impact site; multiple control sites; multiple yearsbefore; multiple years after
+
+See this tutorial
+
+## BACI Design 2
+```{r}
+
+test1 <- lmer(responsevariable ~ GrazingTreatment+Time+GrazingTreatment:Time, random~1|Plot/Time, data=yourdata)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -1,0 +1,178 @@
+---
+title: "Describing Ecological Patterns"
+output: pdf_document
+date: "2024-07-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Describing ecological patterns
+
+When working at landscape-scales, we often need to employ model selection techniques to identify important predictor variables or co-variates that explain the patterns in response variables of interest. There are several discrete steps and important considerations when completing such analyses. 
+
+# Step 1: Identifying predictor variables or co-variates of importance
+
+# Step 2: Removing colinear variables
+
+Explain why this is important!
+
+Calculate the correlation matrix to identify highly correlated variables and use Variance Inflation Factor (VIF) to detect multicollinearity. USDM package provides a stepwise removal process, again removing terms with high VIF.
+
+
+```{r cars}
+library(car)
+
+# Calculate correlation matrix
+cor_matrix <- cor(data)
+# View the correlation matrix
+print(cor_matrix)
+
+# Calculate VIF
+library(car)
+vif_model <- lm(response ~ ., data = data)
+vif_values <- vif(vif_model)
+# View VIF values
+print(vif_values)
+
+# Remove variables with high VIF (e.g., VIF > 5)
+data_reduced <- data[, !(names(data) %in% names(vif_values[vif_values > 5]))]
+
+library(usdm)
+vif_step <- vifstep(data, th = 10)  # Set threshold (e.g., 10)
+data_reduced <- exclude(data, vif_step)
+
+```
+
+# Step 3: Select the best model
+
+Perform stepwise regression based on AIC (Akaike Information Criterion).
+
+```{r pressure, echo=FALSE}
+
+library(MASS)
+
+full_model <- glm(response ~ ., data = data_reduced, family = binomial)
+stepwise_model <- stepAIC(full_model, direction = "both")
+summary(stepwise_model)
+
+```
+
+LASSO (Least Absolute Shrinkage and Selection Operator) Regularization technique that performs variable selection and regularization simultaneously.
+
+Benefits:
+Automatic Variable Selection: LASSO can automatically shrink some coefficients to zero, effectively performing variable selection and reducing model complexity.
+Handles High Dimensionality: Particularly useful when the number of predictors is much larger than the number of observations.
+Regularization: Helps prevent overfitting by adding a penalty to the magnitude of coefficients.
+Interpretability: The resulting model is often simpler and easier to interpret, as it includes only a subset of the predictors.
+Computational Efficiency: Computationally efficient and can be solved using convex optimization methods.
+Drawbacks:
+Bias: The shrinkage can introduce bias into the estimates of the coefficients.
+Model Assumptions: Assumes linear relationships between predictors and the response variable.
+Choice of Penalty Parameter: The performance depends on the choice of the penalty parameter (lambda), which requires cross-validation to tune.
+Cannot Handle Multicollinearity Well: While LASSO can select variables, it might not perform well in the presence of high multicollinearity compared to other techniques like ridge regression.
+
+```{r}
+
+library(glmnet)
+
+x <- model.matrix(response ~ ., data_reduced)[, -1]
+y <- data_reduced$response
+
+lasso_model <- cv.glmnet(x, y, alpha = 1, family = "binomial")
+best_lambda <- lasso_model$lambda.min
+best_model <- glmnet(x, y, alpha = 1, family = "binomial", lambda = best_lambda)
+coef(best_model)
+
+```
+
+Best Subset Selection; Evaluate all possible subsets of predictors and select the best model based on a criterion like AIC, BIC, or adjusted R-squared. 
+
+Benefits:
+Exhaustive Search: Considers all possible combinations of predictors, ensuring the best possible model according to a specified criterion (e.g., AIC, BIC).
+Model Performance: Often provides the best fit in terms of the criterion used for selection.
+Flexibility: Can be used with any type of regression model and can include interactions and polynomial terms.
+Drawbacks:
+Computationally Intensive: Becomes impractical with a large number of predictors due to the exponential increase in the number of models to be evaluated.
+Overfitting: Risk of overfitting, especially when the number of predictors is large relative to the number of observations.
+Multicollinearity: Does not address multicollinearity among predictors, which can lead to unstable coefficient estimates.
+
+```{r}
+library(leaps)
+
+best_subset <- regsubsets(response ~ ., data = data_reduced, nbest = 1, really.big = TRUE)
+summary(best_subset)
+
+```
+
+Model Averaging; Perform model averaging to account for model uncertainty.
+
+Benefits:
+Accounts for Model Uncertainty: By averaging over multiple models, it incorporates model uncertainty into the final predictions.
+Improved Predictive Performance: Often leads to better predictive performance by averaging out the errors of individual models.
+Flexibility: Can be applied to various types of models and selection criteria.
+Stability: Provides more stable estimates by considering multiple models rather than relying on a single best model.
+Drawbacks:
+Complexity: Results in a more complex model that can be harder to interpret compared to selecting a single best model.
+Computationally Intensive: Requires fitting and averaging a large number of models, which can be computationally demanding.
+Weight Selection: The choice of weights for averaging (e.g., based on AIC, BIC, or cross-validation errors) can influence the final model and may not always be straightforward.
+Potential for Overfitting: If not carefully managed, averaging over too many models can still lead to overfitting, particularly if the individual models are not regularized.
+
+
+```{r}
+
+library(MuMIn)
+options(na.action = "na.fail")
+global_model <- glm(response ~ ., data = data_reduced, family = binomial)
+dredged_models <- dredge(global_model)
+averaged_model <- model.avg(dredged_models, subset = delta < 2)
+summary(averaged_model)
+
+```
+
+# Plot establishment
+
+One other thing to consider, is the placement of plots across the landscape. Though this is step one of the process, since many folks will have previously established plots, we will discuss here!
+
+Spatially balanced random sampling offers several benefits, particularly in ecological and environmental studies. Here are some of the key advantages:
+
+1. Improved Representativeness
+Coverage: Ensures that the sample points are spread out evenly across the study area, which helps in capturing the spatial heterogeneity of the environment.
+Reduction of Bias: Minimizes the chances of over-sampling or under-sampling specific areas, leading to more accurate and generalizable results.
+2. Enhanced Statistical Efficiency
+Reduced Variance: By evenly distributing sample points, spatially balanced sampling often reduces the variance of the estimates compared to simple random sampling.
+Better Inference: Provides better estimates of population parameters and improves the precision of spatially explicit models.
+3. Flexibility and Adaptability
+Multiple Scales: Can be applied at various spatial scales, making it suitable for different types of studies ranging from local to regional levels.
+Integration with GIS: Easily integrated with Geographic Information Systems (GIS) to facilitate sample design and data collection.
+4. Cost-Effectiveness
+Efficient Use of Resources: Reduces travel time and costs associated with fieldwork by ensuring that sample locations are optimally distributed.
+Focused Sampling Effort: Enables targeted sampling in areas of interest while still maintaining a representative coverage.
+5. Robustness to Spatial Autocorrelation
+Handling Spatial Dependencies: Helps in accounting for spatial autocorrelation by ensuring that samples are not clustered, which can lead to more reliable statistical analyses.
+Examples of Applications
+Ecological Monitoring: Used to monitor biodiversity, habitat quality, and species distributions across large landscapes.
+Environmental Assessment: Applied in studies assessing soil contamination, water quality, and air pollution to ensure comprehensive spatial coverage.
+Resource Management: Useful in forestry, agriculture, and fisheries to assess the distribution and abundance of resources.
+Key Methods and Tools
+Spatially Balanced Sampling Algorithms: Such as the Generalized Random-Tessellation Stratified (GRTS) design.
+R Packages: spsurvey package in R provides tools for implementing spatially balanced sampling designs.
+
+```{r}
+
+library(spsurvey)
+
+# Define the study area and number of sample points
+study_area <- as.spatialPolygons(my_shapefile)
+n_samples <- 100
+
+# Generate spatially balanced sample points
+sample_points <- grts(study_area, n = n_samples)
+
+# Plot the sample points
+plot(study_area)
+points(sample_points, col = "red")
+
+```
+

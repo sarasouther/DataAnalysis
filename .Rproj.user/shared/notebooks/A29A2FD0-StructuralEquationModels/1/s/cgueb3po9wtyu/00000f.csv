@@ -1,0 +1,6 @@
+"0","# Download data"
+"0","url <- ""https://drive.google.com/uc?export=download&id=1oHBul4_JcqlPFZgYsH3WOIZJRQRw1O4F"""
+"0","cardinale <- read.csv(url)"
+"0",""
+"0","# Check it loaded"
+"0","head(cardinale)"

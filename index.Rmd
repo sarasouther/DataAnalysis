@@ -1,0 +1,41 @@
+---
+title: "Statistics for Ecology"
+author: "Dr. Sara Souther"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output_dir: "docs"
+github-repo: sarasouther/DataAnalysis
+
+output:
+  bookdown::gitbook:
+    css: style.css
+    config:
+      toc:
+        before: |
+          <li><a href="./">Statistics for Ecology</a></li>
+        after: |
+          <li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
+      edit:
+        link: https://github.com/sarasouther/DataAnalysis/edit/main/%s
+        text: "Edit this page"
+      download: ["epub"]
+
+  bookdown::epub_book:
+    toc: true
+---
+
+```{r setup-global, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction {#intro}
+
+## Student Learning Objectives
+
+## Downloads
+
+## Description
+
+## Grading
+
+## Overview
