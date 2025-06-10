@@ -1,7 +1,6 @@
----
-title: "A Simple Statistical Test"
-output: pdf_document
----
+# A Simple Statistical Test
+
+## Simplicity at its finest
 
 We will highlight the basic components of a statistical test with a very simple statistical 'tailed' test. For this example, we will:
 *State a hypothesis
@@ -80,7 +79,7 @@ Let's do that now:
 
 We probably generated something that looks like the figure below. This is referred to a probability distribution and expresses the relative frequency of particular events occurring. Frequentist statistics derives its name from this probability distribution.
 
-```{r cars}
+```{r}
 paws <- 0:18
 plot(paws, dbinom(paws, 18, 0.5), type='h', ylab="Probability", xlab="Number Right-pawed Cats")
 ```

@@ -1,9 +1,3 @@
----
-title: "01-intro"
-output: html_document
-date: "2025-05-04"
----
-
-## R 
+# Intro
 
 Add an intro or just use the index file?

@@ -1,13 +1,6 @@
----
-title: "PowerAnalysis"
-output: html_document
----
+# Power analysis
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-##Prework
+## Prework
 Install packages 'pwr', 'faraway', 'simr', 'simglm', and 'Superpower'.
 
 ## Statistical power

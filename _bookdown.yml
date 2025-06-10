@@ -4,6 +4,7 @@ output_dir: "docs"
 language:
   ui:
     chapter_name: "Chapter "
+
 rmd_files:
   - index.Rmd
   - 01-intro.Rmd
@@ -11,4 +12,19 @@ rmd_files:
   - 03-Probability.Rmd
   - 04-BasicStatisticalTest.Rmd
   - 05-SelectingStatisticalTests.Rmd
-  - StructuralEquationModels.Rmd
+  - 06-ExperimentalDesign.Rmd
+  - 07-PowerAnalysis.Rmd
+  - 08-GeneralizedLinearModels.Rmd
+  - 09-MixedEffectsModels.Rmd
+  - 11-ModelSelection.Rmd
+  - 12-BACIdesignsWGLMS.Rmd
+  - 13-TimeSeriesAnalysis.Rmd
+  - 14-SpatialDataAutocorrelation.Rmd
+  - 15-SpeciesDistributionModeling.Rmd
+  - 16-BootstrappingResampling.Rmd
+  - 17-PopulationEcologyI.Rmd
+  - 18-PermutationBasedMethods.Rmd
+  - 19-OrdinationMethods.Rmd
+  - 20-IntroductionToDiversityStats.Rmd
+  - 21-StructuralEquationModels.Rmd
+  - 22-IntroductionToBayesianStats.Rmd

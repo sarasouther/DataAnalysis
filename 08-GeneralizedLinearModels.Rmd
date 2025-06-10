@@ -1,11 +1,4 @@
----
-title: "Generalized Linear Models (GLMs)"
-output: pdf_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Generalized Linear Models (GLMs)
 
 ## Linear models
 
@@ -219,20 +212,8 @@ All of this to point out that you can in essence perform transformations within 
 At this time, let's assume that we don't have additional variables to add to our GLM model. Let's run this and generate a nice plot!
 
 
-```{}
+```{r}
 iris_model <- glm(Petal.Length ~ Petal.Width, family = gaussian(), data = iris)
-
-SurvFig_Population <- ggplot(PECTISdata, aes(x=size, y=surv, group=DeerBrowseYear1)) + 
-  geom_point(aes(colour=DeerBrowseYear1)) + 
-  stat_smooth(method="glm", formula=y~x, method.args = "binomial", se=FALSE, aes(colour=DeerBrowseYear1), size=0.5) +
-  ylab("Survival (Proportion)") + 
-  xlab("Height 2021 (cm)") + 
-  scale_color_economist("Browse intensity") +
-  #scale_colour_discrete("Browsed (N/Y)") +
-  #annotate("text", x = 0, y = 1.05, label = paste("A)"), hjust=0, size = 5) +
-  #scale_x_continuous(breaks=seq(0,100,5)) +
-  facet_wrap(~Population) +
-  pubthemeleg; SurvFig_Population
 
 ```
 

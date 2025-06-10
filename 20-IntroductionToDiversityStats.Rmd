@@ -1,15 +1,4 @@
----
-title: "IntroToDiversity"
-output: pdf_document
-date: "2023-02-07"
----
-
-```{r setup}
-options(warn = -1)  # Set warn to -1 to suppress all warnings
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE)
-```
-
-## Diversity statistics
+# Diversity statistics
 
 How do we describe the variety of species, traits or phylogenies in a particular area? With diversity statistics! Simple species counts, or species richness, is a time-old method for describing diversity. Since the olden days of creating 'species lists' for every habitat under the sun, new methods have emerged to describe the variety of life within ecological communities. These statistics attempt to deal with a problem inherent to diversity assessments: It is really hard to find all the species within an ecosystem and the more you look, the more species you find! 
 
@@ -144,14 +133,16 @@ estimateD(ant, datatype="incidence_freq",
 Scripts from the iNEXT package are fairly straightforward and easy to run. The challenge with these datasets is wrangling the data into the correct format for analysis. Since diversity statistics are often paired with NMDS data, let's start with an example in which we wrangle data formatted for the Vegan package. 
 
 ```{r results='hide', warning=FALSE}
-#you have to adjust the code to port in these datasets!
-setwd("/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/ClassX_DiversityStatistics")
+library(readr)
 
-#import species data
-species_matrix <- read_csv("speciesmatrix.csv")
+# Download and read the first dataset
+url1 <- "https://drive.google.com/uc?export=download&id=1c1guQTQwGNfA5Kx-xNPKRDsSJrBR-HxW"
+env_matrix <- read_csv(url1)
 
-#import environmental (plot) data
-env_matrix <- read_csv("envmatrix.csv")
+# Download and read the second dataset
+url2 <- "https://drive.google.com/uc?export=download&id=1jCqfJPEuEWo4uNZfxW43VkSvEDDtayF5"
+species_matrix <- read_csv(url2)
+
 ```
 
 This data is incidence data collected at 3 replicate control plots and 6 treatment plots before and after disturbance. 
@@ -159,7 +150,6 @@ This data is incidence data collected at 3 replicate control plots and 6 treatme
 ```{r}
 # Load necessary libraries
 library(tidyverse)
-library(readr)
 
 print(colnames(species_matrix))
 print(colnames(env_matrix))
@@ -173,25 +163,25 @@ control_pre <- combined_data %>%
 
 #remove unnecessary columns
 colnames(control_pre)
-control_pre <- select(control_pre, -c(Year, PlotN, Treatment, Treatment_status, ...1))
+control_pre <- dplyr::select(control_pre, -c(Year, PlotN, Treatment, Treatment_status, ...1))
 control_pret <- t(control_pre)
 
 control_post <- combined_data %>% 
   filter(Treatment == "Control" & Treatment_status == "PostTreatment")
 colnames(control_post)
-control_post <- select(control_post, -c(Year, PlotN, Treatment, Treatment_status, ...1))
+control_post <- dplyr::select(control_post, -c(Year, PlotN, Treatment, Treatment_status, ...1))
 control_postt <- t(control_post)
 
 treatment_pre <- combined_data %>% 
   filter(Treatment == "Treatment" & Treatment_status == "PreTreatment")
 colnames(treatment_pre)
-treatment_pre <- select(treatment_pre, -c(Year, PlotN, Treatment, Treatment_status, ...1))
+treatment_pre <- dplyr::select(treatment_pre, -c(Year, PlotN, Treatment, Treatment_status, ...1))
 treatment_pret <- t(treatment_pre)
 
 treatment_post <- combined_data %>% 
   filter(Treatment == "Treatment" & Treatment_status == "PostTreatment")
 colnames(treatment_post)
-treatment_post <- select(treatment_post, -c(Year, PlotN, Treatment, Treatment_status, ...1))
+treatment_post <- dplyr::select(treatment_post, -c(Year, PlotN, Treatment, Treatment_status, ...1))
 treatment_postt <- t(treatment_post)
 
 #combine matrices, control_pre, control_post, treatment_pre, treatment_post, in a matrix of N lists
@@ -226,8 +216,10 @@ Let's transform an abundance dataset! This dataset consists of observations of p
 
 ```{r}
 #you have to adjust the code to port in this datasets!
-setwd("/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/ClassX_DiversityStatistics")
-arcticlocs <- read_csv("arcticlocs.csv")
+library(readr)
+
+url3 <- "https://drive.google.com/uc?export=download&id=1bpLmtDDEPAdSaTPFPNg33hyj6y0viqxk"
+arcticlocs <- read_csv(url3)
 
 #time periods
 arcticlocsTP1 <- filter(arcticlocs, year >= 1939 & year < 1979)

@@ -1,7 +1,4 @@
----
-title: "Back to the Basics"
-output: pdf_document
----
+# Back to the basics
 
 ## What can statistics tell us?
 

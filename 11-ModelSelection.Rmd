@@ -1,14 +1,4 @@
----
-title: "Describing Ecological Patterns"
-output: pdf_document
-date: "2024-07-18"
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## Describing ecological patterns
+# Describing ecological patterns
 
 When working at landscape-scales, we often need to employ model selection techniques to identify important predictor variables or co-variates that explain the patterns in response variables of interest. There are several discrete steps and important considerations when completing such analyses. 
 
@@ -21,27 +11,27 @@ Explain why this is important!
 Calculate the correlation matrix to identify highly correlated variables and use Variance Inflation Factor (VIF) to detect multicollinearity. USDM package provides a stepwise removal process, again removing terms with high VIF.
 
 
-```{r cars}
+```{r}
 library(car)
 
 # Calculate correlation matrix
-cor_matrix <- cor(data)
+#cor_matrix <- cor(data)
 # View the correlation matrix
-print(cor_matrix)
+#print(cor_matrix)
 
 # Calculate VIF
-library(car)
-vif_model <- lm(response ~ ., data = data)
-vif_values <- vif(vif_model)
+#library(car)
+#vif_model <- lm(response ~ ., data = data)
+#vif_values <- vif(vif_model)
 # View VIF values
-print(vif_values)
+#print(vif_values)
 
 # Remove variables with high VIF (e.g., VIF > 5)
-data_reduced <- data[, !(names(data) %in% names(vif_values[vif_values > 5]))]
+#data_reduced <- data[, !(names(data) %in% names(vif_values[vif_values > 5]))]
 
 library(usdm)
-vif_step <- vifstep(data, th = 10)  # Set threshold (e.g., 10)
-data_reduced <- exclude(data, vif_step)
+#vif_step <- vifstep(data, th = 10)  # Set threshold (e.g., 10)
+#data_reduced <- exclude(data, vif_step)
 
 ```
 
@@ -49,13 +39,13 @@ data_reduced <- exclude(data, vif_step)
 
 Perform stepwise regression based on AIC (Akaike Information Criterion).
 
-```{r pressure, echo=FALSE}
+```{r}
 
 library(MASS)
 
-full_model <- glm(response ~ ., data = data_reduced, family = binomial)
-stepwise_model <- stepAIC(full_model, direction = "both")
-summary(stepwise_model)
+#full_model <- glm(response ~ ., data = data_reduced, family = binomial)
+#stepwise_model <- stepAIC(full_model, direction = "both")
+#summary(stepwise_model)
 
 ```
 
@@ -77,13 +67,13 @@ Cannot Handle Multicollinearity Well: While LASSO can select variables, it might
 
 library(glmnet)
 
-x <- model.matrix(response ~ ., data_reduced)[, -1]
-y <- data_reduced$response
+#x <- model.matrix(response ~ ., data_reduced)[, -1]
+#y <- data_reduced$response
 
-lasso_model <- cv.glmnet(x, y, alpha = 1, family = "binomial")
-best_lambda <- lasso_model$lambda.min
-best_model <- glmnet(x, y, alpha = 1, family = "binomial", lambda = best_lambda)
-coef(best_model)
+#lasso_model <- cv.glmnet(x, y, alpha = 1, family = "binomial")
+#best_lambda <- lasso_model$lambda.min
+#best_model <- glmnet(x, y, alpha = 1, family = "binomial", lambda = best_lambda)
+#coef(best_model)
 
 ```
 
@@ -101,8 +91,8 @@ Multicollinearity: Does not address multicollinearity among predictors, which ca
 ```{r}
 library(leaps)
 
-best_subset <- regsubsets(response ~ ., data = data_reduced, nbest = 1, really.big = TRUE)
-summary(best_subset)
+#best_subset <- regsubsets(response ~ ., data = data_reduced, nbest = 1, really.big = TRUE)
+#summary(best_subset)
 
 ```
 
@@ -124,10 +114,10 @@ Potential for Overfitting: If not carefully managed, averaging over too many mod
 
 library(MuMIn)
 options(na.action = "na.fail")
-global_model <- glm(response ~ ., data = data_reduced, family = binomial)
-dredged_models <- dredge(global_model)
-averaged_model <- model.avg(dredged_models, subset = delta < 2)
-summary(averaged_model)
+#global_model <- glm(response ~ ., data = data_reduced, family = binomial)
+#dredged_models <- dredge(global_model)
+#averaged_model <- model.avg(dredged_models, subset = delta < 2)
+#summary(averaged_model)
 
 ```
 
@@ -164,15 +154,15 @@ R Packages: spsurvey package in R provides tools for implementing spatially bala
 library(spsurvey)
 
 # Define the study area and number of sample points
-study_area <- as.spatialPolygons(my_shapefile)
-n_samples <- 100
+#study_area <- as.spatialPolygons(my_shapefile)
+#n_samples <- 100
 
 # Generate spatially balanced sample points
-sample_points <- grts(study_area, n = n_samples)
+#sample_points <- grts(study_area, n = n_samples)
 
 # Plot the sample points
-plot(study_area)
-points(sample_points, col = "red")
+#plot(study_area)
+#points(sample_points, col = "red")
 
 ```
 

@@ -1,13 +1,4 @@
----
-title: "Mixed Effects Models"
-output: pdf_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## Mixed Effects Models
+# Mixed Effects Models
 
 Observations of data aren't always independent, violating an assumption of our GLMs. Never fear, there are statistical models that deal with that; namely, our aforementioned mixed effects models. 
 

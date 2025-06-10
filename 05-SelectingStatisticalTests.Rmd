@@ -1,7 +1,4 @@
----
-title: "Selecting Statistical Tests"
-output: pdf_document
----
+# Selecting Statistical Tests
 
 ## A foray into statistics
 

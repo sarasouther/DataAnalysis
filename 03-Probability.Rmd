@@ -1,17 +1,17 @@
----
-title: "Randomness and Probability"
-output: pdf_document
----
+# Randomness and probability
 
 ## Prework
+
 *Listen to the podcast on stochasticity
 *Reads on randomness and determinism:
 https://towardsdatascience.com/when-science-and-philosophy-meet-randomness-determinism-and-chaos-abdb825c3114
 *Load packages and datasets
 
 ```{r echo = FALSE}
-example1 <- read.csv("/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/example1.csv", header=TRUE)
-library(knitr)
+library(readr)
+
+url <- "https://drive.google.com/uc?export=download&id=1KDvCzj9-YzN1zDHdLutcpruYx5mpcEWH"
+example1 <- read_csv(url)
 ```
 ## Randomness
 

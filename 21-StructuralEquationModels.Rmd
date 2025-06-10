@@ -1,12 +1,4 @@
----
-title: "Structural Equation Models"
-output: html_document
-date: "2025-05-31"
----
-
-# Structural equation models
-
-## What are structural equation models?
+# What are structural equation models?
 
 Structural Equation Modeling (SEM) is a statistical technique that enables the modeling of complex causal relationships among variables. It extends regression by allowing:
 
@@ -502,6 +494,12 @@ In SEM, MLE identifies parameters that maximize the likelihood of observing the 
 - Multivariate normality (use `mvnormtest::mshapiro.test()`)
 
 ```{r}
+# Load necessary package
+if (!requireNamespace("mvnormtest", quietly = TRUE)) {
+  install.packages("mvnormtest")
+}
+library(mvnormtest)
+
 # Simulate multivariate normal data
 set.seed(123)
 data <- data.frame(
@@ -510,8 +508,8 @@ data <- data.frame(
   x3 = rnorm(100)
 )
 
-# Use mshapiro.test from mvnormtest
-mshapiro.test(t(data))  # Note the transpose!
+# Apply Mardia-Shapiro-Wilk test (requires transpose)
+mshapiro.test(t(data))
 ```
 
 - No severe skew or missing data
@@ -528,25 +526,41 @@ summary(is.na(data))  # Should be all FALSE
 - Sufficient sample size relative to parameters
 
 ```{r}
-# Count parameters in a simple lavaan model
+
+# Load the lavaan package
+if (!requireNamespace("lavaan", quietly = TRUE)) {
+  install.packages("lavaan")
+}
+library(lavaan)
+
+# Define a simple SEM model
 model <- '
   y1 ~ x1 + x2
   y2 ~ y1
 '
-# Simulate data
-data <- data.frame(x1 = rnorm(100), x2 = rnorm(100), y1 = rnorm(100), y2 = rnorm(100))
 
-# Estimate number of parameters
+# Simulate data
+set.seed(123)
+data <- data.frame(
+  x1 = rnorm(100),
+  x2 = rnorm(100),
+  y1 = rnorm(100),
+  y2 = rnorm(100)
+)
+
+# Fit the model
 fit <- sem(model, data = data)
+
+# Print summary
 summary(fit)
 
 # Count parameters
-n_params <- lavInspect(fit, "npar")
+n_params <- lavInspect(fit, "npar")  # Number of free parameters
 n_obs <- nrow(data)
 
-# Portnoy’s Rule
+# Portnoy's rule
 portnoy_value <- n_params^(3/2) / n_obs
-portnoy_value  # Should be close to 0
+portnoy_value
 ```
 
 ### Identifiability
@@ -1753,7 +1767,7 @@ Step 4: Compare Models
 
 ```{r}
 # Compare R-squared
-rsquared(cardinale.sem)
+#rsquared(cardinale.sem)
 #rsquared(cardinale.mixed)
 ```
 

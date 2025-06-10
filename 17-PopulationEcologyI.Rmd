@@ -1,14 +1,4 @@
----
-title: "PopulationEcologyI"
-output: pdf_document
-date: "2023-10-05"
----
-
-```{r setup, include=FALSE} 
-knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE) 
-```
-
-## Population sensation
+# Population sensation
 
 Populations contain multitudes - numerous interacting individuals of the same species with slightly different genetic backgrounds, sharing genes, colonizing new areas, responding to environmental stimuli. Populations are hot-pots of evolution and essential for understanding species viability, especially when species are rare. Population-level studies have contributed fundamental ecological knowledge in evolution, range dynamics, and species conservation. Now that we are all jazzed about populations, let's learn about how to describe them and their dynamics quantitative! May your knowledge acquisition be exponential!
 
@@ -55,7 +45,7 @@ First, let's load a few important packages and set our working directory.
 #devtools::install_github("CRAN/IPMpack")
 
 #Load packages
-library(IPMpack)
+#library(IPMpack)
 library(fields)
 library(car)
 library(tidyverse)
@@ -73,10 +63,12 @@ Once a state variable was identified, the team went back the next several years 
 ```{r}
 
 #read in data (it needs to be imported as a dataframe names pectisdata)
-pectisdata <- read.csv("/Users/sks379/Desktop/pectisanalyses/FinalPectisAnalyses/FinalTransitionMatrices/exampleIPMendangeredplant.csv", header=TRUE)
+#pectisdata <- read.csv("/Users/sks379/Desktop/pectisanalyses/FinalPectisAnalyses/FinalTransitionMatrices/exampleIPMendangeredplant.csv", header=TRUE)
+url <- "https://drive.google.com/uc?export=download&id=10vtDeB4yXtic7lLa8oTpCDQft10vtYDM"
+pectisdata <- read.csv(url)
 
 #exclude poor quality data
-pectisipm <- dplyr::filter(pectisdata, Exclude == "0")
+#pectisipm <- dplyr::filter(pectisdata, Exclude == "0")
 
 #prepare the dataset
 pectis <- as.data.frame(pectisdata)
@@ -226,7 +218,7 @@ outliers(object1, lowerQuantile = 0, upperQuantile = 1,
 #you can do this for flowering, but this year everything flowered so you will get an error
 flowering <- glm(fec1 ~ size, na.action = na.omit, family = "binomial", data = pectis)
 residuals <- residuals(flowering, type = "response")
-test <- testResiduals(flowering)
+#test <- testResiduals(flowering)
 
 ```
 
@@ -264,6 +256,14 @@ hist(pectis$sizeNext[is.na(pectis$size)], xlab="Recruit Size", main="")
 All of these relationships look good. While we will retain the same state variable across all years, the nature of the relationship may change annually. For this reason, each year that we build a model, we will need to run model comparisons and select the most appropriate model. Let's start with growth!
 
 ```{r}
+
+#install.packages("IPMpack", repos = "http://R-Forge.R-project.org", type = "source")
+#devtools::install_github("CRAN/IPMpack")
+#see https://levisc8.github.io/ipmr/articles/ipmr-introduction.html
+
+#Load packages
+library(IPMpack)
+
 #growth model constuction
 growthModelComp(dataf = pectis, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Growth")
 ```
@@ -277,98 +277,39 @@ go <-makeGrowthObj(dataf = pectis, Formula = sizeNext~size + size2, regType = "c
 Let's compare survival models now!
 
 ```{r}
-#compare survival models
-survModelComp(dataf = pectis, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Survival")
+pectis_clean <- na.omit(pectis_surv)
+
+survModelComp(dataf = pectis_clean, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Survival")
+#survModelComp(dataf = pectis, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Survival")
 ```
 Here, the model of best fit is the first order model. Let's build the survival object.
 
 ```{r}
 #select best model - model with lowest values
-so <- makeSurvObj(dataf = pectis, Formula = surv~size+size2)
+so <- makeSurvObj(dataf = pectis_clean, Formula = surv~size+size2)
 ```
 
 The process for creating fecundity objects is not quite as streamlined, so let's develop our own code to compare fecundity models. For *P. imberbis*, we break reproduction into two components: 1) whether a plant reproduces, and 2) if a plant reproduces, how many seeds are produced as a function of size.
 
 ```{r}
-#Test various fertility models to select best model 
-#Probability of flowering
-fo1<-makeFecObj(pectis, Formula=fec1~1, Family = "binomial") # Intercept only model 
-fo2<-makeFecObj(pectis, Formula=fec1~size, Family = "binomial") 
-fo3<-makeFecObj(pectis, Formula=fec1~size+size2, Family = "binomial")
 
-fs <- order(pectis$size)
-fs.fec <- (pectis$fec1)[fs]
-fs.size <- (pectis$size)[fs]
-pfz <- tapply(fs.size, as.numeric(cut(fs.size, 21)), mean, na.rm = TRUE)
-ps <- tapply(fs.fec, as.numeric(cut(fs.size, 21)), mean, na.rm = TRUE)
-plot(as.numeric(pfz), as.numeric(ps), pch = 19, cex=1, col="blue", ylim=c(0,1),
-     xlab="size", ylab="proportion flowering", main="")
-y0<-predict(fo1@fitFec[[1]],newdata=x0,type="response")
-lines(x, y0, col="red")
-y0<-predict(fo2@fitFec[[1]],newdata=x0,type="response")
-lines(x, y0, col="green")
-y0<-predict(fo3@fitFec[[1]],newdata=x0,type="response")
-lines(x, y0, col="blue")
-
-legend("topleft",legend = sprintf("%s: %s = %.1f",c("1","size","size+size2"), 
-      c("AIC"), c(AIC(fo1@fitFec[[1]]), AIC(fo2@fitFec[[1]]), AIC(fo3@fitFec[[1]]))), 
-      col = c(2:4),lty = 1, xjust = 1, bg = "white")
-#select best model - model with lowest values 
-#fec1~size
 ```
 We will select the linear model. Now let's look at seed production.
 
 ```{r}
 #Test various fertility models to select best model 
 #Seed production of reproductive plants
-fo5 <- makeFecObj(pectis, Formula=fec2~1, Family = "poisson")
-fo6 <- makeFecObj(pectis, Formula=fec2~size, Family = "poisson")
-fo7 <- makeFecObj(pectis, Formula=fec2~size+size2, Family = "poisson")
 
-fs <- order(pectis$size); fs.fec2 <- (pectis$fec2)[fs]; fs.size <- (pectis$size)[fs]
-pfz <- tapply(fs.size, as.numeric(cut(fs.size, 21)), mean, na.rm = TRUE) 
-ps <- tapply(fs.fec2, as.numeric(cut(fs.size, 21)), mean, na.rm = TRUE) 
-plot(as.numeric(pfz), as.numeric(ps), pch = 19, cex = 1, col = "blue", xlab = "size", ylab = "Number of seeds/individual") 
-    y0 <- predict(fo5@fitFec[[1]], newdata = x0, type="response")
-    lines(x, y0, col="red")
-    y0 <- predict(fo6@fitFec[[1]], newdata = x0, type="response")
-    lines(x, y0, col="green")
-    y0 <- predict(fo7@fitFec[[1]], newdata = x0, type="response")
-    lines(x, y0, col="blue")
-
-legend("topleft", legend = sprintf("%s: %s = %.1f", c("1","size","size+size2"), 
-        c("AIC"), c(AIC(fo5@fitFec[[1]]), AIC(fo6@fitFec[[1]]), AIC(fo7@fitFec[[1]]))), 
-        col = c(2:4), lty = 1, xjust = 1, bg = "white")
 ```
 Now let's build the fecundity kernel. I will explain all of this later - all you need to do is change the formula structure following the 'fo <- ' code to reflect the models of best fit.
 
 ```{r}
-seedtotal <- sum(pectis$fec2, na.rm=T)
-
-#for subsampling - just replace the count using the rows with the estimated number of germinants
-truegerminanttotal <- NROW(pectis[is.na(pectis$size)==TRUE & is.na(pectis$sizeNext)==FALSE,"sizeNext"]) #or use count function in plyr, but haven't loaded that
-omissionrate <- 1.0 #1.1 assumes 10% not found, adds 10 percent to germinant counts; next year derive some probably for missing new seedlings
-germinanttotal <- round((truegerminanttotal*omissionrate), digits=0) 
-a10 <- germinanttotal / seedtotal
-
-fo <- makeFecObj(pectis, Formula=c(fec1~size, fec2~size+size2), 
-                 Family = c("binomial", "poisson"), 
-                 Transform=c("none", -1), # because seed production is contingent on producing flowers the second transformation is -1 (I think that I did this incorrectly in the ginseng model)
-                 fecConstants = data.frame(fec3=a10),
-                 meanOffspringSize=mean(pectis[is.na(pectis$size)==TRUE & is.na(pectis$sizeNext)==FALSE,"sizeNext"]), 
-                 sdOffspringSize=sd(pectis[is.na(pectis$size)==TRUE & is.na(pectis$sizeNext)==FALSE,"sizeNext"]))
 ```
 
 ## Putting it all together
 
 ```{r}
-#BUILD P MATRIX====================================
-Pmatrix <- makeIPMPmatrix(survObj=so, growObj=go, minSize=minSize, maxSize=maxSize, nBigMatrix=nBigMatrix, correction = "constant")
-#create F matrix
-Fmatrix <- makeIPMFmatrix(fecObj=fo, minSize=minSize, maxSize=maxSize, nBigMatrix=nBigMatrix, correction = "constant")
 
-IPM <- Pmatrix + Fmatrix
-lambdatotpop <- Re(eigen(IPM)$values[1])
 ```
 
 ## Generating confidence intervals
@@ -377,43 +318,7 @@ We will rerun it all over again - remember to update your models!
 
 ```{r}
 #create dataframe to store results
-subsetlam <- data.frame(
-  pectis$size,
-  pectis$id,
-  pectis$DeerBrowseYear1,
-  pectis$BrowseLevelYear1,
-  pectis$CoverYear1,
-  pectis$ProtectedFRBrowseYear1,
-  lamvals=NA
-)
 
-for (i in 1:nrow(pectis)) {
-  subset <- pectis[-i,]
-  go <- makeGrowthObj(dataf = subset, Formula = sizeNext~size+size2, regType = "constantVar", Family="gaussian")
-  so <- makeSurvObj(dataf = subset, Formula = surv~size+size2)
-  fo <- makeFecObj(subset, Formula=c(fec1~size, fec2~size+size2), 
-                   Family = c("binomial", "poisson"), 
-                   Transform=c("none", -1), # because seed production is contingent on producing flowers the second transformation is -1 (I think that I did this incorrectly in the ginseng model)
-                   fecConstants = data.frame(fec3=a10),
-                   meanOffspringSize=mean(subset[is.na(subset$size)==TRUE & is.na(subset$sizeNext)==FALSE,"sizeNext"]), 
-                   sdOffspringSize=sd(subset[is.na(subset$size)==TRUE & is.na(subset$sizeNext)==FALSE,"sizeNext"]))
-  Pmatrix <- makeIPMPmatrix(survObj=so, growObj=go, minSize=minSize, maxSize=maxSize, nBigMatrix=nBigMatrix, correction = "constant")
-  Fmatrix <- makeIPMFmatrix(fecObj=fo, minSize=minSize, maxSize=maxSize, nBigMatrix=nBigMatrix, correction = "constant")
-  IPM <- Pmatrix + Fmatrix
-  lam <- Re(eigen(IPM)$values[1])
-  print(paste(i," out of ", nrow(pectis), sep =""))
-  subsetlam$lamvals[i] <- lam
-}
-
-psuedolam <- data.frame(id = subsetlam$pectis.id, size = pectis$size, DeerBrowseYear1 = subsetlam$pectis.DeerBrowseYear1, BrowseIntensityYear1 = subsetlam$pectis.BrowseLevelYear1, Cover2021 = subsetlam$pectis.CoverYear1, ProtectedFRBrowseYear1 = subsetlam$pectis.ProtectedFRBrowseYear1, psuedolamvals = lambdatotpop-subsetlam$lamvals)
-
-theta2 <- mean(subsetlam$lamvals)
-varpseudo2 <- var(subsetlam$lamvals)
-CIUpper <- theta2 + qt(0.975,length(subsetlam$lamvals)-1)*sqrt(varpseudo2/length(subsetlam$lamvals)); CIUpper
-CILower <- theta2 - qt(0.975,length(subsetlam$lamvals)-1)*sqrt(varpseudo2/length(subsetlam$lamvals)); CILower
-lambdatotpop #lambda of entire population
-
-populationgrowthratewCI <- cbind(lambdatotpop, CILower, CIUpper)
 ```
 
 ## Different life histories
