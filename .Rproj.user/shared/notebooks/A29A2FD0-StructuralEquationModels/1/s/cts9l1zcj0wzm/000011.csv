@@ -1,11 +1,0 @@
-"1","  |                                                                                                         |                                                                                                 |   0%  |                                                                                                         |=================================================================================================| 100%
-
-Structural Equation Model of firesev_model 
-
-Call:
-  firesev ~ age
-  cover ~ firesev
-
-    AIC
- 364.696
-"

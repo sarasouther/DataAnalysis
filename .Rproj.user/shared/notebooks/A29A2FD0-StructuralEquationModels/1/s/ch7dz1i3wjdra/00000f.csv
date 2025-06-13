@@ -1,7 +1,0 @@
-"0","cardinale_model <- '"
-"0","  SA ~ logN.cen + logN2.cen + SR"
-"0","  logChl ~ SA + logN.cen + logN2.cen"
-"0","  logN.cen ~~ logN2.cen"
-"0","'"
-"0",""
-"0","cardinale_fit <- sem(cardinale_model, data = cardinale, fixed.x = FALSE)"

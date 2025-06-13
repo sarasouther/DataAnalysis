@@ -1,8 +1,0 @@
-"0","# Define DAG"
-"0","g <- dagitty(""dag {"
-"0","  x -> y2 -> y1"
-"0","  x -> y1"
-"0","}"")"
-"0",""
-"0","# View conditional independencies implied by the DAG"
-"0","impliedConditionalIndependencies(g)"

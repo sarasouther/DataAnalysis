@@ -1238,8 +1238,7 @@ library(piecewiseSEM)
 library(visreg)
 library(DiagrammeR)
 
-# Load sample data (or use your own)
-data(keeley)  # from piecewiseSEM
+data(keeley)  # from piecewiseSEM and work through this information 
 ```
 
 Part 3: Specify and Fit Your Model
@@ -1714,7 +1713,7 @@ Multigroup SEM lets you:
 
 ### Chapter 17: 
 
-Yes! Based on the content in SEM9.2 – Mixed Models Part 2, here’s an R Markdown tutorial on using mixed models in piecewise SEM, covering:
+Mixed models in piecewise SEM, covering:
 
 	•	Fixed vs. random effects
 	•	Adding group-level predictors
@@ -1800,3 +1799,178 @@ Summary:
 	•	Use piecewiseSEM with lme() to include random effects.
 	•	Be cautious of group-level confounding — use centering and group-level predictors.
 	•	Use rsquared() and fisherC() for model comparison and goodness-of-fit.
+	
+## Example with Powerline Data
+	
+```{r}
+library(readr)
+
+# Define the file URL
+url <- "https://drive.google.com/uc?export=download&id=1MVlaEshEn7M2g8rOiJ8fWPPozn3WgNck"
+
+# Read CSV directly into R
+powerline_plants <- read_csv(url)
+```
+
+We are starting with our original DAG (below):
+
+```{r}
+library(dagitty)
+library(ggdag)
+library(tidyverse)
+
+
+# Define the DAG
+ivm_dag <- dagitty("
+dag {
+  Treatment
+  Soil_Substrate
+  Cattle
+  Plant_Richness
+  Plant_Cover
+  Plant_Height
+  Ceanothus
+  Woody_Debris
+  Pollinator_Richness
+  Pollinator_Abundance
+
+  Treatment -> Plant_Richness
+  Treatment -> Plant_Cover
+  Treatment -> Plant_Height
+  Treatment -> Ceanothus
+  Treatment -> Woody_Debris
+
+  Soil_Substrate -> Treatment
+  Soil_Substrate -> Plant_Richness
+  Soil_Substrate -> Plant_Cover
+  Soil_Substrate -> Woody_Debris
+
+  Cattle -> Plant_Richness
+  Cattle -> Plant_Cover
+  Cattle -> Pollinator_Abundance
+  Cattle -> Pollinator_Richness
+
+  Plant_Richness -> Pollinator_Richness
+  Plant_Richness -> Pollinator_Abundance
+  Plant_Cover -> Pollinator_Richness
+  Plant_Cover -> Pollinator_Abundance
+  Plant_Height -> Pollinator_Richness
+  Plant_Height -> Pollinator_Abundance
+  Ceanothus -> Pollinator_Richness
+  Ceanothus -> Pollinator_Abundance
+  Woody_Debris -> Pollinator_Richness
+  Woody_Debris -> Pollinator_Abundance
+}
+")
+
+node_roles <- tibble(
+  name = c(
+    "Treatment",
+    "Soil_Substrate",
+    "Cattle",
+    "Plant_Richness",
+    "Plant_Cover",
+    "Plant_Height",
+    "Ceanothus",
+    "Woody_Debris",
+    "Pollinator_Richness",
+    "Pollinator_Abundance"
+  ),
+  role = c(
+    "Treatment",
+    "Context",
+    "Context",
+    "Plant",
+    "Plant",
+    "Plant",
+    "Plant",
+    "Plant",
+    "Pollinator",
+    "Pollinator"
+  )
+)
+
+# Get layout and merge roles
+dag_df <- tidy_dagitty(ivm_dag, layout = "nicely") %>%
+  left_join(node_roles, by = "name")
+
+# Plot using ggplot2 with corrected edge structure
+ggplot() +
+  geom_segment(
+    data = dag_df %>% filter(!is.na(xend)),
+    aes(x = x, y = y, xend = xend, yend = yend),
+    arrow = arrow(length = unit(0.02, "npc")),
+    color = "grey40"
+  ) +
+  geom_point(
+    data = dag_df %>% filter(!is.na(x)), 
+    aes(x = x, y = y, color = role), 
+    size = 8, alpha = 0.85
+  ) +
+  geom_text(
+    data = dag_df %>% filter(!is.na(x)), 
+    aes(x = x, y = y, label = name), 
+    color = "black", size = 4
+  ) +
+  scale_color_manual(values = c(
+    "Treatment" = "#FB7E21FF",
+    "Context" = "#A91601FF",
+    "Plant" = "#18DDC2FF",
+    "Pollinator" = "#00468BFF"
+  )) +
+  labs(
+    title = "Hypothesized DAG for Pollinator Response to IVM Treatment",
+    color = "Variable Type"
+  ) +
+  theme_void()
+```
+
+Then, we need to create linear models, treating each “node” as its own regression model. First, we have to summarize our data in a way that can be input into the linear models.
+
+```{r}
+library(piecewiseSEM)
+
+by_plot <- group_by(powerline_plants, Site, Block, Plot)
+
+powerline_SEM <- powerline_plants %>%
+  group_by(Site, Treatment, Block, Plot) %>%
+  summarise(
+    Plant_Richness = n_distinct(Species),
+    Plant_Height = mean(Height_cm, na.rm = TRUE),
+    Soil_Substrate = mean(Q_Substrate_BareSoil, na.rm = TRUE),
+    Woody_Debris = mean(Q_Substrate_WoodyDebris, na.rm = TRUE),
+    Cattle_pressure = mean(Plot_DungCount, na.rm = TRUE),
+    Total_Veg = n(),  # total observations
+    Total_Ceanothus = sum(Species == "Ceanothus fendleri", na.rm = TRUE),
+    Plant_Cover = mean(Q_Substrate_PerennialVeg, na.rm = TRUE)
+  )
+
+powerline_SEM <- mutate(powerline_SEM, Ceanothus = Total_Ceanothus/Total_Veg)
+
+# We need to add pollinator data
+
+# Example models (update with your actual data frame name and adjust distributions if needed)
+mod1 <- lm(Plant_Richness ~ Treatment + Soil_Substrate + Cattle_pressure, data = powerline_SEM)
+mod2 <- lm(Plant_Cover ~ Treatment + Soil_Substrate + Cattle_pressure, data = powerline_SEM)
+mod3 <- lm(Plant_Height ~ Treatment, data = powerline_SEM)
+mod4 <- lm(Ceanothus ~ Treatment, data = powerline_SEM)
+mod5 <- lm(Woody_Debris ~ Treatment + Soil_Substrate, data = powerline_SEM)
+#mod6 <- lm(Pollinator_Richness ~ Plant_Richness + Plant_Cover + Plant_Height + Ceanothus + Woody_Debris + Cattle_pressure, data = powerline_SEM)
+#mod7 <- lm(Pollinator_Abundance ~ Plant_Richness + Plant_Cover + Plant_Height + Ceanothus + Woody_Debris + Cattle_pressure, data = powerline_SEM)
+
+# Assemble SEM
+
+sem_model <- psem(
+mod1, mod2, mod3, mod4, mod5
+)
+
+#sem_model <- psem(
+#  mod1, mod2, mod3, mod4, mod5, mod6, mod7
+#)
+```
+
+Questions for Greg:
+
+- Do you want to include random effects (block)?
+- Do you want to use a different estimate of species diversity? Here I've just summarized as raw richness
+

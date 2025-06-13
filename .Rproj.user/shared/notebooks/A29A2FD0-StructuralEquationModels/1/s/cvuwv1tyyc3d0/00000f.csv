@@ -1,2 +1,0 @@
-"0","# Visualize fire severity's effect on cover"
-"0","visreg(firesev_model[[2]], xvar = ""firesev"")"

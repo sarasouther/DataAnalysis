@@ -1,6 +1,0 @@
-"0","adjustmentSets(ivm_dag, exposure = ""Treatment"", outcome = ""Pollinator_Richness"")"
-"1","{ Soil_Substrate }
-"
-"0","adjustmentSets(ivm_dag, exposure = ""Treatment"", outcome = ""Pollinator_Abundance"")"
-"1","{ Soil_Substrate }
-"
