@@ -1,8 +1,39 @@
 # A Simple Statistical Test
 
+## What Are Frequentist Statistics?
+
+Before we dive into individual tests, it’s important to understand the statistical framework we’ll be using: frequentist statistics.
+
+Frequentist statistics is the most common framework in introductory courses and most published ecological and social science research. It’s based on the idea that probability reflects the long-run frequency of events if an experiment were repeated infinitely.
+
+## Core Ideas of Frequentist Statistics
+
+	•	We assume there is a fixed, true value for parameters (like a population mean or effect size), even if we can’t observe it directly.
+	•	We collect a sample, estimate that value, and ask:
+“How likely is it to observe data like this, if our null hypothesis were true?”
+	•	We use p-values to determine whether our observed results are unlikely under the null hypothesis.
+
+## Example
+
+Let’s say we’re testing whether a new treatment increases plant growth. Under the null hypothesis, the treatment has no effect, and any differences in plant height are just due to chance.
+
+We collect data, calculate a test statistic (like a t-value or F-value), and use that to compute a p-value—the probability of observing our data (or something more extreme) if the treatment truly had no effect:
+
+	•	If the p-value is small (typically < 0.05), we reject the null hypothesis.
+	•	If the p-value is large, we don’t have enough evidence to reject it.
+
+Frequentist Statistics vs. Other Approaches (Optional Teaser):
+
+	•	Frequentist = estimates are based on fixed parameters and sampling distributions
+	•	Bayesian = combines prior knowledge with observed data
+	•	Likelihood-based (e.g., AIC approaches) = compares models based on their fit to the data
+
+We’ll focus on frequentist statistics in this course, particularly through the lens of Generalized Linear Models (GLMs)—but understanding the logic behind p-values, null hypotheses, and confidence intervals will serve you across all frameworks.
+
 ## Simplicity at its finest
 
 We will highlight the basic components of a statistical test with a very simple statistical 'tailed' test. For this example, we will:
+
 *State a hypothesis
 *Calculate a test statistic
 *Determine the p-value
@@ -11,12 +42,12 @@ We will highlight the basic components of a statistical test with a very simple 
 ## Basic hypothesis testing review
 
 We are all familiar with the basic scientific process:  A researcher makes observations about the natural world, then generates a hypothesis to test a particular explanation of an observed phenomenon within the system, rejects or fails to reject the hypothesis, and reports these findings, growing the understanding of the system. In most day-to-day research, researchers perform the scientific process intuitively, rather than explicitly. For instance, I have never included hypotheses in a manuscript. This isn't to say you can't include hypotheses, just that most journals don't require writing your methods this way, and often space constraints and readability considerations lead authors to avoid including specific hypotheses in write-ups. Frequently, I will include hypotheses in a research proposal to help illustrate key aspects of the system and demonstrate that the statistical tests are testable, but not always! In other words, hypothesis testing is the foundation of scientific inquiry, but easily overlooked, since it often isn't necessary to explicitly state hypotheses to create scientific products. 
-
 Statistical hypothesis testing answers very simple questions, while scientists work in very complex knowledge environments. For beginning researchers, it is important to understand what statistics can tell us, and how this builds information to address amazing and very interesting research questions. Hypotheses allow us to articulate exactly what we are testing in statistics and to organize thoughts and analyses. In Week 1, we discussed that most statistical tests are designed to answer one of two questions: 1) Are there differences between these groups? and 2) are there relationships between these variables? Let's connect these concepts directly to hypothesis testing.
 
 The **null hypothesis** ($H_0$) is a statement about a population parameter that would be interesting to reject. The null hypothesis typically asserts that there is no effect or relationship or that results will not deviate from established knowledge.
 
 For instance:
+
 *The mean height of giraffes in captivity and in the wild do NOT differ.
 *The incidence of toenail fungus is the SAME in the control group and the group given anti-fungal medicine.
 *There is NO relationship between sea grass height and the number of sea snails.
@@ -25,6 +56,7 @@ For instance:
 Null hypotheses are paired with **alternative hypotheses** ($H_A$) that represent ALL other possibilities other than that stated in the null hypothesis. 
 
 For instance:
+
 *The mean height of giraffes in captivity and in the wild differs.
 *The incidence of toenail fungus is different in the control group and the group given anti-fungal medicine.
 *There is a relationship between sea grass height and the number of sea snails.
@@ -53,6 +85,7 @@ Note that the alternative hypothesis is very broad and encompasses all other pos
 
 Before we move on, can you think of an example of a 1-tailed test?
 Examples:
+
 *Did you score better than the class average?
 *Is the time to ARD slower when you avoid driving through campus?
 Note that we are only interested in values in one direction. In the first example, we are interested in whether your score is >80% (class average). In the second, we are interested in whether your drive time is <10 minutes (time to ARD driving through campus from your house). 
@@ -71,8 +104,8 @@ For this simple test, our test statistic will be 14, since this is the number of
 *Determine the p-value*
 
 Frequentists statistics is based on the concept of statistical distributions. If we run many trials, we can determine the likelihood of certain events occurring. We refer to the patterns of occurrence of trials as frequency distributions. Let's illustrate using the data above. A cat can either be right-handed or left-handed (in this case there are no ambidextrous cats). To determine the likelihood that our pattern arose by chance, we conduct numerous trials like a coin toss. We would randomly flip a coin 18 times and record the outcome of each trial; heads being right-pawed, and tails being left-pawed. 
-
 Let's do that now: 
+
 *Each student take a coin. 
 *Flip the coin 18 times and record number of heads. 
 *Divide by total number of trials (in this case students) to derive relative frequency for each event.
@@ -125,6 +158,7 @@ What would we say if we didn't reject the null? We would state that we **failed 
 ## Reporting results
 
 When we report findings, we will provide:
+
 1) A statement of findings
 2) The test statistic
 3) The P-value
@@ -132,6 +166,7 @@ When we report findings, we will provide:
 5) A visualization of differences, if differences exist
 
 Here, let's focus on reporting information 1 - 3. We might say something like:
+
 Cats displayed higher levels of handedness than expected by chance (t = 14, p = 0.031). 
 
 ## Review problems

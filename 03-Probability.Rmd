@@ -1,20 +1,5 @@
 # Randomness and probability
 
-## Prework
-
-*Listen to the podcast on stochasticity
-*Reads on randomness and determinism:
-https://towardsdatascience.com/when-science-and-philosophy-meet-randomness-determinism-and-chaos-abdb825c3114
-*Load packages and datasets
-
-```{r echo = FALSE}
-library(readr)
-
-url <- "https://drive.google.com/uc?export=download&id=1KDvCzj9-YzN1zDHdLutcpruYx5mpcEWH"
-example1 <- read_csv(url)
-```
-## Randomness
-
 Randomness is statistically a simple concept with incredible repercussions for understanding natural systems, human decisions, and, well, life! One of the most interesting panels that I attended as a graduate student was a debate between scientific and religious philosophers over the meaning of randomness. There were a range of viewpoints; the theologian believed that randomness was where the divine could work; at the other extreme, the science philosopher believed that there is no such thing as random, only that we haven't developed the capacity to measure what we perceive as random, and that everything we experience is a deterministic outcome of physics manifest in the world around us.
 
 As I write this lesson, I'm sitting on the couch with my younger child watching Jurassic Park. Ian Malcolm has just introduced himself as a 'chaotician' (he he). Chaos theory is one way to explain what appears to us as 'randomness', because small initial differences in conditions of complex systems leads to extremely different end states, even when the same deterministic rules apply to that system. The 'butterfly effect' (a butterfly flaps its wings in Asia causes a tornado in Texas) is often used to describe this core concept of chaos (the example originally created by Edward Norton Lorenz used a seagull instead of a butterfly). Chaos theory is incorporated into modeling simulations (particularly in population biology).
@@ -31,13 +16,19 @@ Because statistics relies so heavily on probability, let's review some basic con
 ## The sample point method
 
 The sample point method is one method of determining the likelihood of an event, and entails the following steps:
-*Define the sample space, S, by listing all possible outcomes of the 'experiment' or 'trial' you are conducting.
-*Assign probabilities to all sample points, Pi, such that the probability of all events within the experiment tally to 1.
-*Sum all sample points that constitute the outcome you are interested in to find the probability of that outcome.
+
+- Define the sample space, S, by listing all possible outcomes of the 'experiment' or 'trial' you are conducting.
+- Assign probabilities to all sample points, Pi, such that the probability of all events within the experiment tally to 1.
+- Sum all sample points that constitute the outcome you are interested in to find the probability of that outcome.
 
 Let's practice this concept with an example. Let's calculate the probability of getting two heads in three tosses of a fair coin. 
 
-```{r echo = FALSE}
+```{r}
+library(readr)
+
+url <- "https://drive.google.com/uc?export=download&id=1KDvCzj9-YzN1zDHdLutcpruYx5mpcEWH"
+example1 <- read_csv(url)
+
 knitr::kable(example1, caption="Sample Space", full_width = F, html_font = "Arial")
 ```
 
@@ -46,6 +37,7 @@ The first step is to define the sample space for this experiment, by showing all
 The equation of an event occurring (A) is: $P(A) =\frac{n_a}{N}$ where P(A) is the probability of event A equals the number of points constituting event A ($n_a$) divided by the total number of sample points (N). Applying this equation to the above example, P(A) = $\frac{3}{8} = 0.375$
 
 ## Combinatorials
+
 Because defining the sample space can be cumbersome for larger sample spaces, we can use combinatorial math, specifically the *mn* rule, to calculate sample space! The *mn* rule simply states that if one group contains *m* elements and another group contains *n* elements, you can for *m* *x* *n* pairs containing an element from each group. For instance, if we were determining the sample space for outcomes of rolling 2, 6-sided dice, we could multiply 6 x 6 (or $6^2$). 
 
 ![Sample space for a single roll of 2 die.](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/dice.png)
@@ -62,7 +54,7 @@ P(A) = $\frac{n_a}{N} = \frac{365 \times 364 \times 363 \dots \times 352}{365^{1
 Sample points can be represented as sequences of numbers or symbols. An ordered arrangement of of distinct objects is called a *permutation*. We can calculate the sample space as total number of distinct ways of arranging these symbols or numbers in a sequence, using the following equation:
 
 $P_r^n = n(n-1)(n-2)\dots(n-r+1) = \frac{n!}{(n-r)!}$ where $n! = n \times (n-1) \times (n-2) \times\dots\times2\times1$, where the total number of ordering $n$ objects taken $r$ at a time. 
-Quick factorial review and calculating in r
+
 ```{r}
 #factorial of 5 or 5!
 factorial <- 5*4*3*2*1; factorial
@@ -228,16 +220,17 @@ finalprob <- probA + probB - intersection; finalprob
 ```
 
 ## Key concepts
-*Randomness is inherent in natural systems. Whether this randomness is truly random or simply appears random due to the complexity of natural systems, we treat it the same in statistics. 
-*We want to avoid any form of systematic bias in experimental design.
-*Randomness and other factors are lumped together in what we call statistical error; the difference between a true estimate of a parameter and what we estimate in our sample. 
-*Probability is the proportion of times an event occurs in repeated trials, and varies between 0 and 1.
-*We practiced a bunch of different ways of calculating probability, for the long-term, what you really need to know is that to calculate probabilities, you need to understand your sample space and the likelihood and relationship of events of interest. 
-*Two great rules of probability are: Additive Law of Probability & the Multiplicative Law of Probability
-*Union events and Intersection events
+
+Summary:
+
+- Randomness is inherent in natural systems. Whether this randomness is truly random or simply appears random due to the complexity of natural systems, we treat it the same in statistics. 
+- We want to avoid any form of systematic bias in experimental design.
+- Randomness and other factors are lumped together in what we call statistical error; the difference between a true estimate of a parameter and what we estimate in our sample. 
+- Probability is the proportion of times an event occurs in repeated trials, and varies between 0 and 1.
+- We practiced a bunch of different ways of calculating probability, for the long-term, what you really need to know is that to calculate probabilities, you need to understand your sample space and the likelihood and relationship of events of interest. 
+-Two great rules of probability are: Additive Law of Probability & the Multiplicative Law of Probability
+- Union events and Intersection events
 
 ## Practice problems
-
-
 
 

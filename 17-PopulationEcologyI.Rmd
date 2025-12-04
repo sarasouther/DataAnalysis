@@ -231,7 +231,7 @@ reproduction <- filter(pectis, fec1 == "1")
 seeds <- glm(fec2 ~ size, na.action = na.omit, family = "poisson", data = reproduction)
 residuals <- residuals(seeds, type = "response")
 qqnorm(residuals)
-qqline(residuals, add=TRUE)
+qqline(residuals)
 
 test_seeds <- testResiduals(seeds)
 
@@ -271,22 +271,22 @@ This handy piece of code quickly compares different model fits, the slope, a lin
 
 ```{r}
 #select best model - model with lowest values
-go <-makeGrowthObj(dataf = pectis, Formula = sizeNext~size + size2, regType = "constantVar", Family="gaussian")
+#go <-makeGrowthObj(dataf = pectis, Formula = sizeNext~size + size2, regType = "constantVar", Family="gaussian")
 ```
 
 Let's compare survival models now!
 
 ```{r}
-pectis_clean <- na.omit(pectis_surv)
+#pectis_clean <- na.omit(pectis_surv)
 
-survModelComp(dataf = pectis_clean, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Survival")
+#survModelComp(dataf = pectis_clean, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Survival")
 #survModelComp(dataf = pectis, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Survival")
 ```
 Here, the model of best fit is the first order model. Let's build the survival object.
 
 ```{r}
 #select best model - model with lowest values
-so <- makeSurvObj(dataf = pectis_clean, Formula = surv~size+size2)
+#so <- makeSurvObj(dataf = pectis_clean, Formula = surv~size+size2)
 ```
 
 The process for creating fecundity objects is not quite as streamlined, so let's develop our own code to compare fecundity models. For *P. imberbis*, we break reproduction into two components: 1) whether a plant reproduces, and 2) if a plant reproduces, how many seeds are produced as a function of size.

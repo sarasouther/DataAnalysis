@@ -2,13 +2,14 @@
 
 ## Linear models
 
-What is a linear model, you say? 
+What is a linear model? 
 
 A linear model is a model where the data and parameters of interest interact only via addition and multiplication. 
 
 Most commonly, the term 'linear model' refers to statistical models that involve linear regression. Clearly, linear models include linear regression in all its beautiful forms, like ANCOVA, and logistic regression. However, ANOVA is actually considered a linear model as well, since it meets our basic definition. Though it may not seem so from the outset, ANOVA and regression, statistically are related. 
 
 Here's an example:
+
 Let's pretend we are looking at SLA (Specific Leaf Area) measurements of 3 different populations of plants, one population from Flagstaff, one from Sedona, and one from Camp Verde. 
 
 ```{r}
@@ -46,7 +47,9 @@ Now, let's have a b***ing session about old-school linear models, like ANOVA. Th
 A Generalized Linear Model (GLM) is an flexible statistical framework that allows us to model relationships between variables when the assumptions of ordinary linear regression are not met. Generalized Linear Models makes linear regression generalizable by using a link function to relate the linear model (i.e., relationship between x and y; systematic component) to the error (random component), allowing the magnitude of the variance for each measurement to be a function of the mean value and allowing us to specify different types of error distributions. Practically, GLMs allow you to analyze a variety of regression models, including linear regression, ANOVA, models for examining count data, models for predicting likelihood of events, under one statistical umbrella.
 
 *Model assumptions*
+
 What are the assumptions of GLMs?
+
 1. The data are independent. No problem - this is always important!
 2. The residuals do *NOT* need to be normally distributed, but you do need to specify a distribution from an exponential family that best fits your data (i.e., normal/Gaussian, binomial, Poisson, etc.)
 3. The homogeneity of variance does *NOT* need to be satisfied.

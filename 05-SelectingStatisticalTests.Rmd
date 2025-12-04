@@ -2,7 +2,7 @@
 
 ## A foray into statistics
 
-Last week we talked about data types and describing data. This week we are applying concepts that we learned last week to select (and run) a statistical analysis. When conducting an analysis, a dataset will contain one or more **response variables** (aka y-variables, dependent variables) and one or more **explanatory variables** (aka x-variables, independent variables). The data types of the explanatory and response variables determine which statistical test we use.
+Last time, we talked about data types and describing data. This week, we’ll take the next step: applying those concepts to select and run appropriate statistical tests. When conducting an analysis, a dataset will contain one or more **response variables** (aka y-variables, dependent variables) and one or more **explanatory variables** (aka x-variables, independent variables). The data types of the explanatory and response variables determine which statistical test we use.
 
 **Brief review**: Explanatory variables are used to explain variation in response variables. For instance, imagine that we want to identify areas that support high numbers of plants from the genus Mitella. We hypothesize that Mitella occurrence is positively related to water supply (i.e., the number of Mitella plants goes up as water availability increases). In this case, my response variable would be number of plants in genus Mitella, and my explanatory variable would be some measure of water supply. 
 
@@ -12,9 +12,79 @@ Below, you will see a very simple decision matrix for selecting statistical anal
 
 ![Select the statistical analysis!](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class4_SelectingStatisticalAnalyses/DecisionMatrix.png)
 When both the response and explanatory variables are **categorical**, we use what is called a **G-test**! 
+In this class, we will focus primarily on Generalized Linear Models (GLMs), which extend the ideas behind these traditional tests to a wider range of data types and distributions. However, these foundational methods still show up regularly in the literature—and in many introductory stats courses—so it’s useful to understand their purpose, assumptions, and structure.
 
+Four basic statistical tests:
 
+1. **ANOVA (Analysis of Variance):**
 
+•	Purpose: Tests whether the means of three or more groups are significantly different.
+•	Equation: Y_{ij} = \mu + \alpha_i + \epsilon_{ij} where:
+
+	•	Y_{ij}: observation
+	•	\mu: overall mean
+	•	\alpha_i: effect of group i
+	•	\epsilon_{ij}: residual error
+	
+•	Assumptions:
+
+	•	Response variable is continuous and normally distributed
+	•	Groups have equal variance (homoscedasticity)
+	•	Observations are independent
+
+•	GLM Extension: ANOVA is a special case of a linear model with a categorical predictor and a continuous, normally distributed response.
+
+**2. Linear Regression:**
+
+•	Purpose: Tests whether there is a linear relationship between two numerical variables.
+•	Equation: Y_i = \beta_0 + \beta_1 X_i + \epsilon_i where:
+	•	Y_i: response variable
+	•	X_i: explanatory variable
+	•	\beta_0: intercept
+	•	\beta_1: slope
+	•	\epsilon_i: residual error
+	
+•	Assumptions:
+
+	•	Linearity: relationship is linear
+	•	Normality of residuals
+	•	Homoscedasticity (constant variance of residuals)
+	•	Independence of observations
+
+•	GLM Extension: Linear regression is a GLM with a Gaussian (normal) error distribution and an identity link function.
+
+**3. Logistic Regression:**
+
+•	Purpose: Models the probability of a binary outcome (e.g., presence/absence, success/failure).
+•	Equation: \log\left(\frac{p}{1 - p}\right) = \beta_0 + \beta_1 X where:
+
+	•	p: probability of success
+	•	Link function: logit
+	
+•	Assumptions:
+
+	•	Response variable is binary
+	•	Observations are independent
+	•	No assumption of normally distributed errors
+	
+•	GLM Extension: Logistic regression is a GLM with a binomial distribution and a logit link.
+
+**G-test (or Chi-squared test):**
+
+•	Purpose: Tests for associations between two categorical variables, often presented in a contingency table.
+•	Equation (G-statistic): G = 2 \sum O_i \ln\left(\frac{O_i}{E_i}\right)
+	•	O_i: observed frequency
+	•	E_i: expected frequency
+
+•	Assumptions:
+
+	•	Data are counts in categories
+	•	Expected counts are not too small (generally ≥ 5)
+	•	Observations are independent
+	
+•	GLM Extension: The G-test is related to the Poisson or binomial GLM, depending on the structure of the data.
+
+Traditional tests like ANOVA and linear regression assume continuous, normally distributed data. GLMs let us handle many real-world data types more accurately and flexibly.
 
 
 

@@ -1,7 +1,6 @@
 ---
 title: "Statistics for Ecology"
 author: "Dr. Sara Souther"
-date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output_dir: "docs"
 github-repo: sarasouther/DataAnalysis
@@ -28,14 +27,25 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Introduction {#intro}
+# Introduction 
 
-## Student Learning Objectives
+**Welcome to our statistical exploration of the natural world!**
 
-## Downloads
+My goal is for you to develop an intuitive understanding of statistical analysis—how to choose the right test, understand its assumptions, visualize and interpret results, and communicate findings clearly in a report. By the end of this course, I hope you’ll feel confident tackling any analytical situation you encounter.
 
-## Description
+Let’s get one thing out of the way early: we are not statisticians—whew! We are ecologists and social scientists. Our goal is not to master the theoretical mathematics behind statistics, but rather to apply statistical tools appropriately and thoughtfully. For this reason, we won’t spend much time on the underlying equations or proofs, but instead focus on practical application, critical interpretation, and making our data tell a clear story. For this reason, I will not spend much space describing the mathematical understanding of statistics! 
 
-## Grading
+## Learning Objectives
 
-## Overview
+By the end of this course, you will be able to:
+
+	•	Select appropriate statistical tests based on the type of data (categorical, continuous, ordinal),       the structure of your study design, and the research question being asked (e.g., comparing groups,       testing relationships, evaluating change over time).
+	•	Properly run statistical analyses using R, including data cleaning, assumption checking, and the         implementation of common tests such as t-tests, ANOVA, chi-squared tests, correlation, linear            regression, and basic non-parametric alternatives.
+	•	Report and interpret statistical results in clear, publication-ready language. This includes   
+	  summarizing findings with appropriate measures of central tendency and variation (mean, median,   
+	  standard error), reporting test statistics and p-values, and interpreting both statistical and 
+	  biological/social significance.
+	•	Visualize data effectively using plots and figures that aid interpretation and communicate key 
+	  findings to scientific and non-scientific audiences.
+	•	Understand the assumptions behind common statistical methods and recognize when those assumptions are     violated, along with strategies for addressing or adjusting for these issues.
+	•	Develop confidence and critical thinking in applying statistical tools to real-world ecological and      social science data, with a focus on transparency, reproducibility, and responsible data use.
