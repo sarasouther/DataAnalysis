@@ -1,0 +1,362 @@
+# Back to the basics
+
+## What can statistics tell us?
+
+Almost all statistical analysis boils down to answering one of two questions:
+
+	1.	Do these groups differ?
+	2.	Is there a relationship between these variables?
+	
+These seem like simple questions — in theory you might just “look at the data” to answer the questions — so **why do we need statistics**?
+
+The short answer is: **error** and **sampling**.
+
+Whenever we collect data, we introduce **error**:
+
+– our instruments have limits
+– humans make mistakes
+– environmental conditions vary
+– biological systems are inherently noisy
+
+And we are always measuring a subset of the **true population**. Even when we try to measure every individual (e.g., rare plant censuses), some individuals may be dormant, hidden, or unreachable.
+
+If we were omniscient, we would simply compute the true population parameters (mean, variance, etc.), compare them directly, and skip statistics entirely. But in the real world, we estimate these values from samples and quantify the uncertainty around them.
+
+Statistics is practical: it asks, **what can we say given imperfect measurements, small samples, and noisy biological systems?**
+
+## The Frequentist Framework
+
+The statistics we use most commonly in ecology — t-tests, ANOVA, linear models, GLMs, mixed models — are all built within the *frequentist* or *parametric* framework.
+
+**Frequentist statistics assumes:**
+
+**1.	There is a true but unknown parameter**
+The population mean, variance, slope, etc. are fixed constants — but we don’t know their values.
+**2.	Your sample is one of many possible samples you could have taken**
+If you collected data again under the same conditions, you’d get a different sample and different estimates.
+**3.	Variation in your estimates comes from sampling error**
+The parameter does not vary — you vary because you sampled imperfectly.
+Uncertainty is therefore in the estimator, not the parameter.
+**4.	Probability statements describe long-run frequencies of repeated sampling**
+For example:
+
+A 95% confidence interval contains the true parameter in 95% of hypothetical repeated samples.
+It does not mean “there is a 95% chance the true mean is in this interval.”
+
+**What does “parametric” mean?**
+
+Parametric tests assume the data follow a particular **probability distribution** (e.g., normal, Poisson, binomial).
+These assumptions influence:
+
+- which model we choose
+- how we estimate uncertainty
+- what kinds of inferences we can make
+
+If you understand **distributions**, you understand **why models behave the way they do**.
+
+## Bayesian statistics
+
+The main alternative statistical framework to frequentist or parameteric statistics is *Bayesian* statistics. Bayesian statistics is based on Bayes’ Theorem, which provides a mathematical way to update our beliefs in light of new data. In this framework, we start with a prior distribution representing what we believe about a parameter before collecting data. We then combine this prior with the likelihood (the information contained in the data) to obtain a posterior distribution, which reflects our updated beliefs after seeing the evidence. This allows us to make intuitive probability statements about parameters—such as the probability that a parameter lies within a certain range—and provides a flexible foundation for modeling uncertainty, especially in hierarchical and ecological systems.
+
+We (and most other ecologist) will learn frequentist methods first, because:
+
+- Most classical ecological statistics (t-tests, ANOVA, GLMs) use the frequentist framework.
+- Frequentist thinking aligns with standard experimental design.
+- Historically, Bayesian methods were computationally difficult.
+- Most journals still expect p-values and confidence intervals.
+
+### When might you choose Bayesian statistics?
+
+Although we begin with frequentist methods for their simplicity and historical use in ecology, there are many situations where Bayesian approaches offer clear advantages. Ecologists often choose Bayesian statistics when:
+
+- Data are sparse, noisy, or imbalanced. Bayesian priors help stabilize estimates when sample sizes are small or data contain many zeros (common in rare species monitoring or demographic studies).
+- Hierarchical or multilevel structure is important. Many ecological datasets have natural grouping—plots within sites, individuals within populations, years within climate regimes.
+- Bayesian methods handle hierarchical models gracefully and provide full uncertainty estimates for every level.You want to incorporate prior information.
+- In wildlife ecology, population modeling, or long-term monitoring, previous studies often contain valuable information that can inform current estimates. Priors allow you to formally combine past research with new data.
+- You care more about parameter uncertainty than about p-values. Bayesian posterior distributions provide intuitive quantities such as: “There is a 94% probability that survival increased after treatment.”
+This is often more interpretable than a traditional p-value.
+- Models are too complex for frequentist methods.Nonlinear state–space models, integrated population models, hierarchical occupancy models, and many SDM frameworks are more stable and easier to fit using Bayesian tools like Stan, JAGS, or NIMBLE.
+- You need robust propagation of uncertainty. Bayesian methods naturally propagate uncertainty across multiple model components, which is critical for forecasting, resilience modeling, and structured decision making.
+
+In short, Bayesian statistics shines when ecological questions involve complex models, low sample sizes, hierarchical structure, prior knowledge, or full uncertainty estimation.
+
+## Data Types and Why They Matter
+
+Before we analyze or visualize anything, we need to understand **data types**, because the type of **data determines the probability distribution**, which **determines the statistical test**.
+
+**Data type → Distribution → Model choice**
+
+*Categorical variables* are non-numeric variables. 
+**Examples**: Pet type (dog, cat, fish, bird), Size (small, medium, large), Car type (sedan, SUV), Present/Absent
+
+*Numerical variables* are variables that are numbers, and occur in two forms:
+*Discrete = Counts of things (no decimal points/fractions)
+Data are discrete when it does not make sense to have a partial number of the variable. For instance, if counting the number of insects in a pond, it does not make sense to count a half a species.
+**Examples**: Number of people in a building, number of trees in a plot, number of bugs in a pond 
+
+*Continuous = Numerical data that can occur at any value. 
+These are variables that can occur in any quantity. If you can have a fraction of this variable, it is continuous.
+**Examples** = Height, Weight, Length
+
+*Ordinal variables* (sometimes referred to as ranked) can be categorical or numerical, but the order matters.
+**Examples** = Grades (A, B, C, D, E), Likert scale variables (Strongly disagree, Agree, Strongly Agree), Class rank (1, 2, 3, 4, 5)
+
+## Linking Data Types to Distributions
+
+In statistics, a distribution describes how likely different values are to occur. We choose a distribution, because different types of ecological data arise from different underlying processes.
+
+Here, is a reference table of common statistical distribution and the associated statistical test:
+
+<div style="overflow-x: auto;">
+
+| **Data Type**                               | **Distribution (GLM Family)**                | **Common Link Function**                  | **Example Ecological Question**                                                | **Typical Tests / Models**                                 |
+|---------------------------------------------|----------------------------------------------|--------------------------------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------|
+| **Continuous**                               | Normal (Gaussian)                            | Identity                                   | Do burned plots have taller seedlings than unburned plots?                    | t-test, ANOVA, Linear Regression, Gaussian GLM, LMM         |
+| **Continuous (positive-only, skewed)**       | Gamma                                         | Log                                        | Does fertilizer increase biomass (always > 0)?                                 | Gamma GLM, Gamma GLMM                                       |
+| **Continuous (bounded 0–1)**                 | Beta (for proportions not from counts)        | Logit / log–log                            | What proportion of cover is bare soil?                                         | Beta regression, Beta GLMM                                  |
+| **Counts (integers ≥ 0)**                    | Poisson                                       | Log                                        | Does precipitation influence the number of pitfall-trapped insects?            | Poisson GLM, Poisson GLMM                                   |
+| **Counts with overdispersion**               | Negative Binomial                             | Log                                        | Does nutrient addition affect flower counts when variance > mean?              | Negative Binomial GLM, NB GLMM                              |
+| **Counts with many zeros**                   | Zero-inflated Poisson / Zero-inflated NB      | Log                                        | Do invasive grasses produce many zero seedling counts?                         | ZIP / ZINB models, hurdle models                            |
+| **Binary outcomes (0/1)**                    | Binomial (Bernoulli)                          | Logit / probit                              | Does shade increase the probability that a seedling survives?                  | Logistic regression, Binomial GLM, Binomial GLMM            |
+| **Proportions from counts (successes/n)**    | Binomial                                       | Logit                                       | What proportion of seeds germinate in each treatment?                          | Binomial GLM, Logistic regression                            |
+| **Categorical (unordered)**                  | Multinomial                                    | Logit                                       | Do grazing treatments differ in vegetation type frequencies?                    | Multinomial logistic regression, Chi-square                 |
+| **Ordinal (ordered categories)**             | Ordinal logistic (cumulative link)             | Logit / probit / complementary log–log      | Does grazing intensity affect seedling vigor ranks?                             | Proportional odds models (CLM/CLMM)                         |
+| **Time-to-event data**                       | Exponential / Weibull / Survival models        | Log (depends on model)                      | How long do seedlings survive under drought vs irrigation?                     | Survival analysis, Cox regression                           |
+| **Nonlinear continuous response**            | Non-normal, unknown                            | Identity or specialized                     | Is the relationship between age and growth curved?                              | GAM, GAMM                                                   |
+
+</div>                                    |
+
+We will apply statistics later in later chapters, but let's check out some common statistical distributions!
+
+## Overview of Common Statistical Distributions
+
+### The Normal Distribution
+
+This is the classic bell-shaped distribution! The Normal distribution arises from the **Central Limit Theorem**, which states that when many small, independent factors add together (growth, genetics, microclimate, measurement error), their sum tends to be normally distributed.
+
+**Ecological examples:**
+
+- Height of Asclepias seedlings
+- Tree diameter (DBH)
+- Leaf nitrogen content
+- Continuous traits affected by many genes
+
+Check out the distribution:
+```{r}
+set.seed(1)
+heights <- rnorm(1000, mean = 10, sd = 2)
+
+hist(heights, breaks = 20, col = "lightblue",
+     main = "Simulated Normal Distribution",
+     xlab = "Height (cm)")
+```
+
+### The Binomial Distribution: Outcomes are “success” or “failure”
+
+The binomial distribution arises when:
+
+	1.	There are two possible outcomes (success/failure).
+	2.	Each trial has the same probability of success.
+	3.	You repeat the trial n times.
+
+Example: flipping a biased coin 10 times.
+
+Ecological examples:
+
+- Seed germination (germinated / not)
+- Survival (alive / dead)
+- Flowering (reproductive / not)
+- Presence/absence at survey points
+
+Check out the distribution:
+```{r}
+set.seed(1)
+germination <- rbinom(1000, size = 10, prob = 0.6)
+
+hist(germination, breaks = 10, col = "lightgreen",
+     main = "Simulated Binomial Distribution",
+     xlab = "Number of seeds germinated (out of 10)")
+```
+
+### The Poisson Distribution: Counts from random events
+
+The Poisson distribution arises when:
+
+	1.	Events happen independently
+	2.	With a constant average rate
+	3.	Over a fixed time or space
+	4.	And events can occur 0, 1, 2, 3… times
+
+It often appears in ecology because many biological events behave like “random arrivals.”
+
+Ecological examples:
+
+- Number of flowers on a plant
+- Number of birds detected per point survey
+- Number of insects in a pitfall trap
+- Seedling recruitment counts
+
+In a true Poisson process: mean = variance
+If variance >> mean → overdispersion → use Negative Binomial, not Poisson.
+
+Check out the distribution:
+```{r}
+set.seed(1)
+flower_counts <- rpois(1000, lambda = 4)
+
+hist(flower_counts, breaks = 15, col = "salmon",
+     main = "Simulated Poisson Distribution",
+     xlab = "Number of flowers")
+```
+
+### The Negative Binomial Distribution: Overdispersed counts
+
+Where it comes from
+
+When data are “count-like” but more variable than a Poisson model allows, they are overdispersed. This often happens when:
+
+- Individuals vary in productivity (e.g., some plants are “super reproducers”)
+- There is clustering (patchy distributions)
+- Rates vary in space/time
+
+Ecological examples:
+
+- Insect counts in patchy habitat
+- Flower counts with many zeros
+- Seed production with strong individual differences
+
+Check out the distribution:
+```{r}
+set.seed(1)
+nb_counts <- rnbinom(1000, size = 2, mu = 4)
+
+hist(nb_counts, breaks = 15, col = "tan",
+     main = "Simulated Negative Binomial Distribution",
+     xlab = "Count")
+```
+
+### The Uniform Distribution: All values equally likely
+
+This distribution arises when every value in a range has equal probability.
+
+Relatively rare but useful for:
+
+- Simulating randomness
+- Creating null models
+- Generating starting conditions for stochastic models
+
+Check out the distribution:
+```{r}
+set.seed(1)
+uniform_vals <- runif(1000, min = 0, max = 1)
+
+hist(uniform_vals, breaks = 20, col = "gray",
+     main = "Simulated Uniform Distribution",
+     xlab = "Value")
+```
+
+## What is a model?
+
+A statistical model is a mathematical expression that describes how a response variable changes as a function of one or more predictors.
+
+All the models we will use in this course follow the same structure:
+
+Response = Deterministic component + Random variation
+
+- The deterministic component represents the systematic pattern we want to explain (e.g., how plant height changes with grazing treatment or soil moisture).
+- The random variation represents the noise or uncertainty that remains after accounting for the predictors, and it follows one of the probability distributions we learned earlier.
+
+In later chapters, we will learn how to build these models and interpret what they tell us about ecological patterns and processes.
+
+## Key takeaways
+
+- Different kinds of data follow different probability distributions.
+- Those distributions determine which statistical models we use.
+- You don’t need to memorize distributions — you just need to recognize the data type.
+- Everything in this course builds on this foundation.
+
+## Test your knowledge!
+
+Answer the following questions:
+
+**Part 1 — Why We Use Statistics**
+
+1.	In your own words, why do we need statistics in ecology?
+Name at least two sources of variation or uncertainty that make statistics necessary.
+
+2.	Explain the difference between a population and a sample.
+Why do we rarely observe entire populations in ecological studies?
+
+3.	What are the two main questions most statistical analyses attempt to answer?
+
+**Part 2 — Frequentist Thinking**
+
+4.	Fill in the blank:
+In the frequentist framework, parameters (such as the true mean height of a plant population) are considered _______ but _______.
+5.	What does a 95% confidence interval mean in frequentist statistics?
+Choose the correct statement:
+
+a) There is a 95% probability that the true mean lies in this specific interval.
+b) If we repeated our sampling many times, 95% of the intervals we calculate would contain the true mean.
+c) The data contain 95% of the true values.
+  
+6.	In frequentist statistics, uncertainty comes from:
+
+a) The parameter being uncertain
+b) Variation in the estimator due to sampling
+c) The prior distribution
+(circle all that apply)
+
+**Part 3 — Data Types and Distributions**
+
+7.	Identify the data type (categorical, continuous, discrete, ordinal) for each of the following variables:
+
+a) Number of acorns produced by a tree
+b) Grazing treatment (ungrazed, low, high)
+c) Plant height in centimeters
+d) Likert scale: “Strongly disagree” → “Strongly agree”
+
+8.	Match each variable to its likely statistical distribution (Normal, Poisson, Binomial, Negative Binomial, Beta, Ordinal logistic):
+
+a) Presence/absence of a species at a site
+b) Number of insects caught in a pitfall trap
+c) Proportion of ground covered by bare soil
+d) Flower count with many zeros
+e) Seedling height
+f) Seedling health score (poor, fair, good, excellent)
+
+9.	Which distribution assumes mean = variance?
+What does it mean if the variance is much larger than the mean?
+
+**Part 4 — Understanding Distributions**
+
+10.	Briefly describe why the Normal distribution is common in biological systems.
+(Hint: many small factors…)
+
+11.	What ecological process might produce Poisson-distributed data?
+Give a real example.
+
+12.	What is the key characteristic of the Binomial distribution?
+Why is it appropriate for germination data?
+
+13.	Under what ecological conditions might you expect a Negative Binomial distribution instead of a Poisson?
+
+**Part 5 — Short Model Concept**
+
+14.	Fill in the blanks:
+
+A statistical model can be written as:
+Response = ______ + ______
+
+15.	In this expression, what does the “deterministic component” represent?
+
+16.	What does the “random variation” represent?
+
+**Part 6 — Reflection Question**
+
+17.	Write 2–3 sentences about one concept from this chapter that felt intuitive and one that felt confusing.
+What would help clarify the confusing part?
+
+## Assignment
+
+Make a list of the response variables that you plan to measure for your project, the associated data type, and the most appropriate error distribution. 
