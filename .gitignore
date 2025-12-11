@@ -1,49 +1,50 @@
-# History files
+############################
+# RStudio & Bookdown ignores
+############################
+
+# RStudio session files
+.Rproj.user/
 .Rhistory
-.Rapp.history
-
-# Session Data files
 .RData
-.RDataTmp
-
-# User-specific files
 .Ruserdata
 
-# Example code in package build process
-*-Ex.R
-
-# Output files from R CMD build
-/*.tar.gz
-
-# Output files from R CMD check
-/*.Rcheck/
-
-# RStudio files
-.Rproj.user/
-
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
-
-# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
-.httr-oauth
-
-# knitr and R markdown default cache directories
+# Bookdown build output
+_book/
+_bookdown_files/
 *_cache/
-/cache/
+*_files/
 
-# Temporary files created by R markdown
+# Temporary system files
+.DS_Store
+Thumbs.db
+
+# HTML outputs (optional to ignore)
+*.html
 *.utf8.md
+
+# Quarto / Pandoc intermediates
 *.knit.md
+*.utf8.md
 
-# R Environment Variables
-.Renviron
+# Notebook artifacts
+*.nb.html
+*.Rproj
 
-# pkgdown site
-docs/
+# Python / reticulate artifacts (if using)
+__pycache__/
+*.pyc
 
-# translation temp files
-po/*~
+############################
+# Data that should NOT be version-controlled
+# (but keep your .zip teaching data)
+############################
 
-# RStudio Connect folder
-rsconnect/
+# Ignore large local data unless specifically added
+data-raw/
+*.csv~
+*.zip~
+*.tmp
+
+# Ignore renv cache if using
+renv/library/
+renv/staging/
