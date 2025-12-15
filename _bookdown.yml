@@ -7,25 +7,26 @@ language:
 
 rmd_files:
   - index.Rmd
-  - 01-SamplingDesign.Rmd
-  - 02-DataTypesDescription.Rmd
-  - 03-Probability.Rmd
-  - 04-BasicStatisticalTest.Rmd
-  - 05-SelectingStatisticalTests.Rmd
-  - 06-ExperimentalDesign.Rmd
+  - 02-IntroductionToStatisticalThinking.Rmd
+  - 03-DataTypesDistributions.Rmd
+  - 04-Probability.Rmd
+  - 05-DataExploration.Rmd
+  - 06-EcologicalSampling.Rmd
   - 07-PowerAnalysis.Rmd
-  - 08-GeneralizedLinearModels.Rmd
-  - 09-MixedEffectsModels.Rmd
-  - 11-ModelSelection.Rmd
-  - 12-BACIdesignsWGLMS.Rmd
-  - 13-TimeSeriesAnalysis.Rmd
-  - 14-SpatialDataAutocorrelation.Rmd
-  - 15-SpeciesDistributionModeling.Rmd
+  - 08-DescriptiveStatistics.Rmd
+  - 09-SelectingStatisticalTests.Rmd
+  - 10-BasicStatisticalTest.Rmd
+  - 11-GeneralizedLinearModels.Rmd
+  - 12-MixedEffectsModels.Rmd
+  - 13-SpecialDesigns_BACI.Rmd
+  - 14-SpecialDesigns_TimeSeriesAnalysis.Rmd
+  - 15-ComplexSystemsModelSelection.Rmd
   - 16-BootstrappingResampling.Rmd
-  - 17-PopulationEcologyI.Rmd
+  - 17-PopulationEcology.Rmd
   - 18-PermutationBasedMethods.Rmd
-  - 19-OrdinationMethods.Rmd
-  - 20-IntroductionToDiversityStats.Rmd
-  - 21-StructuralEquationModelsI.Rmd
-  - 22-StructuralEquationModelsII.Rmd
-  - 23-IntroductionToBayesianStats.Rmd
+  - 19-WorkingwSpatialData.Rmd
+  - 20-SpeciesDistributionModeling.Rmd
+  - 21-IntroductionToDiversityStats.Rmd
+  - 22-OrdinationMethods.Rmd
+  - 23-StructuralEquationModelsI.Rmd
+  - 24-StructuralEquationModelsII.Rmd

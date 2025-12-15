@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Folder><name>grts_sampling_points</name>
+  <Placemark>
+	<name>Site-01 (Base)</name>
+      <Point><coordinates>-109.832319005891,32.5364442466498</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-02 (Base)</name>
+      <Point><coordinates>-109.400729921863,31.8453331910621</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-03 (Base)</name>
+      <Point><coordinates>-111.013438977344,31.3646680101063</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-04 (Base)</name>
+      <Point><coordinates>-110.684348797909,31.4088101843936</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-05 (Base)</name>
+      <Point><coordinates>-110.302442098129,32.6995389605275</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-06 (Base)</name>
+      <Point><coordinates>-110.423254807547,31.3384678470252</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-07 (Base)</name>
+      <Point><coordinates>-110.553231367873,31.51767592592</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-08 (Base)</name>
+      <Point><coordinates>-110.740666314619,31.7153039885155</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-09 (Base)</name>
+      <Point><coordinates>-109.354242643438,32.046574125242</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-10 (Base)</name>
+      <Point><coordinates>-110.460058676062,31.5429339143066</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-11 (Base)</name>
+      <Point><coordinates>-110.449770780154,31.3873330281949</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-12 (Base)</name>
+      <Point><coordinates>-111.21068640807,31.4686842867615</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-13 (Base)</name>
+      <Point><coordinates>-109.405588350519,31.6620470150626</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-14 (Base)</name>
+      <Point><coordinates>-110.741216506306,32.538574698169</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-15 (Base)</name>
+      <Point><coordinates>-110.488415643219,31.5523131540403</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-16 (Base)</name>
+      <Point><coordinates>-111.074264942751,33.904252114751</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-17 (Base)</name>
+      <Point><coordinates>-110.000769680544,31.8630299550052</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-18 (Base)</name>
+      <Point><coordinates>-110.673347733353,31.3971834674343</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-19 (Base)</name>
+      <Point><coordinates>-110.301975519273,31.3542035005885</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-20 (Base)</name>
+      <Point><coordinates>-110.775452871428,31.7106884764695</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-21 (Base)</name>
+      <Point><coordinates>-109.32390093785,31.9719347921382</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-22 (Base)</name>
+      <Point><coordinates>-110.377957961681,31.8280967819476</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-23 (Base)</name>
+      <Point><coordinates>-110.594294448344,31.499201090596</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-24 (Base)</name>
+      <Point><coordinates>-110.908481684384,33.899840606257</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-25 (Base)</name>
+      <Point><coordinates>-109.377002163466,31.7568405717768</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-26 (Base)</name>
+      <Point><coordinates>-110.749265457726,32.4852780544715</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-27 (Base)</name>
+      <Point><coordinates>-110.75997428906,31.3856698399744</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-28 (Base)</name>
+      <Point><coordinates>-110.924772864172,33.9368342081614</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-29 (Base)</name>
+      <Point><coordinates>-109.812612752152,32.5779822775061</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-30 (Base)</name>
+      <Point><coordinates>-110.270004267607,31.4237110505583</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-31 (Base)</name>
+      <Point><coordinates>-111.035533009405,31.3878543593924</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-32 (Base)</name>
+      <Point><coordinates>-110.75835889926,31.4251445953383</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-33 (Base)</name>
+      <Point><coordinates>-110.331193069877,32.708939151455</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-34 (Base)</name>
+      <Point><coordinates>-110.450840247395,31.4918259874698</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-35 (Base)</name>
+      <Point><coordinates>-110.53932406721,31.4410197844516</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-36 (Base)</name>
+      <Point><coordinates>-111.183684911114,31.4200090363233</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-37 (Base)</name>
+      <Point><coordinates>-110.474804964246,32.1160984760484</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-38 (Base)</name>
+      <Point><coordinates>-111.209234586718,34.2646195216794</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-39 (Base)</name>
+      <Point><coordinates>-110.786511475225,31.7222982877923</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-40 (Base)</name>
+      <Point><coordinates>-110.993476350021,34.1495047643667</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-41 (Oversample)</name>
+      <Point><coordinates>-109.84393393176,32.7566775056032</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-42 (Oversample)</name>
+      <Point><coordinates>-111.144225536064,31.3992238500698</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-43 (Oversample)</name>
+      <Point><coordinates>-109.221335484567,31.9449835556837</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-44 (Oversample)</name>
+      <Point><coordinates>-110.512736426367,31.3921809290469</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-45 (Oversample)</name>
+      <Point><coordinates>-109.236948475109,31.877919645578</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-46 (Oversample)</name>
+      <Point><coordinates>-110.654018384102,31.5828922132008</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-47 (Oversample)</name>
+      <Point><coordinates>-109.416441779681,31.6737917687169</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-48 (Oversample)</name>
+      <Point><coordinates>-110.745378789507,31.7408359615707</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-49 (Oversample)</name>
+      <Point><coordinates>-110.687374601361,31.4738292371685</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<name>Site-50 (Oversample)</name>
+      <Point><coordinates>-111.181264706215,34.2161558562262</coordinates></Point>
+  </Placemark>
+</Folder>
+</Document></kml>

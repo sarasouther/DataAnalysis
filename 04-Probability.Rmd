@@ -1,0 +1,504 @@
+# Randomness and probability
+
+Randomness is statistically a simple concept with incredible repercussions for understanding natural systems, human decisions, and, well, life! One of the most interesting panels that I attended as a graduate student was a debate between scientific and religious philosophers over the meaning of randomness. There were a range of viewpoints; the theologian believed that randomness was where the divine could work; at the other extreme, the science philosopher believed that there is no such thing as random, only that we haven't developed the capacity to measure what we perceive as random, and that everything we experience is a deterministic outcome of physics manifest in the world around us.
+
+As I write this lesson, I'm sitting on the couch with my younger child watching Jurassic Park. Ian Malcolm has just introduced himself as a 'chaotician' (he he). Chaos theory is one way to explain what appears to us as 'randomness', because small initial differences in conditions of complex systems leads to extremely different end states, even when the same deterministic rules apply to that system. The 'butterfly effect' (a butterfly flaps its wings in Asia causes a tornado in Texas) is often used to describe this core concept of chaos (the example originally created by Edward Norton Lorenz used a seagull instead of a butterfly). Chaos theory is incorporated into modeling simulations (particularly in population biology).
+
+In statistics, we have specific definition of randomness: The case when each item in a set has an equal probably of being selected. Statistics also acknowledges unexplained variation in nature, but doesn't distinguish between true randomness or the inability to perfectly measure all variables explaining an observed phenomenon. Instead, all unpredictability is lumped together. The difference between the true value of an estimate (e.g., mean hieght of giraffes, slope describing the relationship between snail shell length and speed) and the observed estimate is called 'error'. We use statistical models to parse 'error' (unexplained variation in the response variable) from treatment effects (variation in the response variable explained by the explanatory variables). [Add info on random effects here or introduce later?]
+
+Statistical error can arise for several reasons: random variation inherent to natural systems, mistakes during measurement or data collection, inaccuracy of measuring devices, omitted variables. As long as this error isn't 'systematic', we accept that it is there, complete statistical analysis and move-on. However, **systematic error**, whenever you are directionally biasing your sample, or biasing your sampling in the same way, is something to be avoided when designing your experiment and collecting data. An example of a systematic measure would be if you are trying to estimate the mean weight of blue morpho butterflies in southern Brazil, and you never zero your balance. The true mean weight is lower than the mean weight that you calculate.
+
+Since randomness is inherent, we need to calculate the probability that we 
+Our ability to say that an observed effect is statistically significant is based on probability: **the proportion of times an event occurs in repeated trials** or more generally , **the quantitative measure of one's belief in the occurrence of a future event**. In other words, when conducting a statistical analysis, we need to be able to determine the likelihood that two or more groups differ by chance, or that an observed a relationship occurred by chance. Remember that probabilities vary between 0 and 1, with 0 indicating no chance of an event occurring and 1 indicating a 100% chance of an event occurring.
+
+Because statistics relies so heavily on probability, let's review some basic concepts. Prepare yourself for lots of focus on 'true coins' (coins that have the equal likelihood have being heads or tails) and dice! Rolling dice and flipping coins are random events, and we will use them to look at predictability! [When to introduce Bayesian vs Frequentist concepts?]
+
+## The sample point method
+
+The sample point method is one method of determining the likelihood of an event, and entails the following steps:
+
+- Define the sample space, S, by listing all possible outcomes of the 'experiment' or 'trial' you are conducting.
+- Assign probabilities to all sample points, Pi, such that the probability of all events within the experiment tally to 1.
+- Sum all sample points that constitute the outcome you are interested in to find the probability of that outcome.
+
+Let's practice this concept with an example. Let's calculate the probability of getting two heads in three tosses of a fair coin. 
+
+```{r}
+library(readr)
+
+url <- "https://drive.google.com/uc?export=download&id=1KDvCzj9-YzN1zDHdLutcpruYx5mpcEWH"
+example1 <- read_csv(url)
+
+knitr::kable(example1, caption="Sample Space", full_width = F, html_font = "Arial")
+```
+
+The first step is to define the sample space for this experiment, by showing all possible outcomes of tossing a coin 3 times, as we have done in the table, called 'Sample Space'. Since this is a fair or balanced coin, all of the outcomes are equally likely, so we assign them a probability of 1/8. Then, we can simply sum the runs that meet our criterion of 2 heads (HHT, HTH, THH): 1/8 + 1/8 + 1/8 = 0.375.
+
+The equation of an event occurring (A) is: $P(A) =\frac{n_a}{N}$ where P(A) is the probability of event A equals the number of points constituting event A ($n_a$) divided by the total number of sample points (N). Applying this equation to the above example, P(A) = $\frac{3}{8} = 0.375$
+
+## Combinatorials
+
+Because defining the sample space can be cumbersome for larger sample spaces, we can use combinatorial math, specifically the *mn* rule, to calculate sample space! The *mn* rule simply states that if one group contains *m* elements and another group contains *n* elements, you can for *m* *x* *n* pairs containing an element from each group. For instance, if we were determining the sample space for outcomes of rolling 2, 6-sided dice, we could multiply 6 x 6 (or $6^2$). 
+
+![Sample space for a single roll of 2 die.](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/dice.png)
+Using the equation for calculating the probability of an event, what is the probability of rolling double 6s?
+
+```{r}
+answer = 1/36; answer
+```
+
+Let's try another example with even larger sample space: Calculate the probability of each person in a class of 14 students has a different birthday. In this case, a sample point consists of 14 dates, since there are 14 different students. Assuming that each student has the same probability of being born on any one of 365 days (over course in the real world the likelihood of being born on particular dates differs). The total number of sample points is $N = 365^{14}$ (i.e., there are 365 possible birthdays for Student 1, 365 possible birthdays for student 2, yielding 716835279219613000000000000000000000 possible combinations of b-days). To calculate the probability that each student has a different birthday, you would apply the same equation as above, but calculate the number of points to satisfy our event, keeping in mind that there are 365 birthdays possible for Student 1, 264 possible birthdays for Student 2, 263 possible birthdays for Student 3, and so on, as:
+
+P(A) = $\frac{n_a}{N} = \frac{365 \times 364 \times 363 \dots \times 352}{365^{14}}=0.7769$ 
+
+Sample points can be represented as sequences of numbers or symbols. An ordered arrangement of of distinct objects is called a *permutation*. We can calculate the sample space as total number of distinct ways of arranging these symbols or numbers in a sequence, using the following equation:
+
+$P_r^n = n(n-1)(n-2)\dots(n-r+1) = \frac{n!}{(n-r)!}$ where $n! = n \times (n-1) \times (n-2) \times\dots\times2\times1$, where the total number of ordering $n$ objects taken $r$ at a time. 
+
+```{r}
+#factorial of 5 or 5!
+factorial <- 5*4*3*2*1; factorial
+factorialR <- factorial(5); factorialR
+#remember that 
+factorial(0)
+```
+
+Let's apply this equation: How many trinucleotide sequences can be formed without repeating a nucleotide? To put this another way, we ar interested in the number of ways of ordering $n = 4$ elements (A, T, C, and G) taken 3 at a time (trinucleotide = 3; $r = 3$). 
+
+```{r}
+permutations = (factorial(4))/factorial(4-3); permutations
+```
+When the sequence is not important, we use a different formula. For unordered sets of r elements chosen without replacement from n available elements are called combinations, with total number of combinations calculated as:
+
+$C^n_r = \frac{n!}{r!(n-r)!}$ 
+
+What are the number of combinations of 2 colors of m&ms that we can select out of the 5 total colors? 
+
+```{r}
+combinations = (factorial(5))/(factorial(2)*factorial(5-2)); combinations
+```
+If it's helpful, you can test the answer by hand, using these colors: tan, brown, orange, red, and green.
+
+Again, the basic concepts of the sample-point method, are to define sample space, and either assign probabilities to all sample points, then sum the probabilities OR calculate $P(A) =\frac{n_a}{N}$ where P(A) is the probability of event A equals the number of points constituting event A ($n_a$) divided by the total number of sample points (N). **Note**: these are the same equation, they only differ in terms of when you calculate the probability (of the points individually, or at the end after you define the sample space / and event number). When sample space is large, it is easier to use combinatorial math to calculate the points and the sample space.
+
+Let's apply this understanding of probability to calculate the likelihood of two events occurring. 
+
+## Union and intersection of events
+
+You might be gleaning that defining the appropriate sample space is critically important to correctly calculate probabilities of particular events occurring. Also important is the understanding relationship between events of interest for which we calculate probabilities. These concepts are also important for understanding Boolean operators, computer coding concepts, and modeling. 
+
+**Note**: Boolean operators form the basis of mathematical sets and database logic. They connect your search words together to either narrow or broaden your set of results. The three basic boolean operators are: AND, OR, and NOT. (I copied and pasted this from the internet, should rewrite a bit - this is just taking a while)
+
+**Union of events**
+Union of events: What is the likelihood of both events *A* and *B* (this can be written as $A \cup B$)? contains all sampling points for A *or* B. 
+
+![Venn diagram indicating a union of events or an 'or' statement.](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/Union.png)
+**Example calculating probability of union event**:
+What is the likelihood of rolling an odd number (Event A) on a 6-side fair die OR that is less than 4 (Event B)? 
+Event A = 1, 3, 5
+Event B = 1, 2, 3
+```{r}
+#The sample space is all possible rolls
+samplespace <- c(1, 2, 3, 4, 5, 6); samplespace
+#We will use Boolean operators in R. They will return TRUE / FALSE statements.
+#Below we tell R to look for odd numbers OR (indicated by line) 
+#numbers less than 4.
+unionevent <- (samplespace%%2==1) | (samplespace < 4); unionevent
+#If the conditions are satisfied, TRUE will be returned.
+#If conditions are not met, FALSE will be returned.
+
+#Now, let's calculate the probability using techniques that you 
+#have already seen above.
+probunion <- 4/6; probunion
+```
+
+**Intersection of events**
+Intersection of events: What is the likelihood of both events *A* and *B* (this can be written as $A \cap B$)? contains all sampling points for A *and* B. 
+
+![Venn diagram indicating an intersection of events or an 'or' statement.](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/Intersection.png)
+**Example calculating probability of an intersection event**:
+
+What is the likelihood of rolling an odd number (Event A) on a 6-side fair die AND that is less than 4 (Event B)? 
+
+Event A = 1, 3, 5
+Event B = 1, 2, 3
+
+```{r}
+#The sample space is all possible rolls
+samplespace <- c(1, 2, 3, 4, 5, 6); samplespace
+#We will use Boolean operators in R. They will return TRUE / FALSE statements.
+#Below we tell R to look for odd numbers OR (indicated by line) 
+#numbers less than 4.
+intersectionevent <- (samplespace%%2==1) & (samplespace < 4); intersectionevent
+#If the conditions are satisfied, TRUE will be returned.
+#If conditions are not met, FALSE will be returned.
+
+#Now, let's calculate the probability using techniques that you 
+#have already seen above.
+probintersection <- 2/6; probintersection
+```
+
+```{r}
+#Just for fun
+#The other common Boolean operator used in computer code is 'not'
+#We want to roll any number except 2
+nottwo <- samplespace != 2; nottwo
+probNOTtwo <- 5/6; probNOTtwo
+
+```
+## Conditional probability
+
+Conditional probability indicates a situation when the probability of one event depends on the occurrence of another event. Conditional probability (written as P(A|B), and read as the probability of event A given B) is calculated with the following equation: $P(A|B) = \frac{P(A \cap B)}{P(B)}$ where $A \cap B$ indicates the probability of both event A and event B occurring. 
+
+**Example**: I roll a die and ask you to guess the number. I want to increase your odds of guessing the correct number, so I tell you that the number is odd. You are going to guess the number 3 - What are your odd of guessing the correct number (odds that the answer is 3; event A) given that the result is an odd number (the answer is an odd number; event B)?
+
+To break this down, the probability of both A and B being true ($A \cap B$) is 1/6. The likelihood of the roll being a 3 is the limiting factor in essence, so an 'and' probability is constrained by the least likely event. Then, we divide 1/6 by the probability of the roll being odd, which is 1/2 since there are 3 odd and 3 even numbers. 
+
+```{r}
+conditional <- (1/6)/(1/2); conditional 
+#the likelihood of guessing the correct number, if the number is odd is 1/3.
+```
+## Multiplicative Law of Probability of Independent Events
+
+For independent events, in other words, two events in which the occurrence of one event doesn't depend on the occurrence of the other event, the probability of BOTH events occurring is the found by multiplying the probability of each event A and B happening:
+
+$P(A \cap B)= P(A) \times P(B)$ where $A \cap B$ indicates the probability of both event A and event B occurring. 
+
+**Example**: What is the probability of getting heads in two consecutive coin tosses?
+
+```{r}
+heads <- (1/2)*(1/2); heads
+```
+
+## Additive Law of Probability of Mutually Exclusive Events
+
+For two events that are mutually exclusive (if event A occurs, then event B cannot occur), the probability of one of two mutually exclusive events happening is found by adding their individuals probabilities.
+
+$P(A \cup B)= P(A) + P(B)$ where $A \cap B$ indicates the probability of both event A and event B occurring. 
+
+**Example**: What is the probability of rolling a 5 and a 6 on a fair die? That's right! It's zero, because the definition of mutual exclusivity indicates that if one event occurs the other can't. 
+
+**Real example**: What is the probability of rolling a 5 or a 6 on a fair die?
+```{r}
+fivesix <- (1/6)+(1/6); fivesix
+```
+
+## General Additive Law of Probability
+When events are not mutually exclusive, we apply the general additive law of probability, which is written as:  $P(A \cup B) = P(A) + P(B) - P(A \cap B)$ where $P(A \cap B)$ is the intersection of event A and event B. Why do we remove the intersection event? 
+
+![Venn diagram indicating a union of events or an 'or' statement.](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/Union.png)  
+We essentially don't want to double count the intersecting area of Event A and Event B.
+
+You've already completed one of these problems, we just hadn't gone over intersection events. Let's apply the general additive law of probability to the previous problem: 
+
+What is the likelihood of rolling an odd number (Event A) on a 6-side fair die OR that is less than 4 (Event B)? 
+Event A = 1, 3, 5
+Event B = 1, 2, 3
+
+Original calculation:
+```{r}
+#The sample space is all possible rolls
+samplespace <- c(1, 2, 3, 4, 5, 6); samplespace
+#We will use Boolean operators in R. They will return TRUE / FALSE statements.
+#Below we tell R to look for odd numbers OR (indicated by line) 
+#numbers less than 4.
+unionevent <- (samplespace%%2==1) | (samplespace < 4); unionevent
+#If the conditions are satisfied, TRUE will be returned.
+#If conditions are not met, FALSE will be returned.
+
+#Now, let's calculate the probability using techniques that you 
+#have already seen above.
+probunion <- 4/6; probunion
+```
+Calculation using the equation: $P(A \cup B) = P(A) + P(B) - P(A \cap B)$
+```{r}
+probA <- 3/6
+probB <- 3/6
+intersection <- 1/3
+
+finalprob <- probA + probB - intersection; finalprob
+```
+
+## Key concepts
+
+Summary:
+
+- Randomness is inherent in natural systems. Whether this randomness is truly random or simply appears random due to the complexity of natural systems, we treat it the same in statistics. 
+- We want to avoid any form of systematic bias in experimental design.
+- Randomness and other factors are lumped together in what we call statistical error; the difference between a true estimate of a parameter and what we estimate in our sample. 
+- Probability is the proportion of times an event occurs in repeated trials, and varies between 0 and 1.
+- We practiced a bunch of different ways of calculating probability, for the long-term, what you really need to know is that to calculate probabilities, you need to understand your sample space and the likelihood and relationship of events of interest. 
+-Two great rules of probability are: Additive Law of Probability & the Multiplicative Law of Probability
+- Union events and Intersection events
+
+## Practice problems
+
+Suggested Expanded Outline
+Randomness and Probability
+Introduction: Randomness in Nature and Statistics
+
+Philosophical perspectives on randomness (keep your nice intro!)
+Chaos theory and the butterfly effect
+Statistical definition of randomness
+Why probability matters for inference
+
+Statistical Error
+
+Random error vs systematic error (bias)
+Sources of error in ecological studies
+Why we can tolerate random error but must avoid systematic error
+
+Foundations of Probability
+
+Definition: proportion of times an event occurs in repeated trials
+Probability ranges from 0 to 1
+Frequentist interpretation (preview — connects to later chapter)
+
+Calculating Probabilities: The Sample Point Method
+
+Define sample space
+Assign probabilities to sample points
+Sum relevant probabilities
+Coin flip example (keep existing)
+
+Combinatorials: When Sample Spaces Get Large
+
+The mn rule
+Permutations (order matters)
+Combinations (order doesn't matter)
+Birthday problem example (keep existing)
+Trinucleotide example (keep existing)
+
+Relationships Between Events
+
+Union of events (OR) — with Venn diagrams
+Intersection of events (AND)
+Complement of events (NOT)
+Boolean operators in R
+
+Probability Laws
+Conditional probability
+
+P(A|B) definition and formula
+Die roll example (keep existing)
+Ecological example: P(species present | habitat type)
+
+Independence and the multiplicative law
+
+Definition of independent events
+P(A ∩ B) = P(A) × P(B) for independent events
+Coin toss example
+Ecological example: independent survival of seeds
+
+Additive law for mutually exclusive events
+
+Definition of mutually exclusive
+P(A ∪ B) = P(A) + P(B)
+Die roll example
+
+General additive law
+
+When events are not mutually exclusive
+P(A ∪ B) = P(A) + P(B) - P(A ∩ B)
+Why we subtract the intersection
+
+[NEW] Random Variables
+
+What is a random variable?
+Discrete random variables (counts, categories)
+Continuous random variables (measurements)
+Connecting back to data types from previous chapter
+
+[NEW] Expected Value and Variance
+Expected value (mean of a random variable)
+
+Definition: long-run average outcome
+Calculation for discrete variables: E(X) = Σ xᵢP(xᵢ)
+Intuition: weighted average by probability
+
+# Expected value of a fair die roll
+outcomes <- 1:6
+probabilities <- rep(1/6, 6)
+expected_value <- sum(outcomes * probabilities)
+expected_value  # 3.5
+Variance of a random variable
+
+Definition: expected squared deviation from mean
+Var(X) = E[(X - μ)²]
+Standard deviation = √Variance
+
+# Variance of a fair die roll
+variance <- sum((outcomes - expected_value)^2 * probabilities)
+variance
+sqrt(variance)  # standard deviation
+Ecological example: Expected number of seeds germinating from a sample
+[NEW] The Law of Large Numbers
+
+As sample size increases, sample mean approaches population mean
+Why larger samples give more reliable estimates
+Simulation demonstration
+
+set.seed(123)
+# Simulate rolling a die many times
+n_rolls <- c(10, 100, 1000, 10000)
+results <- sapply(n_rolls, function(n) mean(sample(1:6, n, replace = TRUE)))
+data.frame(n = n_rolls, sample_mean = results, true_mean = 3.5)
+Ecological implication: Why sample size matters for estimating population parameters
+[NEW] Sampling Distributions
+From sample to inference
+
+We observe one sample, but want to know about the population
+If we repeated our study many times, we'd get different estimates
+The distribution of those estimates = sampling distribution
+
+Sampling distribution of the mean
+
+Take many samples, calculate mean of each
+Plot the distribution of sample means
+This distribution has its own mean and standard deviation
+
+set.seed(123)
+population <- rgamma(10000, shape = 2, rate = 0.5)  # Right-skewed population
+hist(population, main = "Population Distribution (Skewed)", breaks = 30)
+
+# Take many samples and calculate means
+sample_means <- replicate(1000, mean(sample(population, size = 30)))
+hist(sample_means, main = "Sampling Distribution of Means (n=30)", breaks = 30)
+Standard error
+
+Standard deviation of the sampling distribution
+SE = σ / √n
+Measures precision of our estimate
+Decreases with larger sample size
+
+Standard deviation vs standard error
+MeasureWhat it describesFormulaStandard deviation (SD)Spread of individual observations√[Σ(xᵢ - x̄)² / (n-1)]Standard error (SE)Precision of the sample meanSD / √n
+[NEW] The Central Limit Theorem
+The most important theorem in statistics
+
+Regardless of population shape, the sampling distribution of means approaches normal as n increases
+This is why normal-based tests work even for non-normal data
+Rule of thumb: n ≥ 30 usually sufficient (but depends on skewness)
+
+Visual demonstration
+set.seed(123)
+par(mfrow = c(2, 3))
+
+# Uniform population
+pop_uniform <- runif(10000, 0, 1)
+hist(pop_uniform, main = "Uniform Population", breaks = 20)
+
+means_n5 <- replicate(1000, mean(sample(pop_uniform, 5)))
+means_n30 <- replicate(1000, mean(sample(pop_uniform, 30)))
+
+hist(means_n5, main = "Sample Means (n=5)", breaks = 20)
+hist(means_n30, main = "Sample Means (n=30)", breaks = 20)
+
+# Exponential population (highly skewed)
+pop_exp <- rexp(10000, rate = 1)
+hist(pop_exp, main = "Exponential Population", breaks = 30)
+
+means_n5_exp <- replicate(1000, mean(sample(pop_exp, 5)))
+means_n30_exp <- replicate(1000, mean(sample(pop_exp, 30)))
+
+hist(means_n5_exp, main = "Sample Means (n=5)", breaks = 20)
+hist(means_n30_exp, main = "Sample Means (n=30)", breaks = 20)
+Why CLT matters for ecology
+
+Many ecological variables are not normally distributed (counts, skewed measurements)
+CLT tells us we can still use normal-based inference for means
+Justifies t-tests, ANOVA, and linear regression
+
+[NEW] Bayes' Theorem
+Updating beliefs with evidence
+
+Reverses conditional probability
+P(A|B) = [P(B|A) × P(A)] / P(B)
+
+Components
+
+P(A) = prior probability (belief before seeing data)
+P(B|A) = likelihood (probability of data given hypothesis)
+P(A|B) = posterior probability (updated belief after seeing data)
+
+Classic example: Disease testing
+
+Disease prevalence: 1% (prior)
+Test sensitivity: 95% (true positive rate)
+Test specificity: 90% (true negative rate)
+If you test positive, what's the probability you have the disease?
+
+prevalence <- 0.01
+sensitivity <- 0.95
+specificity <- 0.90
+
+# P(positive) = P(pos|disease)*P(disease) + P(pos|no disease)*P(no disease)
+p_positive <- sensitivity * prevalence + (1 - specificity) * (1 - prevalence)
+
+# P(disease | positive) = P(pos|disease) * P(disease) / P(positive)
+p_disease_given_positive <- (sensitivity * prevalence) / p_positive
+p_disease_given_positive  # Only about 8.8%!
+Ecological example: Species detection
+
+Prior: historical occupancy rate
+Likelihood: detection probability given presence
+Posterior: probability species is present given detection/non-detection
+
+Connection to Bayesian statistics
+
+Brief preview: Bayesian methods formalize this updating process
+Full treatment in Chapter 23
+
+[NEW] From Probability to Inference (Bridge Section)
+The logic of hypothesis testing (preview)
+
+If the null hypothesis is true, what's the probability of our observed result?
+If that probability is very low, we question the null hypothesis
+This probability = p-value
+
+Simple example
+
+I claim a coin is fair
+You flip it 10 times, get 9 heads
+If the coin is fair, P(9 or 10 heads) = ?
+
+# Probability of 9 or 10 heads in 10 flips of fair coin
+p_extreme <- pbinom(8, size = 10, prob = 0.5, lower.tail = FALSE)
+p_extreme  # About 1.1%
+
+This low probability makes us doubt the "fair coin" hypothesis
+This is the foundation of frequentist inference
+
+Type I and Type II errors (preview)
+Null is TRUENull is FALSEReject nullType I error (α)Correct decision (Power)Fail to rejectCorrect decisionType II error (β)
+
+Type I error (false positive): reject a true null
+Type II error (false negative): fail to reject a false null
+We'll explore these more in the hypothesis testing chapter
+
+Key Takeaways
+
+Probability quantifies uncertainty and likelihood
+Random error is acceptable; systematic error must be avoided
+Understanding sample space is essential for calculating probabilities
+The Central Limit Theorem justifies normal-based inference
+Standard error measures precision of estimates
+Bayes' theorem shows how to update beliefs with evidence
+Probability provides the foundation for all statistical inference
+
+Test Your Knowledge
+Conceptual questions
+
+What is the difference between standard deviation and standard error?
+Why does the Central Limit Theorem matter for ecological statistics?
+Explain why P(disease | positive test) is often much lower than the test's sensitivity
+
+Calculation exercises
+
+Calculate expected value and variance for a given probability distribution
+Use Bayes' theorem to calculate posterior probability in an ecological scenario
+Demonstrate CLT with a simulation
+
+Assignment
+(Keep existing, perhaps add: simulate the sampling distribution of a statistic from your project data)
+

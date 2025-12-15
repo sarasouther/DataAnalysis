@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<gpx version="1.1" creator="GDAL 3.8.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata>
+<bounds minlat="90.000000000000000" minlon="-1433780.656996377976611" maxlat="1355535.028295915341005" maxlon="-180.000000000000000"/>                          
+</metadata>
+<wpt lat="1145448.803291609976441" lon="-1287564.029692054959014">
+  <name>Site-01 (Base)</name>
+</wpt>
+<wpt lat="1063428.838735134573653" lon="-1258486.859489490510896">
+  <name>Site-02 (Base)</name>
+</wpt>
+<wpt lat="1033210.957056433311664" lon="-1417165.1311663412489">
+  <name>Site-03 (Base)</name>
+</wpt>
+<wpt lat="1033210.957056433311664" lon="-1385595.632089271442965">
+  <name>Site-04 (Base)</name>
+</wpt>
+<wpt lat="1169910.897983892122284" lon="-1328272.067975644720718">
+  <name>Site-05 (Base)</name>
+</wpt>
+<wpt lat="1021699.383083594613709" lon="-1362333.895927220117301">
+  <name>Site-06 (Base)</name>
+</wpt>
+<wpt lat="1043283.58428266714327" lon="-1371472.435133740305901">
+  <name>Site-07 (Base)</name>
+</wpt>
+<wpt lat="1067745.678974949056283" lon="-1385595.632089271442965">
+  <name>Site-08 (Base)</name>
+</wpt>
+<wpt lat="1085013.03993420721963" lon="-1251009.872865974204615">
+  <name>Site-09 (Base)</name>
+</wpt>
+<wpt lat="1044722.531029271893203" lon="-1362333.895927220117301">
+  <name>Site-10 (Base)</name>
+</wpt>
+<wpt lat="1027455.170070013962686" lon="-1363995.448510223766789">
+  <name>Site-11 (Base)</name>
+</wpt>
+<wpt lat="1047600.4245224816259" lon="-1433780.656996377976611">
+  <name>Site-12 (Base)</name>
+</wpt>
+<wpt lat="1043283.58428266714327" lon="-1261809.964655498042703">
+  <name>Site-13 (Base)</name>
+</wpt>
+<wpt lat="1158399.324011053424329" lon="-1371472.435133740305901">
+  <name>Site-14 (Base)</name>
+</wpt>
+<wpt lat="1046161.477775876759551" lon="-1364826.224801725475118">
+  <name>Site-15 (Base)</name>
+</wpt>
+<wpt lat="1313805.572644375264645" lon="-1378118.645465754903853">
+  <name>Site-16 (Base)</name>
+</wpt>
+<wpt lat="1073501.465961368521675" lon="-1314148.871020113816485">
+  <name>Site-17 (Base)</name>
+</wpt>
+<wpt lat="1031772.010309828445315" lon="-1384764.855797769501805">
+  <name>Site-18 (Base)</name>
+</wpt>
+<wpt lat="1021699.383083594613709" lon="-1350703.027846194570884">
+  <name>Site-19 (Base)</name>
+</wpt>
+<wpt lat="1067745.678974949056283" lon="-1388918.737255278974771">
+  <name>Site-20 (Base)</name>
+</wpt>
+<wpt lat="1076379.359454578021541" lon="-1249348.320282970555127">
+  <name>Site-21 (Base)</name>
+</wpt>
+<wpt lat="1074940.412707973271608" lon="-1349872.251554692629725">
+  <name>Site-22 (Base)</name>
+</wpt>
+<wpt lat="1041844.637536062276922" lon="-1375626.316591249546036">
+  <name>Site-23 (Base)</name>
+</wpt>
+<wpt lat="1310927.679151165531948" lon="-1363164.672218721825629">
+  <name>Site-24 (Base)</name>
+</wpt>
+<wpt lat="1053356.211508900858462" lon="-1257656.083197988802567">
+  <name>Site-25 (Base)</name>
+</wpt>
+<wpt lat="1152643.537024634191766" lon="-1373133.987716743955389">
+  <name>Site-26 (Base)</name>
+</wpt>
+<wpt lat="1031772.010309828445315" lon="-1393072.618712787982076">
+  <name>Site-27 (Base)</name>
+</wpt>
+<wpt lat="1315244.519390980247408" lon="-1363995.448510223766789">
+  <name>Site-28 (Base)</name>
+</wpt>
+<wpt lat="1149765.64353142445907" lon="-1285071.700817549368367">
+  <name>Site-29 (Base)</name>
+</wpt>
+<wpt lat="1028894.116816618829034" lon="-1346549.146388685097918">
+  <name>Site-30 (Base)</name>
+</wpt>
+<wpt lat="1036088.850549642927945" lon="-1418826.683749344898388">
+  <name>Site-31 (Base)</name>
+</wpt>
+<wpt lat="1036088.850549642927945" lon="-1392241.842421286273748">
+  <name>Site-32 (Base)</name>
+</wpt>
+<wpt lat="1171349.844730496872216" lon="-1330764.396850150311366">
+  <name>Site-33 (Base)</name>
+</wpt>
+<wpt lat="1038966.744042852660641" lon="-1362333.895927220117301">
+  <name>Site-34 (Base)</name>
+</wpt>
+<wpt lat="1034649.903803038061596" lon="-1371472.435133740305901">
+  <name>Site-35 (Base)</name>
+</wpt>
+<wpt lat="1041844.637536062276922" lon="-1432119.104413374327123">
+  <name>Site-36 (Base)</name>
+</wpt>
+<wpt lat="1108036.18787988438271" lon="-1354026.13301220186986">
+  <name>Site-37 (Base)</name>
+</wpt>
+<wpt lat="1355535.028295915341005" lon="-1383934.079506267793477">
+  <name>Site-38 (Base)</name>
+</wpt>
+<wpt lat="1069184.625721554039046" lon="-1389749.5135467806831">
+  <name>Site-39 (Base)</name>
+</wpt>
+<wpt lat="1339706.61408326216042" lon="-1366487.777384729124606">
+  <name>Site-40 (Base)</name>
+</wpt>
+<wpt lat="1169910.897983892122284" lon="-1285071.700817549368367">
+  <name>Site-41 (Oversample)</name>
+</wpt>
+<wpt lat="1038966.744042852660641" lon="-1428795.999247367028147">
+  <name>Site-42 (Oversample)</name>
+</wpt>
+<wpt lat="1072062.519214763538912" lon="-1240209.781076450133696">
+  <name>Site-43 (Oversample)</name>
+</wpt>
+<wpt lat="1028894.116816618829034" lon="-1369810.882550736656412">
+  <name>Site-44 (Oversample)</name>
+</wpt>
+<wpt lat="1064867.785481739556417" lon="-1242702.109950955724344">
+  <name>Site-45 (Oversample)</name>
+</wpt>
+<wpt lat="1051917.264762295875698" lon="-1379780.198048758553341">
+  <name>Site-46 (Oversample)</name>
+</wpt>
+<wpt lat="1044722.531029271893203" lon="-1262640.740947">
+  <name>Site-47 (Oversample)</name>
+</wpt>
+<wpt lat="1070623.572468158788979" lon="-1385595.632089271442965">
+  <name>Site-48 (Oversample)</name>
+</wpt>
+<wpt lat="1040405.690789457410574" lon="-1384764.855797769501805">
+  <name>Site-49 (Oversample)</name>
+</wpt>
+<wpt lat="1349779.241309496108443" lon="-1382272.526923264143988">
+  <name>Site-50 (Oversample)</name>
+</wpt>
+</gpx>

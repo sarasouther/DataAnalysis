@@ -1,0 +1,185 @@
+# Data Exploration and Assumption Checking
+
+Introduction: Why Explore Before You Analyze?
+  
+  The "look at your data first" principle
+EDA catches errors, reveals patterns, and guides model choice
+Assumptions aren't just technicalities — violating them affects inference
+The goal: no surprises when you run your model
+
+Getting to Know Your Data
+Initial data checks
+
+str(), summary(), head(), dim()
+Checking for missing values (is.na(), naniar package)
+Identifying data entry errors (impossible values, typos in factor levels)
+
+Ecological example: Import a messy vegetation dataset and clean it
+Quick reference table: Common data problems and how to spot them
+Visualizing Distributions
+Univariate exploration
+
+Histograms — shape, skew, modes
+Density plots — smoother view of distribution
+Boxplots — median, spread, potential outliers
+QQ plots — comparing data to theoretical distribution
+
+R code examples with ecological data
+
+Seedling height (continuous)
+Species counts (discrete)
+Cover estimates (proportion)
+
+Multivariate exploration
+
+Scatterplots and scatterplot matrices (pairs(), GGally::ggpairs())
+Correlation matrices
+Visualizing relationships between predictors and response
+
+Key questions to ask:
+
+Is the distribution roughly symmetric or skewed?
+Are there gaps or multiple modes?
+Do relationships look linear?
+
+Assumptions of Parametric Tests
+Why assumptions matter
+
+Models make predictions based on assumed data structure
+Violations can inflate Type I error or reduce power
+Some violations matter more than others
+
+The Big Four for linear models
+
+Normality of residuals
+
+What it means (residuals, not raw data!)
+How to check: histogram of residuals, QQ plot, Shapiro-Wilk test
+When it matters most (small samples)
+
+
+Homoscedasticity (equal variance)
+
+What it means: spread of residuals constant across fitted values
+How to check: residuals vs. fitted plot, Levene's test, Breusch-Pagan test
+Common patterns: fan shape, trumpet shape
+
+
+Independence
+
+What it means: observations don't influence each other
+How to check: study design review, residuals vs. time/space plots, Durbin-Watson test
+Common violations: repeated measures, spatial clustering, temporal autocorrelation
+
+
+Linearity
+
+What it means: relationship between predictors and response is linear
+How to check: residuals vs. fitted plot, component-residual plots
+What non-linearity looks like
+
+
+
+Visual guide: Example diagnostic plots showing "good" vs. "problematic" patterns
+Checking Assumptions in R
+Base R approach
+
+plot(model) — the four default diagnostic plots
+Interpreting each plot
+
+Using the performance package
+
+check_model() — visual dashboard
+check_normality(), check_heteroscedasticity()
+
+Using the DHARMa package (for GLMs)
+
+Simulated residuals for non-normal models
+simulateResiduals(), plot()
+
+Worked example: Fit a linear model to plant biomass data, walk through full diagnostic workflow
+Identifying and Handling Outliers
+What is an outlier?
+
+Statistical definition vs. ecological reality
+Outliers in predictor space vs. response space
+Influential points vs. just unusual values
+
+Detection methods
+
+Visual: boxplots, scatterplots, residual plots
+Statistical: Cook's distance, leverage values, studentized residuals
+Rule of thumb thresholds (Cook's D > 4/n, etc.)
+
+What to do with outliers
+
+Investigate first — data entry error? Measurement issue? Real biology?
+Document decisions transparently
+Options: correct, remove (with justification), use robust methods, transform
+Never delete just to "improve" results
+
+Ecological example: An unusually large tree in a seedling dataset — error or legacy tree?
+When Assumptions Are Violated
+Transformation approaches
+
+Log, square root, arcsine-square root
+When transformations help vs. when to use a different model
+Back-transformation for interpretation
+
+Switch to appropriate GLM
+
+Skewed positive data → Gamma
+Counts → Poisson or Negative Binomial
+Proportions → Beta or Binomial
+
+Non-parametric alternatives
+
+Brief mention (covered in later chapter on permutation methods)
+
+Robust regression
+
+When useful, brief overview
+
+Decision flowchart: Assumption violated → what are your options?
+Putting It All Together: An EDA Workflow
+Step-by-step checklist
+
+Import and inspect data structure
+Check for missing values and errors
+Visualize each variable individually
+Explore relationships between variables
+Fit preliminary model
+Run diagnostic checks
+Address any issues
+Proceed with analysis
+
+Complete worked example: Forest plot data from import to model-ready
+Key Takeaways
+
+Always explore before modeling
+Check residuals, not raw data, for most assumptions
+Visualization is your most powerful tool
+Document your decisions about outliers and transformations
+When in doubt, try a different model rather than forcing transformations
+
+Test Your Knowledge
+Conceptual questions
+
+Why do we check normality of residuals rather than raw data?
+What does a "fan shape" in a residuals vs. fitted plot indicate?
+Name two ways to detect influential outliers.
+
+Applied exercises
+
+Given diagnostic plots, identify the assumption violation
+Import a dataset, conduct full EDA, report findings
+Identify and justify handling of outliers in a provided dataset
+
+Assignment
+Conduct a complete EDA on your project dataset:
+
+Report summary statistics and missing data
+Visualize distributions of key variables
+Create scatterplots of response vs. predictors
+Fit a preliminary model and check assumptions
+Document any issues found and your plan to address them
