@@ -537,11 +537,11 @@ Here, you will note several important demographic characteristics of this specie
 ## W = 0.29287, p-value &lt; 2.2e-16</code></pre>
 <div class="sourceCode" id="cb196"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb196-1"><a href="population-sensation.html#cb196-1" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">fitted</span>(growth), <span class="fu">residuals</span>(growth))</span>
 <span id="cb196-2"><a href="population-sensation.html#cb196-2" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(<span class="fu">residuals</span>(growth)<span class="sc">~</span><span class="fu">fitted</span>(growth)))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-98-1.png" width="960" style="display: block; margin: auto;" />
+<p><img src="_main_files/figure-html/unnamed-chunk-64-1.png" width="960" style="display: block; margin: auto;" />
 This figure is showing a scatter plot of residuals on the y axis and fitted values (estimated responses) on the x axis. We use these scatterplots to detect non-linearity, unequal error variances, and outliers. The residuals should “bounce randomly” around the 0 line, indicating that the assumption that the relationship is linear is reasonable. You also show see that the residuals roughly form a “horizontal band” around the 0 line, indicating that the variances of the error terms are equal. Finally, we looking for a dataset in which no one residual “stands out” from the basic random pattern of residuals. Let’s look at these residuals another way and use label the outliers so that we can remove them if necessary!</p>
 <div class="sourceCode" id="cb197"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb197-1"><a href="population-sensation.html#cb197-1" tabindex="-1"></a>id.n <span class="ot">=</span> <span class="fu">length</span>(pectis<span class="sc">$</span>id)</span>
 <span id="cb197-2"><a href="population-sensation.html#cb197-2" tabindex="-1"></a><span class="fu">qqPlot</span>(growth, <span class="at">distribution =</span> <span class="st">&quot;norm&quot;</span>, <span class="at">id.method=</span><span class="st">&quot;y&quot;</span>, <span class="at">id.cex =</span> <span class="fl">0.6</span>, <span class="at">id.n=</span>id.n, <span class="at">id.col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">id.location =</span> <span class="st">&quot;ab&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-99-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-65-1.png" width="960" style="display: block; margin: auto;" /></p>
 <pre><code>## [1] 551 628</code></pre>
 <p>A quantile-quantile plot, often abbreviated as Q-Q plot, is a graphical tool used to assess whether a dataset follows a particular theoretical distribution, such as the normal distribution. It compares the quantiles of the observed data against the quantiles of the expected theoretical distribution.</p>
 <p>Here’s how to interpret a Q-Q plot: The <em>x-axis</em> of the Q-Q plot represents the theoretical quantiles from a specified distribution (e.g., the normal distribution). The <em>y-axis</em> represents the quantiles of the observed data. If the points on the Q-Q plot fall approximately along a straight line, it suggests that the data follows the theoretical distribution. Deviations from the straight line indicate departures from the assumed distribution. If points are above the line, it suggests that the observed values are higher than expected for that quantile. If points are below the line, it suggests that the observed values are lower than expected for that quantile. The ends of the Q-Q plot are often of particular interest. Deviations in the tails can indicate differences in tail behavior.</p>
@@ -589,7 +589,7 @@ This figure is showing a scatter plot of residuals on the y axis and fitted valu
 <pre><code>## 551 628 
 ## 550 627</code></pre>
 <div class="sourceCode" id="cb207"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb207-1"><a href="population-sensation.html#cb207-1" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(<span class="fu">residuals</span>(growth)<span class="sc">~</span><span class="fu">fitted</span>(growth)))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-101-1.png" width="960" style="display: block; margin: auto;" />
+<p><img src="_main_files/figure-html/unnamed-chunk-67-1.png" width="960" style="display: block; margin: auto;" />
 Uh oh. Still not normal. Let’s remove additional outliers.</p>
 <div class="sourceCode" id="cb208"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb208-1"><a href="population-sensation.html#cb208-1" tabindex="-1"></a>pectis <span class="ot">&lt;-</span> pectis[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">82</span>, <span class="dv">84</span>),] </span>
 <span id="cb208-2"><a href="population-sensation.html#cb208-2" tabindex="-1"></a></span>
@@ -609,7 +609,7 @@ Uh oh. Still not normal. Let’s remove additional outliers.</p>
 <pre><code>## 551 628 
 ## 548 625</code></pre>
 <div class="sourceCode" id="cb212"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb212-1"><a href="population-sensation.html#cb212-1" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(<span class="fu">residuals</span>(growth)<span class="sc">~</span><span class="fu">fitted</span>(growth)))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-102-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-68-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>Yay! This is looking better now. While we are looking at size data, let’s take a look set a couple of parameters that we will need to build an IPM.</p>
 <p>Set bounds for IPM============================
 To integrate the kernel, we will need:
@@ -647,7 +647,7 @@ To do this, I use the size based data from the population, and create a max and 
 <span id="cb228-7"><a href="population-sensation.html#cb228-7" tabindex="-1"></a></span>
 <span id="cb228-8"><a href="population-sensation.html#cb228-8" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(survival, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
 <span id="cb228-9"><a href="population-sensation.html#cb228-9" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">testResiduals</span>(survival)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-104-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-70-1.png" width="960" style="display: block; margin: auto;" /></p>
 <div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="population-sensation.html#cb229-1" tabindex="-1"></a><span class="co">#if you need to identify outliers</span></span>
 <span id="cb229-2"><a href="population-sensation.html#cb229-2" tabindex="-1"></a>object1 <span class="ot">&lt;-</span> <span class="fu">simulateResiduals</span>(<span class="at">fittedModel =</span> survival)</span>
 <span id="cb229-3"><a href="population-sensation.html#cb229-3" tabindex="-1"></a><span class="fu">outliers</span>(object1, <span class="at">lowerQuantile =</span> <span class="dv">0</span>, <span class="at">upperQuantile =</span> <span class="dv">1</span>,</span>
@@ -664,9 +664,9 @@ To do this, I use the size based data from the population, and create a max and 
 <span id="cb232-4"><a href="population-sensation.html#cb232-4" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(seeds, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
 <span id="cb232-5"><a href="population-sensation.html#cb232-5" tabindex="-1"></a><span class="fu">qqnorm</span>(residuals)</span>
 <span id="cb232-6"><a href="population-sensation.html#cb232-6" tabindex="-1"></a><span class="fu">qqline</span>(residuals)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-105-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-71-1.png" width="960" style="display: block; margin: auto;" /></p>
 <div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="population-sensation.html#cb233-1" tabindex="-1"></a>test_seeds <span class="ot">&lt;-</span> <span class="fu">testResiduals</span>(seeds)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-105-2.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-71-2.png" width="960" style="display: block; margin: auto;" /></p>
 <div class="sourceCode" id="cb234"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb234-1"><a href="population-sensation.html#cb234-1" tabindex="-1"></a>object2 <span class="ot">&lt;-</span> <span class="fu">simulateResiduals</span>(<span class="at">fittedModel =</span> seeds)</span>
 <span id="cb234-2"><a href="population-sensation.html#cb234-2" tabindex="-1"></a><span class="fu">outliers</span>(object2, <span class="at">lowerQuantile =</span> <span class="dv">0</span>, <span class="at">upperQuantile =</span> <span class="dv">1</span>,</span>
 <span id="cb234-3"><a href="population-sensation.html#cb234-3" tabindex="-1"></a>  <span class="at">return =</span> <span class="fu">c</span>(<span class="st">&quot;index&quot;</span>, <span class="st">&quot;logical&quot;</span>))</span></code></pre></div>
@@ -710,7 +710,7 @@ To do this, I use the size based data from the population, and create a max and 
 <span id="cb236-7"><a href="population-sensation.html#cb236-7" tabindex="-1"></a><span class="fu">plot</span>(pectis<span class="sc">$</span>size,<span class="fu">jitter</span>(pectis<span class="sc">$</span>fec1),<span class="at">xlab=</span><span class="st">&quot;Size (t)&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;Flowering probability&quot;</span>)</span>
 <span id="cb236-8"><a href="population-sensation.html#cb236-8" tabindex="-1"></a><span class="fu">plot</span>(pectis<span class="sc">$</span>size,pectis<span class="sc">$</span>fec2,<span class="at">xlab=</span><span class="st">&quot;Size (t)&quot;</span>,<span class="at">ylab=</span><span class="st">&quot;Flower Head Number&quot;</span>) </span>
 <span id="cb236-9"><a href="population-sensation.html#cb236-9" tabindex="-1"></a><span class="fu">hist</span>(pectis<span class="sc">$</span>sizeNext[<span class="fu">is.na</span>(pectis<span class="sc">$</span>size)], <span class="at">xlab=</span><span class="st">&quot;Recruit Size&quot;</span>, <span class="at">main=</span><span class="st">&quot;&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-106-1.png" width="960" style="display: block; margin: auto;" />
+<p><img src="_main_files/figure-html/unnamed-chunk-72-1.png" width="960" style="display: block; margin: auto;" />
 All of these relationships look good. While we will retain the same state variable across all years, the nature of the relationship may change annually. For this reason, each year that we build a model, we will need to run model comparisons and select the most appropriate model. Let’s start with growth!</p>
 <div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="population-sensation.html#cb237-1" tabindex="-1"></a><span class="co">#install.packages(&quot;IPMpack&quot;, repos = &quot;http://R-Forge.R-project.org&quot;, type = &quot;source&quot;)</span></span>
 <span id="cb237-2"><a href="population-sensation.html#cb237-2" tabindex="-1"></a><span class="co">#devtools::install_github(&quot;CRAN/IPMpack&quot;)</span></span>
@@ -721,7 +721,7 @@ All of these relationships look good. While we will retain the same state variab
 <span id="cb237-7"><a href="population-sensation.html#cb237-7" tabindex="-1"></a></span>
 <span id="cb237-8"><a href="population-sensation.html#cb237-8" tabindex="-1"></a><span class="co">#growth model constuction</span></span>
 <span id="cb237-9"><a href="population-sensation.html#cb237-9" tabindex="-1"></a><span class="fu">growthModelComp</span>(<span class="at">dataf =</span> pectis, <span class="at">makePlot =</span> <span class="cn">TRUE</span>, <span class="at">legendPos =</span> <span class="st">&quot;bottomright&quot;</span>, <span class="at">mainTitle =</span> <span class="st">&quot;Growth&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-107-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-73-1.png" width="960" style="display: block; margin: auto;" /></p>
 <pre><code>## $summaryTable
 ##                 Exp. Vars   Reg. Type              AIC
 ## 1            sizeNext ~ 1 constantVar 5927.06461395333

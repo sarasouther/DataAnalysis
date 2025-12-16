@@ -634,8 +634,8 @@ Interpretation:
 Visualizing Standardized Results
 
 ```{r}
-library(semPlot)
-semPaths(fit_multi, "std", layout = "tree", whatLabels = "std", edge.label.cex = 1.2)
+# library(semPlot)
+# semPaths(fit_multi, "std", layout = "tree", whatLabels = "std", edge.label.cex = 1.2)
 ```
 
 Summary

@@ -1,86 +1,4 @@
-# Back to the basics
-
-## What can statistics tell us?
-
-Almost all statistical analysis boils down to answering one of two questions:
-
-	1.	Do these groups differ?
-	2.	Is there a relationship between these variables?
-	
-These seem like simple questions — in theory you might just “look at the data” to answer the questions — so **why do we need statistics**?
-
-The short answer is: **error** and **sampling**.
-
-Whenever we collect data, we introduce **error**:
-
-– our instruments have limits
-– humans make mistakes
-– environmental conditions vary
-– biological systems are inherently noisy
-
-And we are always measuring a subset of the **true population**. Even when we try to measure every individual (e.g., rare plant censuses), some individuals may be dormant, hidden, or unreachable.
-
-If we were omniscient, we would simply compute the true population parameters (mean, variance, etc.), compare them directly, and skip statistics entirely. But in the real world, we estimate these values from samples and quantify the uncertainty around them.
-
-Statistics is practical: it asks, **what can we say given imperfect measurements, small samples, and noisy biological systems?**
-
-## The Frequentist Framework
-
-The statistics we use most commonly in ecology — t-tests, ANOVA, linear models, GLMs, mixed models — are all built within the *frequentist* or *parametric* framework.
-
-**Frequentist statistics assumes:**
-
-**1.	There is a true but unknown parameter**
-The population mean, variance, slope, etc. are fixed constants — but we don’t know their values.
-**2.	Your sample is one of many possible samples you could have taken**
-If you collected data again under the same conditions, you’d get a different sample and different estimates.
-**3.	Variation in your estimates comes from sampling error**
-The parameter does not vary — you vary because you sampled imperfectly.
-Uncertainty is therefore in the estimator, not the parameter.
-**4.	Probability statements describe long-run frequencies of repeated sampling**
-For example:
-
-A 95% confidence interval contains the true parameter in 95% of hypothetical repeated samples.
-It does not mean “there is a 95% chance the true mean is in this interval.”
-
-**What does “parametric” mean?**
-
-Parametric tests assume the data follow a particular **probability distribution** (e.g., normal, Poisson, binomial).
-These assumptions influence:
-
-- which model we choose
-- how we estimate uncertainty
-- what kinds of inferences we can make
-
-If you understand **distributions**, you understand **why models behave the way they do**.
-
-## Bayesian statistics
-
-The main alternative statistical framework to frequentist or parameteric statistics is *Bayesian* statistics. Bayesian statistics is based on Bayes’ Theorem, which provides a mathematical way to update our beliefs in light of new data. In this framework, we start with a prior distribution representing what we believe about a parameter before collecting data. We then combine this prior with the likelihood (the information contained in the data) to obtain a posterior distribution, which reflects our updated beliefs after seeing the evidence. This allows us to make intuitive probability statements about parameters—such as the probability that a parameter lies within a certain range—and provides a flexible foundation for modeling uncertainty, especially in hierarchical and ecological systems.
-
-We (and most other ecologist) will learn frequentist methods first, because:
-
-- Most classical ecological statistics (t-tests, ANOVA, GLMs) use the frequentist framework.
-- Frequentist thinking aligns with standard experimental design.
-- Historically, Bayesian methods were computationally difficult.
-- Most journals still expect p-values and confidence intervals.
-
-### When might you choose Bayesian statistics?
-
-Although we begin with frequentist methods for their simplicity and historical use in ecology, there are many situations where Bayesian approaches offer clear advantages. Ecologists often choose Bayesian statistics when:
-
-- Data are sparse, noisy, or imbalanced. Bayesian priors help stabilize estimates when sample sizes are small or data contain many zeros (common in rare species monitoring or demographic studies).
-- Hierarchical or multilevel structure is important. Many ecological datasets have natural grouping—plots within sites, individuals within populations, years within climate regimes.
-- Bayesian methods handle hierarchical models gracefully and provide full uncertainty estimates for every level.You want to incorporate prior information.
-- In wildlife ecology, population modeling, or long-term monitoring, previous studies often contain valuable information that can inform current estimates. Priors allow you to formally combine past research with new data.
-- You care more about parameter uncertainty than about p-values. Bayesian posterior distributions provide intuitive quantities such as: “There is a 94% probability that survival increased after treatment.”
-This is often more interpretable than a traditional p-value.
-- Models are too complex for frequentist methods.Nonlinear state–space models, integrated population models, hierarchical occupancy models, and many SDM frameworks are more stable and easier to fit using Bayesian tools like Stan, JAGS, or NIMBLE.
-- You need robust propagation of uncertainty. Bayesian methods naturally propagate uncertainty across multiple model components, which is critical for forecasting, resilience modeling, and structured decision making.
-
-In short, Bayesian statistics shines when ecological questions involve complex models, low sample sizes, hierarchical structure, prior knowledge, or full uncertainty estimation.
-
-## Data Types and Why They Matter
+# Data Types and Why They Matter
 
 Before we analyze or visualize anything, we need to understand **data types**, because the type of **data determines the probability distribution**, which **determines the statistical test**.
 
@@ -255,19 +173,6 @@ hist(uniform_vals, breaks = 20, col = "gray",
      xlab = "Value")
 ```
 
-## What is a model?
-
-A statistical model is a mathematical expression that describes how a response variable changes as a function of one or more predictors.
-
-All the models we will use in this course follow the same structure:
-
-Response = Deterministic component + Random variation
-
-- The deterministic component represents the systematic pattern we want to explain (e.g., how plant height changes with grazing treatment or soil moisture).
-- The random variation represents the noise or uncertainty that remains after accounting for the predictors, and it follows one of the probability distributions we learned earlier.
-
-In later chapters, we will learn how to build these models and interpret what they tell us about ecological patterns and processes.
-
 ## Key takeaways
 
 - Different kinds of data follow different probability distributions.
@@ -279,44 +184,16 @@ In later chapters, we will learn how to build these models and interpret what th
 
 Answer the following questions:
 
-**Part 1 — Why We Use Statistics**
+**Data Types and Distributions**
 
-1.	In your own words, why do we need statistics in ecology?
-Name at least two sources of variation or uncertainty that make statistics necessary.
-
-2.	Explain the difference between a population and a sample.
-Why do we rarely observe entire populations in ecological studies?
-
-3.	What are the two main questions most statistical analyses attempt to answer?
-
-**Part 2 — Frequentist Thinking**
-
-4.	Fill in the blank:
-In the frequentist framework, parameters (such as the true mean height of a plant population) are considered _______ but _______.
-5.	What does a 95% confidence interval mean in frequentist statistics?
-Choose the correct statement:
-
-a) There is a 95% probability that the true mean lies in this specific interval.
-b) If we repeated our sampling many times, 95% of the intervals we calculate would contain the true mean.
-c) The data contain 95% of the true values.
-  
-6.	In frequentist statistics, uncertainty comes from:
-
-a) The parameter being uncertain
-b) Variation in the estimator due to sampling
-c) The prior distribution
-(circle all that apply)
-
-**Part 3 — Data Types and Distributions**
-
-7.	Identify the data type (categorical, continuous, discrete, ordinal) for each of the following variables:
+1.	Identify the data type (categorical, continuous, discrete, ordinal) for each of the following variables:
 
 a) Number of acorns produced by a tree
 b) Grazing treatment (ungrazed, low, high)
 c) Plant height in centimeters
 d) Likert scale: “Strongly disagree” → “Strongly agree”
 
-8.	Match each variable to its likely statistical distribution (Normal, Poisson, Binomial, Negative Binomial, Beta, Ordinal logistic):
+2.	Match each variable to its likely statistical distribution (Normal, Poisson, Binomial, Negative Binomial, Beta, Ordinal logistic):
 
 a) Presence/absence of a species at a site
 b) Number of insects caught in a pitfall trap
@@ -325,36 +202,25 @@ d) Flower count with many zeros
 e) Seedling height
 f) Seedling health score (poor, fair, good, excellent)
 
-9.	Which distribution assumes mean = variance?
+3.	Which distribution assumes mean = variance?
 What does it mean if the variance is much larger than the mean?
 
-**Part 4 — Understanding Distributions**
+**Understanding Distributions**
 
-10.	Briefly describe why the Normal distribution is common in biological systems.
+4.	Briefly describe why the Normal distribution is common in biological systems.
 (Hint: many small factors…)
 
-11.	What ecological process might produce Poisson-distributed data?
+5.	What ecological process might produce Poisson-distributed data?
 Give a real example.
 
-12.	What is the key characteristic of the Binomial distribution?
+6.	What is the key characteristic of the Binomial distribution?
 Why is it appropriate for germination data?
 
-13.	Under what ecological conditions might you expect a Negative Binomial distribution instead of a Poisson?
+7.	Under what ecological conditions might you expect a Negative Binomial distribution instead of a Poisson?
 
-**Part 5 — Short Model Concept**
+**Reflection Question**
 
-14.	Fill in the blanks:
-
-A statistical model can be written as:
-Response = ______ + ______
-
-15.	In this expression, what does the “deterministic component” represent?
-
-16.	What does the “random variation” represent?
-
-**Part 6 — Reflection Question**
-
-17.	Write 2–3 sentences about one concept from this chapter that felt intuitive and one that felt confusing.
+8.	Write 2–3 sentences about one concept from this chapter that felt intuitive and one that felt confusing.
 What would help clarify the confusing part?
 
 ## Assignment

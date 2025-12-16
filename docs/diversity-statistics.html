@@ -494,7 +494,7 @@ The first decision to make is to determine what type of data you will analyze.</
 <span id="cb246-3"><a href="diversity-statistics.html#cb246-3" tabindex="-1"></a><span class="co">#Go ahead and estimate diversity</span></span>
 <span id="cb246-4"><a href="diversity-statistics.html#cb246-4" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">iNEXT</span>(spider, <span class="at">q=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="at">datatype=</span><span class="st">&quot;abundance&quot;</span>, <span class="at">endpoint=</span><span class="dv">500</span>)</span>
 <span id="cb246-5"><a href="diversity-statistics.html#cb246-5" tabindex="-1"></a><span class="fu">ggiNEXT</span>(out, <span class="at">type=</span><span class="dv">1</span>, <span class="at">facet.var=</span><span class="st">&quot;Assemblage&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-116-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-82-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>The iNEXT functions calculates our R/E curve. There are several components of this function (taken from the package information):
 1. The first term in the iNEXT function specifies the dataset.
 2. Argument q allows you to select the type of diversity estimate that you are interested in. Here, we have chosen to calculate Hill numbers q = 0 (richness), 1 (Shannons), and 2 (Simpsons).
@@ -562,7 +562,7 @@ NULL, then endpoint=double the sample size of your assemblage (total sample size
 ## 6 South.site Simpson diversity 19.63930  20.91318 1.445089 18.08086 23.74550</code></pre>
 <div class="sourceCode" id="cb251"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb251-1"><a href="diversity-statistics.html#cb251-1" tabindex="-1"></a><span class="co">#plot your bird data</span></span>
 <span id="cb251-2"><a href="diversity-statistics.html#cb251-2" tabindex="-1"></a><span class="fu">ggiNEXT</span>(birdtest, <span class="at">type=</span><span class="dv">1</span>, <span class="at">se=</span><span class="cn">TRUE</span>, <span class="at">facet.var=</span><span class="st">&quot;None&quot;</span>, <span class="at">color.var=</span><span class="st">&quot;Assemblage&quot;</span>, <span class="at">grey=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-117-1.png" width="960" style="display: block; margin: auto;" />
+<p><img src="_main_files/figure-html/unnamed-chunk-83-1.png" width="960" style="display: block; margin: auto;" />
 The iNEXT() function returns the “iNEXT” object, which includes three output lists (taken from the iNEXT package documentation):
 1. $DataInfo for summarizing data information;
 2. $iNextEst for showing size- and coverage-based diversity estimates along with related statistics for a series of rarefied and extrapolated samples;
@@ -1129,7 +1129,7 @@ The iNEXT() function returns the “iNEXT” object, which includes three output
 <span id="cb276-5"><a href="diversity-statistics.html#cb276-5" tabindex="-1"></a></span>
 <span id="cb276-6"><a href="diversity-statistics.html#cb276-6" tabindex="-1"></a><span class="co"># Plot the results</span></span>
 <span id="cb276-7"><a href="diversity-statistics.html#cb276-7" tabindex="-1"></a><span class="fu">plot</span>(results)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-123-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-89-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>Let’s transform an abundance dataset! This dataset consists of observations of pollinators within an ecoregion for two time periods. Far more observations were collected after the development of cell phones and app-based species identification software like iNaturalist. In order to compare the two assemblages, you must calculate asymptotic diversity estimates using R/E curves. The dataset has been cleaned and spatially-thinned, so that we assume that each observation indicates a distinct individual and thus we have an estimate of abundance within this ecoregion. First, check out the dataset. Here, each row corresponds to an observation. In order to run analyses on this data, we must transform the data into either an S by N abundance matrix (bird data), or N lists of species abundances (spider data). Let’s transform our data into the list structure.</p>
 <div class="sourceCode" id="cb277"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb277-1"><a href="diversity-statistics.html#cb277-1" tabindex="-1"></a><span class="co">#you have to adjust the code to port in this datasets!</span></span>
 <span id="cb277-2"><a href="diversity-statistics.html#cb277-2" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
@@ -1174,7 +1174,7 @@ The iNEXT() function returns the “iNEXT” object, which includes three output
 <span id="cb279-6"><a href="diversity-statistics.html#cb279-6" tabindex="-1"></a></span>
 <span id="cb279-7"><a href="diversity-statistics.html#cb279-7" tabindex="-1"></a>arcticfigure <span class="ot">&lt;-</span> <span class="fu">ggiNEXT</span>(out.inc, <span class="at">facet.var=</span><span class="st">&quot;Order.q&quot;</span>, <span class="at">se =</span><span class="cn">TRUE</span>, <span class="at">grey =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">&quot;Generic diversity&quot;</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Arctic cordillera&quot;</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
 <span id="cb279-8"><a href="diversity-statistics.html#cb279-8" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust=</span><span class="dv">1</span>)); arcticfigure</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-125-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-91-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>Wonderful! You’ve transformed your data into the iNEXT format according to your data type. Now, work through an example with your own data! Put your data into the correct format based on your data, and analyze away.</p>
 
 </div>

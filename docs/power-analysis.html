@@ -510,7 +510,7 @@ It is by convention, much like we set a significance level (<span class="math in
 <div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="power-analysis.html#cb82-1" tabindex="-1"></a><span class="fu">ggplot</span>(oatvar, <span class="fu">aes</span>(<span class="at">y=</span>yield, <span class="at">x=</span>block, <span class="at">color=</span>variety)) <span class="sc">+</span> </span>
 <span id="cb82-2"><a href="power-analysis.html#cb82-2" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb82-3"><a href="power-analysis.html#cb82-3" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">as.integer</span>(block)))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-59-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-25-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>The cbpp is a dataset on contagious bovine pleuropneumonia. Data description is here:
 <a href="https://rdrr.io/cran/lme4/man/cbpp.html" class="uri">https://rdrr.io/cran/lme4/man/cbpp.html</a></p>
 <div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="power-analysis.html#cb83-1" tabindex="-1"></a><span class="fu">library</span>(simr)</span>
@@ -639,21 +639,21 @@ where <span class="math inline">\(SE\)</span> is standard error of the sample;
 <pre><code>## [1] 4.454545</code></pre>
 <div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="power-analysis.html#cb113-1" tabindex="-1"></a><span class="fu">median</span>(sedona_skewed)</span></code></pre></div>
 <pre><code>## [1] 4</code></pre>
-<p><img src="_main_files/figure-html/unnamed-chunk-67-1.png" width="960" style="display: block; margin: auto;" />
+<p><img src="_main_files/figure-html/unnamed-chunk-33-1.png" width="960" style="display: block; margin: auto;" />
 In this relatively unskewed example, the tails are approximately even. This shape is also referred to as a normal or Gaussian distribution.
-<img src="_main_files/figure-html/unnamed-chunk-68-1.png" width="960" style="display: block; margin: auto;" />
+<img src="_main_files/figure-html/unnamed-chunk-34-1.png" width="960" style="display: block; margin: auto;" />
 Here, we superimposed the bellshaped Normal or Gaussian distribution.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-69-1.png" width="960" style="display: block; margin: auto;" />
+<p><img src="_main_files/figure-html/unnamed-chunk-35-1.png" width="960" style="display: block; margin: auto;" />
 In this example of skewed data, the tail tapers to the right, indicated that the data is skewed to the right.</p>
 <p>In order to explain outliers, we need to look at quantiles! Quantiles are proportions of your data, in other words a way to break your data into chunks to understand spread. You can break your data into as many quantiles as you would like, but it is most common to break your data into 4 parts, also called quartiles. (If you break data into 5 parts, the components are called quintiles, 10 parts = deciles, 100 parts = percentiles).</p>
 <p>When you break data into quartiles, roughly 25 percent of the data occurs within each data chunk. The first chunk of the dataset contains 25% of the data (25th percentile; 25% of the data fall at or below this cut-off) is called the first quartile, the 50th percentile is called the sample median or the second quartile, the 75th percentile is called the third quartile.</p>
 <p>Box and whisker plots are commonly used to quickly examine quartiles. Let’s check out our plant height data again, using a box and whisker plot.
-<img src="_main_files/figure-html/unnamed-chunk-70-1.png" width="960" style="display: block; margin: auto;" />
+<img src="_main_files/figure-html/unnamed-chunk-36-1.png" width="960" style="display: block; margin: auto;" />
 In the plot shown here, the box encapsulates the Interquartile Range (IQR); the center of the data ranging from the 25th percentile to the 75th. The black line in the middle of the box is the median (also called the 50th percentile, because it bisects the dataset; half of the data occur above the median and half below). The lines emerging from the box (whiskers) indicate the extent of the first and third quartiles, and usually corresponding with the minimum and maximum values of the dataset, unless there are <strong>outliers</strong>. An outlier is a datapoint that occurs outside of the 1st or 3rd quantile. Let’s add one to our Sedona dataset, and see how it is represented on the box and whisker plot.</p>
 <div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="power-analysis.html#cb115-1" tabindex="-1"></a><span class="co">#Let&#39;s add a plant height of 20.</span></span>
 <span id="cb115-2"><a href="power-analysis.html#cb115-2" tabindex="-1"></a>sedona_skewed <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">20</span>)</span>
 <span id="cb115-3"><a href="power-analysis.html#cb115-3" tabindex="-1"></a><span class="fu">boxplot</span>(sedona_skewed, <span class="at">main=</span><span class="st">&quot;Skewed&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;Plant height (cm)&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-71-1.png" width="960" style="display: block; margin: auto;" />
+<p><img src="_main_files/figure-html/unnamed-chunk-37-1.png" width="960" style="display: block; margin: auto;" />
 The outlier appears as a dot on the box and whisker plot, and is the maximum value of the dataset.</p>
 <p>One other thing to note: Standard deviation also breaks data into meaningful segments, but is only used when data conform to a normal distribution; the mean +/- 1 SD accounts for 68% of the data, +/-2 SDs contains 95% of data, and +/- 3SD includes 99% of data. That said, I’ve never presented standard deviation in a manuscript; it is much more common to include standard error or confidence intervals (discussed later).</p>
 <p>We’ve played around a lot with data, but what do you actually need to take away from this?:</p>
