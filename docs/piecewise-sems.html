@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 41 Piecewise SEMs | Statistics for Ecology</title>
+  <meta name="description" content="Chapter 41 Piecewise SEMs | Statistics for Ecology" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 41 Piecewise SEMs | Statistics for Ecology" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="sarasouther/DataAnalysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 41 Piecewise SEMs | Statistics for Ecology" />
+  
+  
+  
+
+<meta name="author" content="Dr. Sara Souther" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="what-are-structural-equation-models.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.11/grViz.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Statistics for Ecology</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#learning-objectives"><i class="fa fa-check"></i><b>1.1</b> Learning Objectives</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="why-statistics.html"><a href="why-statistics.html"><i class="fa fa-check"></i><b>2</b> Why Statistics?</a></li>
+<li class="chapter" data-level="3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html"><i class="fa fa-check"></i><b>3</b> Back to the basics</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-can-statistics-tell-us"><i class="fa fa-check"></i><b>3.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="3.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-frequentist-framework"><i class="fa fa-check"></i><b>3.2</b> The Frequentist Framework</a></li>
+<li class="chapter" data-level="3.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#bayesian-statistics"><i class="fa fa-check"></i><b>3.3</b> Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#when-might-you-choose-bayesian-statistics"><i class="fa fa-check"></i><b>3.3.1</b> When might you choose Bayesian statistics?</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#data-types-and-why-they-matter"><i class="fa fa-check"></i><b>3.4</b> Data Types and Why They Matter</a></li>
+<li class="chapter" data-level="3.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#linking-data-types-to-distributions"><i class="fa fa-check"></i><b>3.5</b> Linking Data Types to Distributions</a></li>
+<li class="chapter" data-level="3.6" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#overview-of-common-statistical-distributions"><i class="fa fa-check"></i><b>3.6</b> Overview of Common Statistical Distributions</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-normal-distribution"><i class="fa fa-check"></i><b>3.6.1</b> The Normal Distribution</a></li>
+<li class="chapter" data-level="3.6.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-binomial-distribution-outcomes-are-success-or-failure"><i class="fa fa-check"></i><b>3.6.2</b> The Binomial Distribution: Outcomes are “success” or “failure”</a></li>
+<li class="chapter" data-level="3.6.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-poisson-distribution-counts-from-random-events"><i class="fa fa-check"></i><b>3.6.3</b> The Poisson Distribution: Counts from random events</a></li>
+<li class="chapter" data-level="3.6.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-negative-binomial-distribution-overdispersed-counts"><i class="fa fa-check"></i><b>3.6.4</b> The Negative Binomial Distribution: Overdispersed counts</a></li>
+<li class="chapter" data-level="3.6.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-uniform-distribution-all-values-equally-likely"><i class="fa fa-check"></i><b>3.6.5</b> The Uniform Distribution: All values equally likely</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-is-a-model"><i class="fa fa-check"></i><b>3.7</b> What is a model?</a></li>
+<li class="chapter" data-level="3.8" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#key-takeaways"><i class="fa fa-check"></i><b>3.8</b> Key takeaways</a></li>
+<li class="chapter" data-level="3.9" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#test-your-knowledge"><i class="fa fa-check"></i><b>3.9</b> Test your knowledge!</a></li>
+<li class="chapter" data-level="3.10" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#assignment"><i class="fa fa-check"></i><b>3.10</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html"><i class="fa fa-check"></i><b>4</b> Randomness and probability</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#the-sample-point-method"><i class="fa fa-check"></i><b>4.1</b> The sample point method</a></li>
+<li class="chapter" data-level="4.2" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#combinatorials"><i class="fa fa-check"></i><b>4.2</b> Combinatorials</a></li>
+<li class="chapter" data-level="4.3" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#union-and-intersection-of-events"><i class="fa fa-check"></i><b>4.3</b> Union and intersection of events</a></li>
+<li class="chapter" data-level="4.4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#conditional-probability"><i class="fa fa-check"></i><b>4.4</b> Conditional probability</a></li>
+<li class="chapter" data-level="4.5" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#multiplicative-law-of-probability-of-independent-events"><i class="fa fa-check"></i><b>4.5</b> Multiplicative Law of Probability of Independent Events</a></li>
+<li class="chapter" data-level="4.6" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#additive-law-of-probability-of-mutually-exclusive-events"><i class="fa fa-check"></i><b>4.6</b> Additive Law of Probability of Mutually Exclusive Events</a></li>
+<li class="chapter" data-level="4.7" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#general-additive-law-of-probability"><i class="fa fa-check"></i><b>4.7</b> General Additive Law of Probability</a></li>
+<li class="chapter" data-level="4.8" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#key-concepts"><i class="fa fa-check"></i><b>4.8</b> Key concepts</a></li>
+<li class="chapter" data-level="4.9" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#practice-problems"><i class="fa fa-check"></i><b>4.9</b> Practice problems</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="expected-value-of-a-fair-die-roll.html"><a href="expected-value-of-a-fair-die-roll.html"><i class="fa fa-check"></i><b>5</b> Expected value of a fair die roll</a></li>
+<li class="chapter" data-level="6" data-path="variance-of-a-fair-die-roll.html"><a href="variance-of-a-fair-die-roll.html"><i class="fa fa-check"></i><b>6</b> Variance of a fair die roll</a></li>
+<li class="chapter" data-level="7" data-path="take-many-samples-and-calculate-means.html"><a href="take-many-samples-and-calculate-means.html"><i class="fa fa-check"></i><b>7</b> Take many samples and calculate means</a></li>
+<li class="chapter" data-level="8" data-path="uniform-population.html"><a href="uniform-population.html"><i class="fa fa-check"></i><b>8</b> Uniform population</a></li>
+<li class="chapter" data-level="9" data-path="exponential-population-highly-skewed.html"><a href="exponential-population-highly-skewed.html"><i class="fa fa-check"></i><b>9</b> Exponential population (highly skewed)</a></li>
+<li class="chapter" data-level="10" data-path="ppositive-pposdiseasepdisease-pposno-diseasepno-disease.html"><a href="ppositive-pposdiseasepdisease-pposno-diseasepno-disease.html"><i class="fa fa-check"></i><b>10</b> P(positive) = P(pos|disease)<em>P(disease) + P(pos|no disease)</em>P(no disease)</a></li>
+<li class="chapter" data-level="11" data-path="pdisease-positive-pposdisease-pdisease-ppositive.html"><a href="pdisease-positive-pposdisease-pdisease-ppositive.html"><i class="fa fa-check"></i><b>11</b> P(disease | positive) = P(pos|disease) * P(disease) / P(positive)</a></li>
+<li class="chapter" data-level="12" data-path="probability-of-9-or-10-heads-in-10-flips-of-fair-coin.html"><a href="probability-of-9-or-10-heads-in-10-flips-of-fair-coin.html"><i class="fa fa-check"></i><b>12</b> Probability of 9 or 10 heads in 10 flips of fair coin</a></li>
+<li class="chapter" data-level="13" data-path="data-exploration-and-assumption-checking.html"><a href="data-exploration-and-assumption-checking.html"><i class="fa fa-check"></i><b>13</b> Data Exploration and Assumption Checking</a></li>
+<li class="chapter" data-level="14" data-path="ecological-sampling.html"><a href="ecological-sampling.html"><i class="fa fa-check"></i><b>14</b> Ecological sampling</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#background"><i class="fa fa-check"></i><b>14.1</b> Background</a></li>
+<li class="chapter" data-level="14.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-approaches"><i class="fa fa-check"></i><b>14.2</b> Sampling approaches</a>
+<ul>
+<li class="chapter" data-level="14.2.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-sampling"><i class="fa fa-check"></i><b>14.2.1</b> Random sampling</a></li>
+<li class="chapter" data-level="14.2.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#stratified-random-sampling"><i class="fa fa-check"></i><b>14.2.2</b> Stratified random sampling</a></li>
+<li class="chapter" data-level="14.2.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#gridded-random-sampling"><i class="fa fa-check"></i><b>14.2.3</b> Gridded random sampling</a></li>
+<li class="chapter" data-level="14.2.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-cluster-sampling"><i class="fa fa-check"></i><b>14.2.4</b> Random cluster sampling</a></li>
+<li class="chapter" data-level="14.2.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#grts-sampling-generalized-random-tessellation-stratified-sampling"><i class="fa fa-check"></i><b>14.2.5</b> GRTS Sampling (Generalized Random-Tessellation Stratified Sampling)</a></li>
+<li class="chapter" data-level="14.2.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#understanding-design-weights"><i class="fa fa-check"></i><b>14.2.6</b> Understanding Design Weights</a></li>
+</ul></li>
+<li class="chapter" data-level="14.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#systematic-sampling"><i class="fa fa-check"></i><b>14.3</b> Systematic Sampling</a></li>
+<li class="chapter" data-level="14.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#adaptive-sampling-sampling-rare-or-patchy-species"><i class="fa fa-check"></i><b>14.4</b> Adaptive Sampling (Sampling Rare or Patchy Species)</a></li>
+<li class="chapter" data-level="14.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#imperfect-detection-in-ecological-sampling"><i class="fa fa-check"></i><b>14.5</b> Imperfect Detection in Ecological Sampling</a></li>
+<li class="chapter" data-level="14.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#temporal-sampling-and-study-designs-through-time"><i class="fa fa-check"></i><b>14.6</b> Temporal Sampling and Study Designs Through Time</a>
+<ul>
+<li class="chapter" data-level="14.6.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-panels"><i class="fa fa-check"></i><b>14.6.1</b> Sampling Panels</a></li>
+<li class="chapter" data-level="14.6.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#baci-designs-beforeaftercontrolimpact"><i class="fa fa-check"></i><b>14.6.2</b> BACI Designs (Before–After–Control–Impact)</a></li>
+</ul></li>
+<li class="chapter" data-level="14.7" data-path="ecological-sampling.html"><a href="ecological-sampling.html#plot-shapes-sizes-and-transects"><i class="fa fa-check"></i><b>14.7</b> Plot shapes, sizes, and transects</a></li>
+<li class="chapter" data-level="14.8" data-path="ecological-sampling.html"><a href="ecological-sampling.html#distance-sampling-and-point-counts"><i class="fa fa-check"></i><b>14.8</b> Distance Sampling and Point Counts</a></li>
+<li class="chapter" data-level="14.9" data-path="ecological-sampling.html"><a href="ecological-sampling.html#reducing-sampling-error"><i class="fa fa-check"></i><b>14.9</b> Reducing sampling error</a></li>
+<li class="chapter" data-level="14.10" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sample-size-determination-in-ecology-effect-sizes-and-precision"><i class="fa fa-check"></i><b>14.10</b> Sample Size Determination in Ecology: Effect Sizes and Precision</a></li>
+<li class="chapter" data-level="14.11" data-path="ecological-sampling.html"><a href="ecological-sampling.html#variables-of-interest"><i class="fa fa-check"></i><b>14.11</b> Variables of interest</a></li>
+<li class="chapter" data-level="14.12" data-path="ecological-sampling.html"><a href="ecological-sampling.html#test-your-knowledge-1"><i class="fa fa-check"></i><b>14.12</b> Test your knowledge</a></li>
+<li class="chapter" data-level="14.13" data-path="ecological-sampling.html"><a href="ecological-sampling.html#assignment-1"><i class="fa fa-check"></i><b>14.13</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="14.13.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#example-methods-sampling-design"><i class="fa fa-check"></i><b>14.13.1</b> Example Methods: Sampling Design</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="15" data-path="power-analysis.html"><a href="power-analysis.html"><i class="fa fa-check"></i><b>15</b> Power analysis</a>
+<ul>
+<li class="chapter" data-level="15.1" data-path="power-analysis.html"><a href="power-analysis.html#prework"><i class="fa fa-check"></i><b>15.1</b> Prework</a></li>
+<li class="chapter" data-level="15.2" data-path="power-analysis.html"><a href="power-analysis.html#statistical-power"><i class="fa fa-check"></i><b>15.2</b> Statistical power</a></li>
+<li class="chapter" data-level="15.3" data-path="power-analysis.html"><a href="power-analysis.html#describing-data"><i class="fa fa-check"></i><b>15.3</b> Describing data</a></li>
+</ul></li>
+<li class="chapter" data-level="16" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html"><i class="fa fa-check"></i><b>16</b> Selecting statistical tests</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-foray-into-statistics"><i class="fa fa-check"></i><b>16.1</b> A foray into statistics</a></li>
+<li class="chapter" data-level="16.2" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#pick-the-explanatory-and-response-variable"><i class="fa fa-check"></i><b>16.2</b> Pick the explanatory and response variable</a></li>
+<li class="chapter" data-level="16.3" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#variable-types-refresher"><i class="fa fa-check"></i><b>16.3</b> Variable types refresher</a></li>
+<li class="chapter" data-level="16.4" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#more-examples"><i class="fa fa-check"></i><b>16.4</b> More examples</a></li>
+<li class="chapter" data-level="16.5" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#the-decision-matrix"><i class="fa fa-check"></i><b>16.5</b> The decision matrix</a></li>
+<li class="chapter" data-level="16.6" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-note-on-assumptions"><i class="fa fa-check"></i><b>16.6</b> A note on assumptions</a></li>
+<li class="chapter" data-level="16.7" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#learning-goals"><i class="fa fa-check"></i><b>16.7</b> Learning goals</a></li>
+<li class="chapter" data-level="16.8" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#downloads-for-this-class"><i class="fa fa-check"></i><b>16.8</b> Downloads for this class</a></li>
+<li class="chapter" data-level="16.9" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#in-class-practice"><i class="fa fa-check"></i><b>16.9</b> In-class practice</a></li>
+<li class="chapter" data-level="16.10" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#assignment-choosing-and-running-the-right-test"><i class="fa fa-check"></i><b>16.10</b> Assignment: Choosing and Running the Right Test</a>
+<ul>
+<li class="chapter" data-level="16.10.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#deliverables"><i class="fa fa-check"></i><b>16.10.1</b> Deliverables</a></li>
+</ul></li>
+<li class="chapter" data-level="16.11" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#statistical-analyses-for-your-species-interaction-lab"><i class="fa fa-check"></i><b>16.11</b> Statistical analyses for your species interaction lab</a></li>
+</ul></li>
+<li class="chapter" data-level="17" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html"><i class="fa fa-check"></i><b>17</b> Basic statistical testing</a>
+<ul>
+<li class="chapter" data-level="17.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#a-short-statistical-review"><i class="fa fa-check"></i><b>17.1</b> A short statistical review</a>
+<ul>
+<li class="chapter" data-level="17.1.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#what-can-statistics-tell-us-1"><i class="fa fa-check"></i><b>17.1.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="17.1.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#sampling-populations"><i class="fa fa-check"></i><b>17.1.2</b> Sampling populations</a></li>
+</ul></li>
+<li class="chapter" data-level="17.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#hypothesis-testing-review"><i class="fa fa-check"></i><b>17.2</b> Hypothesis testing review</a></li>
+<li class="chapter" data-level="17.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#downloads-for-this-module"><i class="fa fa-check"></i><b>17.3</b> Downloads for this module</a></li>
+<li class="chapter" data-level="17.4" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#objectives"><i class="fa fa-check"></i><b>17.4</b> Objectives</a></li>
+<li class="chapter" data-level="17.5" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#tailed-tests"><i class="fa fa-check"></i><b>17.5</b> Tailed tests</a>
+<ul>
+<li class="chapter" data-level="17.5.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#generate-hypotheses"><i class="fa fa-check"></i><b>17.5.1</b> Generate hypotheses</a></li>
+<li class="chapter" data-level="17.5.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#calculate-a-test-statistic"><i class="fa fa-check"></i><b>17.5.2</b> Calculate a test statistic</a></li>
+<li class="chapter" data-level="17.5.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#determine-the-p-value"><i class="fa fa-check"></i><b>17.5.3</b> Determine the p-value</a></li>
+</ul></li>
+<li class="chapter" data-level="17.6" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#drawing-conclusions-from-statistics"><i class="fa fa-check"></i><b>17.6</b> Drawing conclusions from statistics</a></li>
+<li class="chapter" data-level="17.7" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#reporting-results"><i class="fa fa-check"></i><b>17.7</b> Reporting results</a></li>
+<li class="chapter" data-level="17.8" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#assignment-2"><i class="fa fa-check"></i><b>17.8</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="18" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html"><i class="fa fa-check"></i><b>18</b> Generalized Linear Models (GLMs)</a>
+<ul>
+<li class="chapter" data-level="18.1" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html#linear-models"><i class="fa fa-check"></i><b>18.1</b> Linear models</a></li>
+</ul></li>
+<li class="chapter" data-level="19" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>19</b> Generalized Linear Models</a>
+<ul>
+<li class="chapter" data-level="19.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#link-functions"><i class="fa fa-check"></i><b>19.1</b> Link functions</a></li>
+<li class="chapter" data-level="19.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#glms-in-r"><i class="fa fa-check"></i><b>19.2</b> GLMs in R</a></li>
+</ul></li>
+<li class="chapter" data-level="20" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html"><i class="fa fa-check"></i><b>20</b> Mixed Effects Models</a>
+<ul>
+<li class="chapter" data-level="20.1" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html#examples-in-r"><i class="fa fa-check"></i><b>20.1</b> Examples in R</a></li>
+</ul></li>
+<li class="chapter" data-level="21" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html"><i class="fa fa-check"></i><b>21</b> Before-After-Control-Impact</a>
+<ul>
+<li class="chapter" data-level="21.1" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#which-design"><i class="fa fa-check"></i><b>21.1</b> Which design</a></li>
+<li class="chapter" data-level="21.2" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#baci-design-2"><i class="fa fa-check"></i><b>21.2</b> BACI Design 2</a></li>
+</ul></li>
+<li class="chapter" data-level="22" data-path="time-is-a-flat-circle.html"><a href="time-is-a-flat-circle.html"><i class="fa fa-check"></i><b>22</b> Time is a flat circle</a></li>
+<li class="chapter" data-level="23" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html"><i class="fa fa-check"></i><b>23</b> Describing ecological patterns</a>
+<ul>
+<li class="chapter" data-level="23.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#when-to-use-model-selection"><i class="fa fa-check"></i><b>23.1</b> When to use model selection?</a></li>
+<li class="chapter" data-level="23.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-1-identifying-predictor-variables-or-co-variates-of-importance"><i class="fa fa-check"></i><b>23.2</b> Step 1: Identifying predictor variables or co-variates of importance</a></li>
+<li class="chapter" data-level="23.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-2-removing-colinear-variables"><i class="fa fa-check"></i><b>23.3</b> Step 2: Removing colinear variables</a>
+<ul>
+<li class="chapter" data-level="23.3.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#automated-variable-removal"><i class="fa fa-check"></i><b>23.3.1</b> Automated Variable Removal</a></li>
+<li class="chapter" data-level="23.3.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#expert-knowledge-driven-selection"><i class="fa fa-check"></i><b>23.3.2</b> Expert Knowledge-Driven Selection</a></li>
+<li class="chapter" data-level="23.3.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#blended-strategy-recommended"><i class="fa fa-check"></i><b>23.3.3</b> Blended Strategy (Recommended)</a></li>
+</ul></li>
+<li class="chapter" data-level="23.4" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#example-reducing-colinear-climate-variables"><i class="fa fa-check"></i><b>23.4</b> Example: Reducing colinear climate variables</a></li>
+<li class="chapter" data-level="23.5" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-3-select-the-best-model"><i class="fa fa-check"></i><b>23.5</b> Step 3: Select the best model</a>
+<ul>
+<li class="chapter" data-level="23.5.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#major-types-of-model-selection-overview-benefits-drawbacks-and-applications"><i class="fa fa-check"></i><b>23.5.1</b> Major Types of Model Selection: Overview, Benefits, Drawbacks, and Applications</a></li>
+<li class="chapter" data-level="23.5.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#stepwise-regression-based-on-aic-akaike-information-criterion."><i class="fa fa-check"></i><b>23.5.2</b> Stepwise regression based on AIC (Akaike Information Criterion).</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="24" data-path="plot-establishment.html"><a href="plot-establishment.html"><i class="fa fa-check"></i><b>24</b> Plot establishment</a></li>
+<li class="chapter" data-level="25" data-path="bootstrapping-and-resampling.html"><a href="bootstrapping-and-resampling.html"><i class="fa fa-check"></i><b>25</b> Bootstrapping and resampling</a></li>
+<li class="chapter" data-level="26" data-path="population-sensation.html"><a href="population-sensation.html"><i class="fa fa-check"></i><b>26</b> Population sensation</a>
+<ul>
+<li class="chapter" data-level="26.1" data-path="population-sensation.html"><a href="population-sensation.html#population-characteristics"><i class="fa fa-check"></i><b>26.1</b> Population characteristics</a></li>
+<li class="chapter" data-level="26.2" data-path="population-sensation.html"><a href="population-sensation.html#planning-a-census"><i class="fa fa-check"></i><b>26.2</b> Planning a census</a></li>
+<li class="chapter" data-level="26.3" data-path="population-sensation.html"><a href="population-sensation.html#life-cycle-diagrams"><i class="fa fa-check"></i><b>26.3</b> Life cycle diagrams</a></li>
+<li class="chapter" data-level="26.4" data-path="population-sensation.html"><a href="population-sensation.html#population-demographic-models"><i class="fa fa-check"></i><b>26.4</b> Population demographic models</a></li>
+<li class="chapter" data-level="26.5" data-path="population-sensation.html"><a href="population-sensation.html#integral-projection-models"><i class="fa fa-check"></i><b>26.5</b> Integral projection models</a></li>
+<li class="chapter" data-level="26.6" data-path="population-sensation.html"><a href="population-sensation.html#an-example-population-ecology-of-an-endangered-plant"><i class="fa fa-check"></i><b>26.6</b> An example: Population ecology of an endangered plant</a></li>
+<li class="chapter" data-level="26.7" data-path="population-sensation.html"><a href="population-sensation.html#putting-it-all-together"><i class="fa fa-check"></i><b>26.7</b> Putting it all together</a></li>
+<li class="chapter" data-level="26.8" data-path="population-sensation.html"><a href="population-sensation.html#generating-confidence-intervals"><i class="fa fa-check"></i><b>26.8</b> Generating confidence intervals</a></li>
+<li class="chapter" data-level="26.9" data-path="population-sensation.html"><a href="population-sensation.html#different-life-histories"><i class="fa fa-check"></i><b>26.9</b> Different life histories</a></li>
+</ul></li>
+<li class="chapter" data-level="27" data-path="permuting-your-brains-out.html"><a href="permuting-your-brains-out.html"><i class="fa fa-check"></i><b>27</b> Permuting your brains out</a></li>
+<li class="chapter" data-level="28" data-path="spatial-data.html"><a href="spatial-data.html"><i class="fa fa-check"></i><b>28</b> Spatial data</a></li>
+<li class="chapter" data-level="29" data-path="read.html"><a href="read.html"><i class="fa fa-check"></i><b>29</b> Read</a></li>
+<li class="chapter" data-level="30" data-path="check-structure.html"><a href="check-structure.html"><i class="fa fa-check"></i><b>30</b> Check structure</a></li>
+<li class="chapter" data-level="31" data-path="write.html"><a href="write.html"><i class="fa fa-check"></i><b>31</b> Write</a></li>
+<li class="chapter" data-level="32" data-path="read-1.html"><a href="read-1.html"><i class="fa fa-check"></i><b>32</b> Read</a></li>
+<li class="chapter" data-level="33" data-path="check-properties.html"><a href="check-properties.html"><i class="fa fa-check"></i><b>33</b> Check properties</a></li>
+<li class="chapter" data-level="34" data-path="write-1.html"><a href="write-1.html"><i class="fa fa-check"></i><b>34</b> Write</a></li>
+<li class="chapter" data-level="35" data-path="create-neighbor-list.html"><a href="create-neighbor-list.html"><i class="fa fa-check"></i><b>35</b> Create neighbor list</a></li>
+<li class="chapter" data-level="36" data-path="test-residuals.html"><a href="test-residuals.html"><i class="fa fa-check"></i><b>36</b> Test residuals</a></li>
+<li class="chapter" data-level="37" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html"><i class="fa fa-check"></i><b>37</b> Species Distribution Modeling</a>
+<ul>
+<li class="chapter" data-level="37.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#introduction-1"><i class="fa fa-check"></i><b>37.1</b> Introduction</a></li>
+<li class="chapter" data-level="37.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#a-brief-review-of-niche-theory"><i class="fa fa-check"></i><b>37.2</b> A brief review of niche theory</a></li>
+<li class="chapter" data-level="37.3" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#downloads-for-this-lab"><i class="fa fa-check"></i><b>37.3</b> Downloads for this lab</a></li>
+<li class="chapter" data-level="37.4" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#objectives-1"><i class="fa fa-check"></i><b>37.4</b> Objectives</a></li>
+<li class="chapter" data-level="37.5" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#methods"><i class="fa fa-check"></i><b>37.5</b> Methods</a>
+<ul>
+<li class="chapter" data-level="37.5.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#lets-get-modeling"><i class="fa fa-check"></i><b>37.5.1</b> Let’s get modeling</a></li>
+<li class="chapter" data-level="37.5.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#run-the-r-code"><i class="fa fa-check"></i><b>37.5.2</b> Run the R code</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="38" data-path="diversity-statistics.html"><a href="diversity-statistics.html"><i class="fa fa-check"></i><b>38</b> Diversity statistics</a>
+<ul>
+<li class="chapter" data-level="38.1" data-path="diversity-statistics.html"><a href="diversity-statistics.html#inext"><i class="fa fa-check"></i><b>38.1</b> iNext</a></li>
+<li class="chapter" data-level="38.2" data-path="diversity-statistics.html"><a href="diversity-statistics.html#coveragebased-re-sampling-curves"><i class="fa fa-check"></i><b>38.2</b> Coverage‐based R/E sampling curves</a></li>
+<li class="chapter" data-level="38.3" data-path="diversity-statistics.html"><a href="diversity-statistics.html#data-manipulation"><i class="fa fa-check"></i><b>38.3</b> Data manipulation</a></li>
+</ul></li>
+<li class="chapter" data-level="39" data-path="ordination-station.html"><a href="ordination-station.html"><i class="fa fa-check"></i><b>39</b> Ordination station</a></li>
+<li class="chapter" data-level="40" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html"><i class="fa fa-check"></i><b>40</b> What are structural equation models?</a>
+<ul>
+<li class="chapter" data-level="40.0.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#when-should-you-use-sem"><i class="fa fa-check"></i><b>40.0.1</b> When Should You Use SEM?</a></li>
+<li class="chapter" data-level="40.0.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression"><i class="fa fa-check"></i><b>40.0.2</b> How is SEM Different from Multiple Regression?</a></li>
+<li class="chapter" data-level="40.0.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary"><i class="fa fa-check"></i><b>40.0.3</b> Summary</a></li>
+<li class="chapter" data-level="40.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model"><i class="fa fa-check"></i><b>40.1</b> Anatomy of a Structural Equation Model</a>
+<ul>
+<li class="chapter" data-level="40.1.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#types-of-variables"><i class="fa fa-check"></i><b>40.1.1</b> Types of Variables</a></li>
+<li class="chapter" data-level="40.1.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#path-diagrams"><i class="fa fa-check"></i><b>40.1.2</b> Path Diagrams</a></li>
+</ul></li>
+<li class="chapter" data-level="40.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#building-multivariate-models"><i class="fa fa-check"></i><b>40.2</b> Building Multivariate Models</a>
+<ul>
+<li class="chapter" data-level="40.2.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-causality"><i class="fa fa-check"></i><b>40.2.1</b> What is Causality?</a></li>
+<li class="chapter" data-level="40.2.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression"><i class="fa fa-check"></i><b>40.2.2</b> Why move beyond Multiple Regression?</a></li>
+<li class="chapter" data-level="40.2.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#meta-modeling-your-system"><i class="fa fa-check"></i><b>40.2.3</b> Meta-Modeling Your System</a></li>
+</ul></li>
+<li class="chapter" data-level="40.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#from-concept-to-model"><i class="fa fa-check"></i><b>40.3</b> From Concept to Model</a></li>
+<li class="chapter" data-level="40.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams"><i class="fa fa-check"></i><b>40.4</b> Common Structures in Causal Diagrams</a>
+<ul>
+<li class="chapter" data-level="40.4.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chains-mediation-paths"><i class="fa fa-check"></i><b>40.4.1</b> Chains (Mediation Paths)</a></li>
+<li class="chapter" data-level="40.4.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#colliders"><i class="fa fa-check"></i><b>40.4.2</b> Colliders</a></li>
+<li class="chapter" data-level="40.4.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#forks-confounding-paths"><i class="fa fa-check"></i><b>40.4.3</b> Forks (Confounding Paths)</a></li>
+<li class="chapter" data-level="40.4.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#descendants-of-colliders"><i class="fa fa-check"></i><b>40.4.4</b> Descendants of Colliders</a></li>
+<li class="chapter" data-level="40.4.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-of-strcutures"><i class="fa fa-check"></i><b>40.4.5</b> Summary of strcutures</a></li>
+<li class="chapter" data-level="40.4.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifying-causality"><i class="fa fa-check"></i><b>40.4.6</b> Identifying Causality</a></li>
+<li class="chapter" data-level="40.4.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#backdoor-criterion"><i class="fa fa-check"></i><b>40.4.7</b> Backdoor Criterion</a></li>
+<li class="chapter" data-level="40.4.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#frontdoor-criterion"><i class="fa fa-check"></i><b>40.4.8</b> Frontdoor Criterion</a></li>
+<li class="chapter" data-level="40.4.9" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management"><i class="fa fa-check"></i><b>40.4.9</b> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management</a></li>
+<li class="chapter" data-level="40.4.10" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#adjustment-sets"><i class="fa fa-check"></i><b>40.4.10</b> Adjustment Sets</a></li>
+</ul></li>
+<li class="chapter" data-level="40.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem"><i class="fa fa-check"></i><b>40.5</b> Chapter 5: Covariance-Based Estimation in SEM</a>
+<ul>
+<li class="chapter" data-level="40.5.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-covariance-based-sem"><i class="fa fa-check"></i><b>40.5.1</b> What is Covariance-Based SEM?</a></li>
+<li class="chapter" data-level="40.5.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#maximum-likelihood-estimation"><i class="fa fa-check"></i><b>40.5.2</b> Maximum Likelihood Estimation</a></li>
+<li class="chapter" data-level="40.5.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation"><i class="fa fa-check"></i><b>40.5.3</b> Assumptions Behind ML Estimation</a></li>
+<li class="chapter" data-level="40.5.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifiability"><i class="fa fa-check"></i><b>40.5.4</b> Identifiability</a></li>
+<li class="chapter" data-level="40.5.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#degrees-of-freedom"><i class="fa fa-check"></i><b>40.5.5</b> Degrees of Freedom</a></li>
+<li class="chapter" data-level="40.5.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#sample-size-considerations"><i class="fa fa-check"></i><b>40.5.6</b> Sample Size Considerations</a></li>
+<li class="chapter" data-level="40.5.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-1"><i class="fa fa-check"></i><b>40.5.7</b> Summary</a></li>
+<li class="chapter" data-level="40.5.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan"><i class="fa fa-check"></i><b>40.5.8</b> Chapter 6: Structural Equation Modeling in R with lavaan</a></li>
+</ul></li>
+<li class="chapter" data-level="40.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation"><i class="fa fa-check"></i><b>40.6</b> Getting Started with lavaan – Model Specification, Estimation, and Interpretation</a>
+<ul>
+<li class="chapter" data-level="40.6.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality"><i class="fa fa-check"></i><b>40.6.1</b> Chapter 7:Assessing Fit and Normality</a></li>
+<li class="chapter" data-level="40.6.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation"><i class="fa fa-check"></i><b>40.6.2</b> Chapter 8: Comparing Models and Testing Mediation</a></li>
+<li class="chapter" data-level="40.6.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers"><i class="fa fa-check"></i><b>40.6.3</b> Chapter 8: Latent Variables as Drivers</a></li>
+<li class="chapter" data-level="40.6.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error"><i class="fa fa-check"></i><b>40.6.4</b> Chapter 10: Latent Responses and Measurement Error</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="41" data-path="piecewise-sems.html"><a href="piecewise-sems.html"><i class="fa fa-check"></i><b>41</b> Piecewise SEMs</a>
+<ul>
+<li class="chapter" data-level="41.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview"><i class="fa fa-check"></i><b>41.1</b> Overview</a></li>
+<li class="chapter" data-level="41.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem"><i class="fa fa-check"></i><b>41.2</b> Why Use Piecewise SEM, instead of a covariance SEM?</a>
+<ul>
+<li class="chapter" data-level="41.2.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#comparison-of-sem-approaches"><i class="fa fa-check"></i><b>41.2.1</b> Comparison of SEM Approaches</a></li>
+<li class="chapter" data-level="41.2.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-covariance-based-sem"><i class="fa fa-check"></i><b>41.2.2</b> Benefits of Covariance-Based SEM</a></li>
+<li class="chapter" data-level="41.2.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-piecewise-sem"><i class="fa fa-check"></i><b>41.2.3</b> Benefits of Piecewise SEM</a></li>
+<li class="chapter" data-level="41.2.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#when-to-use-each-approach"><i class="fa fa-check"></i><b>41.2.4</b> When to Use Each Approach</a></li>
+<li class="chapter" data-level="41.2.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#models-differ-in-approach"><i class="fa fa-check"></i><b>41.2.5</b> Models differ in approach</a></li>
+</ul></li>
+<li class="chapter" data-level="41.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona"><i class="fa fa-check"></i><b>41.3</b> SEM Example: Resilience to Drought in Arizona</a>
+<ul>
+<li class="chapter" data-level="41.3.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r"><i class="fa fa-check"></i><b>41.3.1</b> Chapter 12: Introduction to Piecewise SEM in R</a></li>
+</ul></li>
+<li class="chapter" data-level="41.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#part-1-what-is-piecewise-sem"><i class="fa fa-check"></i><b>41.4</b> Part 1: What is Piecewise SEM?</a>
+<ul>
+<li class="chapter" data-level="41.4.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem"><i class="fa fa-check"></i><b>41.4.1</b> Chapter 13: Nonlinearity and Interaction in SEM</a></li>
+<li class="chapter" data-level="41.4.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem"><i class="fa fa-check"></i><b>41.4.2</b> Chapter 14: GLMs with SEM using PiecewiseSEM</a></li>
+</ul></li>
+<li class="chapter" data-level="41.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview-1"><i class="fa fa-check"></i><b>41.5</b> Overview</a>
+<ul>
+<li class="chapter" data-level="41.5.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem"><i class="fa fa-check"></i><b>41.5.1</b> Chapter 15: Categorical Predictors &amp; Multigroup SEM</a></li>
+<li class="chapter" data-level="41.5.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r"><i class="fa fa-check"></i><b>41.5.2</b> Chapter 16: Multigroup SEM in R</a></li>
+<li class="chapter" data-level="41.5.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-17"><i class="fa fa-check"></i><b>41.5.3</b> Chapter 17:</a></li>
+</ul></li>
+<li class="chapter" data-level="41.6" data-path="piecewise-sems.html"><a href="piecewise-sems.html#example-with-powerline-data"><i class="fa fa-check"></i><b>41.6</b> Example with Powerline Data</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Statistics for Ecology</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="piecewise-sems" class="section level1 hasAnchor" number="41">
+<h1><span class="header-section-number">Chapter 41</span> Piecewise SEMs<a href="piecewise-sems.html#piecewise-sems" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="overview" class="section level2 hasAnchor" number="41.1">
+<h2><span class="header-section-number">41.1</span> Overview<a href="piecewise-sems.html#overview" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>This chapter introduces local (piece wise) SEM — an approach that decomposes a full SEM into a series of local linear models. It contrasts with global covariance-based SEM in both assumptions and evaluation. We will compare and contrast the two approaches, then perform an SEM.</p>
+</div>
+<div id="why-use-piecewise-sem-instead-of-a-covariance-sem" class="section level2 hasAnchor" number="41.2">
+<h2><span class="header-section-number">41.2</span> Why Use Piecewise SEM, instead of a covariance SEM?<a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Structural Equation Modeling (SEM) is a powerful framework for testing hypotheses about complex systems with multiple interrelated variables. In ecology and related fields, researchers often choose between <strong>covariance-based SEM</strong> (e.g., <code>lavaan</code>) and <strong>piecewise SEM</strong> (e.g., <code>piecewiseSEM</code> package in R). The choice depends on data structure, sample size, distributional assumptions, and model complexity.</p>
+<div id="comparison-of-sem-approaches" class="section level3 hasAnchor" number="41.2.1">
+<h3><span class="header-section-number">41.2.1</span> Comparison of SEM Approaches<a href="piecewise-sems.html#comparison-of-sem-approaches" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<table>
+<colgroup>
+<col width="23%" />
+<col width="37%" />
+<col width="38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Covariance-Based SEM (<code>lavaan</code>)</th>
+<th>Piecewise SEM (<code>piecewiseSEM</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Data assumptions</strong></td>
+<td>Assumes multivariate normality</td>
+<td>Robust to non-normal and non-independent data</td>
+</tr>
+<tr class="even">
+<td><strong>Model structure</strong></td>
+<td>All relationships modeled simultaneously</td>
+<td>Model split into a series of (G)LMs or mixed models</td>
+</tr>
+<tr class="odd">
+<td><strong>Fit assessment</strong></td>
+<td>Global fit indices: χ², RMSEA, CFI, SRMR</td>
+<td>Local fit via D-separation and AIC</td>
+</tr>
+<tr class="even">
+<td><strong>Handling of missing data</strong></td>
+<td>Can use FIML or imputation</td>
+<td>Depends on method used in each submodel</td>
+</tr>
+<tr class="odd">
+<td><strong>Sample size requirements</strong></td>
+<td>High; often N &gt; 200 recommended</td>
+<td>More flexible with small N</td>
+</tr>
+<tr class="even">
+<td><strong>Handling of hierarchical data</strong></td>
+<td>Difficult to include random effects</td>
+<td>Allows mixed models with random effects</td>
+</tr>
+<tr class="odd">
+<td><strong>Ease of interpreting indirect effects</strong></td>
+<td>Straightforward via standardized estimates</td>
+<td>Requires manual calculation of indirect effects</td>
+</tr>
+<tr class="even">
+<td><strong>Measurement error modeling</strong></td>
+<td>Supports latent variables</td>
+<td>Does not support latent variables</td>
+</tr>
+<tr class="odd">
+<td><strong>Modularity and flexibility</strong></td>
+<td>Limited to standard SEM frameworks</td>
+<td>Very flexible, especially for ecological or field data</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="benefits-of-covariance-based-sem" class="section level3 hasAnchor" number="41.2.2">
+<h3><span class="header-section-number">41.2.2</span> Benefits of Covariance-Based SEM<a href="piecewise-sems.html#benefits-of-covariance-based-sem" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li>Ideal for testing complex, <strong>theory-driven</strong> models with latent variables.</li>
+<li>Provides <strong>global fit indices</strong> to assess how well the model captures the covariance structure.</li>
+<li>Useful for <strong>confirmatory modeling</strong>, especially in psychology, sociology, and tightly controlled experimental settings.</li>
+</ul>
+</div>
+<div id="benefits-of-piecewise-sem" class="section level3 hasAnchor" number="41.2.3">
+<h3><span class="header-section-number">41.2.3</span> Benefits of Piecewise SEM<a href="piecewise-sems.html#benefits-of-piecewise-sem" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><strong>More robust to violations</strong> of normality, independence, and small sample size.</li>
+<li>Supports <strong>hierarchical, nested, or repeated-measures data</strong> using mixed models.</li>
+<li>Offers <strong>modular modeling</strong>, which makes it easier to fit ecologically realistic models (e.g., with random effects, Poisson/binomial responses).</li>
+<li>Better suited to <strong>observational field data</strong> with complex structure.</li>
+</ul>
+</div>
+<div id="when-to-use-each-approach" class="section level3 hasAnchor" number="41.2.4">
+<h3><span class="header-section-number">41.2.4</span> When to Use Each Approach<a href="piecewise-sems.html#when-to-use-each-approach" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><p>Use <strong>Covariance SEM (<code>lavaan</code>)</strong> when:</p>
+<ul>
+<li>You have a large sample size and want to model latent variables or measurement error.</li>
+<li>Your data meet assumptions of multivariate normality and independence.</li>
+<li>You’re interested in global fit metrics and standardized path coefficients.</li>
+</ul></li>
+<li><p>Use <strong>Piecewise SEM</strong> when:</p>
+<ul>
+<li>Your data are <strong>non-normal</strong>, <strong>hierarchical</strong>, or have <strong>small sample sizes</strong>.</li>
+<li>You need to model <strong>random effects</strong>, <strong>non-Gaussian outcomes</strong>, or <strong>temporal/spatial structure</strong>.</li>
+<li>You’re focusing on <strong>causal structure</strong>, not measurement error.</li>
+</ul></li>
+</ul>
+</div>
+<div id="models-differ-in-approach" class="section level3 hasAnchor" number="41.2.5">
+<h3><span class="header-section-number">41.2.5</span> Models differ in approach<a href="piecewise-sems.html#models-differ-in-approach" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Covariance-based SEM estimates all paths simultaneously by fitting a single model to the entire covariance matrix, providing global fit indices like chi-square (χ²) and RMSEA to assess how well the model reproduces the observed data. In contrast, piecewise SEM fits each path as a separate (G)LM or mixed model, and assesses overall model fit using <strong>D-separation tests</strong>, which evaluate whether any unmodeled relationships (i.e., conditional independencies) remain between variables—offering a more flexible, modular approach to complex or non-normal ecological data.</p>
+</div>
+</div>
+<div id="sem-example-resilience-to-drought-in-arizona" class="section level2 hasAnchor" number="41.3">
+<h2><span class="header-section-number">41.3</span> SEM Example: Resilience to Drought in Arizona<a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>This dataset combines climate, topographic, and biodiversity indicators to evaluate ecological resilience across sites in Arizona following a period of drought. The central research question is: What environmental and community-level factors predict ecological recovery or resilience in post-drought southwestern ecosystems?</p>
+<p>Data were compiled from NOAA climate records and field observations, and are structured at the plot level. Key variables include:</p>
+<ul>
+<li>Climate trends: Change in growing season temperature (gs_temp_slope) and precipitation (ppt_slope)</li>
+<li>Post-recovery climate: Including growing season mean maximum temperature (gs_tmax_mean), total monsoonal precipitation averaged over 2022-2023 (monsoon_ppt_mean), total winter precipitation averageed over 2022-2023 post-recovery time period (winter_ppt_mean)</li>
+<li>Drought indicators: Standardized indices including PET (potential evapotranspiration), DDD (drought duration), and DSI (drought severity index), and SWA (Soil Water Availability)</li>
+<li>Site disturbance history: Time since last fire (TSLF_imputed)</li>
+<li>Topographic factors: Slope and Aspect</li>
+<li>Community attributes: Taxonomic diversity (Diversity_q1), connectivity (dist_km)</li>
+<li>Recovery outcomes: Compositional dissimilarity (bray_curtis) and a remotely sensed recovery index (Recovery_Index)</li>
+</ul>
+<p>As always, a first step is to remove colinear variables from your dataset. When two or more predictors in your model are highly correlated, they share overlapping information about the response variable. This makes it harder for the model to determine which variable is actually responsible for changes in the response. We removed colinear variables in Chapter 11 - Model selection. After finalizing a dataset, we can build a path diagram and and SEM.</p>
+<p>We hypothesize that:</p>
+<ol style="list-style-type: decimal">
+<li>Recovery (here modeled as bray_curtis) will depend on recent climatic trends (temp_slope, ppt_slope), the strength of the drought (PET, DDD, DSI, SWA), post-drought climatic recovery conditions (gs_tmax_mean, monsoon_ppt_mean, winter_ppt_mean), which could be mediated by the location of the community (Slope, Aspect) and affected by disturbance history (TSLF_imputed). Finally, we expect communities that are more diverse (Diversity_q1) and connected (dist_km) to demonstrate higher levels of recovery.</li>
+<li>Similarly, overall site diversity (Diversity_q1) will be affected by connectivity (dist_km), as well as recent climatic trends (temp_slope, ppt_slope), the strength of the drought (PET, DDD, DSI, SWA), post-drought climatic recovery conditions (gs_tmax_mean, monsoon_ppt_mean, winter_ppt_mean), which could be mediated by the location of the community (Slope, Aspect) and affected by disturbance history (TSLF_imputed).</li>
+<li>We expect that the strength of the drought (PET, DDD, DSI, SWA) will depend on its landscape position (Slope, Aspect), as well as recent climate change (temp_slope, ppt_slope).</li>
+</ol>
+<p>Go over causal chains, mediators, etc.</p>
+<p>Directed Separation (D-sep)</p>
+<p>D-sep tests whether missing paths in your model are truly unnecessary. It evaluates conditional independence assumptions implied by the model.</p>
+<p>Understanding D-separation
+• Two variables are D-separated if they are conditionally independent, given a set of other variables.
+• D-sep claims are testable and form the basis set of the model.</p>
+<div class="sourceCode" id="cb350"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb350-1"><a href="piecewise-sems.html#cb350-1" tabindex="-1"></a><span class="co"># Define DAG</span></span>
+<span id="cb350-2"><a href="piecewise-sems.html#cb350-2" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">dagitty</span>(<span class="st">&quot;dag {</span></span>
+<span id="cb350-3"><a href="piecewise-sems.html#cb350-3" tabindex="-1"></a><span class="st">  x -&gt; y2 -&gt; y1</span></span>
+<span id="cb350-4"><a href="piecewise-sems.html#cb350-4" tabindex="-1"></a><span class="st">  x -&gt; y1</span></span>
+<span id="cb350-5"><a href="piecewise-sems.html#cb350-5" tabindex="-1"></a><span class="st">}&quot;</span>)</span>
+<span id="cb350-6"><a href="piecewise-sems.html#cb350-6" tabindex="-1"></a></span>
+<span id="cb350-7"><a href="piecewise-sems.html#cb350-7" tabindex="-1"></a><span class="co"># View conditional independencies implied by the DAG</span></span>
+<span id="cb350-8"><a href="piecewise-sems.html#cb350-8" tabindex="-1"></a><span class="fu">impliedConditionalIndependencies</span>(g)</span></code></pre></div>
+<p>Model Fit via Fisher’s C</p>
+<div class="sourceCode" id="cb351"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb351-1"><a href="piecewise-sems.html#cb351-1" tabindex="-1"></a><span class="fu">library</span>(piecewiseSEM)</span>
+<span id="cb351-2"><a href="piecewise-sems.html#cb351-2" tabindex="-1"></a></span>
+<span id="cb351-3"><a href="piecewise-sems.html#cb351-3" tabindex="-1"></a><span class="co"># Simulate example data</span></span>
+<span id="cb351-4"><a href="piecewise-sems.html#cb351-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb351-5"><a href="piecewise-sems.html#cb351-5" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb351-6"><a href="piecewise-sems.html#cb351-6" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb351-7"><a href="piecewise-sems.html#cb351-7" tabindex="-1"></a>y2 <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb351-8"><a href="piecewise-sems.html#cb351-8" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> y2 <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb351-9"><a href="piecewise-sems.html#cb351-9" tabindex="-1"></a>example_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x, y1, y2)</span>
+<span id="cb351-10"><a href="piecewise-sems.html#cb351-10" tabindex="-1"></a></span>
+<span id="cb351-11"><a href="piecewise-sems.html#cb351-11" tabindex="-1"></a><span class="co"># Fit piecewise SEM</span></span>
+<span id="cb351-12"><a href="piecewise-sems.html#cb351-12" tabindex="-1"></a>mod_list <span class="ot">&lt;-</span> <span class="fu">psem</span>(</span>
+<span id="cb351-13"><a href="piecewise-sems.html#cb351-13" tabindex="-1"></a>  <span class="fu">lm</span>(y2 <span class="sc">~</span> x, <span class="at">data =</span> example_data),</span>
+<span id="cb351-14"><a href="piecewise-sems.html#cb351-14" tabindex="-1"></a>  <span class="fu">lm</span>(y1 <span class="sc">~</span> x <span class="sc">+</span> y2, <span class="at">data =</span> example_data)</span>
+<span id="cb351-15"><a href="piecewise-sems.html#cb351-15" tabindex="-1"></a>)</span>
+<span id="cb351-16"><a href="piecewise-sems.html#cb351-16" tabindex="-1"></a></span>
+<span id="cb351-17"><a href="piecewise-sems.html#cb351-17" tabindex="-1"></a><span class="co"># ✅ Get model fit statistics (replaces sem.fit)</span></span>
+<span id="cb351-18"><a href="piecewise-sems.html#cb351-18" tabindex="-1"></a><span class="fu">fisherC</span>(mod_list)</span></code></pre></div>
+<pre><code>##   Fisher.C df P.Value
+## 1       NA  0      NA</code></pre>
+<div class="sourceCode" id="cb353"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb353-1"><a href="piecewise-sems.html#cb353-1" tabindex="-1"></a><span class="co"># ✅ Get standardized path coefficients (replaces sem.coefs)</span></span>
+<span id="cb353-2"><a href="piecewise-sems.html#cb353-2" tabindex="-1"></a><span class="fu">stdCoefs</span>(mod_list)</span></code></pre></div>
+<pre><code>##   Response Predictor  Estimate  Std.Error DF Crit.Value      P.Value Std.Estimate sig
+## 1       y2         x 0.4475284 0.10687862 98   4.187258 6.172903e-05    0.3895619 ***
+## 2       y1         x 0.4549228 0.11372501 97   4.000200 1.236720e-04    0.3509054 ***
+## 3       y1        y2 0.4238113 0.09899469 97   4.281152 4.371472e-05    0.3755510 ***</code></pre>
+<div class="sourceCode" id="cb355"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb355-1"><a href="piecewise-sems.html#cb355-1" tabindex="-1"></a><span class="co"># ✅ Optional: View DAG</span></span>
+<span id="cb355-2"><a href="piecewise-sems.html#cb355-2" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">getDAG</span>(mod_list))</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-160-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Interpretation:</p>
+<pre><code>•   p &gt; 0.05 → model is not rejected, D-sep claims hold.
+•   p &lt; 0.05 → model is rejected, missing paths may be important.</code></pre>
+<p>Summary:</p>
+<pre><code>•   Piecewise SEM is ideal when:
+•   Data violate global SEM assumptions.
+•   Sample size is too small for global SEM.
+•   You want to understand model fit using D-sep logic.
+•   Use dagitty to derive implied independencies.
+•   Use sem.fit() and sem.coefs() for piecewise evaluation.</code></pre>
+<div id="chapter-12-introduction-to-piecewise-sem-in-r" class="section level3 hasAnchor" number="41.3.1">
+<h3><span class="header-section-number">41.3.1</span> Chapter 12: Introduction to Piecewise SEM in R<a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Learning Objectives</p>
+<p>By the end of this tutorial, you will be able to:</p>
+<pre><code>•   Understand how piecewise SEM differs from traditional covariance-based SEM.
+•   Fit a multi-equation SEM using the psem() function.
+•   Evaluate model fit using d-separation tests and Fisher’s C statistic.
+•   Extract path coefficients and R² values.
+•   Visualize model structure and relationships using visreg, DiagrammeR, or plot().</code></pre>
+</div>
+</div>
+<div id="part-1-what-is-piecewise-sem" class="section level2 hasAnchor" number="41.4">
+<h2><span class="header-section-number">41.4</span> Part 1: What is Piecewise SEM?<a href="piecewise-sems.html#part-1-what-is-piecewise-sem" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Piecewise SEM uses a local estimation approach: each equation is estimated separately using standard regression (e.g., lm, lmer). This provides greater flexibility, such as:</p>
+<pre><code>•   Including non-normal or mixed-effect models.
+•   Dealing with small sample sizes or nested structures.
+•   Assessing model fit through d-sep tests (Shipley’s test of directed separation).</code></pre>
+<p>Limitations:</p>
+<pre><code>•   Can’t handle latent variables.
+•   Not suitable for cyclical feedback loops.
+•   Difficult to interpret in overidentified models with correlated errors.</code></pre>
+<p>Part 2: Load Packages and Data</p>
+<div class="sourceCode" id="cb361"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb361-1"><a href="piecewise-sems.html#cb361-1" tabindex="-1"></a><span class="co"># Load libraries</span></span>
+<span id="cb361-2"><a href="piecewise-sems.html#cb361-2" tabindex="-1"></a><span class="fu">library</span>(piecewiseSEM)</span>
+<span id="cb361-3"><a href="piecewise-sems.html#cb361-3" tabindex="-1"></a><span class="fu">library</span>(visreg)</span>
+<span id="cb361-4"><a href="piecewise-sems.html#cb361-4" tabindex="-1"></a><span class="fu">library</span>(DiagrammeR)</span>
+<span id="cb361-5"><a href="piecewise-sems.html#cb361-5" tabindex="-1"></a></span>
+<span id="cb361-6"><a href="piecewise-sems.html#cb361-6" tabindex="-1"></a><span class="fu">data</span>(keeley)  <span class="co"># from piecewiseSEM and work through this information </span></span></code></pre></div>
+<p>Part 3: Specify and Fit Your Model</p>
+<div class="sourceCode" id="cb362"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb362-1"><a href="piecewise-sems.html#cb362-1" tabindex="-1"></a><span class="co"># Fit individual models</span></span>
+<span id="cb362-2"><a href="piecewise-sems.html#cb362-2" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(abiotic <span class="sc">~</span> distance, <span class="at">data =</span> keeley)</span>
+<span id="cb362-3"><a href="piecewise-sems.html#cb362-3" tabindex="-1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(hetero <span class="sc">~</span> distance, <span class="at">data =</span> keeley)</span>
+<span id="cb362-4"><a href="piecewise-sems.html#cb362-4" tabindex="-1"></a>mod3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(rich <span class="sc">~</span> abiotic <span class="sc">+</span> hetero, <span class="at">data =</span> keeley)</span>
+<span id="cb362-5"><a href="piecewise-sems.html#cb362-5" tabindex="-1"></a></span>
+<span id="cb362-6"><a href="piecewise-sems.html#cb362-6" tabindex="-1"></a><span class="co"># Combine into a psem object</span></span>
+<span id="cb362-7"><a href="piecewise-sems.html#cb362-7" tabindex="-1"></a>keeley_sem <span class="ot">&lt;-</span> <span class="fu">psem</span>(mod1, mod2, mod3)</span></code></pre></div>
+<p>Evaluate Model Fit</p>
+<div class="sourceCode" id="cb363"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb363-1"><a href="piecewise-sems.html#cb363-1" tabindex="-1"></a><span class="co"># Directed separation test</span></span>
+<span id="cb363-2"><a href="piecewise-sems.html#cb363-2" tabindex="-1"></a><span class="co">#dSep(keeley_sem)</span></span>
+<span id="cb363-3"><a href="piecewise-sems.html#cb363-3" tabindex="-1"></a></span>
+<span id="cb363-4"><a href="piecewise-sems.html#cb363-4" tabindex="-1"></a><span class="co"># Fisher&#39;s C statistic</span></span>
+<span id="cb363-5"><a href="piecewise-sems.html#cb363-5" tabindex="-1"></a><span class="co">#fisherC(keeley_sem)</span></span></code></pre></div>
+<p>Interpret:</p>
+<pre><code>•   A non-significant p-value (&gt; 0.05) = model fits.
+•   Significant missing paths → consider adding them and reassessing fit.</code></pre>
+<p>Part 5: Summarize Coefficients and R²</p>
+<div class="sourceCode" id="cb365"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb365-1"><a href="piecewise-sems.html#cb365-1" tabindex="-1"></a><span class="co"># Coefficients</span></span>
+<span id="cb365-2"><a href="piecewise-sems.html#cb365-2" tabindex="-1"></a><span class="fu">coefs</span>(keeley_sem)</span></code></pre></div>
+<pre><code>##   Response Predictor Estimate Std.Error DF Crit.Value P.Value Std.Estimate    
+## 1  abiotic  distance   0.3998    0.0823 88     4.8562   0e+00       0.4597 ***
+## 2   hetero  distance   0.0045    0.0013 88     3.4593   8e-04       0.3460 ***
+## 3     rich   abiotic   0.8136    0.1746 87     4.6586   0e+00       0.4136 ***
+## 4     rich    hetero  45.0702   11.6797 87     3.8589   2e-04       0.3426 ***</code></pre>
+<div class="sourceCode" id="cb367"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb367-1"><a href="piecewise-sems.html#cb367-1" tabindex="-1"></a><span class="co"># R-squared values</span></span>
+<span id="cb367-2"><a href="piecewise-sems.html#cb367-2" tabindex="-1"></a><span class="fu">rsquared</span>(keeley_sem)</span></code></pre></div>
+<pre><code>##   Response   family     link method R.squared
+## 1  abiotic gaussian identity   none 0.2113455
+## 2   hetero gaussian identity   none 0.1197074
+## 3     rich gaussian identity   none 0.3667967</code></pre>
+<p>Part 6: Plot Your Model</p>
+<p>Option A: Quick Base R Plot</p>
+<div class="sourceCode" id="cb369"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb369-1"><a href="piecewise-sems.html#cb369-1" tabindex="-1"></a>keeley_sem <span class="ot">&lt;-</span> <span class="fu">psem</span>(</span>
+<span id="cb369-2"><a href="piecewise-sems.html#cb369-2" tabindex="-1"></a>  <span class="fu">lm</span>(firesev <span class="sc">~</span> age <span class="sc">+</span> cover, <span class="at">data =</span> keeley),</span>
+<span id="cb369-3"><a href="piecewise-sems.html#cb369-3" tabindex="-1"></a>  <span class="fu">lm</span>(cover <span class="sc">~</span> age <span class="sc">+</span> elev <span class="sc">+</span> firesev, <span class="at">data =</span> keeley),</span>
+<span id="cb369-4"><a href="piecewise-sems.html#cb369-4" tabindex="-1"></a>  <span class="at">data =</span> keeley</span>
+<span id="cb369-5"><a href="piecewise-sems.html#cb369-5" tabindex="-1"></a>)</span>
+<span id="cb369-6"><a href="piecewise-sems.html#cb369-6" tabindex="-1"></a></span>
+<span id="cb369-7"><a href="piecewise-sems.html#cb369-7" tabindex="-1"></a><span class="fu">plot</span>(keeley_sem)</span></code></pre></div>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-ee53c0c4ca2e9381bd6f" style="width:960px;height:768px;"></div>
+<script type="application/json" data-for="htmlwidget-ee53c0c4ca2e9381bd6f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"firesev\", shape = \"rectangle\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\"] \n  \"2\" [label = \"cover\", shape = \"rectangle\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\"] \n  \"3\" [label = \"age\", shape = \"rectangle\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\"] \n  \"4\" [label = \"elev\", shape = \"rectangle\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\"] \n\"3\"->\"1\" [style = \"solid\", color = \"black\", label = \" 0.343 \"] \n\"2\"->\"1\" [style = \"solid\", color = \"black\", label = \" -0.317 \"] \n\"3\"->\"2\" [style = \"solid\", color = \"black\", label = \" -0.229 \"] \n\"4\"->\"2\" [style = \"solid\", color = \"black\", label = \" 0.203 \"] \n\"1\"->\"2\" [style = \"solid\", color = \"black\", label = \" -0.31 \"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="sourceCode" id="cb370"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb370-1"><a href="piecewise-sems.html#cb370-1" tabindex="-1"></a><span class="co">#Option B: Refined Graph with DiagrammeR</span></span>
+<span id="cb370-2"><a href="piecewise-sems.html#cb370-2" tabindex="-1"></a></span>
+<span id="cb370-3"><a href="piecewise-sems.html#cb370-3" tabindex="-1"></a><span class="co"># Optional customization</span></span>
+<span id="cb370-4"><a href="piecewise-sems.html#cb370-4" tabindex="-1"></a><span class="fu">plot</span>(keeley_sem,</span>
+<span id="cb370-5"><a href="piecewise-sems.html#cb370-5" tabindex="-1"></a>     <span class="at">node_attrs =</span> <span class="fu">list</span>(</span>
+<span id="cb370-6"><a href="piecewise-sems.html#cb370-6" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">c</span>(<span class="fl">2.5</span>, <span class="fl">2.5</span>, <span class="dv">4</span>, <span class="dv">1</span>),</span>
+<span id="cb370-7"><a href="piecewise-sems.html#cb370-7" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb370-8"><a href="piecewise-sems.html#cb370-8" tabindex="-1"></a>       <span class="at">shape =</span> <span class="st">&quot;rectangle&quot;</span>,</span>
+<span id="cb370-9"><a href="piecewise-sems.html#cb370-9" tabindex="-1"></a>       <span class="at">fillcolor =</span> <span class="st">&quot;white&quot;</span></span>
+<span id="cb370-10"><a href="piecewise-sems.html#cb370-10" tabindex="-1"></a>     ))</span></code></pre></div>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-bebd767209723a30863c" style="width:960px;height:768px;"></div>
+<script type="application/json" data-for="htmlwidget-bebd767209723a30863c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"firesev\", shape = \"rectangle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"2.5,3!\"] \n  \"2\" [label = \"cover\", shape = \"rectangle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"2.5,1!\"] \n  \"3\" [label = \"age\", shape = \"rectangle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"4,2!\"] \n  \"4\" [label = \"elev\", shape = \"rectangle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1,2!\"] \n\"3\"->\"1\" [style = \"solid\", color = \"black\", label = \" 0.343 \"] \n\"2\"->\"1\" [style = \"solid\", color = \"black\", label = \" -0.317 \"] \n\"3\"->\"2\" [style = \"solid\", color = \"black\", label = \" -0.229 \"] \n\"4\"->\"2\" [style = \"solid\", color = \"black\", label = \" 0.203 \"] \n\"1\"->\"2\" [style = \"solid\", color = \"black\", label = \" -0.31 \"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<p>Part 7: Mediation Example</p>
+<div class="sourceCode" id="cb371"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb371-1"><a href="piecewise-sems.html#cb371-1" tabindex="-1"></a>mod_firesev  <span class="ot">&lt;-</span> <span class="fu">lm</span>(firesev <span class="sc">~</span> age, <span class="at">data =</span> keeley)</span>
+<span id="cb371-2"><a href="piecewise-sems.html#cb371-2" tabindex="-1"></a>mod_cover    <span class="ot">&lt;-</span> <span class="fu">lm</span>(cover <span class="sc">~</span> firesev, <span class="at">data =</span> keeley)</span>
+<span id="cb371-3"><a href="piecewise-sems.html#cb371-3" tabindex="-1"></a></span>
+<span id="cb371-4"><a href="piecewise-sems.html#cb371-4" tabindex="-1"></a>firesev_model <span class="ot">&lt;-</span> <span class="fu">psem</span>(mod_firesev, mod_cover)</span>
+<span id="cb371-5"><a href="piecewise-sems.html#cb371-5" tabindex="-1"></a></span>
+<span id="cb371-6"><a href="piecewise-sems.html#cb371-6" tabindex="-1"></a><span class="fu">summary</span>(firesev_model)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>## 
+## Structural Equation Model of firesev_model 
+## 
+## Call:
+##   firesev ~ age
+##   cover ~ firesev
+## 
+##     AIC
+##  364.696
+## 
+## ---
+## Tests of directed separation:
+## 
+##      Independ.Claim Test.Type DF Crit.Value P.Value 
+##   cover ~ age + ...      coef 87    -1.8018   0.075 
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 3.297 with P-value = 0.069 and on 1 degrees of freedom
+## Fisher&#39;s C = 5.18 with P-value = 0.075 and on 2 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##   Response Predictor Estimate Std.Error DF Crit.Value P.Value Std.Estimate    
+##    firesev       age   0.0597    0.0125 88     4.7781       0       0.4539 ***
+##      cover   firesev  -0.0839    0.0184 88    -4.5594       0      -0.4371 ***
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##   Response method R.squared
+##    firesev   none      0.21
+##      cover   none      0.19</code></pre>
+<div class="sourceCode" id="cb374"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb374-1"><a href="piecewise-sems.html#cb374-1" tabindex="-1"></a><span class="fu">dSep</span>(firesev_model)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>##      Independ.Claim Test.Type DF Crit.Value    P.Value 
+## 1 cover ~ age + ...      coef 87   -1.80184 0.07503437</code></pre>
+<div class="sourceCode" id="cb377"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb377-1"><a href="piecewise-sems.html#cb377-1" tabindex="-1"></a><span class="fu">rsquared</span>(firesev_model)</span></code></pre></div>
+<pre><code>##   Response   family     link method R.squared
+## 1  firesev gaussian identity   none 0.2059938
+## 2    cover gaussian identity   none 0.1910867</code></pre>
+<p>Bonus: Visualize with Covariates Held Constant</p>
+<div class="sourceCode" id="cb379"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb379-1"><a href="piecewise-sems.html#cb379-1" tabindex="-1"></a><span class="co"># Visualize fire severity&#39;s effect on cover</span></span>
+<span id="cb379-2"><a href="piecewise-sems.html#cb379-2" tabindex="-1"></a><span class="fu">visreg</span>(firesev_model[[<span class="dv">2</span>]], <span class="at">xvar =</span> <span class="st">&quot;firesev&quot;</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-167-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Wrap-Up</p>
+<p>Piecewise SEM offers flexibility and clarity for causal inference in ecology. By evaluating each path independently while testing the full model’s coherence through d-sep and Fisher’s C, you gain both transparency and statistical rigor.</p>
+<div id="chapter-13-nonlinearity-and-interaction-in-sem" class="section level3 hasAnchor" number="41.4.1">
+<h3><span class="header-section-number">41.4.1</span> Chapter 13: Nonlinearity and Interaction in SEM<a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Overview</p>
+<p>In this tutorial, we’ll cover:</p>
+<pre><code>•   Nonlinearities (e.g., polynomial terms)
+•   Centering variables to reduce multicollinearity
+•   Interaction terms
+•   Implementing these in SEM frameworks</code></pre>
+<p>Example 1: Nonlinear Effects (Cardinale et al. 2009)</p>
+<p>Load and Prepare Data</p>
+<div class="sourceCode" id="cb381"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb381-1"><a href="piecewise-sems.html#cb381-1" tabindex="-1"></a><span class="co"># Download data</span></span>
+<span id="cb381-2"><a href="piecewise-sems.html#cb381-2" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://drive.google.com/uc?export=download&amp;id=1oHBul4_JcqlPFZgYsH3WOIZJRQRw1O4F&quot;</span></span>
+<span id="cb381-3"><a href="piecewise-sems.html#cb381-3" tabindex="-1"></a>cardinale <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(url)</span>
+<span id="cb381-4"><a href="piecewise-sems.html#cb381-4" tabindex="-1"></a></span>
+<span id="cb381-5"><a href="piecewise-sems.html#cb381-5" tabindex="-1"></a><span class="co"># Check it loaded</span></span>
+<span id="cb381-6"><a href="piecewise-sems.html#cb381-6" tabindex="-1"></a><span class="fu">head</span>(cardinale)</span></code></pre></div>
+<pre><code>##        Stream Well     N    Chl  SR SA
+## 1 Adobe Creek    1 0e+00 0.0094 105 26
+## 2 Adobe Creek    5 1e-06 0.0100 105 24
+## 3 Adobe Creek    3 1e-04 0.0613 105 20
+## 4 Adobe Creek    4 1e-02 0.1003 105 23
+## 5 Adobe Creek    2 1e+00 0.2000 105 20
+## 6 Adobe Creek    1 0e+00 0.0377 105 21</code></pre>
+<div class="sourceCode" id="cb383"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb383-1"><a href="piecewise-sems.html#cb383-1" tabindex="-1"></a><span class="co"># Log-transform variables</span></span>
+<span id="cb383-2"><a href="piecewise-sems.html#cb383-2" tabindex="-1"></a>cardinale<span class="sc">$</span>logN <span class="ot">&lt;-</span> <span class="fu">log10</span>(cardinale<span class="sc">$</span>N <span class="sc">+</span> <span class="fl">1e-6</span>)</span>
+<span id="cb383-3"><a href="piecewise-sems.html#cb383-3" tabindex="-1"></a>cardinale<span class="sc">$</span>logN2 <span class="ot">&lt;-</span> cardinale<span class="sc">$</span>logN<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb383-4"><a href="piecewise-sems.html#cb383-4" tabindex="-1"></a>cardinale<span class="sc">$</span>logChl <span class="ot">&lt;-</span> <span class="fu">log10</span>(cardinale<span class="sc">$</span>Chl)</span>
+<span id="cb383-5"><a href="piecewise-sems.html#cb383-5" tabindex="-1"></a></span>
+<span id="cb383-6"><a href="piecewise-sems.html#cb383-6" tabindex="-1"></a><span class="co">#Fit SEM with piecewiseSEM</span></span>
+<span id="cb383-7"><a href="piecewise-sems.html#cb383-7" tabindex="-1"></a></span>
+<span id="cb383-8"><a href="piecewise-sems.html#cb383-8" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">psem</span>(</span>
+<span id="cb383-9"><a href="piecewise-sems.html#cb383-9" tabindex="-1"></a>  <span class="fu">lm</span>(SA <span class="sc">~</span> logN <span class="sc">+</span> logN2 <span class="sc">+</span> SR, <span class="at">data =</span> cardinale),</span>
+<span id="cb383-10"><a href="piecewise-sems.html#cb383-10" tabindex="-1"></a>  <span class="fu">lm</span>(logChl <span class="sc">~</span> SA <span class="sc">+</span> logN <span class="sc">+</span> logN2, <span class="at">data =</span> cardinale),</span>
+<span id="cb383-11"><a href="piecewise-sems.html#cb383-11" tabindex="-1"></a>  logN <span class="sc">%~~%</span> logN2,</span>
+<span id="cb383-12"><a href="piecewise-sems.html#cb383-12" tabindex="-1"></a>  <span class="at">data =</span> cardinale</span>
+<span id="cb383-13"><a href="piecewise-sems.html#cb383-13" tabindex="-1"></a>)</span>
+<span id="cb383-14"><a href="piecewise-sems.html#cb383-14" tabindex="-1"></a></span>
+<span id="cb383-15"><a href="piecewise-sems.html#cb383-15" tabindex="-1"></a><span class="fu">summary</span>(model1)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>## 
+## Structural Equation Model of model1 
+## 
+## Call:
+##   SA ~ logN + logN2 + SR
+##   logChl ~ SA + logN + logN2
+##   logN ~~ logN2
+## 
+##     AIC
+##  1192.444
+## 
+## ---
+## Tests of directed separation:
+## 
+##      Independ.Claim Test.Type  DF Crit.Value P.Value 
+##   logChl ~ SR + ...      coef 122     0.6639   0.508 
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 0.458 with P-value = 0.499 and on 1 degrees of freedom
+## Fisher&#39;s C = 1.355 with P-value = 0.508 and on 2 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##   Response Predictor Estimate Std.Error  DF Crit.Value P.Value Std.Estimate    
+##         SA      logN  -2.9944    1.5375 123    -1.9476  0.0537      -0.5044    
+##         SA     logN2  -0.4742    0.2424 123    -1.9568  0.0526      -0.5067    
+##         SA        SR   0.3838    0.0359 123    10.6844  0.0000       0.6893 ***
+##     logChl        SA   0.0201     0.004 123     5.0327  0.0000       0.3946 ***
+##     logChl      logN   0.1168    0.0953 123     1.2258  0.2226       0.3858    
+##     logChl     logN2   0.0032     0.015 123     0.2108  0.8334       0.0664    
+##     ~~logN   ~~logN2  -0.9685         - 125   -43.4652  0.0000      -0.9685 ***
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##   Response method R.squared
+##         SA   none      0.49
+##     logChl   none      0.25</code></pre>
+<p>Reducing Collinearity via Centering</p>
+<div class="sourceCode" id="cb386"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb386-1"><a href="piecewise-sems.html#cb386-1" tabindex="-1"></a><span class="co"># Center predictors</span></span>
+<span id="cb386-2"><a href="piecewise-sems.html#cb386-2" tabindex="-1"></a>cardinale<span class="sc">$</span>logN.cen <span class="ot">&lt;-</span> <span class="fu">scale</span>(cardinale<span class="sc">$</span>logN, <span class="at">scale =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb386-3"><a href="piecewise-sems.html#cb386-3" tabindex="-1"></a>cardinale<span class="sc">$</span>logN2.cen <span class="ot">&lt;-</span> cardinale<span class="sc">$</span>logN.cen<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb386-4"><a href="piecewise-sems.html#cb386-4" tabindex="-1"></a></span>
+<span id="cb386-5"><a href="piecewise-sems.html#cb386-5" tabindex="-1"></a><span class="co"># Check correlation</span></span>
+<span id="cb386-6"><a href="piecewise-sems.html#cb386-6" tabindex="-1"></a><span class="fu">cor</span>(cardinale<span class="sc">$</span>logN.cen, cardinale<span class="sc">$</span>logN2.cen)</span></code></pre></div>
+<pre><code>##           [,1]
+## [1,] 0.5126311</code></pre>
+<p>Refit Model with Centered Predictors</p>
+<div class="sourceCode" id="cb388"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb388-1"><a href="piecewise-sems.html#cb388-1" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">psem</span>(</span>
+<span id="cb388-2"><a href="piecewise-sems.html#cb388-2" tabindex="-1"></a>  <span class="fu">lm</span>(SA <span class="sc">~</span> logN.cen <span class="sc">+</span> logN2.cen <span class="sc">+</span> SR, <span class="at">data =</span> cardinale),</span>
+<span id="cb388-3"><a href="piecewise-sems.html#cb388-3" tabindex="-1"></a>  <span class="fu">lm</span>(logChl <span class="sc">~</span> SA <span class="sc">+</span> logN.cen <span class="sc">+</span> logN2.cen, <span class="at">data =</span> cardinale),</span>
+<span id="cb388-4"><a href="piecewise-sems.html#cb388-4" tabindex="-1"></a>  logN.cen <span class="sc">%~~%</span> logN2.cen,</span>
+<span id="cb388-5"><a href="piecewise-sems.html#cb388-5" tabindex="-1"></a>  <span class="at">data =</span> cardinale</span>
+<span id="cb388-6"><a href="piecewise-sems.html#cb388-6" tabindex="-1"></a>)</span>
+<span id="cb388-7"><a href="piecewise-sems.html#cb388-7" tabindex="-1"></a></span>
+<span id="cb388-8"><a href="piecewise-sems.html#cb388-8" tabindex="-1"></a><span class="fu">summary</span>(model2)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>## 
+## Structural Equation Model of model2 
+## 
+## Call:
+##   SA ~ logN.cen + logN2.cen + SR
+##   logChl ~ SA + logN.cen + logN2.cen
+##   logN.cen ~~ logN2.cen
+## 
+##     AIC
+##  1192.444
+## 
+## ---
+## Tests of directed separation:
+## 
+##      Independ.Claim Test.Type  DF Crit.Value P.Value 
+##   logChl ~ SR + ...      coef 122     0.6639   0.508 
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 0.458 with P-value = 0.499 and on 1 degrees of freedom
+## Fisher&#39;s C = 1.355 with P-value = 0.508 and on 2 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##     Response   Predictor Estimate Std.Error  DF Crit.Value P.Value Std.Estimate    
+##           SA    logN.cen   0.3668     0.446 123     0.8223  0.4125       0.0618    
+##           SA   logN2.cen  -0.4742    0.2424 123    -1.9568  0.0526      -0.1470    
+##           SA          SR   0.3838    0.0359 123    10.6844  0.0000       0.6893 ***
+##       logChl          SA   0.0201     0.004 123     5.0327  0.0000       0.3946 ***
+##       logChl    logN.cen   0.0944    0.0275 123     3.4320  0.0008       0.3116 ***
+##       logChl   logN2.cen   0.0032     0.015 123     0.2108  0.8334       0.0193    
+##   ~~logN.cen ~~logN2.cen   0.5126         - 125     6.6752  0.0000       0.5126 ***
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##   Response method R.squared
+##         SA   none      0.49
+##     logChl   none      0.25</code></pre>
+<p>Try lavaan for the Same Model</p>
+<p>Example 2: Interaction Effects (Keeley et al.)</p>
+<p>Center and Create Interaction</p>
+<div class="sourceCode" id="cb391"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb391-1"><a href="piecewise-sems.html#cb391-1" tabindex="-1"></a>url2 <span class="ot">&lt;-</span> <span class="st">&quot;https://drive.google.com/uc?export=download&amp;id=1YTsFP1T__Hn13hTvj9TVOK-wbGDxLd01&quot;</span></span>
+<span id="cb391-2"><a href="piecewise-sems.html#cb391-2" tabindex="-1"></a></span>
+<span id="cb391-3"><a href="piecewise-sems.html#cb391-3" tabindex="-1"></a><span class="co"># Try to read the CSV directly</span></span>
+<span id="cb391-4"><a href="piecewise-sems.html#cb391-4" tabindex="-1"></a>keeley <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(url2)</span>
+<span id="cb391-5"><a href="piecewise-sems.html#cb391-5" tabindex="-1"></a></span>
+<span id="cb391-6"><a href="piecewise-sems.html#cb391-6" tabindex="-1"></a>keeley<span class="sc">$</span>age_cent <span class="ot">&lt;-</span> <span class="fu">scale</span>(keeley<span class="sc">$</span>age, <span class="at">scale =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb391-7"><a href="piecewise-sems.html#cb391-7" tabindex="-1"></a>keeley<span class="sc">$</span>fire_cent <span class="ot">&lt;-</span> <span class="fu">scale</span>(keeley<span class="sc">$</span>firesev, <span class="at">scale =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb391-8"><a href="piecewise-sems.html#cb391-8" tabindex="-1"></a>keeley<span class="sc">$</span>int_term <span class="ot">&lt;-</span> keeley<span class="sc">$</span>age_cent <span class="sc">*</span> keeley<span class="sc">$</span>fire_cent</span></code></pre></div>
+<p>Fit SEM with Interaction in piecewiseSEM</p>
+<div class="sourceCode" id="cb392"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb392-1"><a href="piecewise-sems.html#cb392-1" tabindex="-1"></a>keeley_int <span class="ot">&lt;-</span> <span class="fu">psem</span>(</span>
+<span id="cb392-2"><a href="piecewise-sems.html#cb392-2" tabindex="-1"></a>  <span class="fu">lm</span>(cover <span class="sc">~</span> age_cent <span class="sc">*</span> fire_cent, <span class="at">data =</span> keeley),</span>
+<span id="cb392-3"><a href="piecewise-sems.html#cb392-3" tabindex="-1"></a>  <span class="fu">lm</span>(fire_cent <span class="sc">~</span> age_cent, <span class="at">data =</span> keeley),</span>
+<span id="cb392-4"><a href="piecewise-sems.html#cb392-4" tabindex="-1"></a>  <span class="at">data =</span> keeley</span>
+<span id="cb392-5"><a href="piecewise-sems.html#cb392-5" tabindex="-1"></a>)</span>
+<span id="cb392-6"><a href="piecewise-sems.html#cb392-6" tabindex="-1"></a></span>
+<span id="cb392-7"><a href="piecewise-sems.html#cb392-7" tabindex="-1"></a><span class="fu">summary</span>(keeley_int)</span></code></pre></div>
+<pre><code>## 
+## Structural Equation Model of keeley_int 
+## 
+## Call:
+##   cover ~ age_cent * fire_cent
+##   fire_cent ~ age_cent
+## 
+##     AIC
+##  362.993
+## 
+## ---
+## Tests of directed separation:
+## 
+##  No independence claims present. Tests of directed separation not possible.
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 0 with P-value = 1 and on 0 degrees of freedom
+## Fisher&#39;s C = NA with P-value = NA and on 0 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##    Response          Predictor Estimate Std.Error DF Crit.Value P.Value Std.Estimate    
+##       cover           age_cent  -0.0050    0.0027 86    -1.8810  0.0634      -0.1985    
+##       cover          fire_cent  -0.0684    0.0203 86    -3.3752  0.0011      -0.3561  **
+##       cover age_cent:fire_cent  -0.0021    0.0014 86    -1.5263  0.1306      -0.1438    
+##   fire_cent           age_cent   0.0597    0.0125 88     4.7781  0.0000       0.4539 ***
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##    Response method R.squared
+##       cover   none      0.24
+##   fire_cent   none      0.21</code></pre>
+<p>Optional: Fit Interaction SEM with lavaan</p>
+<p>Final Notes:</p>
+<pre><code>•   Polynomial terms allow us to model curvature.
+•   Centering reduces collinearity and changes interpretation.
+•   Interaction terms help model conditional effects.
+•   Both lavaan and piecewiseSEM support these techniques.</code></pre>
+</div>
+<div id="chapter-14-glms-with-sem-using-piecewisesem" class="section level3 hasAnchor" number="41.4.2">
+<h3><span class="header-section-number">41.4.2</span> Chapter 14: GLMs with SEM using PiecewiseSEM<a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>This section integrates Generalized Linear Models (GLMs) into Structural Equation Modeling, especially using piecewiseSEM. It also introduces important adjustments for working with non-normal data, and compares latent theoretic (LT) and observed error (OE) approaches for standardizing coefficients.</p>
+</div>
+</div>
+<div id="overview-1" class="section level2 hasAnchor" number="41.5">
+<h2><span class="header-section-number">41.5</span> Overview<a href="piecewise-sems.html#overview-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In this tutorial, we’ll:</p>
+<pre><code>•   Learn how to incorporate GLMs into SEM using piecewiseSEM
+•   Understand how to deal with non-normality and directed separation warnings
+•   Compute standardized coefficients using both Latent Theoretic (LT) and Observed Error (OE) approaches</code></pre>
+<p>Data from Anderson et al. 2010 Example</p>
+<div class="sourceCode" id="cb396"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb396-1"><a href="piecewise-sems.html#cb396-1" tabindex="-1"></a><span class="co"># Simulated structure to mimic Anderson et al.</span></span>
+<span id="cb396-2"><a href="piecewise-sems.html#cb396-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb396-3"><a href="piecewise-sems.html#cb396-3" tabindex="-1"></a>anderson <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb396-4"><a href="piecewise-sems.html#cb396-4" tabindex="-1"></a>  <span class="at">biomass.kg =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="at">mean =</span> <span class="dv">10</span>, <span class="at">sd =</span> <span class="dv">2</span>),</span>
+<span id="cb396-5"><a href="piecewise-sems.html#cb396-5" tabindex="-1"></a>  <span class="at">leafN =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="at">mean =</span> <span class="dv">3</span>, <span class="at">sd =</span> <span class="fl">0.5</span>),</span>
+<span id="cb396-6"><a href="piecewise-sems.html#cb396-6" tabindex="-1"></a>  <span class="at">landscape =</span> <span class="fu">sample</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="dv">100</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb396-7"><a href="piecewise-sems.html#cb396-7" tabindex="-1"></a>  <span class="at">hotspotYN =</span> <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">1</span>, <span class="fl">0.4</span>)</span>
+<span id="cb396-8"><a href="piecewise-sems.html#cb396-8" tabindex="-1"></a>)</span></code></pre></div>
+<p>Model: Using GLM in psem</p>
+<div class="sourceCode" id="cb397"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb397-1"><a href="piecewise-sems.html#cb397-1" tabindex="-1"></a><span class="fu">library</span>(piecewiseSEM)</span>
+<span id="cb397-2"><a href="piecewise-sems.html#cb397-2" tabindex="-1"></a></span>
+<span id="cb397-3"><a href="piecewise-sems.html#cb397-3" tabindex="-1"></a>anderson.sem <span class="ot">&lt;-</span> <span class="fu">psem</span>(</span>
+<span id="cb397-4"><a href="piecewise-sems.html#cb397-4" tabindex="-1"></a>  <span class="fu">lm</span>(leafN <span class="sc">~</span> biomass.kg, <span class="at">data =</span> anderson),</span>
+<span id="cb397-5"><a href="piecewise-sems.html#cb397-5" tabindex="-1"></a>  <span class="fu">glm</span>(hotspotYN <span class="sc">~</span> leafN <span class="sc">+</span> biomass.kg <span class="sc">+</span> landscape, <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="at">data =</span> anderson)</span>
+<span id="cb397-6"><a href="piecewise-sems.html#cb397-6" tabindex="-1"></a>)</span>
+<span id="cb397-7"><a href="piecewise-sems.html#cb397-7" tabindex="-1"></a></span>
+<span id="cb397-8"><a href="piecewise-sems.html#cb397-8" tabindex="-1"></a><span class="fu">summary</span>(anderson.sem)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>## 
+## Structural Equation Model of anderson.sem 
+## 
+## Call:
+##   leafN ~ biomass.kg
+##   hotspotYN ~ leafN + biomass.kg + landscape
+## 
+##     AIC
+##  270.381
+## 
+## ---
+## Tests of directed separation:
+## 
+##            Independ.Claim Test.Type DF Crit.Value P.Value 
+##   leafN ~ landscape + ...      coef 97     1.1151  0.2676 
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 1.274 with P-value = 0.259 and on 1 degrees of freedom
+## Fisher&#39;s C = 2.637 with P-value = 0.268 and on 2 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##    Response  Predictor Estimate Std.Error DF Crit.Value P.Value Std.Estimate 
+##       leafN biomass.kg   0.0068    0.0219 98     0.3098  0.7574       0.0313 
+##   hotspotYN      leafN  -0.1212    0.4652 96    -0.2604  0.7945      -0.0301 
+##   hotspotYN biomass.kg   0.0374    0.1005 96     0.3720  0.7099       0.0428 
+##   hotspotYN  landscape  -0.1553    0.4181 96    -0.3715  0.7103      -0.0427 
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##    Response     method R.squared
+##       leafN       none         0
+##   hotspotYN nagelkerke         0</code></pre>
+<p>Directed Separation &amp; Non-Normality</p>
+<div class="sourceCode" id="cb400"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb400-1"><a href="piecewise-sems.html#cb400-1" tabindex="-1"></a><span class="co"># Add the &#39;conserve = TRUE&#39; argument to be conservative in tests</span></span>
+<span id="cb400-2"><a href="piecewise-sems.html#cb400-2" tabindex="-1"></a><span class="fu">summary</span>(anderson.sem, <span class="at">conserve =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>## 
+## Structural Equation Model of anderson.sem 
+## 
+## Call:
+##   leafN ~ biomass.kg
+##   hotspotYN ~ leafN + biomass.kg + landscape
+## 
+##     AIC
+##  270.381
+## 
+## ---
+## Tests of directed separation:
+## 
+##            Independ.Claim Test.Type DF Crit.Value P.Value 
+##   leafN ~ landscape + ...      coef 97     1.1151  0.2676 
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 1.274 with P-value = 0.259 and on 1 degrees of freedom
+## Fisher&#39;s C = 2.637 with P-value = 0.268 and on 2 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##    Response  Predictor Estimate Std.Error DF Crit.Value P.Value Std.Estimate 
+##       leafN biomass.kg   0.0068    0.0219 98     0.3098  0.7574       0.0313 
+##   hotspotYN      leafN  -0.1212    0.4652 96    -0.2604  0.7945      -0.0301 
+##   hotspotYN biomass.kg   0.0374    0.1005 96     0.3720  0.7099       0.0428 
+##   hotspotYN  landscape  -0.1553    0.4181 96    -0.3715  0.7103      -0.0427 
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##    Response     method R.squared
+##       leafN       none         0
+##   hotspotYN nagelkerke         0</code></pre>
+<p>If the model includes non-normal endogenous variables (e.g., binary hotspotYN), the direction of independence tests matters. Use:</p>
+<div class="sourceCode" id="cb403"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb403-1"><a href="piecewise-sems.html#cb403-1" tabindex="-1"></a><span class="fu">dSep</span>(anderson.sem, <span class="at">direction =</span> <span class="fu">c</span>(<span class="st">&quot;hotspotYN &lt;- leafN&quot;</span>))</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>##            Independ.Claim Test.Type DF Crit.Value   P.Value 
+## 1 leafN ~ landscape + ...      coef 97   1.115091 0.2675663</code></pre>
+<p>Or specify a correlated error structure:</p>
+<div class="sourceCode" id="cb406"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb406-1"><a href="piecewise-sems.html#cb406-1" tabindex="-1"></a>anderson.sem2 <span class="ot">&lt;-</span> <span class="fu">update</span>(anderson.sem, hotspotYN <span class="sc">%~~%</span> leafN)</span>
+<span id="cb406-2"><a href="piecewise-sems.html#cb406-2" tabindex="-1"></a><span class="fu">dSep</span>(anderson.sem2)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>##            Independ.Claim Test.Type DF Crit.Value   P.Value 
+## 1 leafN ~ landscape + ...      coef 97   1.115091 0.2675663</code></pre>
+<p>Standardizing Coefficients</p>
+<p>Latent Theoretic (LT) Approach</p>
+<div class="sourceCode" id="cb409"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb409-1"><a href="piecewise-sems.html#cb409-1" tabindex="-1"></a>anderson.glm <span class="ot">&lt;-</span> anderson.sem[[<span class="dv">2</span>]]</span>
+<span id="cb409-2"><a href="piecewise-sems.html#cb409-2" tabindex="-1"></a>Betas <span class="ot">&lt;-</span> <span class="fu">coefs</span>(anderson.sem)[<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">3</span>]  <span class="co"># GLM coefficients</span></span>
+<span id="cb409-3"><a href="piecewise-sems.html#cb409-3" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(anderson.glm, <span class="at">type =</span> <span class="st">&quot;link&quot;</span>)</span>
+<span id="cb409-4"><a href="piecewise-sems.html#cb409-4" tabindex="-1"></a></span>
+<span id="cb409-5"><a href="piecewise-sems.html#cb409-5" tabindex="-1"></a>sd.y.LT <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(preds) <span class="sc">+</span> pi<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>)</span>
+<span id="cb409-6"><a href="piecewise-sems.html#cb409-6" tabindex="-1"></a>sd.x <span class="ot">&lt;-</span> <span class="fu">sapply</span>(anderson[, <span class="fu">c</span>(<span class="st">&quot;leafN&quot;</span>, <span class="st">&quot;biomass.kg&quot;</span>, <span class="st">&quot;landscape&quot;</span>)], sd)</span>
+<span id="cb409-7"><a href="piecewise-sems.html#cb409-7" tabindex="-1"></a></span>
+<span id="cb409-8"><a href="piecewise-sems.html#cb409-8" tabindex="-1"></a>Betas.LT <span class="ot">&lt;-</span> Betas <span class="sc">*</span> sd.x <span class="sc">/</span> sd.y.LT</span>
+<span id="cb409-9"><a href="piecewise-sems.html#cb409-9" tabindex="-1"></a>Betas.LT</span></code></pre></div>
+<pre><code>##       leafN  biomass.kg   landscape 
+## -0.03014129  0.04284880 -0.04271486</code></pre>
+<p>Observed Error (OE) Approach</p>
+<div class="sourceCode" id="cb411"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb411-1"><a href="piecewise-sems.html#cb411-1" tabindex="-1"></a>preds_response <span class="ot">&lt;-</span> <span class="fu">predict</span>(anderson.glm, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb411-2"><a href="piecewise-sems.html#cb411-2" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="fu">cor</span>(anderson<span class="sc">$</span>hotspotYN, preds_response)</span>
+<span id="cb411-3"><a href="piecewise-sems.html#cb411-3" tabindex="-1"></a></span>
+<span id="cb411-4"><a href="piecewise-sems.html#cb411-4" tabindex="-1"></a>sd.y.OE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(preds_response)) <span class="sc">/</span> R</span>
+<span id="cb411-5"><a href="piecewise-sems.html#cb411-5" tabindex="-1"></a>Betas.OE <span class="ot">&lt;-</span> Betas <span class="sc">*</span> sd.x <span class="sc">/</span> sd.y.OE</span>
+<span id="cb411-6"><a href="piecewise-sems.html#cb411-6" tabindex="-1"></a>Betas.OE</span></code></pre></div>
+<pre><code>##      leafN biomass.kg  landscape 
+## -0.1089265  0.1548496 -0.1543656</code></pre>
+<p>Compare LT vs OE Approaches</p>
+<div class="sourceCode" id="cb413"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb413-1"><a href="piecewise-sems.html#cb413-1" tabindex="-1"></a><span class="co"># Indirect effect: leafN → hotspotYN (through biomass.kg)</span></span>
+<span id="cb413-2"><a href="piecewise-sems.html#cb413-2" tabindex="-1"></a>Beta.leafN <span class="ot">&lt;-</span> <span class="fu">coefs</span>(anderson.sem)<span class="sc">$</span>Std.Estimate[<span class="dv">1</span>]</span>
+<span id="cb413-3"><a href="piecewise-sems.html#cb413-3" tabindex="-1"></a>indirect_LT <span class="ot">&lt;-</span> Beta.leafN <span class="sc">*</span> Betas.LT[<span class="dv">1</span>]</span>
+<span id="cb413-4"><a href="piecewise-sems.html#cb413-4" tabindex="-1"></a>indirect_OE <span class="ot">&lt;-</span> Beta.leafN <span class="sc">*</span> Betas.OE[<span class="dv">1</span>]</span>
+<span id="cb413-5"><a href="piecewise-sems.html#cb413-5" tabindex="-1"></a></span>
+<span id="cb413-6"><a href="piecewise-sems.html#cb413-6" tabindex="-1"></a><span class="fu">c</span>(<span class="at">LT =</span> indirect_LT, <span class="at">OE =</span> indirect_OE)</span></code></pre></div>
+<pre><code>##      LT.leafN      OE.leafN 
+## -0.0009434225 -0.0034093982</code></pre>
+<p>Summary:</p>
+<pre><code>•   Use glm() in psem() for binary or count outcomes.
+•   Add conserve = TRUE for directed separation when variables are non-normal.
+•   Use both LT and OE standardization to interpret effect sizes.</code></pre>
+<div id="chapter-15-categorical-predictors-multigroup-sem" class="section level3 hasAnchor" number="41.5.1">
+<h3><span class="header-section-number">41.5.1</span> Chapter 15: Categorical Predictors &amp; Multigroup SEM<a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb416"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb416-1"><a href="piecewise-sems.html#cb416-1" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb416-2"><a href="piecewise-sems.html#cb416-2" tabindex="-1"></a><span class="fu">library</span>(piecewiseSEM)</span>
+<span id="cb416-3"><a href="piecewise-sems.html#cb416-3" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
+<span id="cb416-4"><a href="piecewise-sems.html#cb416-4" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span></code></pre></div>
+<p>Overview</p>
+<p>In this tutorial, we explore:</p>
+<pre><code>•   Using categorical predictors in SEM.
+•   Accounting for random effects (e.g., genotype).
+•   Conducting multigroup SEM across different contexts or study sites.</code></pre>
+<ol style="list-style-type: decimal">
+<li>Categorical Predictors and Random Effects</li>
+</ol>
+<p>Example: Bowen et al. (2017) tested whether Phragmites genotype affects soil microbes and productivity.</p>
+<div class="sourceCode" id="cb418"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb418-1"><a href="piecewise-sems.html#cb418-1" tabindex="-1"></a><span class="fu">library</span>(multcompView)</span>
+<span id="cb418-2"><a href="piecewise-sems.html#cb418-2" tabindex="-1"></a></span>
+<span id="cb418-3"><a href="piecewise-sems.html#cb418-3" tabindex="-1"></a><span class="co"># Simulated structure: Genotype nested within Phragmites status (e.g., native, invasive)</span></span>
+<span id="cb418-4"><a href="piecewise-sems.html#cb418-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb418-5"><a href="piecewise-sems.html#cb418-5" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">90</span></span>
+<span id="cb418-6"><a href="piecewise-sems.html#cb418-6" tabindex="-1"></a>bowen <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb418-7"><a href="piecewise-sems.html#cb418-7" tabindex="-1"></a>  <span class="at">status =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;native&quot;</span>, <span class="st">&quot;invasive&quot;</span>, <span class="st">&quot;introduced&quot;</span>), <span class="at">each =</span> <span class="dv">30</span>)),</span>
+<span id="cb418-8"><a href="piecewise-sems.html#cb418-8" tabindex="-1"></a>  <span class="at">Genotype =</span> <span class="fu">rep</span>(<span class="fu">paste0</span>(<span class="st">&quot;G&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>), <span class="at">each =</span> <span class="dv">10</span>),</span>
+<span id="cb418-9"><a href="piecewise-sems.html#cb418-9" tabindex="-1"></a>  <span class="at">observed_otus =</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">2500</span>, <span class="at">sd =</span> <span class="dv">100</span>),</span>
+<span id="cb418-10"><a href="piecewise-sems.html#cb418-10" tabindex="-1"></a>  <span class="at">RNA.DNA =</span> <span class="fu">rnorm</span>(n, <span class="fl">0.7</span>, <span class="fl">0.05</span>),</span>
+<span id="cb418-11"><a href="piecewise-sems.html#cb418-11" tabindex="-1"></a>  <span class="at">below.C =</span> <span class="fu">rnorm</span>(n, <span class="dv">43</span>, <span class="dv">1</span>),</span>
+<span id="cb418-12"><a href="piecewise-sems.html#cb418-12" tabindex="-1"></a>  <span class="at">abovebiomass_g =</span> <span class="fu">rnorm</span>(n, <span class="dv">2</span>, <span class="fl">0.5</span>)</span>
+<span id="cb418-13"><a href="piecewise-sems.html#cb418-13" tabindex="-1"></a>)</span>
+<span id="cb418-14"><a href="piecewise-sems.html#cb418-14" tabindex="-1"></a></span>
+<span id="cb418-15"><a href="piecewise-sems.html#cb418-15" tabindex="-1"></a><span class="co"># Mixed models for each component</span></span>
+<span id="cb418-16"><a href="piecewise-sems.html#cb418-16" tabindex="-1"></a>div_mod <span class="ot">&lt;-</span> <span class="fu">lmer</span>(observed_otus <span class="sc">~</span> status <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Genotype), <span class="at">data =</span> bowen)</span>
+<span id="cb418-17"><a href="piecewise-sems.html#cb418-17" tabindex="-1"></a>activity_mod <span class="ot">&lt;-</span> <span class="fu">lmer</span>(RNA.DNA <span class="sc">~</span> status <span class="sc">+</span> observed_otus <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Genotype), <span class="at">data =</span> bowen)</span>
+<span id="cb418-18"><a href="piecewise-sems.html#cb418-18" tabindex="-1"></a>carbon_mod <span class="ot">&lt;-</span> <span class="fu">lmer</span>(below.C <span class="sc">~</span> observed_otus <span class="sc">+</span> status <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Genotype), <span class="at">data =</span> bowen)</span>
+<span id="cb418-19"><a href="piecewise-sems.html#cb418-19" tabindex="-1"></a>biomass_mod <span class="ot">&lt;-</span> <span class="fu">lmer</span>(abovebiomass_g <span class="sc">~</span> RNA.DNA <span class="sc">+</span> observed_otus <span class="sc">+</span> below.C <span class="sc">+</span> status <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Genotype), <span class="at">data =</span> bowen)</span>
+<span id="cb418-20"><a href="piecewise-sems.html#cb418-20" tabindex="-1"></a></span>
+<span id="cb418-21"><a href="piecewise-sems.html#cb418-21" tabindex="-1"></a><span class="co"># Build piecewise SEM</span></span>
+<span id="cb418-22"><a href="piecewise-sems.html#cb418-22" tabindex="-1"></a>bowen_mod <span class="ot">&lt;-</span> <span class="fu">psem</span>(div_mod, activity_mod, carbon_mod, biomass_mod, <span class="at">data =</span> bowen)</span>
+<span id="cb418-23"><a href="piecewise-sems.html#cb418-23" tabindex="-1"></a><span class="fu">summary</span>(bowen_mod)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%</code></pre>
+<pre><code>##   |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>## 
+## Structural Equation Model of bowen_mod 
+## 
+## Call:
+##   observed_otus ~ status
+##   RNA.DNA ~ status + observed_otus
+##   below.C ~ observed_otus + status
+##   abovebiomass_g ~ RNA.DNA + observed_otus + below.C + status
+## 
+##     AIC
+##  1251.338
+## 
+## ---
+## Tests of directed separation:
+## 
+##            Independ.Claim Test.Type DF Crit.Value P.Value 
+##   below.C ~ RNA.DNA + ...      coef 85    -0.1384  0.8902 
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 3.513 with P-value = 0.061 and on 1 degrees of freedom
+## Fisher&#39;s C = 0.233 with P-value = 0.89 and on 2 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##         Response           Predictor  Estimate Std.Error      DF Crit.Value P.Value
+##    observed_otus              status         -         -  2.0000     0.0237  0.9766
+##    observed_otus     status = native 2508.2458   16.3598  6.0000   153.3172  0.0000
+##    observed_otus status = introduced 2511.0278   16.3598  6.0000   153.4872  0.0000
+##    observed_otus   status = invasive 2513.2775   16.3598  6.0000   153.6247  0.0000
+##          RNA.DNA       observed_otus         0     1e-04 84.2102    -0.3354  0.7381
+##          RNA.DNA              status         -         -  2.0000     2.0441  0.2111
+##          RNA.DNA   status = invasive    0.6835    0.0104  5.9386    65.7032  0.0000
+##          RNA.DNA     status = native    0.7056    0.0104  5.9389    67.8238  0.0000
+##          RNA.DNA status = introduced    0.7119    0.0104  5.9365    68.4304  0.0000
+##          below.C       observed_otus    -4e-04    0.0012 86.0000    -0.3219  0.7483
+##          below.C              status         -         -  2.0000     0.7820  0.4997
+##          below.C   status = invasive    42.763    0.1857  5.9128   230.2879  0.0000
+##          below.C status = introduced   43.0245    0.1857  5.9100   231.7263  0.0000
+##          below.C     status = native   43.0658    0.1857  5.9132   231.9142  0.0000
+##   abovebiomass_g             RNA.DNA    0.1948    1.1068 84.0000     0.1760  0.8607
+##   abovebiomass_g       observed_otus     2e-04     6e-04 84.0000     0.4172  0.6776
+##   abovebiomass_g             below.C   -0.1292    0.0523 84.0000    -2.4692  0.0156
+##   abovebiomass_g              status         -         -  2.0000     0.2393  0.7943
+##   abovebiomass_g status = introduced    2.0074    0.0911  5.8667    22.0333  0.0000
+##   abovebiomass_g     status = native    2.0829    0.0905  5.7339    23.0193  0.0000
+##   abovebiomass_g   status = invasive    2.0871    0.0927  6.2237    22.5236  0.0000
+##   Std.Estimate    
+##              -    
+##              - ***
+##              - ***
+##              - ***
+##              -    
+##              -    
+##              - ***
+##              - ***
+##              - ***
+##              -    
+##              -    
+##              - ***
+##              - ***
+##              - ***
+##              -    
+##              -    
+##              -   *
+##              -    
+##              - ***
+##              - ***
+##              - ***
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##         Response method Marginal Conditional
+##    observed_otus   none     0.00        0.00
+##          RNA.DNA   none     0.06        0.10
+##          below.C   none     0.02        0.02
+##   abovebiomass_g   none     0.07        0.07</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Visualizing Categorical Effects</li>
+</ol>
+<p>Estimated Marginal Means by status:</p>
+<div class="sourceCode" id="cb422"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb422-1"><a href="piecewise-sems.html#cb422-1" tabindex="-1"></a><span class="fu">lapply</span>(bowen_mod[<span class="sc">-</span><span class="fu">length</span>(bowen_mod)], emmeans, <span class="at">specs =</span> <span class="sc">~</span>status)</span></code></pre></div>
+<pre><code>## [[1]]
+##  status     emmean   SE df lower.CL upper.CL
+##  introduced   2511 16.4  6     2471     2551
+##  invasive     2513 16.4  6     2473     2553
+##  native       2508 16.4  6     2468     2548
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95 
+## 
+## [[2]]
+##  status     emmean     SE   df lower.CL upper.CL
+##  introduced  0.712 0.0104 5.94    0.686    0.737
+##  invasive    0.684 0.0104 5.94    0.658    0.709
+##  native      0.706 0.0104 5.94    0.680    0.731
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95 
+## 
+## [[3]]
+##  status     emmean    SE   df lower.CL upper.CL
+##  introduced   43.0 0.186 5.91     42.6     43.5
+##  invasive     42.8 0.186 5.91     42.3     43.2
+##  native       43.1 0.186 5.91     42.6     43.5
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95 
+## 
+## [[4]]
+##  status     emmean     SE   df lower.CL upper.CL
+##  introduced   2.01 0.0911 5.87     1.78     2.23
+##  invasive     2.09 0.0927 6.22     1.86     2.31
+##  native       2.08 0.0905 5.73     1.86     2.31
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95</code></pre>
+<div class="sourceCode" id="cb424"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb424-1"><a href="piecewise-sems.html#cb424-1" tabindex="-1"></a><span class="co"># Post-hoc Tests (Tukey)</span></span>
+<span id="cb424-2"><a href="piecewise-sems.html#cb424-2" tabindex="-1"></a></span>
+<span id="cb424-3"><a href="piecewise-sems.html#cb424-3" tabindex="-1"></a>generic_tukey <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">emmeans</span>(x, <span class="fu">list</span>(pairwise <span class="sc">~</span> status))</span>
+<span id="cb424-4"><a href="piecewise-sems.html#cb424-4" tabindex="-1"></a><span class="fu">lapply</span>(bowen_mod[<span class="sc">-</span><span class="fu">length</span>(bowen_mod)], generic_tukey)</span></code></pre></div>
+<pre><code>## [[1]]
+## $`emmeans of status`
+##  status     emmean   SE df lower.CL upper.CL
+##  introduced   2511 16.4  6     2471     2551
+##  invasive     2513 16.4  6     2473     2553
+##  native       2508 16.4  6     2468     2548
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95 
+## 
+## $`pairwise differences of status`
+##  1                     estimate   SE df t.ratio p.value
+##  introduced - invasive    -2.25 23.1  6  -0.097  0.9948
+##  introduced - native       2.78 23.1  6   0.120  0.9921
+##  invasive - native         5.03 23.1  6   0.217  0.9744
+## 
+## Degrees-of-freedom method: kenward-roger 
+## P value adjustment: tukey method for comparing a family of 3 estimates 
+## 
+## 
+## [[2]]
+## $`emmeans of status`
+##  status     emmean     SE   df lower.CL upper.CL
+##  introduced  0.712 0.0104 5.94    0.686    0.737
+##  invasive    0.684 0.0104 5.94    0.658    0.709
+##  native      0.706 0.0104 5.94    0.680    0.731
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95 
+## 
+## $`pairwise differences of status`
+##  1                     estimate     SE   df t.ratio p.value
+##  introduced - invasive  0.02831 0.0147 5.94   1.924  0.2130
+##  introduced - native    0.00624 0.0147 5.94   0.424  0.9072
+##  invasive - native     -0.02207 0.0147 5.94  -1.500  0.3560
+## 
+## Degrees-of-freedom method: kenward-roger 
+## P value adjustment: tukey method for comparing a family of 3 estimates 
+## 
+## 
+## [[3]]
+## $`emmeans of status`
+##  status     emmean    SE   df lower.CL upper.CL
+##  introduced   43.0 0.186 5.91     42.6     43.5
+##  invasive     42.8 0.186 5.91     42.3     43.2
+##  native       43.1 0.186 5.91     42.6     43.5
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95 
+## 
+## $`pairwise differences of status`
+##  1                     estimate    SE   df t.ratio p.value
+##  introduced - invasive   0.2615 0.263 5.91   0.996  0.6061
+##  introduced - native    -0.0413 0.263 5.91  -0.157  0.9865
+##  invasive - native      -0.3029 0.263 5.92  -1.153  0.5204
+## 
+## Degrees-of-freedom method: kenward-roger 
+## P value adjustment: tukey method for comparing a family of 3 estimates 
+## 
+## 
+## [[4]]
+## $`emmeans of status`
+##  status     emmean     SE   df lower.CL upper.CL
+##  introduced   2.01 0.0911 5.87     1.78     2.23
+##  invasive     2.09 0.0927 6.22     1.86     2.31
+##  native       2.08 0.0905 5.73     1.86     2.31
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95 
+## 
+## $`pairwise differences of status`
+##  1                     estimate    SE   df t.ratio p.value
+##  introduced - invasive -0.07972 0.132 6.41  -0.603  0.8234
+##  introduced - native   -0.07557 0.128 5.67  -0.592  0.8295
+##  invasive - native      0.00415 0.131 6.21   0.032  0.9994
+## 
+## Degrees-of-freedom method: kenward-roger 
+## P value adjustment: tukey method for comparing a family of 3 estimates</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Multigroup SEM in lavaan</li>
+</ol>
+<p>Fit the same SEM model to different groups and test whether path coefficients differ.</p>
+<div class="sourceCode" id="cb426"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb426-1"><a href="piecewise-sems.html#cb426-1" tabindex="-1"></a><span class="co"># Create simulated dataset</span></span>
+<span id="cb426-2"><a href="piecewise-sems.html#cb426-2" tabindex="-1"></a>group_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb426-3"><a href="piecewise-sems.html#cb426-3" tabindex="-1"></a>  <span class="at">site =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>), <span class="at">each =</span> <span class="dv">50</span>),</span>
+<span id="cb426-4"><a href="piecewise-sems.html#cb426-4" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>),</span>
+<span id="cb426-5"><a href="piecewise-sems.html#cb426-5" tabindex="-1"></a>  <span class="at">m =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>),</span>
+<span id="cb426-6"><a href="piecewise-sems.html#cb426-6" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>)</span>
+<span id="cb426-7"><a href="piecewise-sems.html#cb426-7" tabindex="-1"></a>)</span>
+<span id="cb426-8"><a href="piecewise-sems.html#cb426-8" tabindex="-1"></a></span>
+<span id="cb426-9"><a href="piecewise-sems.html#cb426-9" tabindex="-1"></a><span class="co"># Define a simple SEM model</span></span>
+<span id="cb426-10"><a href="piecewise-sems.html#cb426-10" tabindex="-1"></a>sem_model <span class="ot">&lt;-</span> <span class="st">&#39;</span></span>
+<span id="cb426-11"><a href="piecewise-sems.html#cb426-11" tabindex="-1"></a><span class="st">  m ~ a*x</span></span>
+<span id="cb426-12"><a href="piecewise-sems.html#cb426-12" tabindex="-1"></a><span class="st">  y ~ b*m + c*x</span></span>
+<span id="cb426-13"><a href="piecewise-sems.html#cb426-13" tabindex="-1"></a><span class="st">&#39;</span></span>
+<span id="cb426-14"><a href="piecewise-sems.html#cb426-14" tabindex="-1"></a></span>
+<span id="cb426-15"><a href="piecewise-sems.html#cb426-15" tabindex="-1"></a><span class="co"># Fit multi-group SEM</span></span>
+<span id="cb426-16"><a href="piecewise-sems.html#cb426-16" tabindex="-1"></a>fit_multi <span class="ot">&lt;-</span> lavaan<span class="sc">::</span><span class="fu">sem</span>(sem_model, <span class="at">data =</span> group_df, <span class="at">group =</span> <span class="st">&quot;site&quot;</span>)</span>
+<span id="cb426-17"><a href="piecewise-sems.html#cb426-17" tabindex="-1"></a></span>
+<span id="cb426-18"><a href="piecewise-sems.html#cb426-18" tabindex="-1"></a><span class="co"># View summary</span></span>
+<span id="cb426-19"><a href="piecewise-sems.html#cb426-19" tabindex="-1"></a><span class="fu">summary</span>(fit_multi, <span class="at">fit.measures =</span> <span class="cn">TRUE</span>, <span class="at">standardized =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>## lavaan 0.6-19 ended normally after 12 iterations
+## 
+##   Estimator                                         ML
+##   Optimization method                           NLMINB
+##   Number of model parameters                        14
+##   Number of equality constraints                     3
+## 
+##   Number of observations per group:                   
+##     A                                               50
+##     B                                               50
+## 
+## Model Test User Model:
+##                                                       
+##   Test statistic                                 0.790
+##   Degrees of freedom                                 3
+##   P-value (Chi-square)                           0.852
+##   Test statistic for each group:
+##     A                                            0.498
+##     B                                            0.292
+## 
+## Model Test Baseline Model:
+## 
+##   Test statistic                                 2.093
+##   Degrees of freedom                                 6
+##   P-value                                        0.911
+## 
+## User Model versus Baseline Model:
+## 
+##   Comparative Fit Index (CFI)                    1.000
+##   Tucker-Lewis Index (TLI)                      -0.131
+## 
+## Loglikelihood and Information Criteria:
+## 
+##   Loglikelihood user model (H0)               -293.784
+##   Loglikelihood unrestricted model (H1)       -293.389
+##                                                       
+##   Akaike (AIC)                                 609.568
+##   Bayesian (BIC)                               638.225
+##   Sample-size adjusted Bayesian (SABIC)        603.484
+## 
+## Root Mean Square Error of Approximation:
+## 
+##   RMSEA                                          0.000
+##   90 Percent confidence interval - lower         0.000
+##   90 Percent confidence interval - upper         0.130
+##   P-value H_0: RMSEA &lt;= 0.050                    0.874
+##   P-value H_0: RMSEA &gt;= 0.080                    0.098
+## 
+## Standardized Root Mean Square Residual:
+## 
+##   SRMR                                           0.029
+## 
+## Parameter Estimates:
+## 
+##   Standard errors                             Standard
+##   Information                                 Expected
+##   Information saturated (h1) model          Structured
+## 
+## 
+## Group 1 [A]:
+## 
+## Regressions:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##   m ~                                                                   
+##     x          (a)   -0.011    0.099   -0.116    0.908   -0.011   -0.009
+##   y ~                                                                   
+##     m          (b)   -0.105    0.095   -1.106    0.269   -0.105   -0.128
+##     x          (c)    0.031    0.101    0.310    0.757    0.031    0.031
+## 
+## Intercepts:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .m                 0.144    0.170    0.844    0.398    0.144    0.119
+##    .y                 0.076    0.139    0.544    0.586    0.076    0.077
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .m                 1.445    0.289    5.000    0.000    1.445    1.000
+##    .y                 0.960    0.192    5.000    0.000    0.960    0.983
+## 
+## 
+## Group 2 [B]:
+## 
+## Regressions:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##   m ~                                                                   
+##     x          (a)   -0.011    0.099   -0.116    0.908   -0.011   -0.014
+##   y ~                                                                   
+##     m          (b)   -0.105    0.095   -1.106    0.269   -0.105   -0.088
+##     x          (c)    0.031    0.101    0.310    0.757    0.031    0.031
+## 
+## Intercepts:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .m                -0.116    0.134   -0.860    0.390   -0.116   -0.124
+##    .y                -0.240    0.160   -1.506    0.132   -0.240   -0.215
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .m                 0.872    0.174    5.000    0.000    0.872    1.000
+##    .y                 1.234    0.247    5.000    0.000    1.234    0.991</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li>Constraining Parameters Across Groups</li>
+</ol>
+<p>You can test whether coefficients differ across groups:</p>
+<p>A significant p-value means the unconstrained model fits better — i.e., group differences do matter.</p>
+<p>Summary:</p>
+<pre><code>•   Use lme4 and piecewiseSEM for models with random effects.
+•   lavaan enables multigroup comparisons to test generality across systems.
+•   Post-hoc tools like emmeans help interpret categorical predictors.</code></pre>
+</div>
+<div id="chapter-16-multigroup-sem-in-r" class="section level3 hasAnchor" number="41.5.2">
+<h3><span class="header-section-number">41.5.2</span> Chapter 16: Multigroup SEM in R<a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb429"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb429-1"><a href="piecewise-sems.html#cb429-1" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span></code></pre></div>
+<p>What is Multigroup SEM?</p>
+<p>Multigroup SEM allows you to:
+• Test whether path coefficients differ between groups.
+• Assess whether a model holds equally well across groups.
+• Investigate measurement invariance (i.e., whether constructs are perceived similarly).</p>
+<p>Example Model Setup</p>
+<p>We’ll build a simple mediation model where group is a binary factor (“A” vs “B”).</p>
+<div class="sourceCode" id="cb430"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb430-1"><a href="piecewise-sems.html#cb430-1" tabindex="-1"></a><span class="co"># Simulate data</span></span>
+<span id="cb430-2"><a href="piecewise-sems.html#cb430-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb430-3"><a href="piecewise-sems.html#cb430-3" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb430-4"><a href="piecewise-sems.html#cb430-4" tabindex="-1"></a>group <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>), <span class="at">each =</span> n)</span>
+<span id="cb430-5"><a href="piecewise-sems.html#cb430-5" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">2</span> <span class="sc">*</span> n)</span>
+<span id="cb430-6"><a href="piecewise-sems.html#cb430-6" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2</span> <span class="sc">*</span> n)</span>
+<span id="cb430-7"><a href="piecewise-sems.html#cb430-7" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> m <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2</span> <span class="sc">*</span> n)</span>
+<span id="cb430-8"><a href="piecewise-sems.html#cb430-8" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(group, x, m, y)</span></code></pre></div>
+<p>Define the SEM</p>
+<div class="sourceCode" id="cb431"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb431-1"><a href="piecewise-sems.html#cb431-1" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="st">&#39;</span></span>
+<span id="cb431-2"><a href="piecewise-sems.html#cb431-2" tabindex="-1"></a><span class="st">  m ~ a*x</span></span>
+<span id="cb431-3"><a href="piecewise-sems.html#cb431-3" tabindex="-1"></a><span class="st">  y ~ b*m + c*x</span></span>
+<span id="cb431-4"><a href="piecewise-sems.html#cb431-4" tabindex="-1"></a><span class="st">&#39;</span></span></code></pre></div>
+<p>Fit Multigroup SEM</p>
+<div class="sourceCode" id="cb432"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb432-1"><a href="piecewise-sems.html#cb432-1" tabindex="-1"></a>fit_multi <span class="ot">&lt;-</span> <span class="fu">sem</span>(model, <span class="at">data =</span> data, <span class="at">group =</span> <span class="st">&quot;group&quot;</span>)</span>
+<span id="cb432-2"><a href="piecewise-sems.html#cb432-2" tabindex="-1"></a><span class="fu">summary</span>(fit_multi, <span class="at">fit.measures =</span> <span class="cn">TRUE</span>, <span class="at">standardized =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>## lavaan 0.6-19 ended normally after 13 iterations
+## 
+##   Estimator                                         ML
+##   Optimization method                           NLMINB
+##   Number of model parameters                        14
+##   Number of equality constraints                     3
+## 
+##   Number of observations per group:                   
+##     A                                              100
+##     B                                              100
+## 
+## Model Test User Model:
+##                                                       
+##   Test statistic                                 6.839
+##   Degrees of freedom                                 3
+##   P-value (Chi-square)                           0.077
+##   Test statistic for each group:
+##     A                                            3.618
+##     B                                            3.220
+## 
+## Model Test Baseline Model:
+## 
+##   Test statistic                               131.688
+##   Degrees of freedom                                 6
+##   P-value                                        0.000
+## 
+## User Model versus Baseline Model:
+## 
+##   Comparative Fit Index (CFI)                    0.969
+##   Tucker-Lewis Index (TLI)                       0.939
+## 
+## Loglikelihood and Information Criteria:
+## 
+##   Loglikelihood user model (H0)               -556.173
+##   Loglikelihood unrestricted model (H1)       -552.754
+##                                                       
+##   Akaike (AIC)                                1134.347
+##   Bayesian (BIC)                              1170.628
+##   Sample-size adjusted Bayesian (SABIC)       1135.779
+## 
+## Root Mean Square Error of Approximation:
+## 
+##   RMSEA                                          0.113
+##   90 Percent confidence interval - lower         0.000
+##   90 Percent confidence interval - upper         0.228
+##   P-value H_0: RMSEA &lt;= 0.050                    0.139
+##   P-value H_0: RMSEA &gt;= 0.080                    0.755
+## 
+## Standardized Root Mean Square Residual:
+## 
+##   SRMR                                           0.083
+## 
+## Parameter Estimates:
+## 
+##   Standard errors                             Standard
+##   Information                                 Expected
+##   Information saturated (h1) model          Structured
+## 
+## 
+## Group 1 [A]:
+## 
+## Regressions:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##   m ~                                                                   
+##     x          (a)    0.453    0.075    6.064    0.000    0.453    0.401
+##   y ~                                                                   
+##     m          (b)    0.542    0.068    7.947    0.000    0.542    0.460
+##     x          (c)    0.295    0.078    3.756    0.000    0.295    0.222
+## 
+## Intercepts:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .m                 0.125    0.094    1.323    0.186    0.125    0.122
+##    .y                 0.116    0.098    1.178    0.239    0.116    0.096
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .m                 0.885    0.125    7.071    0.000    0.885    0.840
+##    .y                 0.958    0.135    7.071    0.000    0.958    0.657
+## 
+## 
+## Group 2 [B]:
+## 
+## Regressions:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##   m ~                                                                   
+##     x          (a)    0.453    0.075    6.064    0.000    0.453    0.387
+##   y ~                                                                   
+##     m          (b)    0.542    0.068    7.947    0.000    0.542    0.504
+##     x          (c)    0.295    0.078    3.756    0.000    0.295    0.235
+## 
+## Intercepts:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .m                -0.041    0.104   -0.397    0.691   -0.041   -0.037
+##    .y                -0.048    0.094   -0.513    0.608   -0.048   -0.040
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .m                 1.074    0.152    7.071    0.000    1.074    0.850
+##    .y                 0.874    0.124    7.071    0.000    0.874    0.599</code></pre>
+<p>Test for Invariance</p>
+<p>To test for invariance, you can constrain parameters to be equal across groups.</p>
+<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb434-1"><a href="piecewise-sems.html#cb434-1" tabindex="-1"></a><span class="co"># Constrain &#39;a&#39; and &#39;b&#39; to be equal across groups</span></span>
+<span id="cb434-2"><a href="piecewise-sems.html#cb434-2" tabindex="-1"></a>model_constrained <span class="ot">&lt;-</span> <span class="st">&#39;</span></span>
+<span id="cb434-3"><a href="piecewise-sems.html#cb434-3" tabindex="-1"></a><span class="st">  m ~ c(a, a)*x</span></span>
+<span id="cb434-4"><a href="piecewise-sems.html#cb434-4" tabindex="-1"></a><span class="st">  y ~ c(b, b)*m + c*x</span></span>
+<span id="cb434-5"><a href="piecewise-sems.html#cb434-5" tabindex="-1"></a><span class="st">&#39;</span></span>
+<span id="cb434-6"><a href="piecewise-sems.html#cb434-6" tabindex="-1"></a></span>
+<span id="cb434-7"><a href="piecewise-sems.html#cb434-7" tabindex="-1"></a>fit_constrained <span class="ot">&lt;-</span> <span class="fu">sem</span>(model_constrained, <span class="at">data =</span> data, <span class="at">group =</span> <span class="st">&quot;group&quot;</span>)</span>
+<span id="cb434-8"><a href="piecewise-sems.html#cb434-8" tabindex="-1"></a><span class="fu">anova</span>(fit_multi, fit_constrained)  <span class="co"># Chi-square test for invariance</span></span></code></pre></div>
+<pre><code>## 
+## Chi-Squared Difference Test
+## 
+##                 Df    AIC    BIC  Chisq Chisq diff RMSEA Df diff Pr(&gt;Chisq)
+## fit_multi        3 1134.3 1170.6 6.8386                                    
+## fit_constrained  3 1134.3 1170.6 6.8386          0     0       0</code></pre>
+<p>Interpretation:</p>
+<pre><code>•   If the constrained model does not significantly worsen fit, the paths a and b are likely invariant.
+•   If the fit gets significantly worse, the relationship differs between groups and should be modeled separately.</code></pre>
+<p>Visualizing Standardized Results</p>
+<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb437-1"><a href="piecewise-sems.html#cb437-1" tabindex="-1"></a><span class="fu">library</span>(semPlot)</span>
+<span id="cb437-2"><a href="piecewise-sems.html#cb437-2" tabindex="-1"></a><span class="fu">semPaths</span>(fit_multi, <span class="st">&quot;std&quot;</span>, <span class="at">layout =</span> <span class="st">&quot;tree&quot;</span>, <span class="at">whatLabels =</span> <span class="st">&quot;std&quot;</span>, <span class="at">edge.label.cex =</span> <span class="fl">1.2</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-190-1.png" width="960" style="display: block; margin: auto;" /><img src="_main_files/figure-html/unnamed-chunk-190-2.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Summary</p>
+<p>Multigroup SEM lets you:</p>
+<pre><code>•   Evaluate moderation by group.
+•   Test for measurement invariance.
+•   Gain deeper insight into context-dependent pathways.</code></pre>
+</div>
+<div id="chapter-17" class="section level3 hasAnchor" number="41.5.3">
+<h3><span class="header-section-number">41.5.3</span> Chapter 17:<a href="piecewise-sems.html#chapter-17" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Mixed models in piecewise SEM, covering:</p>
+<pre><code>•   Fixed vs. random effects
+•   Adding group-level predictors
+•   Understanding R² and model comparison
+•   Dealing with hierarchical structure and sample size</code></pre>
+<p>Introduction</p>
+<p>This tutorial introduces how to incorporate mixed effects into Structural Equation Modeling using the piecewiseSEM package. Mixed models are essential when your data are hierarchically structured (e.g., plots within sites, streams within watersheds).</p>
+<p>Step 1: Load Data and Create Variables</p>
+<div class="sourceCode" id="cb440"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb440-1"><a href="piecewise-sems.html#cb440-1" tabindex="-1"></a><span class="co"># Log-transform predictors</span></span>
+<span id="cb440-2"><a href="piecewise-sems.html#cb440-2" tabindex="-1"></a>cardinale<span class="sc">$</span>logN <span class="ot">&lt;-</span> <span class="fu">log10</span>(cardinale<span class="sc">$</span>N <span class="sc">+</span> <span class="fl">1e-6</span>)</span>
+<span id="cb440-3"><a href="piecewise-sems.html#cb440-3" tabindex="-1"></a>cardinale<span class="sc">$</span>logN2 <span class="ot">&lt;-</span> cardinale<span class="sc">$</span>logN<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb440-4"><a href="piecewise-sems.html#cb440-4" tabindex="-1"></a>cardinale<span class="sc">$</span>logChl <span class="ot">&lt;-</span> <span class="fu">log10</span>(cardinale<span class="sc">$</span>Chl)</span>
+<span id="cb440-5"><a href="piecewise-sems.html#cb440-5" tabindex="-1"></a></span>
+<span id="cb440-6"><a href="piecewise-sems.html#cb440-6" tabindex="-1"></a><span class="co"># Centering predictors to reduce multicollinearity</span></span>
+<span id="cb440-7"><a href="piecewise-sems.html#cb440-7" tabindex="-1"></a>cardinale<span class="sc">$</span>logN.cen <span class="ot">&lt;-</span> <span class="fu">scale</span>(cardinale<span class="sc">$</span>logN, <span class="at">scale =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb440-8"><a href="piecewise-sems.html#cb440-8" tabindex="-1"></a>cardinale<span class="sc">$</span>logN2.cen <span class="ot">&lt;-</span> <span class="fu">scale</span>(cardinale<span class="sc">$</span>logN<span class="sc">^</span><span class="dv">2</span>, <span class="at">scale =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p>Step 2: Fit Fixed Effects SEM</p>
+<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb441-1"><a href="piecewise-sems.html#cb441-1" tabindex="-1"></a>cardinale.sem <span class="ot">&lt;-</span> <span class="fu">psem</span>(</span>
+<span id="cb441-2"><a href="piecewise-sems.html#cb441-2" tabindex="-1"></a>  <span class="fu">lm</span>(SA <span class="sc">~</span> logN.cen <span class="sc">+</span> logN2.cen <span class="sc">+</span> SR, <span class="at">data =</span> cardinale),</span>
+<span id="cb441-3"><a href="piecewise-sems.html#cb441-3" tabindex="-1"></a>  <span class="fu">lm</span>(logChl <span class="sc">~</span> SA <span class="sc">+</span> logN.cen <span class="sc">+</span> logN2.cen, <span class="at">data =</span> cardinale),</span>
+<span id="cb441-4"><a href="piecewise-sems.html#cb441-4" tabindex="-1"></a>  logN.cen <span class="sc">%~~%</span> logN2.cen,</span>
+<span id="cb441-5"><a href="piecewise-sems.html#cb441-5" tabindex="-1"></a>  <span class="at">data =</span> cardinale</span>
+<span id="cb441-6"><a href="piecewise-sems.html#cb441-6" tabindex="-1"></a>)</span>
+<span id="cb441-7"><a href="piecewise-sems.html#cb441-7" tabindex="-1"></a></span>
+<span id="cb441-8"><a href="piecewise-sems.html#cb441-8" tabindex="-1"></a><span class="fu">summary</span>(cardinale.sem)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>## 
+## Structural Equation Model of cardinale.sem 
+## 
+## Call:
+##   SA ~ logN.cen + logN2.cen + SR
+##   logChl ~ SA + logN.cen + logN2.cen
+##   logN.cen ~~ logN2.cen
+## 
+##     AIC
+##  1192.444
+## 
+## ---
+## Tests of directed separation:
+## 
+##      Independ.Claim Test.Type  DF Crit.Value P.Value 
+##   logChl ~ SR + ...      coef 122     0.6639   0.508 
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 0.458 with P-value = 0.499 and on 1 degrees of freedom
+## Fisher&#39;s C = 1.355 with P-value = 0.508 and on 2 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##     Response   Predictor Estimate Std.Error  DF Crit.Value P.Value Std.Estimate    
+##           SA    logN.cen  -2.9944    1.5375 123    -1.9476  0.0537      -0.5044    
+##           SA   logN2.cen  -0.4742    0.2424 123    -1.9568  0.0526      -0.5067    
+##           SA          SR   0.3838    0.0359 123    10.6844  0.0000       0.6893 ***
+##       logChl          SA   0.0201     0.004 123     5.0327  0.0000       0.3946 ***
+##       logChl    logN.cen   0.1168    0.0953 123     1.2258  0.2226       0.3858    
+##       logChl   logN2.cen   0.0032     0.015 123     0.2108  0.8334       0.0664    
+##   ~~logN.cen ~~logN2.cen  -0.9685         - 125   -43.4652  0.0000      -0.9685 ***
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##   Response method R.squared
+##         SA   none      0.49
+##     logChl   none      0.25</code></pre>
+<p>Step 3: Add Random Effects with lme()</p>
+<div class="sourceCode" id="cb444"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb444-1"><a href="piecewise-sems.html#cb444-1" tabindex="-1"></a><span class="co">#cardinale.mixed &lt;- psem(</span></span>
+<span id="cb444-2"><a href="piecewise-sems.html#cb444-2" tabindex="-1"></a><span class="co">#  lme(SA ~ logN.cen + logN2.cen + SR, random = ~1 | Stream, data = cardinale),</span></span>
+<span id="cb444-3"><a href="piecewise-sems.html#cb444-3" tabindex="-1"></a><span class="co">#  lme(logChl ~ SA + logN.cen + logN2.cen, random = ~1 | Stream, data = cardinale),</span></span>
+<span id="cb444-4"><a href="piecewise-sems.html#cb444-4" tabindex="-1"></a><span class="co">#  logN.cen %~~% logN2.cen,</span></span>
+<span id="cb444-5"><a href="piecewise-sems.html#cb444-5" tabindex="-1"></a><span class="co">#  data = cardinale</span></span>
+<span id="cb444-6"><a href="piecewise-sems.html#cb444-6" tabindex="-1"></a><span class="co">#)</span></span>
+<span id="cb444-7"><a href="piecewise-sems.html#cb444-7" tabindex="-1"></a></span>
+<span id="cb444-8"><a href="piecewise-sems.html#cb444-8" tabindex="-1"></a><span class="co">#summary(cardinale.mixed)</span></span></code></pre></div>
+<p>Step 4: Compare Models</p>
+<div class="sourceCode" id="cb445"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb445-1"><a href="piecewise-sems.html#cb445-1" tabindex="-1"></a><span class="co"># Compare R-squared</span></span>
+<span id="cb445-2"><a href="piecewise-sems.html#cb445-2" tabindex="-1"></a><span class="co">#rsquared(cardinale.sem)</span></span>
+<span id="cb445-3"><a href="piecewise-sems.html#cb445-3" tabindex="-1"></a><span class="co">#rsquared(cardinale.mixed)</span></span></code></pre></div>
+<pre><code>•   Marginal R²: Variance explained by fixed effects.
+•   Conditional R²: Variance explained by both fixed and random effects.</code></pre>
+<p>Step 5: Optional — Add Group-Level Predictors</p>
+<p>To address possible Simpson’s paradox or correlated random effects:</p>
+<div class="sourceCode" id="cb447"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb447-1"><a href="piecewise-sems.html#cb447-1" tabindex="-1"></a><span class="co"># Example if &quot;site_mean&quot; were available</span></span>
+<span id="cb447-2"><a href="piecewise-sems.html#cb447-2" tabindex="-1"></a><span class="co"># cardinale$stream_mean_logN &lt;- ave(cardinale$logN, cardinale$Stream)</span></span>
+<span id="cb447-3"><a href="piecewise-sems.html#cb447-3" tabindex="-1"></a><span class="co"># cardinale$deviation_logN &lt;- cardinale$logN - cardinale$stream_mean_logN</span></span></code></pre></div>
+<p>This lets you include:</p>
+<pre><code>•   stream_mean_logN (group-level predictor)
+•   deviation_logN (individual-level deviation)</code></pre>
+<p>Step 6: Basis Set and Fisher’s C</p>
+<div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb449-1"><a href="piecewise-sems.html#cb449-1" tabindex="-1"></a><span class="co">#fisherC(cardinale.mixed)</span></span></code></pre></div>
+<p>Summary:</p>
+<pre><code>•   Mixed models let you account for non-independence among groups.
+•   Use piecewiseSEM with lme() to include random effects.
+•   Be cautious of group-level confounding — use centering and group-level predictors.
+•   Use rsquared() and fisherC() for model comparison and goodness-of-fit.</code></pre>
+</div>
+</div>
+<div id="example-with-powerline-data" class="section level2 hasAnchor" number="41.6">
+<h2><span class="header-section-number">41.6</span> Example with Powerline Data<a href="piecewise-sems.html#example-with-powerline-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="piecewise-sems.html#cb451-1" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb451-2"><a href="piecewise-sems.html#cb451-2" tabindex="-1"></a></span>
+<span id="cb451-3"><a href="piecewise-sems.html#cb451-3" tabindex="-1"></a><span class="co"># Read CSV directly into R</span></span>
+<span id="cb451-4"><a href="piecewise-sems.html#cb451-4" tabindex="-1"></a>powerline_plants <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;https://drive.google.com/uc?export=download&amp;id=1MVlaEshEn7M2g8rOiJ8fWPPozn3WgNck&quot;</span>)</span></code></pre></div>
+<p>We are starting with our original DAG (below):</p>
+<div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb452-1"><a href="piecewise-sems.html#cb452-1" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb452-2"><a href="piecewise-sems.html#cb452-2" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb452-3"><a href="piecewise-sems.html#cb452-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb452-4"><a href="piecewise-sems.html#cb452-4" tabindex="-1"></a></span>
+<span id="cb452-5"><a href="piecewise-sems.html#cb452-5" tabindex="-1"></a></span>
+<span id="cb452-6"><a href="piecewise-sems.html#cb452-6" tabindex="-1"></a><span class="co"># Define the DAG</span></span>
+<span id="cb452-7"><a href="piecewise-sems.html#cb452-7" tabindex="-1"></a>ivm_dag <span class="ot">&lt;-</span> <span class="fu">dagitty</span>(<span class="st">&quot;</span></span>
+<span id="cb452-8"><a href="piecewise-sems.html#cb452-8" tabindex="-1"></a><span class="st">dag {</span></span>
+<span id="cb452-9"><a href="piecewise-sems.html#cb452-9" tabindex="-1"></a><span class="st">  Treatment</span></span>
+<span id="cb452-10"><a href="piecewise-sems.html#cb452-10" tabindex="-1"></a><span class="st">  Soil_Substrate</span></span>
+<span id="cb452-11"><a href="piecewise-sems.html#cb452-11" tabindex="-1"></a><span class="st">  Cattle</span></span>
+<span id="cb452-12"><a href="piecewise-sems.html#cb452-12" tabindex="-1"></a><span class="st">  Plant_Richness</span></span>
+<span id="cb452-13"><a href="piecewise-sems.html#cb452-13" tabindex="-1"></a><span class="st">  Plant_Cover</span></span>
+<span id="cb452-14"><a href="piecewise-sems.html#cb452-14" tabindex="-1"></a><span class="st">  Plant_Height</span></span>
+<span id="cb452-15"><a href="piecewise-sems.html#cb452-15" tabindex="-1"></a><span class="st">  Ceanothus</span></span>
+<span id="cb452-16"><a href="piecewise-sems.html#cb452-16" tabindex="-1"></a><span class="st">  Woody_Debris</span></span>
+<span id="cb452-17"><a href="piecewise-sems.html#cb452-17" tabindex="-1"></a><span class="st">  Pollinator_Richness</span></span>
+<span id="cb452-18"><a href="piecewise-sems.html#cb452-18" tabindex="-1"></a><span class="st">  Pollinator_Abundance</span></span>
+<span id="cb452-19"><a href="piecewise-sems.html#cb452-19" tabindex="-1"></a></span>
+<span id="cb452-20"><a href="piecewise-sems.html#cb452-20" tabindex="-1"></a><span class="st">  Treatment -&gt; Plant_Richness</span></span>
+<span id="cb452-21"><a href="piecewise-sems.html#cb452-21" tabindex="-1"></a><span class="st">  Treatment -&gt; Plant_Cover</span></span>
+<span id="cb452-22"><a href="piecewise-sems.html#cb452-22" tabindex="-1"></a><span class="st">  Treatment -&gt; Plant_Height</span></span>
+<span id="cb452-23"><a href="piecewise-sems.html#cb452-23" tabindex="-1"></a><span class="st">  Treatment -&gt; Ceanothus</span></span>
+<span id="cb452-24"><a href="piecewise-sems.html#cb452-24" tabindex="-1"></a><span class="st">  Treatment -&gt; Woody_Debris</span></span>
+<span id="cb452-25"><a href="piecewise-sems.html#cb452-25" tabindex="-1"></a></span>
+<span id="cb452-26"><a href="piecewise-sems.html#cb452-26" tabindex="-1"></a><span class="st">  Soil_Substrate -&gt; Treatment</span></span>
+<span id="cb452-27"><a href="piecewise-sems.html#cb452-27" tabindex="-1"></a><span class="st">  Soil_Substrate -&gt; Plant_Richness</span></span>
+<span id="cb452-28"><a href="piecewise-sems.html#cb452-28" tabindex="-1"></a><span class="st">  Soil_Substrate -&gt; Plant_Cover</span></span>
+<span id="cb452-29"><a href="piecewise-sems.html#cb452-29" tabindex="-1"></a><span class="st">  Soil_Substrate -&gt; Woody_Debris</span></span>
+<span id="cb452-30"><a href="piecewise-sems.html#cb452-30" tabindex="-1"></a></span>
+<span id="cb452-31"><a href="piecewise-sems.html#cb452-31" tabindex="-1"></a><span class="st">  Cattle -&gt; Plant_Richness</span></span>
+<span id="cb452-32"><a href="piecewise-sems.html#cb452-32" tabindex="-1"></a><span class="st">  Cattle -&gt; Plant_Cover</span></span>
+<span id="cb452-33"><a href="piecewise-sems.html#cb452-33" tabindex="-1"></a><span class="st">  Cattle -&gt; Pollinator_Abundance</span></span>
+<span id="cb452-34"><a href="piecewise-sems.html#cb452-34" tabindex="-1"></a><span class="st">  Cattle -&gt; Pollinator_Richness</span></span>
+<span id="cb452-35"><a href="piecewise-sems.html#cb452-35" tabindex="-1"></a></span>
+<span id="cb452-36"><a href="piecewise-sems.html#cb452-36" tabindex="-1"></a><span class="st">  Plant_Richness -&gt; Pollinator_Richness</span></span>
+<span id="cb452-37"><a href="piecewise-sems.html#cb452-37" tabindex="-1"></a><span class="st">  Plant_Richness -&gt; Pollinator_Abundance</span></span>
+<span id="cb452-38"><a href="piecewise-sems.html#cb452-38" tabindex="-1"></a><span class="st">  Plant_Cover -&gt; Pollinator_Richness</span></span>
+<span id="cb452-39"><a href="piecewise-sems.html#cb452-39" tabindex="-1"></a><span class="st">  Plant_Cover -&gt; Pollinator_Abundance</span></span>
+<span id="cb452-40"><a href="piecewise-sems.html#cb452-40" tabindex="-1"></a><span class="st">  Plant_Height -&gt; Pollinator_Richness</span></span>
+<span id="cb452-41"><a href="piecewise-sems.html#cb452-41" tabindex="-1"></a><span class="st">  Plant_Height -&gt; Pollinator_Abundance</span></span>
+<span id="cb452-42"><a href="piecewise-sems.html#cb452-42" tabindex="-1"></a><span class="st">  Ceanothus -&gt; Pollinator_Richness</span></span>
+<span id="cb452-43"><a href="piecewise-sems.html#cb452-43" tabindex="-1"></a><span class="st">  Ceanothus -&gt; Pollinator_Abundance</span></span>
+<span id="cb452-44"><a href="piecewise-sems.html#cb452-44" tabindex="-1"></a><span class="st">  Woody_Debris -&gt; Pollinator_Richness</span></span>
+<span id="cb452-45"><a href="piecewise-sems.html#cb452-45" tabindex="-1"></a><span class="st">  Woody_Debris -&gt; Pollinator_Abundance</span></span>
+<span id="cb452-46"><a href="piecewise-sems.html#cb452-46" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb452-47"><a href="piecewise-sems.html#cb452-47" tabindex="-1"></a><span class="st">&quot;</span>)</span>
+<span id="cb452-48"><a href="piecewise-sems.html#cb452-48" tabindex="-1"></a></span>
+<span id="cb452-49"><a href="piecewise-sems.html#cb452-49" tabindex="-1"></a>node_roles <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb452-50"><a href="piecewise-sems.html#cb452-50" tabindex="-1"></a>  <span class="at">name =</span> <span class="fu">c</span>(</span>
+<span id="cb452-51"><a href="piecewise-sems.html#cb452-51" tabindex="-1"></a>    <span class="st">&quot;Treatment&quot;</span>,</span>
+<span id="cb452-52"><a href="piecewise-sems.html#cb452-52" tabindex="-1"></a>    <span class="st">&quot;Soil_Substrate&quot;</span>,</span>
+<span id="cb452-53"><a href="piecewise-sems.html#cb452-53" tabindex="-1"></a>    <span class="st">&quot;Cattle&quot;</span>,</span>
+<span id="cb452-54"><a href="piecewise-sems.html#cb452-54" tabindex="-1"></a>    <span class="st">&quot;Plant_Richness&quot;</span>,</span>
+<span id="cb452-55"><a href="piecewise-sems.html#cb452-55" tabindex="-1"></a>    <span class="st">&quot;Plant_Cover&quot;</span>,</span>
+<span id="cb452-56"><a href="piecewise-sems.html#cb452-56" tabindex="-1"></a>    <span class="st">&quot;Plant_Height&quot;</span>,</span>
+<span id="cb452-57"><a href="piecewise-sems.html#cb452-57" tabindex="-1"></a>    <span class="st">&quot;Ceanothus&quot;</span>,</span>
+<span id="cb452-58"><a href="piecewise-sems.html#cb452-58" tabindex="-1"></a>    <span class="st">&quot;Woody_Debris&quot;</span>,</span>
+<span id="cb452-59"><a href="piecewise-sems.html#cb452-59" tabindex="-1"></a>    <span class="st">&quot;Pollinator_Richness&quot;</span>,</span>
+<span id="cb452-60"><a href="piecewise-sems.html#cb452-60" tabindex="-1"></a>    <span class="st">&quot;Pollinator_Abundance&quot;</span></span>
+<span id="cb452-61"><a href="piecewise-sems.html#cb452-61" tabindex="-1"></a>  ),</span>
+<span id="cb452-62"><a href="piecewise-sems.html#cb452-62" tabindex="-1"></a>  <span class="at">role =</span> <span class="fu">c</span>(</span>
+<span id="cb452-63"><a href="piecewise-sems.html#cb452-63" tabindex="-1"></a>    <span class="st">&quot;Treatment&quot;</span>,</span>
+<span id="cb452-64"><a href="piecewise-sems.html#cb452-64" tabindex="-1"></a>    <span class="st">&quot;Context&quot;</span>,</span>
+<span id="cb452-65"><a href="piecewise-sems.html#cb452-65" tabindex="-1"></a>    <span class="st">&quot;Context&quot;</span>,</span>
+<span id="cb452-66"><a href="piecewise-sems.html#cb452-66" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb452-67"><a href="piecewise-sems.html#cb452-67" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb452-68"><a href="piecewise-sems.html#cb452-68" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb452-69"><a href="piecewise-sems.html#cb452-69" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb452-70"><a href="piecewise-sems.html#cb452-70" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb452-71"><a href="piecewise-sems.html#cb452-71" tabindex="-1"></a>    <span class="st">&quot;Pollinator&quot;</span>,</span>
+<span id="cb452-72"><a href="piecewise-sems.html#cb452-72" tabindex="-1"></a>    <span class="st">&quot;Pollinator&quot;</span></span>
+<span id="cb452-73"><a href="piecewise-sems.html#cb452-73" tabindex="-1"></a>  )</span>
+<span id="cb452-74"><a href="piecewise-sems.html#cb452-74" tabindex="-1"></a>)</span>
+<span id="cb452-75"><a href="piecewise-sems.html#cb452-75" tabindex="-1"></a></span>
+<span id="cb452-76"><a href="piecewise-sems.html#cb452-76" tabindex="-1"></a><span class="co"># Get layout and merge roles</span></span>
+<span id="cb452-77"><a href="piecewise-sems.html#cb452-77" tabindex="-1"></a>dag_df <span class="ot">&lt;-</span> <span class="fu">tidy_dagitty</span>(ivm_dag, <span class="at">layout =</span> <span class="st">&quot;nicely&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb452-78"><a href="piecewise-sems.html#cb452-78" tabindex="-1"></a>  <span class="fu">left_join</span>(node_roles, <span class="at">by =</span> <span class="st">&quot;name&quot;</span>)</span>
+<span id="cb452-79"><a href="piecewise-sems.html#cb452-79" tabindex="-1"></a></span>
+<span id="cb452-80"><a href="piecewise-sems.html#cb452-80" tabindex="-1"></a><span class="co"># Plot using ggplot2 with corrected edge structure</span></span>
+<span id="cb452-81"><a href="piecewise-sems.html#cb452-81" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb452-82"><a href="piecewise-sems.html#cb452-82" tabindex="-1"></a>  <span class="fu">geom_segment</span>(</span>
+<span id="cb452-83"><a href="piecewise-sems.html#cb452-83" tabindex="-1"></a>    <span class="at">data =</span> dag_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(xend)),</span>
+<span id="cb452-84"><a href="piecewise-sems.html#cb452-84" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">xend =</span> xend, <span class="at">yend =</span> yend),</span>
+<span id="cb452-85"><a href="piecewise-sems.html#cb452-85" tabindex="-1"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">&quot;npc&quot;</span>)),</span>
+<span id="cb452-86"><a href="piecewise-sems.html#cb452-86" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;grey40&quot;</span></span>
+<span id="cb452-87"><a href="piecewise-sems.html#cb452-87" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb452-88"><a href="piecewise-sems.html#cb452-88" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb452-89"><a href="piecewise-sems.html#cb452-89" tabindex="-1"></a>    <span class="at">data =</span> dag_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)), </span>
+<span id="cb452-90"><a href="piecewise-sems.html#cb452-90" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">color =</span> role), </span>
+<span id="cb452-91"><a href="piecewise-sems.html#cb452-91" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">8</span>, <span class="at">alpha =</span> <span class="fl">0.85</span></span>
+<span id="cb452-92"><a href="piecewise-sems.html#cb452-92" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb452-93"><a href="piecewise-sems.html#cb452-93" tabindex="-1"></a>  <span class="fu">geom_text</span>(</span>
+<span id="cb452-94"><a href="piecewise-sems.html#cb452-94" tabindex="-1"></a>    <span class="at">data =</span> dag_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)), </span>
+<span id="cb452-95"><a href="piecewise-sems.html#cb452-95" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">label =</span> name), </span>
+<span id="cb452-96"><a href="piecewise-sems.html#cb452-96" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="dv">4</span></span>
+<span id="cb452-97"><a href="piecewise-sems.html#cb452-97" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb452-98"><a href="piecewise-sems.html#cb452-98" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb452-99"><a href="piecewise-sems.html#cb452-99" tabindex="-1"></a>    <span class="st">&quot;Treatment&quot;</span> <span class="ot">=</span> <span class="st">&quot;#FB7E21FF&quot;</span>,</span>
+<span id="cb452-100"><a href="piecewise-sems.html#cb452-100" tabindex="-1"></a>    <span class="st">&quot;Context&quot;</span> <span class="ot">=</span> <span class="st">&quot;#A91601FF&quot;</span>,</span>
+<span id="cb452-101"><a href="piecewise-sems.html#cb452-101" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span> <span class="ot">=</span> <span class="st">&quot;#18DDC2FF&quot;</span>,</span>
+<span id="cb452-102"><a href="piecewise-sems.html#cb452-102" tabindex="-1"></a>    <span class="st">&quot;Pollinator&quot;</span> <span class="ot">=</span> <span class="st">&quot;#00468BFF&quot;</span></span>
+<span id="cb452-103"><a href="piecewise-sems.html#cb452-103" tabindex="-1"></a>  )) <span class="sc">+</span></span>
+<span id="cb452-104"><a href="piecewise-sems.html#cb452-104" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb452-105"><a href="piecewise-sems.html#cb452-105" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Hypothesized DAG for Pollinator Response to IVM Treatment&quot;</span>,</span>
+<span id="cb452-106"><a href="piecewise-sems.html#cb452-106" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;Variable Type&quot;</span></span>
+<span id="cb452-107"><a href="piecewise-sems.html#cb452-107" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb452-108"><a href="piecewise-sems.html#cb452-108" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-198-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Then, we need to create linear models, treating each “node” as its own regression model. First, we have to summarize our data in a way that can be input into the linear models.</p>
+<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb453-1"><a href="piecewise-sems.html#cb453-1" tabindex="-1"></a><span class="fu">library</span>(piecewiseSEM)</span>
+<span id="cb453-2"><a href="piecewise-sems.html#cb453-2" tabindex="-1"></a></span>
+<span id="cb453-3"><a href="piecewise-sems.html#cb453-3" tabindex="-1"></a><span class="co"># List all variables used across all models</span></span>
+<span id="cb453-4"><a href="piecewise-sems.html#cb453-4" tabindex="-1"></a>sem_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb453-5"><a href="piecewise-sems.html#cb453-5" tabindex="-1"></a>  <span class="st">&quot;Species_Richness&quot;</span>, <span class="st">&quot;Treatment&quot;</span>, <span class="st">&quot;Q_Substrate_BareSoil&quot;</span>,</span>
+<span id="cb453-6"><a href="piecewise-sems.html#cb453-6" tabindex="-1"></a>  <span class="st">&quot;Plot_DungCount&quot;</span>, <span class="st">&quot;Q_Substrate_PerennialVeg&quot;</span>, <span class="st">&quot;Height_cm&quot;</span>,</span>
+<span id="cb453-7"><a href="piecewise-sems.html#cb453-7" tabindex="-1"></a>  <span class="st">&quot;Q_Substrate_WoodyDebris&quot;</span></span>
+<span id="cb453-8"><a href="piecewise-sems.html#cb453-8" tabindex="-1"></a>)</span>
+<span id="cb453-9"><a href="piecewise-sems.html#cb453-9" tabindex="-1"></a></span>
+<span id="cb453-10"><a href="piecewise-sems.html#cb453-10" tabindex="-1"></a><span class="co"># Remove all rows with NA in any of the SEM variables</span></span>
+<span id="cb453-11"><a href="piecewise-sems.html#cb453-11" tabindex="-1"></a>sem_data <span class="ot">&lt;-</span> powerline_plants <span class="sc">%&gt;%</span></span>
+<span id="cb453-12"><a href="piecewise-sems.html#cb453-12" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">all_of</span>(sem_vars)) <span class="sc">%&gt;%</span></span>
+<span id="cb453-13"><a href="piecewise-sems.html#cb453-13" tabindex="-1"></a>  <span class="fu">na.omit</span>()</span>
+<span id="cb453-14"><a href="piecewise-sems.html#cb453-14" tabindex="-1"></a></span>
+<span id="cb453-15"><a href="piecewise-sems.html#cb453-15" tabindex="-1"></a><span class="co"># Ensure Treatment is a factor</span></span>
+<span id="cb453-16"><a href="piecewise-sems.html#cb453-16" tabindex="-1"></a>sem_data<span class="sc">$</span>Treatment <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(sem_data<span class="sc">$</span>Treatment)</span>
+<span id="cb453-17"><a href="piecewise-sems.html#cb453-17" tabindex="-1"></a></span>
+<span id="cb453-18"><a href="piecewise-sems.html#cb453-18" tabindex="-1"></a><span class="co"># Check structure to confirm</span></span>
+<span id="cb453-19"><a href="piecewise-sems.html#cb453-19" tabindex="-1"></a><span class="fu">str</span>(sem_data)</span></code></pre></div>
+<pre><code>## &#39;data.frame&#39;:    811 obs. of  7 variables:
+##  $ Species_Richness        : int  10 10 11 10 12 11 7 7 12 2 ...
+##  $ Treatment               : Factor w/ 4 levels &quot;Control&quot;,&quot;Herbicide&quot;,..: 1 1 1 1 1 2 2 2 2 2 ...
+##  $ Q_Substrate_BareSoil    : num  0 5 7 0 0 10 2 0 2 0 ...
+##  $ Plot_DungCount          : int  5 5 5 5 5 0 0 0 0 0 ...
+##  $ Q_Substrate_PerennialVeg: num  70 10 8 5 10 40 25 50 40 30 ...
+##  $ Height_cm               : num  28 19.1 38.6 37.2 22 ...
+##  $ Q_Substrate_WoodyDebris : num  0 30 5 70 2 4 5 1 10 0 ...
+##  - attr(*, &quot;na.action&quot;)= &#39;omit&#39; Named int [1:57] 186 187 188 189 190 191 192 193 195 200 ...
+##   ..- attr(*, &quot;names&quot;)= chr [1:57] &quot;186&quot; &quot;187&quot; &quot;188&quot; &quot;189&quot; ...</code></pre>
+<div class="sourceCode" id="cb455"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb455-1"><a href="piecewise-sems.html#cb455-1" tabindex="-1"></a>sem_data<span class="sc">$</span>Treatment <span class="ot">&lt;-</span> <span class="fu">droplevels</span>(<span class="fu">as.factor</span>(sem_data<span class="sc">$</span>Treatment))</span>
+<span id="cb455-2"><a href="piecewise-sems.html#cb455-2" tabindex="-1"></a></span>
+<span id="cb455-3"><a href="piecewise-sems.html#cb455-3" tabindex="-1"></a><span class="co"># Fit models using this cleaned dataset</span></span>
+<span id="cb455-4"><a href="piecewise-sems.html#cb455-4" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Species_Richness <span class="sc">~</span> Treatment <span class="sc">+</span> Q_Substrate_BareSoil <span class="sc">+</span> Plot_DungCount, <span class="at">data =</span> sem_data)</span>
+<span id="cb455-5"><a href="piecewise-sems.html#cb455-5" tabindex="-1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Q_Substrate_PerennialVeg <span class="sc">~</span> Species_Richness <span class="sc">+</span> Treatment <span class="sc">+</span> Q_Substrate_BareSoil <span class="sc">+</span> Plot_DungCount, <span class="at">data =</span> sem_data)</span>
+<span id="cb455-6"><a href="piecewise-sems.html#cb455-6" tabindex="-1"></a>mod3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Height_cm <span class="sc">~</span> Q_Substrate_PerennialVeg <span class="sc">+</span> Treatment, <span class="at">data =</span> sem_data)</span>
+<span id="cb455-7"><a href="piecewise-sems.html#cb455-7" tabindex="-1"></a>mod4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Q_Substrate_WoodyDebris <span class="sc">~</span> Height_cm <span class="sc">+</span> Treatment <span class="sc">+</span> Q_Substrate_BareSoil, <span class="at">data =</span> sem_data)</span>
+<span id="cb455-8"><a href="piecewise-sems.html#cb455-8" tabindex="-1"></a><span class="co"># You can now also safely fit mod6 and mod7 using the same sem_data:</span></span>
+<span id="cb455-9"><a href="piecewise-sems.html#cb455-9" tabindex="-1"></a><span class="co"># mod6 &lt;- lm(Pollinator_Richness ~ Species_Richness + Q_Substrate_PerennialVeg + Height_cm + Ceanothus + Q_Substrate_WoodyDebris + Plot_DungCount, data = sem_data)</span></span>
+<span id="cb455-10"><a href="piecewise-sems.html#cb455-10" tabindex="-1"></a><span class="co"># mod7 &lt;- lm(Pollinator_Abundance ~ Species_Richness + Q_Substrate_PerennialVeg + Height_cm + Ceanothus + Q_Substrate_WoodyDebris + Plot_DungCount, data = sem_data)</span></span>
+<span id="cb455-11"><a href="piecewise-sems.html#cb455-11" tabindex="-1"></a></span>
+<span id="cb455-12"><a href="piecewise-sems.html#cb455-12" tabindex="-1"></a><span class="co"># Assemble SEM</span></span>
+<span id="cb455-13"><a href="piecewise-sems.html#cb455-13" tabindex="-1"></a>mods <span class="ot">&lt;-</span> <span class="fu">list</span>(mod1, mod2, mod3, mod4)</span>
+<span id="cb455-14"><a href="piecewise-sems.html#cb455-14" tabindex="-1"></a><span class="fu">lapply</span>(mods, <span class="cf">function</span>(m) <span class="fu">summary</span>(m)<span class="sc">$</span>coefficients)</span></code></pre></div>
+<pre><code>## [[1]]
+##                         Estimate  Std. Error   t value      Pr(&gt;|t|)
+## (Intercept)           7.45334250 0.289907535 25.709378 6.893932e-107
+## TreatmentHerbicide    0.48512839 0.352320044  1.376954  1.689094e-01
+## TreatmentMech_Herb    0.62503883 0.349579557  1.787973  7.415638e-02
+## TreatmentMechanical   0.55821899 0.349940535  1.595182  1.110639e-01
+## Q_Substrate_BareSoil -0.01678677 0.008023078 -2.092310  3.672344e-02
+## Plot_DungCount        0.12104150 0.013556336  8.928777  2.878250e-18
+## 
+## [[2]]
+##                        Estimate Std. Error    t value     Pr(&gt;|t|)
+## (Intercept)          35.4547726 2.19617613 16.1438657 5.408706e-51
+## Species_Richness     -0.5979172 0.19785399 -3.0220122 2.590654e-03
+## TreatmentHerbicide   -5.8459701 1.98011740 -2.9523351 3.245600e-03
+## TreatmentMech_Herb   -3.3269277 1.96629833 -1.6919750 9.103821e-02
+## TreatmentMechanical  -1.7501657 1.96753433 -0.8895223 3.739885e-01
+## Q_Substrate_BareSoil -0.2827075 0.04516078 -6.2600221 6.258592e-10
+## Plot_DungCount       -0.5791996 0.07977940 -7.2600139 9.140497e-13
+## 
+## [[3]]
+##                            Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept)              18.3949479 3.69826014  4.973946 8.020316e-07
+## Q_Substrate_PerennialVeg  0.4754358 0.07599831  6.255872 6.411886e-10
+## TreatmentHerbicide        0.6336287 4.59697384  0.137836 8.904044e-01
+## TreatmentMech_Herb       -8.5325534 4.52497644 -1.885657 5.970059e-02
+## TreatmentMechanical      -8.2148870 4.48866890 -1.830139 6.759835e-02
+## 
+## [[4]]
+##                          Estimate Std. Error    t value     Pr(&gt;|t|)
+## (Intercept)          17.123628791 1.32713403 12.9027124 9.334527e-35
+## Height_cm            -0.003170525 0.01291842 -0.2454267 8.061886e-01
+## TreatmentHerbicide   -2.448347212 1.71763567 -1.4254171 1.544243e-01
+## TreatmentMech_Herb   -9.527420893 1.70339367 -5.5931996 3.054932e-08
+## TreatmentMechanical  -4.985879621 1.68835021 -2.9531075 3.237464e-03
+## Q_Substrate_BareSoil -0.134960227 0.03912324 -3.4496179 5.905788e-04</code></pre>
+<div class="sourceCode" id="cb457"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb457-1"><a href="piecewise-sems.html#cb457-1" tabindex="-1"></a><span class="co"># Rebuild the SEM with standardized estimates</span></span>
+<span id="cb457-2"><a href="piecewise-sems.html#cb457-2" tabindex="-1"></a>sem_model <span class="ot">&lt;-</span> <span class="fu">psem</span>(mod1, mod2, mod3, mod4)</span>
+<span id="cb457-3"><a href="piecewise-sems.html#cb457-3" tabindex="-1"></a></span>
+<span id="cb457-4"><a href="piecewise-sems.html#cb457-4" tabindex="-1"></a><span class="co"># Summary with standardization explicitly requested</span></span>
+<span id="cb457-5"><a href="piecewise-sems.html#cb457-5" tabindex="-1"></a><span class="fu">summary</span>(sem_model, <span class="at">standardize =</span> <span class="st">&quot;scale&quot;</span>)</span></code></pre></div>
+<pre><code>##   |                                                                                           |                                                                                   |   0%  |                                                                                           |==============                                                                     |  17%  |                                                                                           |============================                                                       |  33%  |                                                                                           |==========================================                                         |  50%  |                                                                                           |=======================================================                            |  67%  |                                                                                           |=====================================================================              |  83%  |                                                                                           |===================================================================================| 100%</code></pre>
+<pre><code>## 
+## Structural Equation Model of sem_model 
+## 
+## Call:
+##   Species_Richness ~ Treatment + Q_Substrate_BareSoil + Plot_DungCount
+##   Q_Substrate_PerennialVeg ~ Species_Richness + Treatment + Q_Substrate_BareSoil + Plot_DungCount
+##   Height_cm ~ Q_Substrate_PerennialVeg + Treatment
+##   Q_Substrate_WoodyDebris ~ Height_cm + Treatment + Q_Substrate_BareSoil
+## 
+##     AIC
+##  26815.430
+## 
+## ---
+## Tests of directed separation:
+## 
+##                                             Independ.Claim Test.Type  DF Crit.Value P.Value
+##                     Height_cm ~ Q_Substrate_BareSoil + ...      coef 805    -0.0972  0.9226
+##                           Height_cm ~ Plot_DungCount + ...      coef 805    -1.8759  0.0610
+##             Q_Substrate_WoodyDebris ~ Plot_DungCount + ...      coef 804     5.5138  0.0000
+##                         Height_cm ~ Species_Richness + ...      coef 803    -2.6518  0.0082
+##           Q_Substrate_WoodyDebris ~ Species_Richness + ...      coef 803    -1.2738  0.2031
+##   Q_Substrate_WoodyDebris ~ Q_Substrate_PerennialVeg + ...      coef 802    -9.6809  0.0000
+##      
+##      
+##      
+##   ***
+##    **
+##      
+##   ***
+## 
+## --
+## Global goodness-of-fit:
+## 
+## Chi-Squared = 131.991 with P-value = 0 and on 6 degrees of freedom
+## Fisher&#39;s C = 145.828 with P-value = 0 and on 12 degrees of freedom
+## 
+## ---
+## Coefficients:
+## 
+##                   Response                Predictor Estimate Std.Error  DF Crit.Value P.Value
+##           Species_Richness     Q_Substrate_BareSoil  -0.0168     0.008 805    -2.0923  0.0367
+##           Species_Richness           Plot_DungCount    0.121    0.0136 805     8.9288  0.0000
+##           Species_Richness                Treatment        -         -   3     1.2817  0.2795
+##           Species_Richness      Treatment = Control   8.2476    0.2538 805    32.4946  0.0000
+##           Species_Richness    Treatment = Herbicide   8.7327    0.2455 805    35.5697  0.0000
+##           Species_Richness   Treatment = Mechanical   8.8058    0.2377 805    37.0411  0.0000
+##           Species_Richness    Treatment = Mech_Herb   8.8726    0.2394 805    37.0675  0.0000
+##   Q_Substrate_PerennialVeg         Species_Richness  -0.5979    0.1979 804    -3.0220  0.0026
+##   Q_Substrate_PerennialVeg     Q_Substrate_BareSoil  -0.2827    0.0452 804    -6.2600  0.0000
+##   Q_Substrate_PerennialVeg           Plot_DungCount  -0.5792    0.0798 804    -7.2600  0.0000
+##   Q_Substrate_PerennialVeg                Treatment        -         -   3     3.1825  0.0234
+##   Q_Substrate_PerennialVeg    Treatment = Herbicide  17.0791    1.3782 804    12.3919  0.0000
+##   Q_Substrate_PerennialVeg    Treatment = Mech_Herb  19.5981    1.3443 804    14.5791  0.0000
+##   Q_Substrate_PerennialVeg   Treatment = Mechanical  21.1749    1.3348 804    15.8639  0.0000
+##   Q_Substrate_PerennialVeg      Treatment = Control   22.925    1.4273 804    16.0614  0.0000
+##                  Height_cm Q_Substrate_PerennialVeg   0.4754     0.076 806     6.2559  0.0000
+##                  Height_cm                Treatment        -         -   3     2.5277  0.0562
+##                  Height_cm    Treatment = Mech_Herb  19.4516    3.1101 806     6.2543  0.0000
+##                  Height_cm   Treatment = Mechanical  19.7692    3.0711 806     6.4371  0.0000
+##                  Height_cm      Treatment = Control  27.9841    3.2834 806     8.5229  0.0000
+##                  Height_cm    Treatment = Herbicide  28.6178    3.2007 806     8.9411  0.0000
+##    Q_Substrate_WoodyDebris                Height_cm  -0.0032    0.0129 805    -0.2454  0.8062
+##    Q_Substrate_WoodyDebris     Q_Substrate_BareSoil   -0.135    0.0391 805    -3.4496  0.0006
+##    Q_Substrate_WoodyDebris                Treatment        -         -   3    11.5674  0.0000
+##    Q_Substrate_WoodyDebris    Treatment = Mech_Herb   6.2042    1.1687 805     5.3088  0.0000
+##    Q_Substrate_WoodyDebris   Treatment = Mechanical  10.7458    1.1506 805     9.3395  0.0000
+##    Q_Substrate_WoodyDebris    Treatment = Herbicide  13.2833    1.1961 805    11.1051  0.0000
+##    Q_Substrate_WoodyDebris      Treatment = Control  15.7316    1.2336 805    12.7526  0.0000
+##   Std.Estimate    
+##              -   *
+##              - ***
+##              -    
+##              - ***
+##              - ***
+##              - ***
+##              - ***
+##              -  **
+##              - ***
+##              - ***
+##              -   *
+##              - ***
+##              - ***
+##              - ***
+##              - ***
+##              - ***
+##              -    
+##              - ***
+##              - ***
+##              - ***
+##              - ***
+##              -    
+##              - ***
+##              - ***
+##              - ***
+##              - ***
+##              - ***
+##              - ***
+## 
+##   Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+## 
+## ---
+## Individual R-squared:
+## 
+##                   Response method R.squared
+##           Species_Richness   none      0.09
+##   Q_Substrate_PerennialVeg   none      0.15
+##                  Height_cm   none      0.05
+##    Q_Substrate_WoodyDebris   none      0.06</code></pre>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="what-are-structural-equation-models.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/sarasouther/DataAnalysis/edit/main/24-StructuralEquationModelsII.Rmd",
+    "text": "Edit this page"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["_main.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

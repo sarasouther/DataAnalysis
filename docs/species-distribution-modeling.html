@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 37 Species Distribution Modeling | Statistics for Ecology</title>
+  <meta name="description" content="Chapter 37 Species Distribution Modeling | Statistics for Ecology" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 37 Species Distribution Modeling | Statistics for Ecology" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="sarasouther/DataAnalysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 37 Species Distribution Modeling | Statistics for Ecology" />
+  
+  
+  
+
+<meta name="author" content="Dr. Sara Souther" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="test-residuals.html"/>
+<link rel="next" href="diversity-statistics.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.11/grViz.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Statistics for Ecology</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#learning-objectives"><i class="fa fa-check"></i><b>1.1</b> Learning Objectives</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="why-statistics.html"><a href="why-statistics.html"><i class="fa fa-check"></i><b>2</b> Why Statistics?</a></li>
+<li class="chapter" data-level="3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html"><i class="fa fa-check"></i><b>3</b> Back to the basics</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-can-statistics-tell-us"><i class="fa fa-check"></i><b>3.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="3.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-frequentist-framework"><i class="fa fa-check"></i><b>3.2</b> The Frequentist Framework</a></li>
+<li class="chapter" data-level="3.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#bayesian-statistics"><i class="fa fa-check"></i><b>3.3</b> Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#when-might-you-choose-bayesian-statistics"><i class="fa fa-check"></i><b>3.3.1</b> When might you choose Bayesian statistics?</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#data-types-and-why-they-matter"><i class="fa fa-check"></i><b>3.4</b> Data Types and Why They Matter</a></li>
+<li class="chapter" data-level="3.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#linking-data-types-to-distributions"><i class="fa fa-check"></i><b>3.5</b> Linking Data Types to Distributions</a></li>
+<li class="chapter" data-level="3.6" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#overview-of-common-statistical-distributions"><i class="fa fa-check"></i><b>3.6</b> Overview of Common Statistical Distributions</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-normal-distribution"><i class="fa fa-check"></i><b>3.6.1</b> The Normal Distribution</a></li>
+<li class="chapter" data-level="3.6.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-binomial-distribution-outcomes-are-success-or-failure"><i class="fa fa-check"></i><b>3.6.2</b> The Binomial Distribution: Outcomes are “success” or “failure”</a></li>
+<li class="chapter" data-level="3.6.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-poisson-distribution-counts-from-random-events"><i class="fa fa-check"></i><b>3.6.3</b> The Poisson Distribution: Counts from random events</a></li>
+<li class="chapter" data-level="3.6.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-negative-binomial-distribution-overdispersed-counts"><i class="fa fa-check"></i><b>3.6.4</b> The Negative Binomial Distribution: Overdispersed counts</a></li>
+<li class="chapter" data-level="3.6.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-uniform-distribution-all-values-equally-likely"><i class="fa fa-check"></i><b>3.6.5</b> The Uniform Distribution: All values equally likely</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-is-a-model"><i class="fa fa-check"></i><b>3.7</b> What is a model?</a></li>
+<li class="chapter" data-level="3.8" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#key-takeaways"><i class="fa fa-check"></i><b>3.8</b> Key takeaways</a></li>
+<li class="chapter" data-level="3.9" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#test-your-knowledge"><i class="fa fa-check"></i><b>3.9</b> Test your knowledge!</a></li>
+<li class="chapter" data-level="3.10" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#assignment"><i class="fa fa-check"></i><b>3.10</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html"><i class="fa fa-check"></i><b>4</b> Randomness and probability</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#the-sample-point-method"><i class="fa fa-check"></i><b>4.1</b> The sample point method</a></li>
+<li class="chapter" data-level="4.2" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#combinatorials"><i class="fa fa-check"></i><b>4.2</b> Combinatorials</a></li>
+<li class="chapter" data-level="4.3" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#union-and-intersection-of-events"><i class="fa fa-check"></i><b>4.3</b> Union and intersection of events</a></li>
+<li class="chapter" data-level="4.4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#conditional-probability"><i class="fa fa-check"></i><b>4.4</b> Conditional probability</a></li>
+<li class="chapter" data-level="4.5" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#multiplicative-law-of-probability-of-independent-events"><i class="fa fa-check"></i><b>4.5</b> Multiplicative Law of Probability of Independent Events</a></li>
+<li class="chapter" data-level="4.6" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#additive-law-of-probability-of-mutually-exclusive-events"><i class="fa fa-check"></i><b>4.6</b> Additive Law of Probability of Mutually Exclusive Events</a></li>
+<li class="chapter" data-level="4.7" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#general-additive-law-of-probability"><i class="fa fa-check"></i><b>4.7</b> General Additive Law of Probability</a></li>
+<li class="chapter" data-level="4.8" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#key-concepts"><i class="fa fa-check"></i><b>4.8</b> Key concepts</a></li>
+<li class="chapter" data-level="4.9" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#practice-problems"><i class="fa fa-check"></i><b>4.9</b> Practice problems</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="expected-value-of-a-fair-die-roll.html"><a href="expected-value-of-a-fair-die-roll.html"><i class="fa fa-check"></i><b>5</b> Expected value of a fair die roll</a></li>
+<li class="chapter" data-level="6" data-path="variance-of-a-fair-die-roll.html"><a href="variance-of-a-fair-die-roll.html"><i class="fa fa-check"></i><b>6</b> Variance of a fair die roll</a></li>
+<li class="chapter" data-level="7" data-path="take-many-samples-and-calculate-means.html"><a href="take-many-samples-and-calculate-means.html"><i class="fa fa-check"></i><b>7</b> Take many samples and calculate means</a></li>
+<li class="chapter" data-level="8" data-path="uniform-population.html"><a href="uniform-population.html"><i class="fa fa-check"></i><b>8</b> Uniform population</a></li>
+<li class="chapter" data-level="9" data-path="exponential-population-highly-skewed.html"><a href="exponential-population-highly-skewed.html"><i class="fa fa-check"></i><b>9</b> Exponential population (highly skewed)</a></li>
+<li class="chapter" data-level="10" data-path="ppositive-pposdiseasepdisease-pposno-diseasepno-disease.html"><a href="ppositive-pposdiseasepdisease-pposno-diseasepno-disease.html"><i class="fa fa-check"></i><b>10</b> P(positive) = P(pos|disease)<em>P(disease) + P(pos|no disease)</em>P(no disease)</a></li>
+<li class="chapter" data-level="11" data-path="pdisease-positive-pposdisease-pdisease-ppositive.html"><a href="pdisease-positive-pposdisease-pdisease-ppositive.html"><i class="fa fa-check"></i><b>11</b> P(disease | positive) = P(pos|disease) * P(disease) / P(positive)</a></li>
+<li class="chapter" data-level="12" data-path="probability-of-9-or-10-heads-in-10-flips-of-fair-coin.html"><a href="probability-of-9-or-10-heads-in-10-flips-of-fair-coin.html"><i class="fa fa-check"></i><b>12</b> Probability of 9 or 10 heads in 10 flips of fair coin</a></li>
+<li class="chapter" data-level="13" data-path="data-exploration-and-assumption-checking.html"><a href="data-exploration-and-assumption-checking.html"><i class="fa fa-check"></i><b>13</b> Data Exploration and Assumption Checking</a></li>
+<li class="chapter" data-level="14" data-path="ecological-sampling.html"><a href="ecological-sampling.html"><i class="fa fa-check"></i><b>14</b> Ecological sampling</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#background"><i class="fa fa-check"></i><b>14.1</b> Background</a></li>
+<li class="chapter" data-level="14.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-approaches"><i class="fa fa-check"></i><b>14.2</b> Sampling approaches</a>
+<ul>
+<li class="chapter" data-level="14.2.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-sampling"><i class="fa fa-check"></i><b>14.2.1</b> Random sampling</a></li>
+<li class="chapter" data-level="14.2.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#stratified-random-sampling"><i class="fa fa-check"></i><b>14.2.2</b> Stratified random sampling</a></li>
+<li class="chapter" data-level="14.2.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#gridded-random-sampling"><i class="fa fa-check"></i><b>14.2.3</b> Gridded random sampling</a></li>
+<li class="chapter" data-level="14.2.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-cluster-sampling"><i class="fa fa-check"></i><b>14.2.4</b> Random cluster sampling</a></li>
+<li class="chapter" data-level="14.2.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#grts-sampling-generalized-random-tessellation-stratified-sampling"><i class="fa fa-check"></i><b>14.2.5</b> GRTS Sampling (Generalized Random-Tessellation Stratified Sampling)</a></li>
+<li class="chapter" data-level="14.2.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#understanding-design-weights"><i class="fa fa-check"></i><b>14.2.6</b> Understanding Design Weights</a></li>
+</ul></li>
+<li class="chapter" data-level="14.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#systematic-sampling"><i class="fa fa-check"></i><b>14.3</b> Systematic Sampling</a></li>
+<li class="chapter" data-level="14.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#adaptive-sampling-sampling-rare-or-patchy-species"><i class="fa fa-check"></i><b>14.4</b> Adaptive Sampling (Sampling Rare or Patchy Species)</a></li>
+<li class="chapter" data-level="14.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#imperfect-detection-in-ecological-sampling"><i class="fa fa-check"></i><b>14.5</b> Imperfect Detection in Ecological Sampling</a></li>
+<li class="chapter" data-level="14.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#temporal-sampling-and-study-designs-through-time"><i class="fa fa-check"></i><b>14.6</b> Temporal Sampling and Study Designs Through Time</a>
+<ul>
+<li class="chapter" data-level="14.6.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-panels"><i class="fa fa-check"></i><b>14.6.1</b> Sampling Panels</a></li>
+<li class="chapter" data-level="14.6.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#baci-designs-beforeaftercontrolimpact"><i class="fa fa-check"></i><b>14.6.2</b> BACI Designs (Before–After–Control–Impact)</a></li>
+</ul></li>
+<li class="chapter" data-level="14.7" data-path="ecological-sampling.html"><a href="ecological-sampling.html#plot-shapes-sizes-and-transects"><i class="fa fa-check"></i><b>14.7</b> Plot shapes, sizes, and transects</a></li>
+<li class="chapter" data-level="14.8" data-path="ecological-sampling.html"><a href="ecological-sampling.html#distance-sampling-and-point-counts"><i class="fa fa-check"></i><b>14.8</b> Distance Sampling and Point Counts</a></li>
+<li class="chapter" data-level="14.9" data-path="ecological-sampling.html"><a href="ecological-sampling.html#reducing-sampling-error"><i class="fa fa-check"></i><b>14.9</b> Reducing sampling error</a></li>
+<li class="chapter" data-level="14.10" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sample-size-determination-in-ecology-effect-sizes-and-precision"><i class="fa fa-check"></i><b>14.10</b> Sample Size Determination in Ecology: Effect Sizes and Precision</a></li>
+<li class="chapter" data-level="14.11" data-path="ecological-sampling.html"><a href="ecological-sampling.html#variables-of-interest"><i class="fa fa-check"></i><b>14.11</b> Variables of interest</a></li>
+<li class="chapter" data-level="14.12" data-path="ecological-sampling.html"><a href="ecological-sampling.html#test-your-knowledge-1"><i class="fa fa-check"></i><b>14.12</b> Test your knowledge</a></li>
+<li class="chapter" data-level="14.13" data-path="ecological-sampling.html"><a href="ecological-sampling.html#assignment-1"><i class="fa fa-check"></i><b>14.13</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="14.13.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#example-methods-sampling-design"><i class="fa fa-check"></i><b>14.13.1</b> Example Methods: Sampling Design</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="15" data-path="power-analysis.html"><a href="power-analysis.html"><i class="fa fa-check"></i><b>15</b> Power analysis</a>
+<ul>
+<li class="chapter" data-level="15.1" data-path="power-analysis.html"><a href="power-analysis.html#prework"><i class="fa fa-check"></i><b>15.1</b> Prework</a></li>
+<li class="chapter" data-level="15.2" data-path="power-analysis.html"><a href="power-analysis.html#statistical-power"><i class="fa fa-check"></i><b>15.2</b> Statistical power</a></li>
+<li class="chapter" data-level="15.3" data-path="power-analysis.html"><a href="power-analysis.html#describing-data"><i class="fa fa-check"></i><b>15.3</b> Describing data</a></li>
+</ul></li>
+<li class="chapter" data-level="16" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html"><i class="fa fa-check"></i><b>16</b> Selecting statistical tests</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-foray-into-statistics"><i class="fa fa-check"></i><b>16.1</b> A foray into statistics</a></li>
+<li class="chapter" data-level="16.2" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#pick-the-explanatory-and-response-variable"><i class="fa fa-check"></i><b>16.2</b> Pick the explanatory and response variable</a></li>
+<li class="chapter" data-level="16.3" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#variable-types-refresher"><i class="fa fa-check"></i><b>16.3</b> Variable types refresher</a></li>
+<li class="chapter" data-level="16.4" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#more-examples"><i class="fa fa-check"></i><b>16.4</b> More examples</a></li>
+<li class="chapter" data-level="16.5" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#the-decision-matrix"><i class="fa fa-check"></i><b>16.5</b> The decision matrix</a></li>
+<li class="chapter" data-level="16.6" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-note-on-assumptions"><i class="fa fa-check"></i><b>16.6</b> A note on assumptions</a></li>
+<li class="chapter" data-level="16.7" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#learning-goals"><i class="fa fa-check"></i><b>16.7</b> Learning goals</a></li>
+<li class="chapter" data-level="16.8" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#downloads-for-this-class"><i class="fa fa-check"></i><b>16.8</b> Downloads for this class</a></li>
+<li class="chapter" data-level="16.9" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#in-class-practice"><i class="fa fa-check"></i><b>16.9</b> In-class practice</a></li>
+<li class="chapter" data-level="16.10" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#assignment-choosing-and-running-the-right-test"><i class="fa fa-check"></i><b>16.10</b> Assignment: Choosing and Running the Right Test</a>
+<ul>
+<li class="chapter" data-level="16.10.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#deliverables"><i class="fa fa-check"></i><b>16.10.1</b> Deliverables</a></li>
+</ul></li>
+<li class="chapter" data-level="16.11" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#statistical-analyses-for-your-species-interaction-lab"><i class="fa fa-check"></i><b>16.11</b> Statistical analyses for your species interaction lab</a></li>
+</ul></li>
+<li class="chapter" data-level="17" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html"><i class="fa fa-check"></i><b>17</b> Basic statistical testing</a>
+<ul>
+<li class="chapter" data-level="17.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#a-short-statistical-review"><i class="fa fa-check"></i><b>17.1</b> A short statistical review</a>
+<ul>
+<li class="chapter" data-level="17.1.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#what-can-statistics-tell-us-1"><i class="fa fa-check"></i><b>17.1.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="17.1.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#sampling-populations"><i class="fa fa-check"></i><b>17.1.2</b> Sampling populations</a></li>
+</ul></li>
+<li class="chapter" data-level="17.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#hypothesis-testing-review"><i class="fa fa-check"></i><b>17.2</b> Hypothesis testing review</a></li>
+<li class="chapter" data-level="17.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#downloads-for-this-module"><i class="fa fa-check"></i><b>17.3</b> Downloads for this module</a></li>
+<li class="chapter" data-level="17.4" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#objectives"><i class="fa fa-check"></i><b>17.4</b> Objectives</a></li>
+<li class="chapter" data-level="17.5" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#tailed-tests"><i class="fa fa-check"></i><b>17.5</b> Tailed tests</a>
+<ul>
+<li class="chapter" data-level="17.5.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#generate-hypotheses"><i class="fa fa-check"></i><b>17.5.1</b> Generate hypotheses</a></li>
+<li class="chapter" data-level="17.5.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#calculate-a-test-statistic"><i class="fa fa-check"></i><b>17.5.2</b> Calculate a test statistic</a></li>
+<li class="chapter" data-level="17.5.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#determine-the-p-value"><i class="fa fa-check"></i><b>17.5.3</b> Determine the p-value</a></li>
+</ul></li>
+<li class="chapter" data-level="17.6" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#drawing-conclusions-from-statistics"><i class="fa fa-check"></i><b>17.6</b> Drawing conclusions from statistics</a></li>
+<li class="chapter" data-level="17.7" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#reporting-results"><i class="fa fa-check"></i><b>17.7</b> Reporting results</a></li>
+<li class="chapter" data-level="17.8" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#assignment-2"><i class="fa fa-check"></i><b>17.8</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="18" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html"><i class="fa fa-check"></i><b>18</b> Generalized Linear Models (GLMs)</a>
+<ul>
+<li class="chapter" data-level="18.1" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html#linear-models"><i class="fa fa-check"></i><b>18.1</b> Linear models</a></li>
+</ul></li>
+<li class="chapter" data-level="19" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>19</b> Generalized Linear Models</a>
+<ul>
+<li class="chapter" data-level="19.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#link-functions"><i class="fa fa-check"></i><b>19.1</b> Link functions</a></li>
+<li class="chapter" data-level="19.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#glms-in-r"><i class="fa fa-check"></i><b>19.2</b> GLMs in R</a></li>
+</ul></li>
+<li class="chapter" data-level="20" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html"><i class="fa fa-check"></i><b>20</b> Mixed Effects Models</a>
+<ul>
+<li class="chapter" data-level="20.1" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html#examples-in-r"><i class="fa fa-check"></i><b>20.1</b> Examples in R</a></li>
+</ul></li>
+<li class="chapter" data-level="21" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html"><i class="fa fa-check"></i><b>21</b> Before-After-Control-Impact</a>
+<ul>
+<li class="chapter" data-level="21.1" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#which-design"><i class="fa fa-check"></i><b>21.1</b> Which design</a></li>
+<li class="chapter" data-level="21.2" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#baci-design-2"><i class="fa fa-check"></i><b>21.2</b> BACI Design 2</a></li>
+</ul></li>
+<li class="chapter" data-level="22" data-path="time-is-a-flat-circle.html"><a href="time-is-a-flat-circle.html"><i class="fa fa-check"></i><b>22</b> Time is a flat circle</a></li>
+<li class="chapter" data-level="23" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html"><i class="fa fa-check"></i><b>23</b> Describing ecological patterns</a>
+<ul>
+<li class="chapter" data-level="23.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#when-to-use-model-selection"><i class="fa fa-check"></i><b>23.1</b> When to use model selection?</a></li>
+<li class="chapter" data-level="23.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-1-identifying-predictor-variables-or-co-variates-of-importance"><i class="fa fa-check"></i><b>23.2</b> Step 1: Identifying predictor variables or co-variates of importance</a></li>
+<li class="chapter" data-level="23.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-2-removing-colinear-variables"><i class="fa fa-check"></i><b>23.3</b> Step 2: Removing colinear variables</a>
+<ul>
+<li class="chapter" data-level="23.3.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#automated-variable-removal"><i class="fa fa-check"></i><b>23.3.1</b> Automated Variable Removal</a></li>
+<li class="chapter" data-level="23.3.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#expert-knowledge-driven-selection"><i class="fa fa-check"></i><b>23.3.2</b> Expert Knowledge-Driven Selection</a></li>
+<li class="chapter" data-level="23.3.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#blended-strategy-recommended"><i class="fa fa-check"></i><b>23.3.3</b> Blended Strategy (Recommended)</a></li>
+</ul></li>
+<li class="chapter" data-level="23.4" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#example-reducing-colinear-climate-variables"><i class="fa fa-check"></i><b>23.4</b> Example: Reducing colinear climate variables</a></li>
+<li class="chapter" data-level="23.5" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-3-select-the-best-model"><i class="fa fa-check"></i><b>23.5</b> Step 3: Select the best model</a>
+<ul>
+<li class="chapter" data-level="23.5.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#major-types-of-model-selection-overview-benefits-drawbacks-and-applications"><i class="fa fa-check"></i><b>23.5.1</b> Major Types of Model Selection: Overview, Benefits, Drawbacks, and Applications</a></li>
+<li class="chapter" data-level="23.5.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#stepwise-regression-based-on-aic-akaike-information-criterion."><i class="fa fa-check"></i><b>23.5.2</b> Stepwise regression based on AIC (Akaike Information Criterion).</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="24" data-path="plot-establishment.html"><a href="plot-establishment.html"><i class="fa fa-check"></i><b>24</b> Plot establishment</a></li>
+<li class="chapter" data-level="25" data-path="bootstrapping-and-resampling.html"><a href="bootstrapping-and-resampling.html"><i class="fa fa-check"></i><b>25</b> Bootstrapping and resampling</a></li>
+<li class="chapter" data-level="26" data-path="population-sensation.html"><a href="population-sensation.html"><i class="fa fa-check"></i><b>26</b> Population sensation</a>
+<ul>
+<li class="chapter" data-level="26.1" data-path="population-sensation.html"><a href="population-sensation.html#population-characteristics"><i class="fa fa-check"></i><b>26.1</b> Population characteristics</a></li>
+<li class="chapter" data-level="26.2" data-path="population-sensation.html"><a href="population-sensation.html#planning-a-census"><i class="fa fa-check"></i><b>26.2</b> Planning a census</a></li>
+<li class="chapter" data-level="26.3" data-path="population-sensation.html"><a href="population-sensation.html#life-cycle-diagrams"><i class="fa fa-check"></i><b>26.3</b> Life cycle diagrams</a></li>
+<li class="chapter" data-level="26.4" data-path="population-sensation.html"><a href="population-sensation.html#population-demographic-models"><i class="fa fa-check"></i><b>26.4</b> Population demographic models</a></li>
+<li class="chapter" data-level="26.5" data-path="population-sensation.html"><a href="population-sensation.html#integral-projection-models"><i class="fa fa-check"></i><b>26.5</b> Integral projection models</a></li>
+<li class="chapter" data-level="26.6" data-path="population-sensation.html"><a href="population-sensation.html#an-example-population-ecology-of-an-endangered-plant"><i class="fa fa-check"></i><b>26.6</b> An example: Population ecology of an endangered plant</a></li>
+<li class="chapter" data-level="26.7" data-path="population-sensation.html"><a href="population-sensation.html#putting-it-all-together"><i class="fa fa-check"></i><b>26.7</b> Putting it all together</a></li>
+<li class="chapter" data-level="26.8" data-path="population-sensation.html"><a href="population-sensation.html#generating-confidence-intervals"><i class="fa fa-check"></i><b>26.8</b> Generating confidence intervals</a></li>
+<li class="chapter" data-level="26.9" data-path="population-sensation.html"><a href="population-sensation.html#different-life-histories"><i class="fa fa-check"></i><b>26.9</b> Different life histories</a></li>
+</ul></li>
+<li class="chapter" data-level="27" data-path="permuting-your-brains-out.html"><a href="permuting-your-brains-out.html"><i class="fa fa-check"></i><b>27</b> Permuting your brains out</a></li>
+<li class="chapter" data-level="28" data-path="spatial-data.html"><a href="spatial-data.html"><i class="fa fa-check"></i><b>28</b> Spatial data</a></li>
+<li class="chapter" data-level="29" data-path="read.html"><a href="read.html"><i class="fa fa-check"></i><b>29</b> Read</a></li>
+<li class="chapter" data-level="30" data-path="check-structure.html"><a href="check-structure.html"><i class="fa fa-check"></i><b>30</b> Check structure</a></li>
+<li class="chapter" data-level="31" data-path="write.html"><a href="write.html"><i class="fa fa-check"></i><b>31</b> Write</a></li>
+<li class="chapter" data-level="32" data-path="read-1.html"><a href="read-1.html"><i class="fa fa-check"></i><b>32</b> Read</a></li>
+<li class="chapter" data-level="33" data-path="check-properties.html"><a href="check-properties.html"><i class="fa fa-check"></i><b>33</b> Check properties</a></li>
+<li class="chapter" data-level="34" data-path="write-1.html"><a href="write-1.html"><i class="fa fa-check"></i><b>34</b> Write</a></li>
+<li class="chapter" data-level="35" data-path="create-neighbor-list.html"><a href="create-neighbor-list.html"><i class="fa fa-check"></i><b>35</b> Create neighbor list</a></li>
+<li class="chapter" data-level="36" data-path="test-residuals.html"><a href="test-residuals.html"><i class="fa fa-check"></i><b>36</b> Test residuals</a></li>
+<li class="chapter" data-level="37" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html"><i class="fa fa-check"></i><b>37</b> Species Distribution Modeling</a>
+<ul>
+<li class="chapter" data-level="37.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#introduction-1"><i class="fa fa-check"></i><b>37.1</b> Introduction</a></li>
+<li class="chapter" data-level="37.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#a-brief-review-of-niche-theory"><i class="fa fa-check"></i><b>37.2</b> A brief review of niche theory</a></li>
+<li class="chapter" data-level="37.3" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#downloads-for-this-lab"><i class="fa fa-check"></i><b>37.3</b> Downloads for this lab</a></li>
+<li class="chapter" data-level="37.4" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#objectives-1"><i class="fa fa-check"></i><b>37.4</b> Objectives</a></li>
+<li class="chapter" data-level="37.5" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#methods"><i class="fa fa-check"></i><b>37.5</b> Methods</a>
+<ul>
+<li class="chapter" data-level="37.5.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#lets-get-modeling"><i class="fa fa-check"></i><b>37.5.1</b> Let’s get modeling</a></li>
+<li class="chapter" data-level="37.5.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#run-the-r-code"><i class="fa fa-check"></i><b>37.5.2</b> Run the R code</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="38" data-path="diversity-statistics.html"><a href="diversity-statistics.html"><i class="fa fa-check"></i><b>38</b> Diversity statistics</a>
+<ul>
+<li class="chapter" data-level="38.1" data-path="diversity-statistics.html"><a href="diversity-statistics.html#inext"><i class="fa fa-check"></i><b>38.1</b> iNext</a></li>
+<li class="chapter" data-level="38.2" data-path="diversity-statistics.html"><a href="diversity-statistics.html#coveragebased-re-sampling-curves"><i class="fa fa-check"></i><b>38.2</b> Coverage‐based R/E sampling curves</a></li>
+<li class="chapter" data-level="38.3" data-path="diversity-statistics.html"><a href="diversity-statistics.html#data-manipulation"><i class="fa fa-check"></i><b>38.3</b> Data manipulation</a></li>
+</ul></li>
+<li class="chapter" data-level="39" data-path="ordination-station.html"><a href="ordination-station.html"><i class="fa fa-check"></i><b>39</b> Ordination station</a></li>
+<li class="chapter" data-level="40" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html"><i class="fa fa-check"></i><b>40</b> What are structural equation models?</a>
+<ul>
+<li class="chapter" data-level="40.0.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#when-should-you-use-sem"><i class="fa fa-check"></i><b>40.0.1</b> When Should You Use SEM?</a></li>
+<li class="chapter" data-level="40.0.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression"><i class="fa fa-check"></i><b>40.0.2</b> How is SEM Different from Multiple Regression?</a></li>
+<li class="chapter" data-level="40.0.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary"><i class="fa fa-check"></i><b>40.0.3</b> Summary</a></li>
+<li class="chapter" data-level="40.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model"><i class="fa fa-check"></i><b>40.1</b> Anatomy of a Structural Equation Model</a>
+<ul>
+<li class="chapter" data-level="40.1.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#types-of-variables"><i class="fa fa-check"></i><b>40.1.1</b> Types of Variables</a></li>
+<li class="chapter" data-level="40.1.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#path-diagrams"><i class="fa fa-check"></i><b>40.1.2</b> Path Diagrams</a></li>
+</ul></li>
+<li class="chapter" data-level="40.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#building-multivariate-models"><i class="fa fa-check"></i><b>40.2</b> Building Multivariate Models</a>
+<ul>
+<li class="chapter" data-level="40.2.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-causality"><i class="fa fa-check"></i><b>40.2.1</b> What is Causality?</a></li>
+<li class="chapter" data-level="40.2.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression"><i class="fa fa-check"></i><b>40.2.2</b> Why move beyond Multiple Regression?</a></li>
+<li class="chapter" data-level="40.2.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#meta-modeling-your-system"><i class="fa fa-check"></i><b>40.2.3</b> Meta-Modeling Your System</a></li>
+</ul></li>
+<li class="chapter" data-level="40.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#from-concept-to-model"><i class="fa fa-check"></i><b>40.3</b> From Concept to Model</a></li>
+<li class="chapter" data-level="40.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams"><i class="fa fa-check"></i><b>40.4</b> Common Structures in Causal Diagrams</a>
+<ul>
+<li class="chapter" data-level="40.4.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chains-mediation-paths"><i class="fa fa-check"></i><b>40.4.1</b> Chains (Mediation Paths)</a></li>
+<li class="chapter" data-level="40.4.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#colliders"><i class="fa fa-check"></i><b>40.4.2</b> Colliders</a></li>
+<li class="chapter" data-level="40.4.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#forks-confounding-paths"><i class="fa fa-check"></i><b>40.4.3</b> Forks (Confounding Paths)</a></li>
+<li class="chapter" data-level="40.4.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#descendants-of-colliders"><i class="fa fa-check"></i><b>40.4.4</b> Descendants of Colliders</a></li>
+<li class="chapter" data-level="40.4.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-of-strcutures"><i class="fa fa-check"></i><b>40.4.5</b> Summary of strcutures</a></li>
+<li class="chapter" data-level="40.4.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifying-causality"><i class="fa fa-check"></i><b>40.4.6</b> Identifying Causality</a></li>
+<li class="chapter" data-level="40.4.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#backdoor-criterion"><i class="fa fa-check"></i><b>40.4.7</b> Backdoor Criterion</a></li>
+<li class="chapter" data-level="40.4.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#frontdoor-criterion"><i class="fa fa-check"></i><b>40.4.8</b> Frontdoor Criterion</a></li>
+<li class="chapter" data-level="40.4.9" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management"><i class="fa fa-check"></i><b>40.4.9</b> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management</a></li>
+<li class="chapter" data-level="40.4.10" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#adjustment-sets"><i class="fa fa-check"></i><b>40.4.10</b> Adjustment Sets</a></li>
+</ul></li>
+<li class="chapter" data-level="40.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem"><i class="fa fa-check"></i><b>40.5</b> Chapter 5: Covariance-Based Estimation in SEM</a>
+<ul>
+<li class="chapter" data-level="40.5.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-covariance-based-sem"><i class="fa fa-check"></i><b>40.5.1</b> What is Covariance-Based SEM?</a></li>
+<li class="chapter" data-level="40.5.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#maximum-likelihood-estimation"><i class="fa fa-check"></i><b>40.5.2</b> Maximum Likelihood Estimation</a></li>
+<li class="chapter" data-level="40.5.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation"><i class="fa fa-check"></i><b>40.5.3</b> Assumptions Behind ML Estimation</a></li>
+<li class="chapter" data-level="40.5.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifiability"><i class="fa fa-check"></i><b>40.5.4</b> Identifiability</a></li>
+<li class="chapter" data-level="40.5.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#degrees-of-freedom"><i class="fa fa-check"></i><b>40.5.5</b> Degrees of Freedom</a></li>
+<li class="chapter" data-level="40.5.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#sample-size-considerations"><i class="fa fa-check"></i><b>40.5.6</b> Sample Size Considerations</a></li>
+<li class="chapter" data-level="40.5.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-1"><i class="fa fa-check"></i><b>40.5.7</b> Summary</a></li>
+<li class="chapter" data-level="40.5.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan"><i class="fa fa-check"></i><b>40.5.8</b> Chapter 6: Structural Equation Modeling in R with lavaan</a></li>
+</ul></li>
+<li class="chapter" data-level="40.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation"><i class="fa fa-check"></i><b>40.6</b> Getting Started with lavaan – Model Specification, Estimation, and Interpretation</a>
+<ul>
+<li class="chapter" data-level="40.6.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality"><i class="fa fa-check"></i><b>40.6.1</b> Chapter 7:Assessing Fit and Normality</a></li>
+<li class="chapter" data-level="40.6.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation"><i class="fa fa-check"></i><b>40.6.2</b> Chapter 8: Comparing Models and Testing Mediation</a></li>
+<li class="chapter" data-level="40.6.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers"><i class="fa fa-check"></i><b>40.6.3</b> Chapter 8: Latent Variables as Drivers</a></li>
+<li class="chapter" data-level="40.6.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error"><i class="fa fa-check"></i><b>40.6.4</b> Chapter 10: Latent Responses and Measurement Error</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="41" data-path="piecewise-sems.html"><a href="piecewise-sems.html"><i class="fa fa-check"></i><b>41</b> Piecewise SEMs</a>
+<ul>
+<li class="chapter" data-level="41.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview"><i class="fa fa-check"></i><b>41.1</b> Overview</a></li>
+<li class="chapter" data-level="41.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem"><i class="fa fa-check"></i><b>41.2</b> Why Use Piecewise SEM, instead of a covariance SEM?</a>
+<ul>
+<li class="chapter" data-level="41.2.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#comparison-of-sem-approaches"><i class="fa fa-check"></i><b>41.2.1</b> Comparison of SEM Approaches</a></li>
+<li class="chapter" data-level="41.2.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-covariance-based-sem"><i class="fa fa-check"></i><b>41.2.2</b> Benefits of Covariance-Based SEM</a></li>
+<li class="chapter" data-level="41.2.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-piecewise-sem"><i class="fa fa-check"></i><b>41.2.3</b> Benefits of Piecewise SEM</a></li>
+<li class="chapter" data-level="41.2.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#when-to-use-each-approach"><i class="fa fa-check"></i><b>41.2.4</b> When to Use Each Approach</a></li>
+<li class="chapter" data-level="41.2.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#models-differ-in-approach"><i class="fa fa-check"></i><b>41.2.5</b> Models differ in approach</a></li>
+</ul></li>
+<li class="chapter" data-level="41.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona"><i class="fa fa-check"></i><b>41.3</b> SEM Example: Resilience to Drought in Arizona</a>
+<ul>
+<li class="chapter" data-level="41.3.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r"><i class="fa fa-check"></i><b>41.3.1</b> Chapter 12: Introduction to Piecewise SEM in R</a></li>
+</ul></li>
+<li class="chapter" data-level="41.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#part-1-what-is-piecewise-sem"><i class="fa fa-check"></i><b>41.4</b> Part 1: What is Piecewise SEM?</a>
+<ul>
+<li class="chapter" data-level="41.4.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem"><i class="fa fa-check"></i><b>41.4.1</b> Chapter 13: Nonlinearity and Interaction in SEM</a></li>
+<li class="chapter" data-level="41.4.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem"><i class="fa fa-check"></i><b>41.4.2</b> Chapter 14: GLMs with SEM using PiecewiseSEM</a></li>
+</ul></li>
+<li class="chapter" data-level="41.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview-1"><i class="fa fa-check"></i><b>41.5</b> Overview</a>
+<ul>
+<li class="chapter" data-level="41.5.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem"><i class="fa fa-check"></i><b>41.5.1</b> Chapter 15: Categorical Predictors &amp; Multigroup SEM</a></li>
+<li class="chapter" data-level="41.5.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r"><i class="fa fa-check"></i><b>41.5.2</b> Chapter 16: Multigroup SEM in R</a></li>
+<li class="chapter" data-level="41.5.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-17"><i class="fa fa-check"></i><b>41.5.3</b> Chapter 17:</a></li>
+</ul></li>
+<li class="chapter" data-level="41.6" data-path="piecewise-sems.html"><a href="piecewise-sems.html#example-with-powerline-data"><i class="fa fa-check"></i><b>41.6</b> Example with Powerline Data</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Statistics for Ecology</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="species-distribution-modeling" class="section level1 hasAnchor" number="37">
+<h1><span class="header-section-number">Chapter 37</span> Species Distribution Modeling<a href="species-distribution-modeling.html#species-distribution-modeling" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="introduction-1" class="section level2 hasAnchor" number="37.1">
+<h2><span class="header-section-number">37.1</span> Introduction<a href="species-distribution-modeling.html#introduction-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Species distribution models (a.k.a.; ecological niche models, habitat models) relate environmental predictors like climate, elevation, or soil characteristics to species presence or abundance. These relationships are used to project likelihood of occurrence across space, by calculating the likelihood of occurrence across the study area using values associated with raster maps of the environmental variables in the model (<strong>Fig. 1</strong>). Most SDMs are correlative models that mathematically describe observed patterns of occurrence, and that do not incorporate underlying mechanisms in model projections. Understanding the limitations of correlative models (discussed below) is important for deciding when to use these models <em>and</em> interpreting your results.</p>
+<p><img src="images/12-speciesdistributionmodels/SDM.png" />
+<strong>Figure 1</strong>. Raster layers are stacked to predict likely habitat.</p>
+</div>
+<div id="a-brief-review-of-niche-theory" class="section level2 hasAnchor" number="37.2">
+<h2><span class="header-section-number">37.2</span> A brief review of niche theory<a href="species-distribution-modeling.html#a-brief-review-of-niche-theory" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In spatial and population ecology, we define a species’ niche as all the conditions under which populations of a species maintain growth rates that are at or exceed replacement rates. The niche is often defined in n dimensional space, since so many factors contribute to the performance of a species (<strong>Fig. 2</strong>). In ecology, there tends to be a lot of confusion about spatial niche concepts, since ecology students often first learn about species niches from an evolutionary standpoint. In evolutionary ecology, a species’ niche is defined by a suite of traits possessed by an organism related to how this species ‘makes its living’ (attains food, nutrients, water). However, niche concepts and definitions are inherently related, and broadly describe the role of species within ecosystems.</p>
+<p><img src="images/12-speciesdistributionmodels/NDimensionalSpace.png" />
+<strong>Figure 2</strong>. Species niches are complex. In theory, we could describe the niche of a species by adding N number of axes and create a cloud representing all the habitats where a species could persist.</p>
+<p>Ecologists break a species niche into two components: the <strong>fundamental niche</strong> and the <strong>realized niche</strong>. The fundamental niche is similar to the Grinnellian niche concept (<em>Introduced by Joseph Grinnell in is 1917 paper, The niche relationships of the California Thrasher</em>) niche concept. The <strong>fundamental niche</strong> of the species describes all the abiotic conditions that a species can physiologically tolerate and maintain population growth at or above replacement rates (we don’t count areas where species persist, but are not maintaining themselves; these area are known as demographic sinks). The <strong>realized niche</strong> refers to all of the areas that we actually observe a species on the landscape. The concept emerged out of the work of Elton, who highlighted the importance of species interactions in defining species distributions. The <strong>realized niche</strong>, therefore, reflects the combined effects of the abiotic and biotic environment on persistence across the landscape.</p>
+<p>Typically, the <strong>fundamental niche</strong> is larger than the <strong>realized niche</strong>. In other words, a species can be found in a lot of places, but processes such as competition for resources or predation, reduce the total area occupied by a species. In some cases, the <strong>realized niche</strong> can be larger than the <strong>fundamental niche</strong>. This occurs when positive species interactions, like mutualisms or facilitation, allow a species to overcome some sort of environmental resistance and occupy sites that would be inhospitable for the species without ‘help from a friend’. Finally, stochastic events, like disturbances, or landscape features, such as barriers to dispersal, can influence where as a species is found on the landscape.</p>
+<p>The distinction between <strong>fundamental</strong> and <strong>realized</strong> niches is important in order to understand the limitation of correlative SDMs, since these models cannot distinguish between the fundamental and realized niche of a species. Recall that species distribution models relate environmental factors to current occupation of a species. In most cases, habitat suitability is predicted using abiotic factors, including climate, soils, topographic information; all of which essentially describe the fundamental niche of a species (i.e., physiological tolerance to abiotic characteristics). However, the data used to build these models quantifies the current occupation of a species on the landscape, or the realized niche.</p>
+<p><strong>This presents several issues</strong>:</p>
+<ul>
+<li>While we can learn generally about the abiotic factors that affect a species range, it is not a perfect picture of these tolerances, since distribution is affected by a variety of factors not included in the model.</li>
+<li>When a species fundamental niche and realized niche are really different due to factors not included in the model, current habitat projects can be inaccurate. This is a common problem when modeling habitat suitability for wild-harvested species, since they are underrepresented in suitable habitat, because those habitats are targeted for harvest.</li>
+<li>Using these models to predict future suitability should be interpreted skeptically. Future habitat suitability predictions are strong working hypotheses for ecological investigations or management actions. We don’t actually expect many species to track their bioclimatic niches, since many of the factors that influence a species range aren’t directly measured when building SDMs. SDMs are particularly unreliable when factors that shape a species niche change as a function of climate change. For instance, species interactions shape species distributions, and since species respond idiosyncratically to climate change, represent a major source of uncertainty in model predictions.</li>
+</ul>
+<p>These caveats and limitations, particularly related to your data, should be included in the discussion of your results. All of that said, SDMs can provide us with a lot of information with relatively little effort, and are often the best hypothesis on which to base decisions.</p>
+</div>
+<div id="downloads-for-this-lab" class="section level2 hasAnchor" number="37.3">
+<h2><span class="header-section-number">37.3</span> Downloads for this lab<a href="species-distribution-modeling.html#downloads-for-this-lab" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Create a file on your desktop called ‘speciesdistributionmodels’ and place the following files within it:</p>
+<ul>
+<li><a href="https://drive.google.com/uc?export=download&amp;id=1_SSBxFBS421iJyH-O1_PJQ5s8VqW09sT">R script for creating the SDM</a></li>
+<li><a href="https://drive.google.com/uc?export=download&amp;id=1D3hIBXCDSnqTQPmx7ZFOMqHzZk01--JQ">Occurrence data</a></li>
+<li><a href="https://docs.google.com/document/d/1Od_MirdwRFjmDnCzo2TKwc5KxBFUbkPD/export?format=docx">Worksheet to turn-in</a></li>
+</ul>
+</div>
+<div id="objectives-1" class="section level2 hasAnchor" number="37.4">
+<h2><span class="header-section-number">37.4</span> Objectives<a href="species-distribution-modeling.html#objectives-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Project the effects of climate change on <em>Pinus ponderosa</em> in Arizona.</p>
+</div>
+<div id="methods" class="section level2 hasAnchor" number="37.5">
+<h2><span class="header-section-number">37.5</span> Methods<a href="species-distribution-modeling.html#methods" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="lets-get-modeling" class="section level3 hasAnchor" number="37.5.1">
+<h3><span class="header-section-number">37.5.1</span> Let’s get modeling<a href="species-distribution-modeling.html#lets-get-modeling" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Now, let’s walk through an example to discuss the various considerations and options for creating SDMs. For this exercise, we will use bioclimatic variables as environmental predictors. Bioclimatic variables are derived from downscaled climate models and created to be more more ecologically relevant compared to simple temperature and precipitation means. Bioclimatic variables are a great first step in model building, but depending on your study species and area, you may need to download finer scale layers or include other factors, like soil data.</p>
+<p><strong>Resolution</strong></p>
+<p>Raster layers are spatially mapped grids comprised of hundreds, thousands, or millions of cells (aka pixels) with values related to a variable assigned to each pixel. The smaller the pixel, the higher the resolution, but this greatly affects processing speed and may exceed computer storage.</p>
+<p><strong>Map projections</strong></p>
+<p>Different methods are used to project the 3D earth into a 2D map. We have to specify the projection of the layers used in our models or our data layers will not align properly. In the example below, we will specify a coordinate reference system (CRS), which defines, with the help of coordinates, how the projected map relates to locations on the earth.</p>
+<p><strong>A CRS contains the following information</strong>:</p>
+<ul>
+<li>Coordinate system: The X, Y grid that defines where a point is located in space.</li>
+<li>Horizontal and vertical units: The units used to define the grid along the x, y (and z) axis.</li>
+<li>Datum: A modeled version of the shape of the Earth which defines the origin used to place the coordinate system in space. You will learn this further below.</li>
+<li>Projection Information: The mathematical equation used to flatten objects that are on a round surface (e.g. the Earth) so you can view them on a flat surface (e.g. your computer screens or a paper map).</li>
+</ul>
+<p>Luckily, we can pull all of this information from a spatial object, use the CRS function and reproject our data so that we are working with all data using the same CRS. Let’s start by installing and loading the libraries that we will need for our analysis, and by importing both current climate and future climate projections.</p>
+<p>For this exercise, we will download bioclimatic variables to characterize current climate. Bioclimatic variables are variables derived from mean, maximum and minimum temperature and precipitation data summarized from weather station data from across the globe, then <em>interpolated</em> based on various landscape features, most importantly elevation, in order to assign climatic values to locations with no climate stations. These bioclimatic variables have been created in order to represent climate data in a way that is biologically-relevant. Specifically, these bioclimatic include:</p>
+<ul>
+<li>Annual Mean Temperature (bio1)</li>
+<li>Mean Diurnal Range (Mean of monthly (max temp - min temp); bio2)</li>
+<li>Isothermality (bio3), Temperature Seasonality (standard deviation ×100; bio4)</li>
+<li>Max Temperature of Warmest Month (bio5)</li>
+<li>Min Temperature of Coldest Month (bio6)</li>
+<li>Temperature Annual Range (bio7)</li>
+<li>Mean Temperature of Wettest Quarter (bio8)</li>
+<li>Mean Temperature of Driest Quarter (bio9)</li>
+<li>Mean Temperature of Warmest Quarter (bio10)</li>
+<li>Mean Temperature of Coldest Quarter (bio11)</li>
+<li>Annual Precipitation (bio12)</li>
+<li>Precipitation of Wettest Month (bio13)</li>
+<li>Precipitation of Driest Month (bio14)</li>
+<li>Precipitation Seasonality (Coefficient of Variation; bio13)</li>
+<li>Precipitation of Wettest Quarter (bio16)</li>
+<li>Precipitation of Driest Quarter (bio17)</li>
+<li>Precipitation of Warmest Quarter (bio18)</li>
+<li>Precipitation of Coldest Quarter (bio19).</li>
+</ul>
+<p>Additionally, we will download climate projections. Climate projections are generated by Global Climate Models, which predict future climatic conditions based on complex algorithms describing the atmosphere. In order to project future species distributions, we need to select a particular climate model and a time period for which we are making predictions. Here, we are projecting suitable habitat for the time period 2061-2080. Since several facilities equipped with climate models generate climatic projections, we also have selected the CNRM-CM6-1 modeling group.</p>
+<p>Finally, we select the ‘socio-economic pathway’ utilized by our climate model. The degree of warming that occurs depends primarily on decisions that humans make around fossil fuel use and other climate mitigation strategies. The Intergovermental Panel on Climate Change (IPCC) works with social scientists, legislators and other to generate possible carbon use futures, which are then used to generate climate predictions. Here, we will use the Shared Socio-economic Pathway (SSP) ‘585’. Take a minute to search SSP 585.</p>
+<p>Record the answers to these questions on your worksheet:</p>
+<p><strong>Provide a description of SSP 585. How do countries respond to climate change in this scenario? What climate-related technologies are assumed to be used in this future?</strong><br>
+</p>
+<p><strong>Is a low, middle-of-the-road, or high degree of warming predicted in this scenario? If you were to repeat this exercise, which SSP would you choose and why?</strong><br>
+</p>
+</div>
+<div id="run-the-r-code" class="section level3 hasAnchor" number="37.5.2">
+<h3><span class="header-section-number">37.5.2</span> Run the R code<a href="species-distribution-modeling.html#run-the-r-code" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Load your R file run and walk through the exercise.</p>
+<p>Now that we’ve loaded our current and future climate models, let’s input our occurrence data. For our data on species occurrence, we will use data from the Global Biodiversity Information Facility (GBIF), a repository for species observations and locations derived from multiple sources, including citizen science, herbarium and museum collections. The GBIF data are biased by observer behavior, since many observations are derived from citizen science projects. Humans tend to collect data from easily accessed areas around roads, popular hiking trails or congregating areas. One way to reduce bias in presence only data is to use spatial thinning to reduce weighting observations from heavily trafficked areas more than observations made in other areas. There is no standard thinning distance, but it is typical to require a minimum of 5 km between observations. If you are working at smaller or larger scales, you could reduce or increase this distance! Also, if you are using presence and absence data or have employed an unbiased sampling strategy to collect data, you can skip this next step. While there are various quality control measures used by GBIF to ensure high data quality, we will run a few other data cleaning codes to remove anomalous points. This step is not necessary if using nonGBIF data! However, when producing your own spatial datasets, some form of data quality control is necessary.</p>
+<p>For this exercise, we will investigate whether models predict that Ponderosa pine forests that surround Flagstaff are predicted to persist as climate changes. Let’s download occurrence data for Ponderosa pine (<em>Pinus ponderosa</em>).</p>
+<p>Great! Now we have data! Let’s build an SDM. Our first decision point on model construction is based on the response variable. In this case, we have presence-only data; in other words, no one went out to the field to confirm locations where a species is <em>absent</em> across the landscape. Since location information often suffers from <em>absence</em> of absence data (ha), researchers have found statistical workarounds, which produce amazingly similar results to models fitted with presence or absence data. The method most commonly used to model habitat suitability with presence-only data involves generated numerous background points across your study area to compare with areas where your species is present. Note that your focal species <em>could</em> occur at any one of these background points, but that doesn’t matter. Essentially your model is characterizing habitat available to the species and the habitat of known occurrence to identify the environmental factors that best distinguish occupied habitat.</p>
+<p>Let’s breakdown the major model types used for SDMs:</p>
+<p><strong>Profile techniques</strong></p>
+<p>Profile techniques are simple algorithms that use environmental distance to known sites of occurrence to ‘profile’ habitat characteristics. These techniques are rarely used any more, so I won’t discuss further!
+<strong>Profile techniques include</strong>:</p>
+<ul>
+<li>Mahalanobis distance</li>
+<li>Ecological niche factor analysis (ENFA)</li>
+<li>Isodar analysis</li>
+<li>Bioclim</li>
+</ul>
+<p><strong>Regression-based approaches</strong></p>
+<p>You are familiar with regression based approaches from other statistical analyses! All regression approaches build upon standard regression models (<strong>Fig. 3</strong>), but differ in subtle ways to address common challenges to data modeling, like issues of nonnormality or heterogeneity of variance.</p>
+<img src="images/12-speciesdistributionmodels/linear-regression-error-term.png" />
+<p>
+<p><strong>Figure 3</strong>. Regression basics. Term y is related to term x. If the slope of the line differs significantly from 0, then there is a relationship between the variables. Error terms are derived from the residuals of the model; how much each individual point deviates from the line of best fit. The best fit is determined by repeatedly mapping lines across the data to identify that which most reduces error.</p>
+<p><strong>Regression-based techniques include</strong>:</p>
+<ul>
+<li><p>Generalized Linear Modeling (GLM) (parametric)</p></li>
+<li><p>Flexible Discriminant Analysis (FDA) (parametric)</p></li>
+<li><p>Multivariate Adaptive Regression Splines (MARS) (nonparametric)</p></li>
+<li><p>Generalized Additive Modeling (GAM) (nonparametric)</p></li>
+<li><p><strong>Generalized Linear Models</strong> are a flexible form of regression models. GLMs are ‘generalized’ by using a link function to relate the linear model to the response variable (which can be binomial, continuous, count data or other) and by relativizing the variance of each model term to its predicted value.</p></li>
+<li><p><strong>Generalized Additive Models</strong> incorporate ‘smoothing functions’ to allow nonparametric estimates to be generated using a Bayesian approach.</p></li>
+<li><p><strong>Multivariate Adaptive Regression Splines</strong> automatically models data nonlinearities and interactions between variables.</p></li>
+<li><p><strong>Flexible Discriminant Analysis</strong> uses optimal scoring to transform the response variable so that the data are in a better form for linear separation.
+</p></li>
+</ul>
+<p><strong>Machine learning approaches</strong>:
+Machine learning techniques use training data to ‘learn’ about the dataset in order to make predictions.</p>
+<p><strong>Machine learning approaches include</strong>:</p>
+<ul>
+<li>Random Forest (RF)</li>
+<li>Boosted Regression Trees (BRT)</li>
+<li>Maximum Entropy (MaxEnt)</li>
+</ul>
+<p>There are other machine learning techniques, like Artificial Neural Networks (ANN), but the list above is most commonly used for distribution modeling!</p>
+<p><strong>Random forest</strong> and <strong>boosted regression trees</strong> are similar, in that they create different ‘trees’ by iteratively bifurcating the dataset using predictor factors and identifying the tree that best predicts species occurrence.</p>
+<p><img src="images/12-speciesdistributionmodels/RandomForest.png" />
+<strong>Figure 4</strong>. An illustration of random forest tree construction.</p>
+<p><strong>MaxEnt</strong> models are a little different. According to the principle of maximum entropy, high entropy is when the probability distribution best represents the current state of knowledge about a system, in the context of precisely stated prior data. These models evaluate the set of all trial probability distributions that would encode the prior data and select the distribution with maximal information entropy.</p>
+<div id="model-selection" class="section level4 hasAnchor" number="37.5.2.1">
+<h4><span class="header-section-number">37.5.2.1</span> Model selection<a href="species-distribution-modeling.html#model-selection" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The world of species distribution modeling is a contentious one! Many leaders in the field have their own ‘pet’ models that invariably they helped to develop software or methodology for! The general consensus is that each of the different modeling techniques has various strengths and weaknesses, and they should be combined into ensemble models for habitat predictions. However, other approaches exist. One line of thinking in distribution modeling is to use solely GLMs, spending great care to identify critical predictor variables in a way that is tied to current ecological understanding and that reduces nonlinearities among these variables. By taking these steps, models are created, which in theory, should provide better inferential power for both current and future habitats. For presence only data, maximum entropy models are generally considered an excellent model choice. In my experience, there is no perfect model, rather model accuracy varies from species to species. For this reason, I typically build ensemble models to integrate the strengths of different model types.</p>
+</div>
+<div id="build-an-sdm" class="section level4 hasAnchor" number="37.5.2.2">
+<h4><span class="header-section-number">37.5.2.2</span> Build an SDM<a href="species-distribution-modeling.html#build-an-sdm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><strong>Deal with environmental predictor colinearity</strong></p>
+<p>In general, it is recommended to avoid having correlated features (variables that have different numbers, but are following the same pattern) in your dataset. Indeed, a group of highly correlated features will not bring additional information to our analyses, but will increase the complexity of the algorithm, thus increasing the risk of errors. Including highly correlated variables in models also, in essence, weights the correlated variables more than independent variables, again leading to less accurate model outputs. In other words, we need to remove highly correlated variables. We will do this by generating Variable Inflation Factor (VIF) values, a measure of collinearity, for all predictor variables. Then, we will remove one of the two correlated variables.</p>
+<p><strong>Build the dataframe for the SDM</strong>
+Building the SDM, requires two additional steps. In the first, we assemble the final dataset to be used in the model.</p>
+<p><strong>Using the sdmData function, we indicate the following</strong>:</p>
+<ul>
+<li>The column that contains presence data.</li>
+<li>The environmental predictors.</li>
+<li>Absence data or how to create background data.</li>
+</ul>
+<p><strong>Specify model evaluation parameters</strong></p>
+<p>When we build the final model using the SDM function, we specify <strong>replication</strong>. <strong>Replication</strong> is the method used to partition the dataset into training and test data. Ideally, we would have collected completely independent training and test datasets; however, I’ve never actually seen this done, except for researchers who are investigating SDM methods. Ninety nine point nine percent of the time, datasets are split into test and training datasets. As the names imply, training data are used to build the model, and then test data are used to measure how good our predictions are by quantifying how often our model correctly predicts presence or absence. Splitting or partitioning data into test and training datasets is often conducted several times, since outcomes may depend on the test or training data used to build and evaluate models.</p>
+<p>There are several methods to create training and test datasets. The three available in the package that we will use are subsampling (sub), crossvalidation (cv), bootstrapping (boot). For sub and boot, you must indicate what proportion of test and training data. A 30% test data, 70% training data split is common (test.percent=30). Finally, you will also the models how many times to repeat evaluations using the n equals code. This can eat up a lot of memory, so I typically use an n of 5.</p>
+<p><strong>Choosing the evaluation model</strong></p>
+<p><strong>Crossvalidation</strong> involves partitioning a sample of data into complementary subsets, performing the analysis on one subset (called the training set), and validating the analysis on the other subset (called the validation set or testing set). To reduce variability, in most methods, multiple rounds of crossvalidation are performed using different partitions, and the validation results are combined (e.g. averaged) over the rounds to give an estimate of the model’s predictive performance. Crossvalidation does not rely on random sampling, but rather splits the dataset into k unique subsets. This is the preferred method for spatial model evaluation and estimating generalization capability. Note that you have to select the number of ‘folds’ or data partitions, which is typically set at 5.</p>
+<p><strong>Bootstrapping</strong> iteratively creates separate datasets from randomly sampling with replacement. Bootstrapping it is not as strong as crossvalidation when it is used for model validation, since it contains repeated elements in every subset. Bootstrapping is typically repeated 30 times in SDM model evaluation!</p>
+<p><strong>Subsampling</strong> randomly splits the dataset into training and test datasets, but doesn’t maintain the independence of the datasets. In other words, due to random sampling, you might wind up with similar training and test datasets in each trial. For this reason, the more structured crossvalidation method is typically preferred.</p>
+<p><strong>Build the SDM</strong>
+Once the data is appropriately compiled, we use the sdm function to build the actual model. <strong>Within this function, we specify</strong>:</p>
+<ul>
+<li>The column that contains presence or presence or absence</li>
+<li>The dataframe that we are using (d1)</li>
+<li>The types of models that we are using</li>
+<li>Replication type (cv), number of folds (5), how many times to repeat partitioning (1)</li>
+</ul>
+<p>THIS STEP WILL TAKE SOME TIME - JUST LET THE PROGRAM RUN!</p>
+<p>The model object (m1) tells you several things. First, it gives a brief summary of the model you ran. You can double check this to be sure that the model did what you told it to do. Here, everything seems fine: We ran a model for one species, we used two modeling methods, glm and maxent, we used cross_validation with 5 partitions. The model runs were successful (100% each). Finally, we are provided with 4 measures of model performance: AUC, COR, TSS, and Deviance.</p>
+<p><strong>What types of models are we using to predict habitat suitability for Ponderosa pines (i.e., machine learning, regression, profile techniques)?</strong>
+</p>
+</div>
+<div id="model-evaluation-explained" class="section level4 hasAnchor" number="37.5.2.3">
+<h4><span class="header-section-number">37.5.2.3</span> Model evaluation explained<a href="species-distribution-modeling.html#model-evaluation-explained" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><strong>AUC</strong> stands for Area Under the Curve. AUC refers to a ROC plot, which plots sensitivity over 1 minus specificity. An ROC curve (receiver operating characteristic curve) is a graph showing the performance of a classification model at all classification thresholds. <strong>AUC is desirable for SDM model evaluation for two main reasons</strong>:</p>
+<ul>
+<li>AUC is scale invariant.</li>
+<li>AUC is classification threshold invariant. It measures the quality of the model’s predictions irrespective of what classification threshold is chosen.</li>
+</ul>
+<p><strong>This curve plots two parameters</strong>:</p>
+<ul>
+<li>True Positive Rate (Sensitivity): the proportion of presences correctly predicted as presence,</li>
+<li>False Positive Rate (1 minus Specificity): The specificity denotes the proportion of absences that are correctly predicted as absence, so the false positive rate indicates how many times the model predicted an occurrence when there was none.</li>
+</ul>
+<p><strong>AUC ranges in value from 0 to 1. A model whose predictions are 100% wrong has an AUC of 0.0; one whose predictions are 100% correct has an AUC of 1.0. As a rule, an AUC &gt; 0.75 indicates a high performing model.</strong></p>
+<p>SDMs predict a probability of occurrence across the landscape. Different thresholds can be used to create a cutoff to predict presences or absences. For instance, we could say that if there is a 90% chance or more that a pixel is suitable habitat, then we consider those areas as occupied. We want to identify a cutoff that maximizes true presences, while minimizes false positives (i.e., areas that you incorrectly say contain a population, but don’t). You can see that as you decrease the cutoff, from say 90% to 70%, then your likelihood of correctly predicting presences goes up, BUT so does your likelihood of false positives.</p>
+<p>So, let’s check out the ROC plot below.</p>
+<p><strong>Looking at AUC, a common form of model performance assessment, which is the best performing model?</strong>
+</p>
+<p>Generally, there is strong agreement between the test and the training data. As you increase the cutoff threshold, the likelihood that you correctly assign presence goes up, but so does the false positive rate (<strong>Fig. 5</strong>). Note that on the far right hand side of each ROC plot, if the cutoff is high enough, you will have a 100% true positive rate, and a 100% false positive rate (the cutoff is so low, that all habitats are predicted to support the focal species). Alternatively, with a low enough cutoff (left hand side of the ROC plot), you won’t have any positives or any false positives! This AUC cutoff will be important for building ensemble models; explained below!</p>
+<p><img src="images/12-speciesdistributionmodels/AUC.png" /></p>
+<p><strong>Figure 5</strong> This figure (lifted from an ARCGIS website) shows the relationship between omission rates and ROC plots. So if we want an Omission Rate that is slightly less than 10%, we can use 0.29 as the Cutoff instead, and in this case, we will pick up 20.48% background points as potential presence locations, which is also a good rate.</p>
+<p>Like AUC, <strong>True Skill Statistic (TSS)</strong> values are calculated across the range of possible thresholds for classifying model scores.The TSS similarly incorporates sensitivity and specificity comparing models against random, yielding values that range from negative 1 to positive 1, where positive 1 indicates perfect prediction and greater than or equal to 0 indicates a model that performs no better than random. TSS is typically considered a better indicator of model performance for presence only models. <strong>A TSS of 0.5 or higher indicates high model performance.</strong></p>
+<p><strong>Pearson correlation (COR)</strong> between the predicted likelihood of presence and the presence or absence testing data.
+<strong>Deviance</strong> Lastly, if a model is interpreted as estimating species’ probability of presence, rather than just giving an index of habitat suitability, then the model predictions can be evaluated using deviance, defined as 2 times the log probability of the test data.</p>
+</div>
+<div id="ensemble-model-assembly" class="section level4 hasAnchor" number="37.5.2.4">
+<h4><span class="header-section-number">37.5.2.4</span> Ensemble model assembly<a href="species-distribution-modeling.html#ensemble-model-assembly" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Finally, we will merge models into an ensemble model. You may want to exclude models that didn’t have high predictive performance. We will give higher weights to the models with higher accuracy, in this cause using the TSS score.</p>
+</div>
+<div id="investigating-model-components" class="section level4 hasAnchor" number="37.5.2.5">
+<h4><span class="header-section-number">37.5.2.5</span> Investigating model components<a href="species-distribution-modeling.html#investigating-model-components" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>We can run code to look at the model components that best predict presence.</p>
+<p><strong>According this figure, which climatic variable best predicts habitat suitability for Ponderosa pine?</strong>
+</p>
+</div>
+<div id="convert-to-presence-or-absense-predictions" class="section level4 hasAnchor" number="37.5.2.6">
+<h4><span class="header-section-number">37.5.2.6</span> Convert to presence or absense predictions<a href="species-distribution-modeling.html#convert-to-presence-or-absense-predictions" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>We use the test statistics to identify a threshold that maximized true positives and reduced false negatives. In order to do this, we will create a new raster and populate it with predictions of presence, using that threshold.</p>
+</div>
+<div id="plotting-and-predictions" class="section level4 hasAnchor" number="37.5.2.7">
+<h4><span class="header-section-number">37.5.2.7</span> Plotting and predictions<a href="species-distribution-modeling.html#plotting-and-predictions" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Let’s take a quick look at the predictions we have created for the current time period.</p>
+<p>To predict response of your focal species to future climate, just plug the novel climate conditions into the model!
+Let’s run this model.</p>
+<p>Now, let’s plot this prediction against our original! First, we’ll take a zoomed out look, then we will focus into our region!</p>
+<p>Let’s convert to predicted occurrence and plot!</p>
+<p><strong>According to these maps, how will the amount of suitable habitat for <em>Pinus ponderosa</em> in Flagstaff change if climate change continues along the SSP 585 projection?</strong>
+</p>
+<p><strong>How certain are you of these projections? Why might these models NOT be accurate?</strong>
+</p>
+<p><strong>What type of vegetation do you think might be more common around Flagstaff as climate changes?</strong>
+</p>
+<p>Submit your answers to the questions presented throughout this tutorial and the figures that you generated (Occurrence of <em>Pinus ponderosa</em> currently and in the future) to your TA.</p>
+
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="test-residuals.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="diversity-statistics.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/sarasouther/DataAnalysis/edit/main/20-SpeciesDistributionModeling.Rmd",
+    "text": "Edit this page"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["_main.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 40 What are structural equation models? | Statistics for Ecology</title>
+  <meta name="description" content="Chapter 40 What are structural equation models? | Statistics for Ecology" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 40 What are structural equation models? | Statistics for Ecology" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="sarasouther/DataAnalysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 40 What are structural equation models? | Statistics for Ecology" />
+  
+  
+  
+
+<meta name="author" content="Dr. Sara Souther" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="ordination-station.html"/>
+<link rel="next" href="piecewise-sems.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.11/grViz.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Statistics for Ecology</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#learning-objectives"><i class="fa fa-check"></i><b>1.1</b> Learning Objectives</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="why-statistics.html"><a href="why-statistics.html"><i class="fa fa-check"></i><b>2</b> Why Statistics?</a></li>
+<li class="chapter" data-level="3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html"><i class="fa fa-check"></i><b>3</b> Back to the basics</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-can-statistics-tell-us"><i class="fa fa-check"></i><b>3.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="3.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-frequentist-framework"><i class="fa fa-check"></i><b>3.2</b> The Frequentist Framework</a></li>
+<li class="chapter" data-level="3.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#bayesian-statistics"><i class="fa fa-check"></i><b>3.3</b> Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#when-might-you-choose-bayesian-statistics"><i class="fa fa-check"></i><b>3.3.1</b> When might you choose Bayesian statistics?</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#data-types-and-why-they-matter"><i class="fa fa-check"></i><b>3.4</b> Data Types and Why They Matter</a></li>
+<li class="chapter" data-level="3.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#linking-data-types-to-distributions"><i class="fa fa-check"></i><b>3.5</b> Linking Data Types to Distributions</a></li>
+<li class="chapter" data-level="3.6" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#overview-of-common-statistical-distributions"><i class="fa fa-check"></i><b>3.6</b> Overview of Common Statistical Distributions</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-normal-distribution"><i class="fa fa-check"></i><b>3.6.1</b> The Normal Distribution</a></li>
+<li class="chapter" data-level="3.6.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-binomial-distribution-outcomes-are-success-or-failure"><i class="fa fa-check"></i><b>3.6.2</b> The Binomial Distribution: Outcomes are “success” or “failure”</a></li>
+<li class="chapter" data-level="3.6.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-poisson-distribution-counts-from-random-events"><i class="fa fa-check"></i><b>3.6.3</b> The Poisson Distribution: Counts from random events</a></li>
+<li class="chapter" data-level="3.6.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-negative-binomial-distribution-overdispersed-counts"><i class="fa fa-check"></i><b>3.6.4</b> The Negative Binomial Distribution: Overdispersed counts</a></li>
+<li class="chapter" data-level="3.6.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-uniform-distribution-all-values-equally-likely"><i class="fa fa-check"></i><b>3.6.5</b> The Uniform Distribution: All values equally likely</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-is-a-model"><i class="fa fa-check"></i><b>3.7</b> What is a model?</a></li>
+<li class="chapter" data-level="3.8" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#key-takeaways"><i class="fa fa-check"></i><b>3.8</b> Key takeaways</a></li>
+<li class="chapter" data-level="3.9" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#test-your-knowledge"><i class="fa fa-check"></i><b>3.9</b> Test your knowledge!</a></li>
+<li class="chapter" data-level="3.10" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#assignment"><i class="fa fa-check"></i><b>3.10</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html"><i class="fa fa-check"></i><b>4</b> Randomness and probability</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#the-sample-point-method"><i class="fa fa-check"></i><b>4.1</b> The sample point method</a></li>
+<li class="chapter" data-level="4.2" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#combinatorials"><i class="fa fa-check"></i><b>4.2</b> Combinatorials</a></li>
+<li class="chapter" data-level="4.3" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#union-and-intersection-of-events"><i class="fa fa-check"></i><b>4.3</b> Union and intersection of events</a></li>
+<li class="chapter" data-level="4.4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#conditional-probability"><i class="fa fa-check"></i><b>4.4</b> Conditional probability</a></li>
+<li class="chapter" data-level="4.5" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#multiplicative-law-of-probability-of-independent-events"><i class="fa fa-check"></i><b>4.5</b> Multiplicative Law of Probability of Independent Events</a></li>
+<li class="chapter" data-level="4.6" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#additive-law-of-probability-of-mutually-exclusive-events"><i class="fa fa-check"></i><b>4.6</b> Additive Law of Probability of Mutually Exclusive Events</a></li>
+<li class="chapter" data-level="4.7" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#general-additive-law-of-probability"><i class="fa fa-check"></i><b>4.7</b> General Additive Law of Probability</a></li>
+<li class="chapter" data-level="4.8" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#key-concepts"><i class="fa fa-check"></i><b>4.8</b> Key concepts</a></li>
+<li class="chapter" data-level="4.9" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#practice-problems"><i class="fa fa-check"></i><b>4.9</b> Practice problems</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="expected-value-of-a-fair-die-roll.html"><a href="expected-value-of-a-fair-die-roll.html"><i class="fa fa-check"></i><b>5</b> Expected value of a fair die roll</a></li>
+<li class="chapter" data-level="6" data-path="variance-of-a-fair-die-roll.html"><a href="variance-of-a-fair-die-roll.html"><i class="fa fa-check"></i><b>6</b> Variance of a fair die roll</a></li>
+<li class="chapter" data-level="7" data-path="take-many-samples-and-calculate-means.html"><a href="take-many-samples-and-calculate-means.html"><i class="fa fa-check"></i><b>7</b> Take many samples and calculate means</a></li>
+<li class="chapter" data-level="8" data-path="uniform-population.html"><a href="uniform-population.html"><i class="fa fa-check"></i><b>8</b> Uniform population</a></li>
+<li class="chapter" data-level="9" data-path="exponential-population-highly-skewed.html"><a href="exponential-population-highly-skewed.html"><i class="fa fa-check"></i><b>9</b> Exponential population (highly skewed)</a></li>
+<li class="chapter" data-level="10" data-path="ppositive-pposdiseasepdisease-pposno-diseasepno-disease.html"><a href="ppositive-pposdiseasepdisease-pposno-diseasepno-disease.html"><i class="fa fa-check"></i><b>10</b> P(positive) = P(pos|disease)<em>P(disease) + P(pos|no disease)</em>P(no disease)</a></li>
+<li class="chapter" data-level="11" data-path="pdisease-positive-pposdisease-pdisease-ppositive.html"><a href="pdisease-positive-pposdisease-pdisease-ppositive.html"><i class="fa fa-check"></i><b>11</b> P(disease | positive) = P(pos|disease) * P(disease) / P(positive)</a></li>
+<li class="chapter" data-level="12" data-path="probability-of-9-or-10-heads-in-10-flips-of-fair-coin.html"><a href="probability-of-9-or-10-heads-in-10-flips-of-fair-coin.html"><i class="fa fa-check"></i><b>12</b> Probability of 9 or 10 heads in 10 flips of fair coin</a></li>
+<li class="chapter" data-level="13" data-path="data-exploration-and-assumption-checking.html"><a href="data-exploration-and-assumption-checking.html"><i class="fa fa-check"></i><b>13</b> Data Exploration and Assumption Checking</a></li>
+<li class="chapter" data-level="14" data-path="ecological-sampling.html"><a href="ecological-sampling.html"><i class="fa fa-check"></i><b>14</b> Ecological sampling</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#background"><i class="fa fa-check"></i><b>14.1</b> Background</a></li>
+<li class="chapter" data-level="14.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-approaches"><i class="fa fa-check"></i><b>14.2</b> Sampling approaches</a>
+<ul>
+<li class="chapter" data-level="14.2.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-sampling"><i class="fa fa-check"></i><b>14.2.1</b> Random sampling</a></li>
+<li class="chapter" data-level="14.2.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#stratified-random-sampling"><i class="fa fa-check"></i><b>14.2.2</b> Stratified random sampling</a></li>
+<li class="chapter" data-level="14.2.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#gridded-random-sampling"><i class="fa fa-check"></i><b>14.2.3</b> Gridded random sampling</a></li>
+<li class="chapter" data-level="14.2.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-cluster-sampling"><i class="fa fa-check"></i><b>14.2.4</b> Random cluster sampling</a></li>
+<li class="chapter" data-level="14.2.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#grts-sampling-generalized-random-tessellation-stratified-sampling"><i class="fa fa-check"></i><b>14.2.5</b> GRTS Sampling (Generalized Random-Tessellation Stratified Sampling)</a></li>
+<li class="chapter" data-level="14.2.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#understanding-design-weights"><i class="fa fa-check"></i><b>14.2.6</b> Understanding Design Weights</a></li>
+</ul></li>
+<li class="chapter" data-level="14.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#systematic-sampling"><i class="fa fa-check"></i><b>14.3</b> Systematic Sampling</a></li>
+<li class="chapter" data-level="14.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#adaptive-sampling-sampling-rare-or-patchy-species"><i class="fa fa-check"></i><b>14.4</b> Adaptive Sampling (Sampling Rare or Patchy Species)</a></li>
+<li class="chapter" data-level="14.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#imperfect-detection-in-ecological-sampling"><i class="fa fa-check"></i><b>14.5</b> Imperfect Detection in Ecological Sampling</a></li>
+<li class="chapter" data-level="14.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#temporal-sampling-and-study-designs-through-time"><i class="fa fa-check"></i><b>14.6</b> Temporal Sampling and Study Designs Through Time</a>
+<ul>
+<li class="chapter" data-level="14.6.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-panels"><i class="fa fa-check"></i><b>14.6.1</b> Sampling Panels</a></li>
+<li class="chapter" data-level="14.6.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#baci-designs-beforeaftercontrolimpact"><i class="fa fa-check"></i><b>14.6.2</b> BACI Designs (Before–After–Control–Impact)</a></li>
+</ul></li>
+<li class="chapter" data-level="14.7" data-path="ecological-sampling.html"><a href="ecological-sampling.html#plot-shapes-sizes-and-transects"><i class="fa fa-check"></i><b>14.7</b> Plot shapes, sizes, and transects</a></li>
+<li class="chapter" data-level="14.8" data-path="ecological-sampling.html"><a href="ecological-sampling.html#distance-sampling-and-point-counts"><i class="fa fa-check"></i><b>14.8</b> Distance Sampling and Point Counts</a></li>
+<li class="chapter" data-level="14.9" data-path="ecological-sampling.html"><a href="ecological-sampling.html#reducing-sampling-error"><i class="fa fa-check"></i><b>14.9</b> Reducing sampling error</a></li>
+<li class="chapter" data-level="14.10" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sample-size-determination-in-ecology-effect-sizes-and-precision"><i class="fa fa-check"></i><b>14.10</b> Sample Size Determination in Ecology: Effect Sizes and Precision</a></li>
+<li class="chapter" data-level="14.11" data-path="ecological-sampling.html"><a href="ecological-sampling.html#variables-of-interest"><i class="fa fa-check"></i><b>14.11</b> Variables of interest</a></li>
+<li class="chapter" data-level="14.12" data-path="ecological-sampling.html"><a href="ecological-sampling.html#test-your-knowledge-1"><i class="fa fa-check"></i><b>14.12</b> Test your knowledge</a></li>
+<li class="chapter" data-level="14.13" data-path="ecological-sampling.html"><a href="ecological-sampling.html#assignment-1"><i class="fa fa-check"></i><b>14.13</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="14.13.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#example-methods-sampling-design"><i class="fa fa-check"></i><b>14.13.1</b> Example Methods: Sampling Design</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="15" data-path="power-analysis.html"><a href="power-analysis.html"><i class="fa fa-check"></i><b>15</b> Power analysis</a>
+<ul>
+<li class="chapter" data-level="15.1" data-path="power-analysis.html"><a href="power-analysis.html#prework"><i class="fa fa-check"></i><b>15.1</b> Prework</a></li>
+<li class="chapter" data-level="15.2" data-path="power-analysis.html"><a href="power-analysis.html#statistical-power"><i class="fa fa-check"></i><b>15.2</b> Statistical power</a></li>
+<li class="chapter" data-level="15.3" data-path="power-analysis.html"><a href="power-analysis.html#describing-data"><i class="fa fa-check"></i><b>15.3</b> Describing data</a></li>
+</ul></li>
+<li class="chapter" data-level="16" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html"><i class="fa fa-check"></i><b>16</b> Selecting statistical tests</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-foray-into-statistics"><i class="fa fa-check"></i><b>16.1</b> A foray into statistics</a></li>
+<li class="chapter" data-level="16.2" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#pick-the-explanatory-and-response-variable"><i class="fa fa-check"></i><b>16.2</b> Pick the explanatory and response variable</a></li>
+<li class="chapter" data-level="16.3" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#variable-types-refresher"><i class="fa fa-check"></i><b>16.3</b> Variable types refresher</a></li>
+<li class="chapter" data-level="16.4" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#more-examples"><i class="fa fa-check"></i><b>16.4</b> More examples</a></li>
+<li class="chapter" data-level="16.5" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#the-decision-matrix"><i class="fa fa-check"></i><b>16.5</b> The decision matrix</a></li>
+<li class="chapter" data-level="16.6" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-note-on-assumptions"><i class="fa fa-check"></i><b>16.6</b> A note on assumptions</a></li>
+<li class="chapter" data-level="16.7" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#learning-goals"><i class="fa fa-check"></i><b>16.7</b> Learning goals</a></li>
+<li class="chapter" data-level="16.8" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#downloads-for-this-class"><i class="fa fa-check"></i><b>16.8</b> Downloads for this class</a></li>
+<li class="chapter" data-level="16.9" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#in-class-practice"><i class="fa fa-check"></i><b>16.9</b> In-class practice</a></li>
+<li class="chapter" data-level="16.10" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#assignment-choosing-and-running-the-right-test"><i class="fa fa-check"></i><b>16.10</b> Assignment: Choosing and Running the Right Test</a>
+<ul>
+<li class="chapter" data-level="16.10.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#deliverables"><i class="fa fa-check"></i><b>16.10.1</b> Deliverables</a></li>
+</ul></li>
+<li class="chapter" data-level="16.11" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#statistical-analyses-for-your-species-interaction-lab"><i class="fa fa-check"></i><b>16.11</b> Statistical analyses for your species interaction lab</a></li>
+</ul></li>
+<li class="chapter" data-level="17" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html"><i class="fa fa-check"></i><b>17</b> Basic statistical testing</a>
+<ul>
+<li class="chapter" data-level="17.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#a-short-statistical-review"><i class="fa fa-check"></i><b>17.1</b> A short statistical review</a>
+<ul>
+<li class="chapter" data-level="17.1.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#what-can-statistics-tell-us-1"><i class="fa fa-check"></i><b>17.1.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="17.1.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#sampling-populations"><i class="fa fa-check"></i><b>17.1.2</b> Sampling populations</a></li>
+</ul></li>
+<li class="chapter" data-level="17.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#hypothesis-testing-review"><i class="fa fa-check"></i><b>17.2</b> Hypothesis testing review</a></li>
+<li class="chapter" data-level="17.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#downloads-for-this-module"><i class="fa fa-check"></i><b>17.3</b> Downloads for this module</a></li>
+<li class="chapter" data-level="17.4" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#objectives"><i class="fa fa-check"></i><b>17.4</b> Objectives</a></li>
+<li class="chapter" data-level="17.5" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#tailed-tests"><i class="fa fa-check"></i><b>17.5</b> Tailed tests</a>
+<ul>
+<li class="chapter" data-level="17.5.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#generate-hypotheses"><i class="fa fa-check"></i><b>17.5.1</b> Generate hypotheses</a></li>
+<li class="chapter" data-level="17.5.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#calculate-a-test-statistic"><i class="fa fa-check"></i><b>17.5.2</b> Calculate a test statistic</a></li>
+<li class="chapter" data-level="17.5.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#determine-the-p-value"><i class="fa fa-check"></i><b>17.5.3</b> Determine the p-value</a></li>
+</ul></li>
+<li class="chapter" data-level="17.6" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#drawing-conclusions-from-statistics"><i class="fa fa-check"></i><b>17.6</b> Drawing conclusions from statistics</a></li>
+<li class="chapter" data-level="17.7" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#reporting-results"><i class="fa fa-check"></i><b>17.7</b> Reporting results</a></li>
+<li class="chapter" data-level="17.8" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#assignment-2"><i class="fa fa-check"></i><b>17.8</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="18" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html"><i class="fa fa-check"></i><b>18</b> Generalized Linear Models (GLMs)</a>
+<ul>
+<li class="chapter" data-level="18.1" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html#linear-models"><i class="fa fa-check"></i><b>18.1</b> Linear models</a></li>
+</ul></li>
+<li class="chapter" data-level="19" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>19</b> Generalized Linear Models</a>
+<ul>
+<li class="chapter" data-level="19.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#link-functions"><i class="fa fa-check"></i><b>19.1</b> Link functions</a></li>
+<li class="chapter" data-level="19.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#glms-in-r"><i class="fa fa-check"></i><b>19.2</b> GLMs in R</a></li>
+</ul></li>
+<li class="chapter" data-level="20" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html"><i class="fa fa-check"></i><b>20</b> Mixed Effects Models</a>
+<ul>
+<li class="chapter" data-level="20.1" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html#examples-in-r"><i class="fa fa-check"></i><b>20.1</b> Examples in R</a></li>
+</ul></li>
+<li class="chapter" data-level="21" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html"><i class="fa fa-check"></i><b>21</b> Before-After-Control-Impact</a>
+<ul>
+<li class="chapter" data-level="21.1" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#which-design"><i class="fa fa-check"></i><b>21.1</b> Which design</a></li>
+<li class="chapter" data-level="21.2" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#baci-design-2"><i class="fa fa-check"></i><b>21.2</b> BACI Design 2</a></li>
+</ul></li>
+<li class="chapter" data-level="22" data-path="time-is-a-flat-circle.html"><a href="time-is-a-flat-circle.html"><i class="fa fa-check"></i><b>22</b> Time is a flat circle</a></li>
+<li class="chapter" data-level="23" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html"><i class="fa fa-check"></i><b>23</b> Describing ecological patterns</a>
+<ul>
+<li class="chapter" data-level="23.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#when-to-use-model-selection"><i class="fa fa-check"></i><b>23.1</b> When to use model selection?</a></li>
+<li class="chapter" data-level="23.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-1-identifying-predictor-variables-or-co-variates-of-importance"><i class="fa fa-check"></i><b>23.2</b> Step 1: Identifying predictor variables or co-variates of importance</a></li>
+<li class="chapter" data-level="23.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-2-removing-colinear-variables"><i class="fa fa-check"></i><b>23.3</b> Step 2: Removing colinear variables</a>
+<ul>
+<li class="chapter" data-level="23.3.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#automated-variable-removal"><i class="fa fa-check"></i><b>23.3.1</b> Automated Variable Removal</a></li>
+<li class="chapter" data-level="23.3.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#expert-knowledge-driven-selection"><i class="fa fa-check"></i><b>23.3.2</b> Expert Knowledge-Driven Selection</a></li>
+<li class="chapter" data-level="23.3.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#blended-strategy-recommended"><i class="fa fa-check"></i><b>23.3.3</b> Blended Strategy (Recommended)</a></li>
+</ul></li>
+<li class="chapter" data-level="23.4" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#example-reducing-colinear-climate-variables"><i class="fa fa-check"></i><b>23.4</b> Example: Reducing colinear climate variables</a></li>
+<li class="chapter" data-level="23.5" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-3-select-the-best-model"><i class="fa fa-check"></i><b>23.5</b> Step 3: Select the best model</a>
+<ul>
+<li class="chapter" data-level="23.5.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#major-types-of-model-selection-overview-benefits-drawbacks-and-applications"><i class="fa fa-check"></i><b>23.5.1</b> Major Types of Model Selection: Overview, Benefits, Drawbacks, and Applications</a></li>
+<li class="chapter" data-level="23.5.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#stepwise-regression-based-on-aic-akaike-information-criterion."><i class="fa fa-check"></i><b>23.5.2</b> Stepwise regression based on AIC (Akaike Information Criterion).</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="24" data-path="plot-establishment.html"><a href="plot-establishment.html"><i class="fa fa-check"></i><b>24</b> Plot establishment</a></li>
+<li class="chapter" data-level="25" data-path="bootstrapping-and-resampling.html"><a href="bootstrapping-and-resampling.html"><i class="fa fa-check"></i><b>25</b> Bootstrapping and resampling</a></li>
+<li class="chapter" data-level="26" data-path="population-sensation.html"><a href="population-sensation.html"><i class="fa fa-check"></i><b>26</b> Population sensation</a>
+<ul>
+<li class="chapter" data-level="26.1" data-path="population-sensation.html"><a href="population-sensation.html#population-characteristics"><i class="fa fa-check"></i><b>26.1</b> Population characteristics</a></li>
+<li class="chapter" data-level="26.2" data-path="population-sensation.html"><a href="population-sensation.html#planning-a-census"><i class="fa fa-check"></i><b>26.2</b> Planning a census</a></li>
+<li class="chapter" data-level="26.3" data-path="population-sensation.html"><a href="population-sensation.html#life-cycle-diagrams"><i class="fa fa-check"></i><b>26.3</b> Life cycle diagrams</a></li>
+<li class="chapter" data-level="26.4" data-path="population-sensation.html"><a href="population-sensation.html#population-demographic-models"><i class="fa fa-check"></i><b>26.4</b> Population demographic models</a></li>
+<li class="chapter" data-level="26.5" data-path="population-sensation.html"><a href="population-sensation.html#integral-projection-models"><i class="fa fa-check"></i><b>26.5</b> Integral projection models</a></li>
+<li class="chapter" data-level="26.6" data-path="population-sensation.html"><a href="population-sensation.html#an-example-population-ecology-of-an-endangered-plant"><i class="fa fa-check"></i><b>26.6</b> An example: Population ecology of an endangered plant</a></li>
+<li class="chapter" data-level="26.7" data-path="population-sensation.html"><a href="population-sensation.html#putting-it-all-together"><i class="fa fa-check"></i><b>26.7</b> Putting it all together</a></li>
+<li class="chapter" data-level="26.8" data-path="population-sensation.html"><a href="population-sensation.html#generating-confidence-intervals"><i class="fa fa-check"></i><b>26.8</b> Generating confidence intervals</a></li>
+<li class="chapter" data-level="26.9" data-path="population-sensation.html"><a href="population-sensation.html#different-life-histories"><i class="fa fa-check"></i><b>26.9</b> Different life histories</a></li>
+</ul></li>
+<li class="chapter" data-level="27" data-path="permuting-your-brains-out.html"><a href="permuting-your-brains-out.html"><i class="fa fa-check"></i><b>27</b> Permuting your brains out</a></li>
+<li class="chapter" data-level="28" data-path="spatial-data.html"><a href="spatial-data.html"><i class="fa fa-check"></i><b>28</b> Spatial data</a></li>
+<li class="chapter" data-level="29" data-path="read.html"><a href="read.html"><i class="fa fa-check"></i><b>29</b> Read</a></li>
+<li class="chapter" data-level="30" data-path="check-structure.html"><a href="check-structure.html"><i class="fa fa-check"></i><b>30</b> Check structure</a></li>
+<li class="chapter" data-level="31" data-path="write.html"><a href="write.html"><i class="fa fa-check"></i><b>31</b> Write</a></li>
+<li class="chapter" data-level="32" data-path="read-1.html"><a href="read-1.html"><i class="fa fa-check"></i><b>32</b> Read</a></li>
+<li class="chapter" data-level="33" data-path="check-properties.html"><a href="check-properties.html"><i class="fa fa-check"></i><b>33</b> Check properties</a></li>
+<li class="chapter" data-level="34" data-path="write-1.html"><a href="write-1.html"><i class="fa fa-check"></i><b>34</b> Write</a></li>
+<li class="chapter" data-level="35" data-path="create-neighbor-list.html"><a href="create-neighbor-list.html"><i class="fa fa-check"></i><b>35</b> Create neighbor list</a></li>
+<li class="chapter" data-level="36" data-path="test-residuals.html"><a href="test-residuals.html"><i class="fa fa-check"></i><b>36</b> Test residuals</a></li>
+<li class="chapter" data-level="37" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html"><i class="fa fa-check"></i><b>37</b> Species Distribution Modeling</a>
+<ul>
+<li class="chapter" data-level="37.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#introduction-1"><i class="fa fa-check"></i><b>37.1</b> Introduction</a></li>
+<li class="chapter" data-level="37.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#a-brief-review-of-niche-theory"><i class="fa fa-check"></i><b>37.2</b> A brief review of niche theory</a></li>
+<li class="chapter" data-level="37.3" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#downloads-for-this-lab"><i class="fa fa-check"></i><b>37.3</b> Downloads for this lab</a></li>
+<li class="chapter" data-level="37.4" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#objectives-1"><i class="fa fa-check"></i><b>37.4</b> Objectives</a></li>
+<li class="chapter" data-level="37.5" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#methods"><i class="fa fa-check"></i><b>37.5</b> Methods</a>
+<ul>
+<li class="chapter" data-level="37.5.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#lets-get-modeling"><i class="fa fa-check"></i><b>37.5.1</b> Let’s get modeling</a></li>
+<li class="chapter" data-level="37.5.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#run-the-r-code"><i class="fa fa-check"></i><b>37.5.2</b> Run the R code</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="38" data-path="diversity-statistics.html"><a href="diversity-statistics.html"><i class="fa fa-check"></i><b>38</b> Diversity statistics</a>
+<ul>
+<li class="chapter" data-level="38.1" data-path="diversity-statistics.html"><a href="diversity-statistics.html#inext"><i class="fa fa-check"></i><b>38.1</b> iNext</a></li>
+<li class="chapter" data-level="38.2" data-path="diversity-statistics.html"><a href="diversity-statistics.html#coveragebased-re-sampling-curves"><i class="fa fa-check"></i><b>38.2</b> Coverage‐based R/E sampling curves</a></li>
+<li class="chapter" data-level="38.3" data-path="diversity-statistics.html"><a href="diversity-statistics.html#data-manipulation"><i class="fa fa-check"></i><b>38.3</b> Data manipulation</a></li>
+</ul></li>
+<li class="chapter" data-level="39" data-path="ordination-station.html"><a href="ordination-station.html"><i class="fa fa-check"></i><b>39</b> Ordination station</a></li>
+<li class="chapter" data-level="40" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html"><i class="fa fa-check"></i><b>40</b> What are structural equation models?</a>
+<ul>
+<li class="chapter" data-level="40.0.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#when-should-you-use-sem"><i class="fa fa-check"></i><b>40.0.1</b> When Should You Use SEM?</a></li>
+<li class="chapter" data-level="40.0.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression"><i class="fa fa-check"></i><b>40.0.2</b> How is SEM Different from Multiple Regression?</a></li>
+<li class="chapter" data-level="40.0.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary"><i class="fa fa-check"></i><b>40.0.3</b> Summary</a></li>
+<li class="chapter" data-level="40.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model"><i class="fa fa-check"></i><b>40.1</b> Anatomy of a Structural Equation Model</a>
+<ul>
+<li class="chapter" data-level="40.1.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#types-of-variables"><i class="fa fa-check"></i><b>40.1.1</b> Types of Variables</a></li>
+<li class="chapter" data-level="40.1.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#path-diagrams"><i class="fa fa-check"></i><b>40.1.2</b> Path Diagrams</a></li>
+</ul></li>
+<li class="chapter" data-level="40.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#building-multivariate-models"><i class="fa fa-check"></i><b>40.2</b> Building Multivariate Models</a>
+<ul>
+<li class="chapter" data-level="40.2.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-causality"><i class="fa fa-check"></i><b>40.2.1</b> What is Causality?</a></li>
+<li class="chapter" data-level="40.2.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression"><i class="fa fa-check"></i><b>40.2.2</b> Why move beyond Multiple Regression?</a></li>
+<li class="chapter" data-level="40.2.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#meta-modeling-your-system"><i class="fa fa-check"></i><b>40.2.3</b> Meta-Modeling Your System</a></li>
+</ul></li>
+<li class="chapter" data-level="40.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#from-concept-to-model"><i class="fa fa-check"></i><b>40.3</b> From Concept to Model</a></li>
+<li class="chapter" data-level="40.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams"><i class="fa fa-check"></i><b>40.4</b> Common Structures in Causal Diagrams</a>
+<ul>
+<li class="chapter" data-level="40.4.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chains-mediation-paths"><i class="fa fa-check"></i><b>40.4.1</b> Chains (Mediation Paths)</a></li>
+<li class="chapter" data-level="40.4.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#colliders"><i class="fa fa-check"></i><b>40.4.2</b> Colliders</a></li>
+<li class="chapter" data-level="40.4.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#forks-confounding-paths"><i class="fa fa-check"></i><b>40.4.3</b> Forks (Confounding Paths)</a></li>
+<li class="chapter" data-level="40.4.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#descendants-of-colliders"><i class="fa fa-check"></i><b>40.4.4</b> Descendants of Colliders</a></li>
+<li class="chapter" data-level="40.4.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-of-strcutures"><i class="fa fa-check"></i><b>40.4.5</b> Summary of strcutures</a></li>
+<li class="chapter" data-level="40.4.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifying-causality"><i class="fa fa-check"></i><b>40.4.6</b> Identifying Causality</a></li>
+<li class="chapter" data-level="40.4.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#backdoor-criterion"><i class="fa fa-check"></i><b>40.4.7</b> Backdoor Criterion</a></li>
+<li class="chapter" data-level="40.4.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#frontdoor-criterion"><i class="fa fa-check"></i><b>40.4.8</b> Frontdoor Criterion</a></li>
+<li class="chapter" data-level="40.4.9" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management"><i class="fa fa-check"></i><b>40.4.9</b> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management</a></li>
+<li class="chapter" data-level="40.4.10" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#adjustment-sets"><i class="fa fa-check"></i><b>40.4.10</b> Adjustment Sets</a></li>
+</ul></li>
+<li class="chapter" data-level="40.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem"><i class="fa fa-check"></i><b>40.5</b> Chapter 5: Covariance-Based Estimation in SEM</a>
+<ul>
+<li class="chapter" data-level="40.5.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-covariance-based-sem"><i class="fa fa-check"></i><b>40.5.1</b> What is Covariance-Based SEM?</a></li>
+<li class="chapter" data-level="40.5.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#maximum-likelihood-estimation"><i class="fa fa-check"></i><b>40.5.2</b> Maximum Likelihood Estimation</a></li>
+<li class="chapter" data-level="40.5.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation"><i class="fa fa-check"></i><b>40.5.3</b> Assumptions Behind ML Estimation</a></li>
+<li class="chapter" data-level="40.5.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifiability"><i class="fa fa-check"></i><b>40.5.4</b> Identifiability</a></li>
+<li class="chapter" data-level="40.5.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#degrees-of-freedom"><i class="fa fa-check"></i><b>40.5.5</b> Degrees of Freedom</a></li>
+<li class="chapter" data-level="40.5.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#sample-size-considerations"><i class="fa fa-check"></i><b>40.5.6</b> Sample Size Considerations</a></li>
+<li class="chapter" data-level="40.5.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-1"><i class="fa fa-check"></i><b>40.5.7</b> Summary</a></li>
+<li class="chapter" data-level="40.5.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan"><i class="fa fa-check"></i><b>40.5.8</b> Chapter 6: Structural Equation Modeling in R with lavaan</a></li>
+</ul></li>
+<li class="chapter" data-level="40.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation"><i class="fa fa-check"></i><b>40.6</b> Getting Started with lavaan – Model Specification, Estimation, and Interpretation</a>
+<ul>
+<li class="chapter" data-level="40.6.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality"><i class="fa fa-check"></i><b>40.6.1</b> Chapter 7:Assessing Fit and Normality</a></li>
+<li class="chapter" data-level="40.6.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation"><i class="fa fa-check"></i><b>40.6.2</b> Chapter 8: Comparing Models and Testing Mediation</a></li>
+<li class="chapter" data-level="40.6.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers"><i class="fa fa-check"></i><b>40.6.3</b> Chapter 8: Latent Variables as Drivers</a></li>
+<li class="chapter" data-level="40.6.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error"><i class="fa fa-check"></i><b>40.6.4</b> Chapter 10: Latent Responses and Measurement Error</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="41" data-path="piecewise-sems.html"><a href="piecewise-sems.html"><i class="fa fa-check"></i><b>41</b> Piecewise SEMs</a>
+<ul>
+<li class="chapter" data-level="41.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview"><i class="fa fa-check"></i><b>41.1</b> Overview</a></li>
+<li class="chapter" data-level="41.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem"><i class="fa fa-check"></i><b>41.2</b> Why Use Piecewise SEM, instead of a covariance SEM?</a>
+<ul>
+<li class="chapter" data-level="41.2.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#comparison-of-sem-approaches"><i class="fa fa-check"></i><b>41.2.1</b> Comparison of SEM Approaches</a></li>
+<li class="chapter" data-level="41.2.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-covariance-based-sem"><i class="fa fa-check"></i><b>41.2.2</b> Benefits of Covariance-Based SEM</a></li>
+<li class="chapter" data-level="41.2.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-piecewise-sem"><i class="fa fa-check"></i><b>41.2.3</b> Benefits of Piecewise SEM</a></li>
+<li class="chapter" data-level="41.2.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#when-to-use-each-approach"><i class="fa fa-check"></i><b>41.2.4</b> When to Use Each Approach</a></li>
+<li class="chapter" data-level="41.2.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#models-differ-in-approach"><i class="fa fa-check"></i><b>41.2.5</b> Models differ in approach</a></li>
+</ul></li>
+<li class="chapter" data-level="41.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona"><i class="fa fa-check"></i><b>41.3</b> SEM Example: Resilience to Drought in Arizona</a>
+<ul>
+<li class="chapter" data-level="41.3.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r"><i class="fa fa-check"></i><b>41.3.1</b> Chapter 12: Introduction to Piecewise SEM in R</a></li>
+</ul></li>
+<li class="chapter" data-level="41.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#part-1-what-is-piecewise-sem"><i class="fa fa-check"></i><b>41.4</b> Part 1: What is Piecewise SEM?</a>
+<ul>
+<li class="chapter" data-level="41.4.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem"><i class="fa fa-check"></i><b>41.4.1</b> Chapter 13: Nonlinearity and Interaction in SEM</a></li>
+<li class="chapter" data-level="41.4.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem"><i class="fa fa-check"></i><b>41.4.2</b> Chapter 14: GLMs with SEM using PiecewiseSEM</a></li>
+</ul></li>
+<li class="chapter" data-level="41.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview-1"><i class="fa fa-check"></i><b>41.5</b> Overview</a>
+<ul>
+<li class="chapter" data-level="41.5.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem"><i class="fa fa-check"></i><b>41.5.1</b> Chapter 15: Categorical Predictors &amp; Multigroup SEM</a></li>
+<li class="chapter" data-level="41.5.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r"><i class="fa fa-check"></i><b>41.5.2</b> Chapter 16: Multigroup SEM in R</a></li>
+<li class="chapter" data-level="41.5.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-17"><i class="fa fa-check"></i><b>41.5.3</b> Chapter 17:</a></li>
+</ul></li>
+<li class="chapter" data-level="41.6" data-path="piecewise-sems.html"><a href="piecewise-sems.html#example-with-powerline-data"><i class="fa fa-check"></i><b>41.6</b> Example with Powerline Data</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Statistics for Ecology</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="what-are-structural-equation-models" class="section level1 hasAnchor" number="40">
+<h1><span class="header-section-number">Chapter 40</span> What are structural equation models?<a href="what-are-structural-equation-models.html#what-are-structural-equation-models" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Structural Equation Modeling (SEM) is a statistical technique that enables the modeling of complex causal relationships among variables. It extends regression by allowing:</p>
+<ul>
+<li>Simultaneous estimation of multiple equations</li>
+<li>Inclusion of both observed and <strong>latent</strong> (unmeasured) variables</li>
+<li>Specification of indirect effects and feedback loops</li>
+<li>Assessment of model fit against observed data</li>
+</ul>
+<p>SEM is often visualized as a path diagram, where arrows represent hypothesized relationships between variables.</p>
+<div id="when-should-you-use-sem" class="section level3 hasAnchor" number="40.0.1">
+<h3><span class="header-section-number">40.0.1</span> When Should You Use SEM?<a href="what-are-structural-equation-models.html#when-should-you-use-sem" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Use SEM when:</p>
+<ul>
+<li>You have <strong>multiple dependent variables</strong> that may influence one another</li>
+<li>You want to estimate <strong>direct and indirect effects</strong> between variables</li>
+<li>You need to account for <strong>measurement error</strong> in survey or ecological constructs</li>
+<li>You are testing a <strong>theory</strong> or conceptual model with multiple pathways</li>
+<li>Your system includes <strong>latent constructs</strong> like “habitat quality” or “disturbance pressure” inferred from several indicators</li>
+</ul>
+<blockquote>
+<p>SEM is ideal when a single regression model is too simplistic to capture the interdependent relationships in your system.</p>
+</blockquote>
+</div>
+<div id="how-is-sem-different-from-multiple-regression" class="section level3 hasAnchor" number="40.0.2">
+<h3><span class="header-section-number">40.0.2</span> How is SEM Different from Multiple Regression?<a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<table>
+<colgroup>
+<col width="31%" />
+<col width="29%" />
+<col width="38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Multiple Regression</th>
+<th>SEM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Number of equations</td>
+<td>One</td>
+<td>Many simultaneously</td>
+</tr>
+<tr class="even">
+<td>Latent variables</td>
+<td>❌ Not allowed</td>
+<td>✅ Allowed</td>
+</tr>
+<tr class="odd">
+<td>Indirect effects</td>
+<td>❌ Manual calculation</td>
+<td>✅ Modeled explicitly</td>
+</tr>
+<tr class="even">
+<td>Measurement error (in predictors)</td>
+<td>❌ Ignored</td>
+<td>✅ Can be modeled</td>
+</tr>
+<tr class="odd">
+<td>Model fit assessment</td>
+<td>R², AIC, etc.</td>
+<td>Chi-square test, RMSEA, CFI, TLI, etc.</td>
+</tr>
+</tbody>
+</table>
+<p>In multiple regression, you can only estimate <strong>one equation at a time</strong>, with no ability to model feedback loops or measurement error. In contrast, <strong>SEM treats your whole system as a network</strong>, testing how well your full model fits the data.</p>
+</div>
+<div id="summary" class="section level3 hasAnchor" number="40.0.3">
+<h3><span class="header-section-number">40.0.3</span> Summary<a href="what-are-structural-equation-models.html#summary" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>SEM is a flexible and powerful framework for:</p>
+<ul>
+<li>Exploring and testing theoretical models</li>
+<li>Modeling complex causal chains</li>
+<li>Incorporating unobservable constructs</li>
+</ul>
+<p>It provides more rigorous insights into systems where variables are interdependent, influenced by hidden factors, and subject to error.</p>
+</div>
+<div id="anatomy-of-a-structural-equation-model" class="section level2 hasAnchor" number="40.1">
+<h2><span class="header-section-number">40.1</span> Anatomy of a Structural Equation Model<a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Structural Equation Modeling (SEM) provides a flexible framework for representing complex causal relationships between variables. In this chapter, we break down the structure of an SEM into its key components.</p>
+<div id="types-of-variables" class="section level3 hasAnchor" number="40.1.1">
+<h3><span class="header-section-number">40.1.1</span> Types of Variables<a href="what-are-structural-equation-models.html#types-of-variables" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>SEM uses two main types of variables:</p>
+<ul>
+<li><strong>Observed variables</strong>: Directly measured values (e.g., soil nitrogen, species richness).</li>
+<li><strong>Latent variables</strong>: Not directly observed, but inferred from multiple observed indicators<br />
+(e.g., a latent “Disturbance Pressure” factor inferred from road density, fire frequency, and grazing).</li>
+</ul>
+<p>Each variable also plays one of two roles in the model:</p>
+<table>
+<colgroup>
+<col width="18%" />
+<col width="81%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable Role</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Exogenous</strong></td>
+<td>Predictor variables not explained by any other variables in the model.</td>
+</tr>
+<tr class="even">
+<td><strong>Endogenous</strong></td>
+<td>Response variables influenced by one or more other variables in the model.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Note: Endogenous variables can act as both outcomes and predictors of other endogenous variables.</p>
+</blockquote>
+</div>
+<div id="path-diagrams" class="section level3 hasAnchor" number="40.1.2">
+<h3><span class="header-section-number">40.1.2</span> Path Diagrams<a href="what-are-structural-equation-models.html#path-diagrams" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Path diagrams are a central feature of SEM. They visually represent the hypothesized relationships between variables using arrows:</p>
+<ul>
+<li><strong>Single-headed arrows (→)</strong> represent <strong>causal/predictive paths</strong></li>
+<li><strong>Double-headed arrows (↔︎)</strong> represent <strong>covariances</strong> (associations not assumed to be causal)</li>
+</ul>
+</div>
+</div>
+<div id="building-multivariate-models" class="section level2 hasAnchor" number="40.2">
+<h2><span class="header-section-number">40.2</span> Building Multivariate Models<a href="what-are-structural-equation-models.html#building-multivariate-models" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="what-is-causality" class="section level3 hasAnchor" number="40.2.1">
+<h3><span class="header-section-number">40.2.1</span> What is Causality?<a href="what-are-structural-equation-models.html#what-is-causality" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Causality refers to understanding the directional effect one variable has on another. In SEM, causal relationships are explicitly modeled, unlike in multiple regression where they may be implied but not specified.</p>
+<p>Judea Pearl’s Ladder of Causation is a framework for understanding levels of causal reasoning:</p>
+<pre><code>1.  Observation — association reasoning (“what is”)
+2.  Intervention — action-based reasoning (“what if I do”)
+3.  Counterfactuals — imagining alternate realities (“what if I had done”)</code></pre>
+<p>We ascend the ladder by incorporating more assumptions and a model of the system.</p>
+</div>
+<div id="why-move-beyond-multiple-regression" class="section level3 hasAnchor" number="40.2.2">
+<h3><span class="header-section-number">40.2.2</span> Why move beyond Multiple Regression?<a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Multiple regression models:</p>
+<pre><code>•   Estimate associations while “controlling for” other variables
+•   Assume independence among predictors
+•   Do not explicitly encode causal structure</code></pre>
+<p>Causal models (via SEM):</p>
+<pre><code>•   Represent direction and strength of causal pathways
+•   Account for mediators, confounders, and latent variables
+•   Enable testing of hypotheses about mechanisms</code></pre>
+</div>
+<div id="meta-modeling-your-system" class="section level3 hasAnchor" number="40.2.3">
+<h3><span class="header-section-number">40.2.3</span> Meta-Modeling Your System<a href="what-are-structural-equation-models.html#meta-modeling-your-system" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Before diving into data, build a conceptual model:</p>
+<pre><code>1.  Define your research Purpose:
+
+•   Discovery: Are you exploring patterns or relationships for the first time?
+•   Hypothesis Testing: Are you evaluating a specific theoretical prediction?
+•   Prediction: Are you aiming to forecast outcomes under new conditions?</code></pre>
+<p><strong>Tip</strong>: Discovery-based models might be more flexible or exploratory, while hypothesis testing demands tighter causal logic and pre-specified relationships.</p>
+<pre><code>2.  Identify the Focus:</code></pre>
+<p>What role do your variables play in the system?:</p>
+<pre><code>•   Drivers: Variables that initiate causal change (e.g., treatments, environmental context).
+•   Responses: Outcome variables (e.g., pollinator abundance).
+•   Mediators: Variables that transmit effects from causes to outcomes (e.g., plant cover).</code></pre>
+<p>Make sure the pieces of your model are causal! Avoid throwing in all your variables just because you measured them — each should have a theorized role.</p>
+<pre><code>3.  Determine Span of Inference:</code></pre>
+<p>Are your findings meant to be context-specific or to inform broader generalizations?:</p>
+<pre><code>•   Local/System-Specific: Targeted insights for a particular site or management action.
+•   Generalizable Process: Testing broad ecological principles or multi-site patterns.
+•   Theory Testing: Are you evaluating a known causal pathway or testing a novel ecological hypothesis?</code></pre>
+<p>This choice influences how you frame your model structure and what covariates (like “site”) you might treat as fixed or random.</p>
+</div>
+</div>
+<div id="from-concept-to-model" class="section level2 hasAnchor" number="40.3">
+<h2><span class="header-section-number">40.3</span> From Concept to Model<a href="what-are-structural-equation-models.html#from-concept-to-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Once your meta-model is constructed:</p>
+<pre><code>•   Reify with data availability in mind
+•   Ensure your DAG closes appropriate backdoors
+•   Align structure with your research purpose</code></pre>
+<p><strong>Make sure the pieces of your model are causal!</strong></p>
+</div>
+<div id="common-structures-in-causal-diagrams" class="section level2 hasAnchor" number="40.4">
+<h2><span class="header-section-number">40.4</span> Common Structures in Causal Diagrams<a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In structural equation modeling (SEM) and causal inference, understanding the basic building blocks of causal diagrams is crucial. These structures form the foundation for determining what to control for and what to avoid controlling for. Below are the most common structures you’ll encounter in Directed Acyclic Graphs (DAGs), with brief explanations and examples.</p>
+<div id="chains-mediation-paths" class="section level3 hasAnchor" number="40.4.1">
+<h3><span class="header-section-number">40.4.1</span> Chains (Mediation Paths)<a href="what-are-structural-equation-models.html#chains-mediation-paths" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Structure:</p>
+<p>Cause → Mediator → Effect</p>
+<p>Interpretation:</p>
+<pre><code>•   The mediator is an intermediate variable through which the cause affects the effect.
+•   If you control for the mediator, you block the indirect path, potentially underestimating the total effect of the cause.</code></pre>
+<p>Example:</p>
+<p>Fire frequency → Canopy cover → Soil moisture
+• If you control for canopy cover, you might miss the full effect that fire frequency has on soil moisture via changes in canopy cover.</p>
+<p>Visual:</p>
+<div class="sourceCode" id="cb290"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb290-1"><a href="what-are-structural-equation-models.html#cb290-1" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb290-2"><a href="what-are-structural-equation-models.html#cb290-2" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb290-3"><a href="what-are-structural-equation-models.html#cb290-3" tabindex="-1"></a></span>
+<span id="cb290-4"><a href="what-are-structural-equation-models.html#cb290-4" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb290-5"><a href="what-are-structural-equation-models.html#cb290-5" tabindex="-1"></a>  SoilMoisture <span class="sc">~</span> CanopyCover,</span>
+<span id="cb290-6"><a href="what-are-structural-equation-models.html#cb290-6" tabindex="-1"></a>  CanopyCover <span class="sc">~</span> Fire,</span>
+<span id="cb290-7"><a href="what-are-structural-equation-models.html#cb290-7" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="at">Fire =</span> <span class="st">&quot;Fire Frequency&quot;</span>, <span class="at">CanopyCover =</span> <span class="st">&quot;Canopy Cover&quot;</span>, <span class="at">SoilMoisture =</span> <span class="st">&quot;Soil Moisture&quot;</span>),</span>
+<span id="cb290-8"><a href="what-are-structural-equation-models.html#cb290-8" tabindex="-1"></a>  <span class="at">exposure =</span> <span class="st">&quot;Fire&quot;</span>, <span class="at">outcome =</span> <span class="st">&quot;SoilMoisture&quot;</span></span>
+<span id="cb290-9"><a href="what-are-structural-equation-models.html#cb290-9" tabindex="-1"></a>)</span>
+<span id="cb290-10"><a href="what-are-structural-equation-models.html#cb290-10" tabindex="-1"></a><span class="fu">ggdag</span>(dag, <span class="at">text =</span> <span class="cn">FALSE</span>, <span class="at">use_labels =</span> <span class="st">&quot;label&quot;</span>) <span class="sc">+</span> <span class="fu">theme_dag</span>()</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-126-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="colliders" class="section level3 hasAnchor" number="40.4.2">
+<h3><span class="header-section-number">40.4.2</span> Colliders<a href="what-are-structural-equation-models.html#colliders" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Structure:</p>
+<p>Cause1 → Collider ← Cause2</p>
+<p>Interpretation:</p>
+<pre><code>•   A collider is a variable that is influenced by two (or more) variables.
+•   Controlling for the collider opens a path between the two causes, creating spurious associations where none may exist.</code></pre>
+<p>Example:</p>
+<p>Soil nitrogen → Plant growth ← Pathogen load</p>
+<pre><code>•   Both soil nitrogen and pathogen load affect plant growth. If you control for plant growth (the collider), it might look like soil nitrogen and pathogens are correlated—even if they’re not.</code></pre>
+<p>Visual:</p>
+<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="what-are-structural-equation-models.html#cb293-1" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb293-2"><a href="what-are-structural-equation-models.html#cb293-2" tabindex="-1"></a>  PlantGrowth <span class="sc">~</span> SoilNitrogen <span class="sc">+</span> PathogenLoad,</span>
+<span id="cb293-3"><a href="what-are-structural-equation-models.html#cb293-3" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="at">SoilNitrogen =</span> <span class="st">&quot;Soil N&quot;</span>, <span class="at">PathogenLoad =</span> <span class="st">&quot;Pathogens&quot;</span>, <span class="at">PlantGrowth =</span> <span class="st">&quot;Plant Growth&quot;</span>),</span>
+<span id="cb293-4"><a href="what-are-structural-equation-models.html#cb293-4" tabindex="-1"></a>  <span class="at">exposure =</span> <span class="st">&quot;SoilNitrogen&quot;</span>, <span class="at">outcome =</span> <span class="st">&quot;PathogenLoad&quot;</span></span>
+<span id="cb293-5"><a href="what-are-structural-equation-models.html#cb293-5" tabindex="-1"></a>)</span>
+<span id="cb293-6"><a href="what-are-structural-equation-models.html#cb293-6" tabindex="-1"></a><span class="fu">ggdag</span>(dag, <span class="at">text =</span> <span class="cn">FALSE</span>, <span class="at">use_labels =</span> <span class="st">&quot;label&quot;</span>) <span class="sc">+</span> <span class="fu">theme_dag</span>()</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-127-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="forks-confounding-paths" class="section level3 hasAnchor" number="40.4.3">
+<h3><span class="header-section-number">40.4.3</span> Forks (Confounding Paths)<a href="what-are-structural-equation-models.html#forks-confounding-paths" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Structure:</p>
+<p>CommonCause → Cause, CommonCause → Effect</p>
+<p>Interpretation:</p>
+<pre><code>•   This is a confounding structure, where the common cause explains the observed correlation between two variables.
+•   Controlling for the common cause blocks the backdoor path, helping isolate the causal effect.</code></pre>
+<p>Example:</p>
+<p>Soil type → Invasive species cover
+Soil type → Native species richness
+• If you don’t control for soil type, you may falsely conclude that invasive cover affects native richness, when both are simply driven by the soil.</p>
+<p>Visual:</p>
+<div class="sourceCode" id="cb295"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb295-1"><a href="what-are-structural-equation-models.html#cb295-1" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb295-2"><a href="what-are-structural-equation-models.html#cb295-2" tabindex="-1"></a>  InvasiveCover <span class="sc">~</span> SoilType,</span>
+<span id="cb295-3"><a href="what-are-structural-equation-models.html#cb295-3" tabindex="-1"></a>  NativeRichness <span class="sc">~</span> SoilType,</span>
+<span id="cb295-4"><a href="what-are-structural-equation-models.html#cb295-4" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="at">SoilType =</span> <span class="st">&quot;Soil Type&quot;</span>, <span class="at">InvasiveCover =</span> <span class="st">&quot;Invasive Cover&quot;</span>, <span class="at">NativeRichness =</span> <span class="st">&quot;Native Richness&quot;</span>),</span>
+<span id="cb295-5"><a href="what-are-structural-equation-models.html#cb295-5" tabindex="-1"></a>  <span class="at">exposure =</span> <span class="st">&quot;InvasiveCover&quot;</span>, <span class="at">outcome =</span> <span class="st">&quot;NativeRichness&quot;</span></span>
+<span id="cb295-6"><a href="what-are-structural-equation-models.html#cb295-6" tabindex="-1"></a>)</span>
+<span id="cb295-7"><a href="what-are-structural-equation-models.html#cb295-7" tabindex="-1"></a><span class="fu">ggdag</span>(dag, <span class="at">text =</span> <span class="cn">FALSE</span>, <span class="at">use_labels =</span> <span class="st">&quot;label&quot;</span>) <span class="sc">+</span> <span class="fu">theme_dag</span>()</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-128-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="descendants-of-colliders" class="section level3 hasAnchor" number="40.4.4">
+<h3><span class="header-section-number">40.4.4</span> Descendants of Colliders<a href="what-are-structural-equation-models.html#descendants-of-colliders" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Key Point</strong>:</p>
+<pre><code>•   Controlling for descendants of colliders can also open spurious paths.</code></pre>
+<p>Example:</p>
+<p>Imagine you control for a variable like Plant biomass, which is a descendant of a collider. This can reintroduce bias just like controlling for the collider itself.</p>
+</div>
+<div id="summary-of-strcutures" class="section level3 hasAnchor" number="40.4.5">
+<h3><span class="header-section-number">40.4.5</span> Summary of strcutures<a href="what-are-structural-equation-models.html#summary-of-strcutures" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Structure Do You Control For It? Why?
+Chain (mediator) ❌ (if estimating total effect) Controls block indirect paths
+Collider ❌ Conditioning opens spurious paths
+Fork (common cause) ✅ Controls block confounding
+Descendant of Collider ❌ Opens collider paths indirectly</p>
+<p>Understanding these structures helps you build better SEMs, choose correct adjustment sets, and avoid introducing bias into your models.</p>
+</div>
+<div id="identifying-causality" class="section level3 hasAnchor" number="40.4.6">
+<h3><span class="header-section-number">40.4.6</span> Identifying Causality<a href="what-are-structural-equation-models.html#identifying-causality" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>You don’t need to know all mechanisms to make causal claims. But you do need to:</p>
+<pre><code>•   Map the system (e.g., using DAGs)
+•   Identify and control for confounders
+•   Avoid controlling for mediators</code></pre>
+</div>
+<div id="backdoor-criterion" class="section level3 hasAnchor" number="40.4.7">
+<h3><span class="header-section-number">40.4.7</span> Backdoor Criterion<a href="what-are-structural-equation-models.html#backdoor-criterion" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>To estimate a causal effect of X → Y, block all backdoor paths (those that flow into X) by conditioning on appropriate variables not affected by X.</p>
+</div>
+<div id="frontdoor-criterion" class="section level3 hasAnchor" number="40.4.8">
+<h3><span class="header-section-number">40.4.8</span> Frontdoor Criterion<a href="what-are-structural-equation-models.html#frontdoor-criterion" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Useful when you can’t block all backdoor paths. Identify a mediator that:</p>
+<pre><code>•   Is affected by X
+•   Affects Y
+•   Is not affected by any confounders of X and Y</code></pre>
+</div>
+<div id="build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management" class="section level3 hasAnchor" number="40.4.9">
+<h3><span class="header-section-number">40.4.9</span> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management<a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>This research project explores how different Integrated Vegetation Management (IVM) treatments conducted by Arizona Public Service (APS) on powerline rights-of-way (ROWs) affect pollinator communities, using Structural Equation Modeling (SEM) to untangle direct and indirect effects.</p>
+<div id="study-context" class="section level4 hasAnchor" number="40.4.9.1">
+<h4><span class="header-section-number">40.4.9.1</span> Study Context<a href="what-are-structural-equation-models.html#study-context" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>APS manages vegetation beneath powerlines for safety and access, using a mix of:</p>
+<pre><code>•   Mechanical removal
+•   Herbicide application
+•   Combined Mechanical + Herbicide
+•   Untreated (Control) plots</code></pre>
+<p>Understanding how these treatments influence floral resources is key to predicting changes in pollinator abundance and diversity.</p>
+</div>
+<div id="data-collection" class="section level4 hasAnchor" number="40.4.9.2">
+<h4><span class="header-section-number">40.4.9.2</span> Data Collection<a href="what-are-structural-equation-models.html#data-collection" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>At 3 sites, treatments were applied in a randomized block design across plots categorized as:</p>
+<pre><code>•   Control
+•   Herbicide
+•   Mechanical
+•   Mechanical + Herbicide</code></pre>
+<p>Researchers want to test whether management effects on pollinators are mediated through floral resources, or whether there are residual (direct) effects of treatment type beyond vegetation structure.</p>
+</div>
+<div id="key-variables-and-their-roles" class="section level4 hasAnchor" number="40.4.9.3">
+<h4><span class="header-section-number">40.4.9.3</span> Key Variables and Their Roles<a href="what-are-structural-equation-models.html#key-variables-and-their-roles" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Exogenous (Independent) Variables:</p>
+<pre><code>•   Treatment (main predictor—e.g., herbicide, mowing)
+•   Soil substrate (moderator/stratifier of treatment effects)
+•   Cattle presence (a confounder—not caused by treatment)</code></pre>
+<p>Plant Community Mediators:</p>
+<pre><code>•   Plant richness
+•   Plant cover
+•   Plant height
+•   Ceanothus presence/abundance
+•   Woody debris</code></pre>
+<p>Pollinator Response Variables:</p>
+<pre><code>•   Pollinator abundance
+•   Pollinator richness</code></pre>
+<div class="sourceCode" id="cb304"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb304-1"><a href="what-are-structural-equation-models.html#cb304-1" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb304-2"><a href="what-are-structural-equation-models.html#cb304-2" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb304-3"><a href="what-are-structural-equation-models.html#cb304-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb304-4"><a href="what-are-structural-equation-models.html#cb304-4" tabindex="-1"></a></span>
+<span id="cb304-5"><a href="what-are-structural-equation-models.html#cb304-5" tabindex="-1"></a></span>
+<span id="cb304-6"><a href="what-are-structural-equation-models.html#cb304-6" tabindex="-1"></a><span class="co"># Define the DAG</span></span>
+<span id="cb304-7"><a href="what-are-structural-equation-models.html#cb304-7" tabindex="-1"></a>ivm_dag <span class="ot">&lt;-</span> <span class="fu">dagitty</span>(<span class="st">&quot;</span></span>
+<span id="cb304-8"><a href="what-are-structural-equation-models.html#cb304-8" tabindex="-1"></a><span class="st">dag {</span></span>
+<span id="cb304-9"><a href="what-are-structural-equation-models.html#cb304-9" tabindex="-1"></a><span class="st">  Treatment</span></span>
+<span id="cb304-10"><a href="what-are-structural-equation-models.html#cb304-10" tabindex="-1"></a><span class="st">  Soil_Substrate</span></span>
+<span id="cb304-11"><a href="what-are-structural-equation-models.html#cb304-11" tabindex="-1"></a><span class="st">  Cattle</span></span>
+<span id="cb304-12"><a href="what-are-structural-equation-models.html#cb304-12" tabindex="-1"></a><span class="st">  Plant_Richness</span></span>
+<span id="cb304-13"><a href="what-are-structural-equation-models.html#cb304-13" tabindex="-1"></a><span class="st">  Plant_Cover</span></span>
+<span id="cb304-14"><a href="what-are-structural-equation-models.html#cb304-14" tabindex="-1"></a><span class="st">  Plant_Height</span></span>
+<span id="cb304-15"><a href="what-are-structural-equation-models.html#cb304-15" tabindex="-1"></a><span class="st">  Ceanothus</span></span>
+<span id="cb304-16"><a href="what-are-structural-equation-models.html#cb304-16" tabindex="-1"></a><span class="st">  Woody_Debris</span></span>
+<span id="cb304-17"><a href="what-are-structural-equation-models.html#cb304-17" tabindex="-1"></a><span class="st">  Pollinator_Richness</span></span>
+<span id="cb304-18"><a href="what-are-structural-equation-models.html#cb304-18" tabindex="-1"></a><span class="st">  Pollinator_Abundance</span></span>
+<span id="cb304-19"><a href="what-are-structural-equation-models.html#cb304-19" tabindex="-1"></a></span>
+<span id="cb304-20"><a href="what-are-structural-equation-models.html#cb304-20" tabindex="-1"></a><span class="st">  Treatment -&gt; Plant_Richness</span></span>
+<span id="cb304-21"><a href="what-are-structural-equation-models.html#cb304-21" tabindex="-1"></a><span class="st">  Treatment -&gt; Plant_Cover</span></span>
+<span id="cb304-22"><a href="what-are-structural-equation-models.html#cb304-22" tabindex="-1"></a><span class="st">  Treatment -&gt; Plant_Height</span></span>
+<span id="cb304-23"><a href="what-are-structural-equation-models.html#cb304-23" tabindex="-1"></a><span class="st">  Treatment -&gt; Ceanothus</span></span>
+<span id="cb304-24"><a href="what-are-structural-equation-models.html#cb304-24" tabindex="-1"></a><span class="st">  Treatment -&gt; Woody_Debris</span></span>
+<span id="cb304-25"><a href="what-are-structural-equation-models.html#cb304-25" tabindex="-1"></a></span>
+<span id="cb304-26"><a href="what-are-structural-equation-models.html#cb304-26" tabindex="-1"></a><span class="st">  Soil_Substrate -&gt; Treatment</span></span>
+<span id="cb304-27"><a href="what-are-structural-equation-models.html#cb304-27" tabindex="-1"></a><span class="st">  Soil_Substrate -&gt; Plant_Richness</span></span>
+<span id="cb304-28"><a href="what-are-structural-equation-models.html#cb304-28" tabindex="-1"></a><span class="st">  Soil_Substrate -&gt; Plant_Cover</span></span>
+<span id="cb304-29"><a href="what-are-structural-equation-models.html#cb304-29" tabindex="-1"></a><span class="st">  Soil_Substrate -&gt; Woody_Debris</span></span>
+<span id="cb304-30"><a href="what-are-structural-equation-models.html#cb304-30" tabindex="-1"></a></span>
+<span id="cb304-31"><a href="what-are-structural-equation-models.html#cb304-31" tabindex="-1"></a><span class="st">  Cattle -&gt; Plant_Richness</span></span>
+<span id="cb304-32"><a href="what-are-structural-equation-models.html#cb304-32" tabindex="-1"></a><span class="st">  Cattle -&gt; Plant_Cover</span></span>
+<span id="cb304-33"><a href="what-are-structural-equation-models.html#cb304-33" tabindex="-1"></a><span class="st">  Cattle -&gt; Pollinator_Abundance</span></span>
+<span id="cb304-34"><a href="what-are-structural-equation-models.html#cb304-34" tabindex="-1"></a><span class="st">  Cattle -&gt; Pollinator_Richness</span></span>
+<span id="cb304-35"><a href="what-are-structural-equation-models.html#cb304-35" tabindex="-1"></a></span>
+<span id="cb304-36"><a href="what-are-structural-equation-models.html#cb304-36" tabindex="-1"></a><span class="st">  Plant_Richness -&gt; Pollinator_Richness</span></span>
+<span id="cb304-37"><a href="what-are-structural-equation-models.html#cb304-37" tabindex="-1"></a><span class="st">  Plant_Richness -&gt; Pollinator_Abundance</span></span>
+<span id="cb304-38"><a href="what-are-structural-equation-models.html#cb304-38" tabindex="-1"></a><span class="st">  Plant_Cover -&gt; Pollinator_Richness</span></span>
+<span id="cb304-39"><a href="what-are-structural-equation-models.html#cb304-39" tabindex="-1"></a><span class="st">  Plant_Cover -&gt; Pollinator_Abundance</span></span>
+<span id="cb304-40"><a href="what-are-structural-equation-models.html#cb304-40" tabindex="-1"></a><span class="st">  Plant_Height -&gt; Pollinator_Richness</span></span>
+<span id="cb304-41"><a href="what-are-structural-equation-models.html#cb304-41" tabindex="-1"></a><span class="st">  Plant_Height -&gt; Pollinator_Abundance</span></span>
+<span id="cb304-42"><a href="what-are-structural-equation-models.html#cb304-42" tabindex="-1"></a><span class="st">  Ceanothus -&gt; Pollinator_Richness</span></span>
+<span id="cb304-43"><a href="what-are-structural-equation-models.html#cb304-43" tabindex="-1"></a><span class="st">  Ceanothus -&gt; Pollinator_Abundance</span></span>
+<span id="cb304-44"><a href="what-are-structural-equation-models.html#cb304-44" tabindex="-1"></a><span class="st">  Woody_Debris -&gt; Pollinator_Richness</span></span>
+<span id="cb304-45"><a href="what-are-structural-equation-models.html#cb304-45" tabindex="-1"></a><span class="st">  Woody_Debris -&gt; Pollinator_Abundance</span></span>
+<span id="cb304-46"><a href="what-are-structural-equation-models.html#cb304-46" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb304-47"><a href="what-are-structural-equation-models.html#cb304-47" tabindex="-1"></a><span class="st">&quot;</span>)</span>
+<span id="cb304-48"><a href="what-are-structural-equation-models.html#cb304-48" tabindex="-1"></a></span>
+<span id="cb304-49"><a href="what-are-structural-equation-models.html#cb304-49" tabindex="-1"></a>node_roles <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb304-50"><a href="what-are-structural-equation-models.html#cb304-50" tabindex="-1"></a>  <span class="at">name =</span> <span class="fu">c</span>(</span>
+<span id="cb304-51"><a href="what-are-structural-equation-models.html#cb304-51" tabindex="-1"></a>    <span class="st">&quot;Treatment&quot;</span>,</span>
+<span id="cb304-52"><a href="what-are-structural-equation-models.html#cb304-52" tabindex="-1"></a>    <span class="st">&quot;Soil_Substrate&quot;</span>,</span>
+<span id="cb304-53"><a href="what-are-structural-equation-models.html#cb304-53" tabindex="-1"></a>    <span class="st">&quot;Cattle&quot;</span>,</span>
+<span id="cb304-54"><a href="what-are-structural-equation-models.html#cb304-54" tabindex="-1"></a>    <span class="st">&quot;Plant_Richness&quot;</span>,</span>
+<span id="cb304-55"><a href="what-are-structural-equation-models.html#cb304-55" tabindex="-1"></a>    <span class="st">&quot;Plant_Cover&quot;</span>,</span>
+<span id="cb304-56"><a href="what-are-structural-equation-models.html#cb304-56" tabindex="-1"></a>    <span class="st">&quot;Plant_Height&quot;</span>,</span>
+<span id="cb304-57"><a href="what-are-structural-equation-models.html#cb304-57" tabindex="-1"></a>    <span class="st">&quot;Ceanothus&quot;</span>,</span>
+<span id="cb304-58"><a href="what-are-structural-equation-models.html#cb304-58" tabindex="-1"></a>    <span class="st">&quot;Woody_Debris&quot;</span>,</span>
+<span id="cb304-59"><a href="what-are-structural-equation-models.html#cb304-59" tabindex="-1"></a>    <span class="st">&quot;Pollinator_Richness&quot;</span>,</span>
+<span id="cb304-60"><a href="what-are-structural-equation-models.html#cb304-60" tabindex="-1"></a>    <span class="st">&quot;Pollinator_Abundance&quot;</span></span>
+<span id="cb304-61"><a href="what-are-structural-equation-models.html#cb304-61" tabindex="-1"></a>  ),</span>
+<span id="cb304-62"><a href="what-are-structural-equation-models.html#cb304-62" tabindex="-1"></a>  <span class="at">role =</span> <span class="fu">c</span>(</span>
+<span id="cb304-63"><a href="what-are-structural-equation-models.html#cb304-63" tabindex="-1"></a>    <span class="st">&quot;Treatment&quot;</span>,</span>
+<span id="cb304-64"><a href="what-are-structural-equation-models.html#cb304-64" tabindex="-1"></a>    <span class="st">&quot;Context&quot;</span>,</span>
+<span id="cb304-65"><a href="what-are-structural-equation-models.html#cb304-65" tabindex="-1"></a>    <span class="st">&quot;Context&quot;</span>,</span>
+<span id="cb304-66"><a href="what-are-structural-equation-models.html#cb304-66" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb304-67"><a href="what-are-structural-equation-models.html#cb304-67" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb304-68"><a href="what-are-structural-equation-models.html#cb304-68" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb304-69"><a href="what-are-structural-equation-models.html#cb304-69" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb304-70"><a href="what-are-structural-equation-models.html#cb304-70" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span>,</span>
+<span id="cb304-71"><a href="what-are-structural-equation-models.html#cb304-71" tabindex="-1"></a>    <span class="st">&quot;Pollinator&quot;</span>,</span>
+<span id="cb304-72"><a href="what-are-structural-equation-models.html#cb304-72" tabindex="-1"></a>    <span class="st">&quot;Pollinator&quot;</span></span>
+<span id="cb304-73"><a href="what-are-structural-equation-models.html#cb304-73" tabindex="-1"></a>  )</span>
+<span id="cb304-74"><a href="what-are-structural-equation-models.html#cb304-74" tabindex="-1"></a>)</span>
+<span id="cb304-75"><a href="what-are-structural-equation-models.html#cb304-75" tabindex="-1"></a></span>
+<span id="cb304-76"><a href="what-are-structural-equation-models.html#cb304-76" tabindex="-1"></a><span class="co"># Get layout and merge roles</span></span>
+<span id="cb304-77"><a href="what-are-structural-equation-models.html#cb304-77" tabindex="-1"></a>dag_df <span class="ot">&lt;-</span> <span class="fu">tidy_dagitty</span>(ivm_dag, <span class="at">layout =</span> <span class="st">&quot;nicely&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb304-78"><a href="what-are-structural-equation-models.html#cb304-78" tabindex="-1"></a>  <span class="fu">left_join</span>(node_roles, <span class="at">by =</span> <span class="st">&quot;name&quot;</span>)</span>
+<span id="cb304-79"><a href="what-are-structural-equation-models.html#cb304-79" tabindex="-1"></a></span>
+<span id="cb304-80"><a href="what-are-structural-equation-models.html#cb304-80" tabindex="-1"></a><span class="co"># Plot using ggplot2 with corrected edge structure</span></span>
+<span id="cb304-81"><a href="what-are-structural-equation-models.html#cb304-81" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb304-82"><a href="what-are-structural-equation-models.html#cb304-82" tabindex="-1"></a>  <span class="fu">geom_segment</span>(</span>
+<span id="cb304-83"><a href="what-are-structural-equation-models.html#cb304-83" tabindex="-1"></a>    <span class="at">data =</span> dag_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(xend)),</span>
+<span id="cb304-84"><a href="what-are-structural-equation-models.html#cb304-84" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">xend =</span> xend, <span class="at">yend =</span> yend),</span>
+<span id="cb304-85"><a href="what-are-structural-equation-models.html#cb304-85" tabindex="-1"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">&quot;npc&quot;</span>)),</span>
+<span id="cb304-86"><a href="what-are-structural-equation-models.html#cb304-86" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;grey40&quot;</span></span>
+<span id="cb304-87"><a href="what-are-structural-equation-models.html#cb304-87" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb304-88"><a href="what-are-structural-equation-models.html#cb304-88" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb304-89"><a href="what-are-structural-equation-models.html#cb304-89" tabindex="-1"></a>    <span class="at">data =</span> dag_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)), </span>
+<span id="cb304-90"><a href="what-are-structural-equation-models.html#cb304-90" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">color =</span> role), </span>
+<span id="cb304-91"><a href="what-are-structural-equation-models.html#cb304-91" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">8</span>, <span class="at">alpha =</span> <span class="fl">0.85</span></span>
+<span id="cb304-92"><a href="what-are-structural-equation-models.html#cb304-92" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb304-93"><a href="what-are-structural-equation-models.html#cb304-93" tabindex="-1"></a>  <span class="fu">geom_text</span>(</span>
+<span id="cb304-94"><a href="what-are-structural-equation-models.html#cb304-94" tabindex="-1"></a>    <span class="at">data =</span> dag_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)), </span>
+<span id="cb304-95"><a href="what-are-structural-equation-models.html#cb304-95" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">label =</span> name), </span>
+<span id="cb304-96"><a href="what-are-structural-equation-models.html#cb304-96" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="dv">4</span></span>
+<span id="cb304-97"><a href="what-are-structural-equation-models.html#cb304-97" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb304-98"><a href="what-are-structural-equation-models.html#cb304-98" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb304-99"><a href="what-are-structural-equation-models.html#cb304-99" tabindex="-1"></a>    <span class="st">&quot;Treatment&quot;</span> <span class="ot">=</span> <span class="st">&quot;#FB7E21FF&quot;</span>,</span>
+<span id="cb304-100"><a href="what-are-structural-equation-models.html#cb304-100" tabindex="-1"></a>    <span class="st">&quot;Context&quot;</span> <span class="ot">=</span> <span class="st">&quot;#A91601FF&quot;</span>,</span>
+<span id="cb304-101"><a href="what-are-structural-equation-models.html#cb304-101" tabindex="-1"></a>    <span class="st">&quot;Plant&quot;</span> <span class="ot">=</span> <span class="st">&quot;#18DDC2FF&quot;</span>,</span>
+<span id="cb304-102"><a href="what-are-structural-equation-models.html#cb304-102" tabindex="-1"></a>    <span class="st">&quot;Pollinator&quot;</span> <span class="ot">=</span> <span class="st">&quot;#00468BFF&quot;</span></span>
+<span id="cb304-103"><a href="what-are-structural-equation-models.html#cb304-103" tabindex="-1"></a>  )) <span class="sc">+</span></span>
+<span id="cb304-104"><a href="what-are-structural-equation-models.html#cb304-104" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb304-105"><a href="what-are-structural-equation-models.html#cb304-105" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Hypothesized DAG for Pollinator Response to IVM Treatment&quot;</span>,</span>
+<span id="cb304-106"><a href="what-are-structural-equation-models.html#cb304-106" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;Variable Type&quot;</span></span>
+<span id="cb304-107"><a href="what-are-structural-equation-models.html#cb304-107" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb304-108"><a href="what-are-structural-equation-models.html#cb304-108" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-129-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="adjustment-sets" class="section level3 hasAnchor" number="40.4.10">
+<h3><span class="header-section-number">40.4.10</span> Adjustment Sets<a href="what-are-structural-equation-models.html#adjustment-sets" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>An adjustment set is a group of variables you control for (include as covariates) in order to estimate the causal effect of one variable (say, Treatment) on another (say, Pollinator_Richness) without bias.</p>
+<p>In short, it blocks backdoor paths — those sneaky alternative routes through which spurious associations can travel.</p>
+<p>To find variables to condition on:</p>
+<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb305-1"><a href="what-are-structural-equation-models.html#cb305-1" tabindex="-1"></a><span class="co"># adjustmentSets(ivm_dag, exposure = &quot;Treatment&quot;, outcome = &quot;Pollinator_Richness&quot;)</span></span>
+<span id="cb305-2"><a href="what-are-structural-equation-models.html#cb305-2" tabindex="-1"></a><span class="co"># adjustmentSets(ivm_dag, exposure = &quot;Treatment&quot;, outcome = &quot;Pollinator_Abundance&quot;)</span></span></code></pre></div>
+<p>Interpretation:</p>
+<p>To estimate the total causal effect of Treatment on Pollinator_Richness, you only need to adjust for Soil_Substrate.</p>
+<p>This means:</p>
+<pre><code>•   Soil_Substrate is a backdoor variable — it opens a non-causal path because it influences both Treatment and plant variables that, in turn, influence pollinators.
+•   Controlling for Soil_Substrate blocks that spurious path and gives you an unbiased estimate of the effect of Treatment.</code></pre>
+<p>Do not control for:</p>
+<pre><code>•   Mediators, like Plant_Richness, Plant_Cover, or Woody_Debris, if you want the total effect of treatment.
+•   Colliders, such as anything caused by both Treatment and another variable (you don’t have a clear collider in this DAG, but good to keep in mind).</code></pre>
+<p>Example in a model:</p>
+<pre><code>•   model &lt;- lm(Pollinator_Richness ~ Treatment + Soil_Substrate, data = your_data)</code></pre>
+<p><em>GREG HERE YOU NEED TO CREATE YOUR FINAL DATASET BY SUMMARIZING THE VEG DATA AND ADDING YOUR POLLINATOR DATA PER PLOT. THEN WE CAN ADJUST THE CODE BELOW TO TEST WHETHER YOU REPLICATION / DATA ARE OK AND THEN MOVE ONTO NEXT STEPS</em></p>
+</div>
+</div>
+<div id="chapter-5-covariance-based-estimation-in-sem" class="section level2 hasAnchor" number="40.5">
+<h2><span class="header-section-number">40.5</span> Chapter 5: Covariance-Based Estimation in SEM<a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb309"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb309-1"><a href="what-are-structural-equation-models.html#cb309-1" tabindex="-1"></a><span class="co"># library(lavaan)</span></span>
+<span id="cb309-2"><a href="what-are-structural-equation-models.html#cb309-2" tabindex="-1"></a><span class="co"># library(mvtnorm)</span></span>
+<span id="cb309-3"><a href="what-are-structural-equation-models.html#cb309-3" tabindex="-1"></a><span class="co"># library(mvnormtest)</span></span>
+<span id="cb309-4"><a href="what-are-structural-equation-models.html#cb309-4" tabindex="-1"></a><span class="co"># library(psych)</span></span>
+<span id="cb309-5"><a href="what-are-structural-equation-models.html#cb309-5" tabindex="-1"></a><span class="co"># library(Matrix)</span></span></code></pre></div>
+<div id="what-is-covariance-based-sem" class="section level3 hasAnchor" number="40.5.1">
+<h3><span class="header-section-number">40.5.1</span> What is Covariance-Based SEM?<a href="what-are-structural-equation-models.html#what-is-covariance-based-sem" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Structural Equation Modeling (SEM) using covariance-based maximum likelihood estimation fits parameters so that the model-implied covariance matrix matches the observed covariance matrix as closely as possible. Unlike individual regression models:</p>
+<ul>
+<li>SEM accounts for how estimation of one parameter affects others.</li>
+<li>SEM allows for modeling feedbacks and latent variables.</li>
+<li>SEM is based on maximum likelihood estimation (MLE).</li>
+</ul>
+</div>
+<div id="maximum-likelihood-estimation" class="section level3 hasAnchor" number="40.5.2">
+<h3><span class="header-section-number">40.5.2</span> Maximum Likelihood Estimation<a href="what-are-structural-equation-models.html#maximum-likelihood-estimation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In SEM, MLE identifies parameters that maximize the likelihood of observing the data, given the model. This involves:</p>
+<ul>
+<li>Exploring the parameter space iteratively.</li>
+<li>Estimating model fit using a fitting function like ML.</li>
+<li>Computationally intensive with more parameters.</li>
+</ul>
+</div>
+<div id="assumptions-behind-ml-estimation" class="section level3 hasAnchor" number="40.5.3">
+<h3><span class="header-section-number">40.5.3</span> Assumptions Behind ML Estimation<a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li>Multivariate normality (use <code>mvnormtest::mshapiro.test()</code>)</li>
+</ul>
+<div class="sourceCode" id="cb310"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb310-1"><a href="what-are-structural-equation-models.html#cb310-1" tabindex="-1"></a><span class="co"># Load necessary package</span></span>
+<span id="cb310-2"><a href="what-are-structural-equation-models.html#cb310-2" tabindex="-1"></a><span class="co"># if (!requireNamespace(&quot;mvnormtest&quot;, quietly = TRUE)) {</span></span>
+<span id="cb310-3"><a href="what-are-structural-equation-models.html#cb310-3" tabindex="-1"></a><span class="co">#   install.packages(&quot;mvnormtest&quot;)</span></span>
+<span id="cb310-4"><a href="what-are-structural-equation-models.html#cb310-4" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb310-5"><a href="what-are-structural-equation-models.html#cb310-5" tabindex="-1"></a><span class="co"># library(mvnormtest)</span></span>
+<span id="cb310-6"><a href="what-are-structural-equation-models.html#cb310-6" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb310-7"><a href="what-are-structural-equation-models.html#cb310-7" tabindex="-1"></a><span class="co"># # Simulate multivariate normal data</span></span>
+<span id="cb310-8"><a href="what-are-structural-equation-models.html#cb310-8" tabindex="-1"></a><span class="co"># set.seed(123)</span></span>
+<span id="cb310-9"><a href="what-are-structural-equation-models.html#cb310-9" tabindex="-1"></a><span class="co"># data &lt;- data.frame(</span></span>
+<span id="cb310-10"><a href="what-are-structural-equation-models.html#cb310-10" tabindex="-1"></a><span class="co">#   x1 = rnorm(100),</span></span>
+<span id="cb310-11"><a href="what-are-structural-equation-models.html#cb310-11" tabindex="-1"></a><span class="co">#   x2 = rnorm(100),</span></span>
+<span id="cb310-12"><a href="what-are-structural-equation-models.html#cb310-12" tabindex="-1"></a><span class="co">#   x3 = rnorm(100)</span></span>
+<span id="cb310-13"><a href="what-are-structural-equation-models.html#cb310-13" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb310-14"><a href="what-are-structural-equation-models.html#cb310-14" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb310-15"><a href="what-are-structural-equation-models.html#cb310-15" tabindex="-1"></a><span class="co"># # Apply Mardia-Shapiro-Wilk test (requires transpose)</span></span>
+<span id="cb310-16"><a href="what-are-structural-equation-models.html#cb310-16" tabindex="-1"></a><span class="co"># mshapiro.test(t(data))</span></span></code></pre></div>
+<ul>
+<li>No severe skew or missing data</li>
+<li>No redundant variables (covariance matrix must be positive definite)</li>
+</ul>
+<div class="sourceCode" id="cb311"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb311-1"><a href="what-are-structural-equation-models.html#cb311-1" tabindex="-1"></a><span class="co"># # Check skew and kurtosis</span></span>
+<span id="cb311-2"><a href="what-are-structural-equation-models.html#cb311-2" tabindex="-1"></a><span class="co"># psych::describe(data)</span></span>
+<span id="cb311-3"><a href="what-are-structural-equation-models.html#cb311-3" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb311-4"><a href="what-are-structural-equation-models.html#cb311-4" tabindex="-1"></a><span class="co"># # Check for missing data</span></span>
+<span id="cb311-5"><a href="what-are-structural-equation-models.html#cb311-5" tabindex="-1"></a><span class="co"># summary(is.na(data))  # Should be all FALSE</span></span></code></pre></div>
+<ul>
+<li>Sufficient sample size relative to parameters</li>
+</ul>
+<div class="sourceCode" id="cb312"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb312-1"><a href="what-are-structural-equation-models.html#cb312-1" tabindex="-1"></a><span class="co"># # Load the lavaan package</span></span>
+<span id="cb312-2"><a href="what-are-structural-equation-models.html#cb312-2" tabindex="-1"></a><span class="co"># if (!requireNamespace(&quot;lavaan&quot;, quietly = TRUE)) {</span></span>
+<span id="cb312-3"><a href="what-are-structural-equation-models.html#cb312-3" tabindex="-1"></a><span class="co">#   install.packages(&quot;lavaan&quot;)</span></span>
+<span id="cb312-4"><a href="what-are-structural-equation-models.html#cb312-4" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb312-5"><a href="what-are-structural-equation-models.html#cb312-5" tabindex="-1"></a><span class="co"># library(lavaan)</span></span>
+<span id="cb312-6"><a href="what-are-structural-equation-models.html#cb312-6" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb312-7"><a href="what-are-structural-equation-models.html#cb312-7" tabindex="-1"></a><span class="co"># # Define a simple SEM model</span></span>
+<span id="cb312-8"><a href="what-are-structural-equation-models.html#cb312-8" tabindex="-1"></a><span class="co"># model &lt;- &#39;</span></span>
+<span id="cb312-9"><a href="what-are-structural-equation-models.html#cb312-9" tabindex="-1"></a><span class="co">#   y1 ~ x1 + x2</span></span>
+<span id="cb312-10"><a href="what-are-structural-equation-models.html#cb312-10" tabindex="-1"></a><span class="co">#   y2 ~ y1</span></span>
+<span id="cb312-11"><a href="what-are-structural-equation-models.html#cb312-11" tabindex="-1"></a><span class="co"># &#39;</span></span>
+<span id="cb312-12"><a href="what-are-structural-equation-models.html#cb312-12" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb312-13"><a href="what-are-structural-equation-models.html#cb312-13" tabindex="-1"></a><span class="co"># # Simulate data</span></span>
+<span id="cb312-14"><a href="what-are-structural-equation-models.html#cb312-14" tabindex="-1"></a><span class="co"># set.seed(123)</span></span>
+<span id="cb312-15"><a href="what-are-structural-equation-models.html#cb312-15" tabindex="-1"></a><span class="co"># data &lt;- data.frame(</span></span>
+<span id="cb312-16"><a href="what-are-structural-equation-models.html#cb312-16" tabindex="-1"></a><span class="co">#   x1 = rnorm(100),</span></span>
+<span id="cb312-17"><a href="what-are-structural-equation-models.html#cb312-17" tabindex="-1"></a><span class="co">#   x2 = rnorm(100),</span></span>
+<span id="cb312-18"><a href="what-are-structural-equation-models.html#cb312-18" tabindex="-1"></a><span class="co">#   y1 = rnorm(100),</span></span>
+<span id="cb312-19"><a href="what-are-structural-equation-models.html#cb312-19" tabindex="-1"></a><span class="co">#   y2 = rnorm(100)</span></span>
+<span id="cb312-20"><a href="what-are-structural-equation-models.html#cb312-20" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb312-21"><a href="what-are-structural-equation-models.html#cb312-21" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb312-22"><a href="what-are-structural-equation-models.html#cb312-22" tabindex="-1"></a><span class="co"># # Fit the model</span></span>
+<span id="cb312-23"><a href="what-are-structural-equation-models.html#cb312-23" tabindex="-1"></a><span class="co"># fit &lt;- sem(model, data = data)</span></span>
+<span id="cb312-24"><a href="what-are-structural-equation-models.html#cb312-24" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb312-25"><a href="what-are-structural-equation-models.html#cb312-25" tabindex="-1"></a><span class="co"># # Print summary</span></span>
+<span id="cb312-26"><a href="what-are-structural-equation-models.html#cb312-26" tabindex="-1"></a><span class="co"># summary(fit)</span></span>
+<span id="cb312-27"><a href="what-are-structural-equation-models.html#cb312-27" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb312-28"><a href="what-are-structural-equation-models.html#cb312-28" tabindex="-1"></a><span class="co"># # Count parameters</span></span>
+<span id="cb312-29"><a href="what-are-structural-equation-models.html#cb312-29" tabindex="-1"></a><span class="co"># n_params &lt;- lavInspect(fit, &quot;npar&quot;)  # Number of free parameters</span></span>
+<span id="cb312-30"><a href="what-are-structural-equation-models.html#cb312-30" tabindex="-1"></a><span class="co"># n_obs &lt;- nrow(data)</span></span>
+<span id="cb312-31"><a href="what-are-structural-equation-models.html#cb312-31" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb312-32"><a href="what-are-structural-equation-models.html#cb312-32" tabindex="-1"></a><span class="co"># # Portnoy&#39;s rule</span></span>
+<span id="cb312-33"><a href="what-are-structural-equation-models.html#cb312-33" tabindex="-1"></a><span class="co"># portnoy_value &lt;- n_params^(3/2) / n_obs</span></span>
+<span id="cb312-34"><a href="what-are-structural-equation-models.html#cb312-34" tabindex="-1"></a><span class="co"># portnoy_value</span></span></code></pre></div>
+</div>
+<div id="identifiability" class="section level3 hasAnchor" number="40.5.4">
+<h3><span class="header-section-number">40.5.4</span> Identifiability<a href="what-are-structural-equation-models.html#identifiability" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Before fitting a SEM, you must ensure it is <strong>identified</strong> — meaning you have enough unique information to estimate all model parameters.</p>
+<div id="key-rules" class="section level4 hasAnchor" number="40.5.4.1">
+<h4><span class="header-section-number">40.5.4.1</span> Key Rules<a href="what-are-structural-equation-models.html#key-rules" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<ul>
+<li><strong>T-rule</strong>: Number of parameters ≤ unique entries in covariance matrix.</li>
+</ul>
+<div class="sourceCode" id="cb313"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb313-1"><a href="what-are-structural-equation-models.html#cb313-1" tabindex="-1"></a><span class="co"># # Number of unique observed covariances</span></span>
+<span id="cb313-2"><a href="what-are-structural-equation-models.html#cb313-2" tabindex="-1"></a><span class="co"># p &lt;- ncol(data)</span></span>
+<span id="cb313-3"><a href="what-are-structural-equation-models.html#cb313-3" tabindex="-1"></a><span class="co"># n_cov &lt;- p * (p + 1) / 2</span></span>
+<span id="cb313-4"><a href="what-are-structural-equation-models.html#cb313-4" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb313-5"><a href="what-are-structural-equation-models.html#cb313-5" tabindex="-1"></a><span class="co"># # Compare to number of free parameters</span></span>
+<span id="cb313-6"><a href="what-are-structural-equation-models.html#cb313-6" tabindex="-1"></a><span class="co"># n_cov</span></span>
+<span id="cb313-7"><a href="what-are-structural-equation-models.html#cb313-7" tabindex="-1"></a><span class="co"># lavInspect(fit, &quot;npar&quot;)  # Should be ≤ n_cov</span></span></code></pre></div>
+<ul>
+<li><strong>Order condition</strong>: For each endogenous variable, incoming paths ≤ connected variables.</li>
+</ul>
+<p>There’s no direct test — but:
+• Draw your DAG.
+• Count how many arrows go into each endogenous variable.
+• Make sure that number ≤ number of variables related to it.</p>
+<ul>
+<li><p><strong>Rank condition</strong>: Variables in feedback loops must be influenced by different causes.</p>
+<p>• For feedback loops: ensure that each variable has at least one unique exogenous predictor.
+• Use DAG tools (ggdag or dagitty) to visualize and confirm.</p></li>
+</ul>
+<blockquote>
+<p>If these rules are violated, the model is underidentified and cannot be estimated.</p>
+</blockquote>
+</div>
+</div>
+<div id="degrees-of-freedom" class="section level3 hasAnchor" number="40.5.5">
+<h3><span class="header-section-number">40.5.5</span> Degrees of Freedom<a href="what-are-structural-equation-models.html#degrees-of-freedom" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><strong>DF = number of observed variances/covariances – number of estimated parameters</strong></li>
+<li>Just-identified models (DF = 0): Can’t test fit</li>
+<li>Overidentified models (DF &gt; 0): Preferred — allows model fit evaluation</li>
+</ul>
+<div class="sourceCode" id="cb314"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb314-1"><a href="what-are-structural-equation-models.html#cb314-1" tabindex="-1"></a><span class="co"># library(lavaan)</span></span>
+<span id="cb314-2"><a href="what-are-structural-equation-models.html#cb314-2" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb314-3"><a href="what-are-structural-equation-models.html#cb314-3" tabindex="-1"></a><span class="co"># # define model as a lavaan-style string</span></span>
+<span id="cb314-4"><a href="what-are-structural-equation-models.html#cb314-4" tabindex="-1"></a><span class="co"># model &lt;- &#39;</span></span>
+<span id="cb314-5"><a href="what-are-structural-equation-models.html#cb314-5" tabindex="-1"></a><span class="co">#   cover ~ age + elev</span></span>
+<span id="cb314-6"><a href="what-are-structural-equation-models.html#cb314-6" tabindex="-1"></a><span class="co">#   firesev ~ age + cover</span></span>
+<span id="cb314-7"><a href="what-are-structural-equation-models.html#cb314-7" tabindex="-1"></a><span class="co"># &#39;</span></span>
+<span id="cb314-8"><a href="what-are-structural-equation-models.html#cb314-8" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb314-9"><a href="what-are-structural-equation-models.html#cb314-9" tabindex="-1"></a><span class="co"># fit &lt;- sem(model, data = keeley)</span></span>
+<span id="cb314-10"><a href="what-are-structural-equation-models.html#cb314-10" tabindex="-1"></a><span class="co"># fitMeasures(fit, c(&quot;chisq&quot;, &quot;df&quot;, &quot;pvalue&quot;, &quot;cfi&quot;, &quot;rmsea&quot;))</span></span></code></pre></div>
+</div>
+<div id="sample-size-considerations" class="section level3 hasAnchor" number="40.5.6">
+<h3><span class="header-section-number">40.5.6</span> Sample Size Considerations<a href="what-are-structural-equation-models.html#sample-size-considerations" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>A model’s complexity is limited by your sample size:</p>
+<ul>
+<li>Rule of thumb: ≥ 5 observations per estimated parameter</li>
+<li>Preferably: ≥ 20 observations per parameter</li>
+<li>Use Portnoy’s rule: ρ<sup>3/2</sup> / <em>n</em> → 0</li>
+</ul>
+<p>Account for:</p>
+<ul>
+<li>Exogenous variable variances/covariances (often directly estimated from data)</li>
+<li>Endogenous variable error variances (often derived, not estimated directly)</li>
+</ul>
+</div>
+<div id="summary-1" class="section level3 hasAnchor" number="40.5.7">
+<h3><span class="header-section-number">40.5.7</span> Summary<a href="what-are-structural-equation-models.html#summary-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Covariance-based SEM is powerful but demands careful model design:</p>
+<ul>
+<li>Check identifiability before estimation</li>
+<li>Be aware of sample size constraints</li>
+<li>Use model diagnostics to evaluate fit after estimation</li>
+</ul>
+</div>
+<div id="chapter-6-structural-equation-modeling-in-r-with-lavaan" class="section level3 hasAnchor" number="40.5.8">
+<h3><span class="header-section-number">40.5.8</span> Chapter 6: Structural Equation Modeling in R with lavaan<a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+</div>
+</div>
+<div id="getting-started-with-lavaan-model-specification-estimation-and-interpretation" class="section level2 hasAnchor" number="40.6">
+<h2><span class="header-section-number">40.6</span> Getting Started with lavaan – Model Specification, Estimation, and Interpretation<a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Setting Up</p>
+<p>Before you begin, make sure the lavaan and lavaanPlot packages are installed:</p>
+<p>What is lavaan?</p>
+<pre><code>•   lavaan stands for Latent Variable Analysis.
+•   Developed by Yves Rosseel (2010).
+•   Syntax is similar to regression in R using formulas.
+•   It supports latent and observed variables, covariance-based SEM, mediation, path analysis, and more.</code></pre>
+<p>Example: Post-Fire Plant Recovery</p>
+<p>We’ll analyze a dataset from Keeley et al. (2006) studying how stand age, fire severity, and other factors affect plant cover.</p>
+<p>Step 1: Start Simple – A Regression as SEM</p>
+<div class="sourceCode" id="cb316"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb316-1"><a href="what-are-structural-equation-models.html#cb316-1" tabindex="-1"></a><span class="co"># Load dataset</span></span>
+<span id="cb316-2"><a href="what-are-structural-equation-models.html#cb316-2" tabindex="-1"></a><span class="co"># Example: keeley &lt;- read.csv(&quot;path/to/your/keeley_data.csv&quot;)</span></span>
+<span id="cb316-3"><a href="what-are-structural-equation-models.html#cb316-3" tabindex="-1"></a></span>
+<span id="cb316-4"><a href="what-are-structural-equation-models.html#cb316-4" tabindex="-1"></a><span class="co"># Fit SEM</span></span>
+<span id="cb316-5"><a href="what-are-structural-equation-models.html#cb316-5" tabindex="-1"></a><span class="co">#model1 &lt;- &#39;cover ~ age&#39;</span></span>
+<span id="cb316-6"><a href="what-are-structural-equation-models.html#cb316-6" tabindex="-1"></a><span class="co">#fit1 &lt;- sem(model1, data = keeley)</span></span>
+<span id="cb316-7"><a href="what-are-structural-equation-models.html#cb316-7" tabindex="-1"></a><span class="co">#summary(fit1, standardized = TRUE, rsquare = TRUE)</span></span></code></pre></div>
+<p>Intercepts and Mean Structures</p>
+<p>To explicitly estimate intercepts:</p>
+<div class="sourceCode" id="cb317"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb317-1"><a href="what-are-structural-equation-models.html#cb317-1" tabindex="-1"></a><span class="co">#fit1_mean &lt;- sem(model1, data = keeley, meanstructure = TRUE)</span></span>
+<span id="cb317-2"><a href="what-are-structural-equation-models.html#cb317-2" tabindex="-1"></a><span class="co">#summary(fit1_mean)</span></span></code></pre></div>
+<p>Viewing the Model</p>
+<div class="sourceCode" id="cb318"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb318-1"><a href="what-are-structural-equation-models.html#cb318-1" tabindex="-1"></a><span class="co">#lavaanPlot(model = fit1, coefs = TRUE, stand = TRUE)</span></span></code></pre></div>
+<p>Standardized Estimates</p>
+<p>standardizedSolution(fit1)</p>
+<p>This gives standardized coefficients and helps compare the relative strength of predictors.</p>
+<p>Mediation Example: Indirect Effects</p>
+<div class="sourceCode" id="cb319"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb319-1"><a href="what-are-structural-equation-models.html#cb319-1" tabindex="-1"></a><span class="co">#model2 &lt;- &#39;</span></span>
+<span id="cb319-2"><a href="what-are-structural-equation-models.html#cb319-2" tabindex="-1"></a><span class="co">#  firesev ~ age</span></span>
+<span id="cb319-3"><a href="what-are-structural-equation-models.html#cb319-3" tabindex="-1"></a><span class="co">#  cover ~ firesev + age</span></span>
+<span id="cb319-4"><a href="what-are-structural-equation-models.html#cb319-4" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb319-5"><a href="what-are-structural-equation-models.html#cb319-5" tabindex="-1"></a><span class="co">#fit2 &lt;- sem(model2, data = keeley)</span></span>
+<span id="cb319-6"><a href="what-are-structural-equation-models.html#cb319-6" tabindex="-1"></a><span class="co">#summary(fit2, standardized = TRUE, rsquare = TRUE)</span></span></code></pre></div>
+<p>Direct, Indirect, and Total Effects</p>
+<div class="sourceCode" id="cb320"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb320-1"><a href="what-are-structural-equation-models.html#cb320-1" tabindex="-1"></a><span class="co">#model3 &lt;- &#39;</span></span>
+<span id="cb320-2"><a href="what-are-structural-equation-models.html#cb320-2" tabindex="-1"></a><span class="co">#  firesev ~ af*age</span></span>
+<span id="cb320-3"><a href="what-are-structural-equation-models.html#cb320-3" tabindex="-1"></a><span class="co">#  cover ~ fc*firesev + ac*age</span></span>
+<span id="cb320-4"><a href="what-are-structural-equation-models.html#cb320-4" tabindex="-1"></a></span>
+<span id="cb320-5"><a href="what-are-structural-equation-models.html#cb320-5" tabindex="-1"></a>  <span class="co"># Derived</span></span>
+<span id="cb320-6"><a href="what-are-structural-equation-models.html#cb320-6" tabindex="-1"></a><span class="co"># indirect := af * fc</span></span>
+<span id="cb320-7"><a href="what-are-structural-equation-models.html#cb320-7" tabindex="-1"></a><span class="co">#  total := ac + (af * fc)</span></span>
+<span id="cb320-8"><a href="what-are-structural-equation-models.html#cb320-8" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb320-9"><a href="what-are-structural-equation-models.html#cb320-9" tabindex="-1"></a><span class="co">#fit3 &lt;- sem(model3, data = keeley)</span></span>
+<span id="cb320-10"><a href="what-are-structural-equation-models.html#cb320-10" tabindex="-1"></a><span class="co">#standardizedSolution(fit3)</span></span></code></pre></div>
+<p>Warnings: Variance Scaling</p>
+<div class="sourceCode" id="cb321"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb321-1"><a href="what-are-structural-equation-models.html#cb321-1" tabindex="-1"></a><span class="co">#varTable(fit3)</span></span></code></pre></div>
+<p>If you get a warning about variances differing by orders of magnitude, consider rescaling your variables or using standardized solutions.</p>
+<p>Visualizing Complex Models</p>
+<div class="sourceCode" id="cb322"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb322-1"><a href="what-are-structural-equation-models.html#cb322-1" tabindex="-1"></a><span class="co">#lavaanPlot(</span></span>
+<span id="cb322-2"><a href="what-are-structural-equation-models.html#cb322-2" tabindex="-1"></a><span class="co">#  model = fit3,</span></span>
+<span id="cb322-3"><a href="what-are-structural-equation-models.html#cb322-3" tabindex="-1"></a><span class="co">#  coefs = TRUE,</span></span>
+<span id="cb322-4"><a href="what-are-structural-equation-models.html#cb322-4" tabindex="-1"></a><span class="co">#  stand = TRUE,</span></span>
+<span id="cb322-5"><a href="what-are-structural-equation-models.html#cb322-5" tabindex="-1"></a><span class="co">#  sig = 0.05,</span></span>
+<span id="cb322-6"><a href="what-are-structural-equation-models.html#cb322-6" tabindex="-1"></a><span class="co">#  graph_options = list(layout = &quot;circo&quot;)</span></span>
+<span id="cb322-7"><a href="what-are-structural-equation-models.html#cb322-7" tabindex="-1"></a><span class="co">#)</span></span></code></pre></div>
+<p>Final Exercise Prompt</p>
+<p>Try fitting the following model:</p>
+<div class="sourceCode" id="cb323"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb323-1"><a href="what-are-structural-equation-models.html#cb323-1" tabindex="-1"></a><span class="co">#model_final &lt;- &#39;</span></span>
+<span id="cb323-2"><a href="what-are-structural-equation-models.html#cb323-2" tabindex="-1"></a><span class="co">#  rich ~ distance + abiotic + hetero</span></span>
+<span id="cb323-3"><a href="what-are-structural-equation-models.html#cb323-3" tabindex="-1"></a><span class="co">#  hetero ~ distance</span></span>
+<span id="cb323-4"><a href="what-are-structural-equation-models.html#cb323-4" tabindex="-1"></a><span class="co">#  abiotic ~ distance</span></span>
+<span id="cb323-5"><a href="what-are-structural-equation-models.html#cb323-5" tabindex="-1"></a><span class="co">#  abiotic ~~ hetero</span></span>
+<span id="cb323-6"><a href="what-are-structural-equation-models.html#cb323-6" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb323-7"><a href="what-are-structural-equation-models.html#cb323-7" tabindex="-1"></a><span class="co">#fit_final &lt;- sem(model_final, data = keeley)</span></span>
+<span id="cb323-8"><a href="what-are-structural-equation-models.html#cb323-8" tabindex="-1"></a><span class="co">#summary(fit_final, standardized = TRUE)</span></span></code></pre></div>
+<div id="chapter-7assessing-fit-and-normality" class="section level3 hasAnchor" number="40.6.1">
+<h3><span class="header-section-number">40.6.1</span> Chapter 7:Assessing Fit and Normality<a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb324"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb324-1"><a href="what-are-structural-equation-models.html#cb324-1" tabindex="-1"></a><span class="co"># library(lavaan)</span></span>
+<span id="cb324-2"><a href="what-are-structural-equation-models.html#cb324-2" tabindex="-1"></a><span class="co"># library(mvnormtest)</span></span>
+<span id="cb324-3"><a href="what-are-structural-equation-models.html#cb324-3" tabindex="-1"></a><span class="co"># library(MVN)</span></span></code></pre></div>
+<p>Overview</p>
+<p>In this tutorial, we learn how to evaluate model fit and test for normality, key assumptions in covariance-based SEM. We’ll cover:</p>
+<pre><code>•   Standard fit indices (e.g., RMSEA, CFI)
+•   Residuals and modification indices
+•   Normality diagnostics
+•   Remedies for assumption violations</code></pre>
+<p>Example: Fully Mediated SEM</p>
+<div class="sourceCode" id="cb326"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb326-1"><a href="what-are-structural-equation-models.html#cb326-1" tabindex="-1"></a><span class="co">#model_full &lt;- &#39;</span></span>
+<span id="cb326-2"><a href="what-are-structural-equation-models.html#cb326-2" tabindex="-1"></a><span class="co">#  firesev ~ age</span></span>
+<span id="cb326-3"><a href="what-are-structural-equation-models.html#cb326-3" tabindex="-1"></a><span class="co">#  cover ~ firesev</span></span>
+<span id="cb326-4"><a href="what-are-structural-equation-models.html#cb326-4" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb326-5"><a href="what-are-structural-equation-models.html#cb326-5" tabindex="-1"></a></span>
+<span id="cb326-6"><a href="what-are-structural-equation-models.html#cb326-6" tabindex="-1"></a><span class="co">#fit_full &lt;- sem(model_full, data = keeley, meanstructure = TRUE)</span></span>
+<span id="cb326-7"><a href="what-are-structural-equation-models.html#cb326-7" tabindex="-1"></a><span class="co">#summary(fit_full, fit.measures = TRUE)</span></span></code></pre></div>
+<p>Interpretation:</p>
+<pre><code>•   Chi-square (p &gt; 0.05) → Model is not significantly different from the observed data.
+•   Check additional fit indices: RMSEA, CFI, SRMR, AIC, BIC.</code></pre>
+<p>Fit Indices (Kline 2023 Recommendations)</p>
+<p>Fit Measure Interpretation
+Chi-square test Prefer p &gt; 0.05
+RMSEA 90% CI lower bound &lt; 0.05
+CFI &gt; 0.90
+SRMR &lt; 0.10</p>
+<p>Diagnosing Misfit with Residuals</p>
+<div class="sourceCode" id="cb328"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb328-1"><a href="what-are-structural-equation-models.html#cb328-1" tabindex="-1"></a><span class="co">#residuals(fit_full, type = &quot;cor&quot;)  # residual correlations</span></span>
+<span id="cb328-2"><a href="what-are-structural-equation-models.html#cb328-2" tabindex="-1"></a><span class="co">#modificationIndices(fit_full, standardized = FALSE, sort. = TRUE)</span></span></code></pre></div>
+<pre><code>•   Large residuals or modification indices &gt; 3.84 suggest misfit.
+•   Inspect residual correlation between rich and distance.</code></pre>
+<p>Testing Normality of Residuals</p>
+<div class="sourceCode" id="cb330"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb330-1"><a href="what-are-structural-equation-models.html#cb330-1" tabindex="-1"></a><span class="co"># library(MVN)</span></span>
+<span id="cb330-2"><a href="what-are-structural-equation-models.html#cb330-2" tabindex="-1"></a></span>
+<span id="cb330-3"><a href="what-are-structural-equation-models.html#cb330-3" tabindex="-1"></a><span class="co"># Step 1: Get residuals from lavaan model</span></span>
+<span id="cb330-4"><a href="what-are-structural-equation-models.html#cb330-4" tabindex="-1"></a><span class="co">#resids &lt;- lavPredict(fit_full, type = &quot;ov&quot;)  # residuals for observed variables</span></span>
+<span id="cb330-5"><a href="what-are-structural-equation-models.html#cb330-5" tabindex="-1"></a></span>
+<span id="cb330-6"><a href="what-are-structural-equation-models.html#cb330-6" tabindex="-1"></a><span class="co"># Optional: check univariate normality visually</span></span>
+<span id="cb330-7"><a href="what-are-structural-equation-models.html#cb330-7" tabindex="-1"></a><span class="co">#apply(resids[, 1:2], 2, function(x) {</span></span>
+<span id="cb330-8"><a href="what-are-structural-equation-models.html#cb330-8" tabindex="-1"></a><span class="co">#  qqnorm(x); qqline(x)</span></span>
+<span id="cb330-9"><a href="what-are-structural-equation-models.html#cb330-9" tabindex="-1"></a><span class="co">#})</span></span>
+<span id="cb330-10"><a href="what-are-structural-equation-models.html#cb330-10" tabindex="-1"></a></span>
+<span id="cb330-11"><a href="what-are-structural-equation-models.html#cb330-11" tabindex="-1"></a><span class="co"># Step 2: Multivariate Shapiro-Wilk (for n ≤ 50)</span></span>
+<span id="cb330-12"><a href="what-are-structural-equation-models.html#cb330-12" tabindex="-1"></a><span class="co">#mshapiro.test(t(resids[, 1:2]))</span></span>
+<span id="cb330-13"><a href="what-are-structural-equation-models.html#cb330-13" tabindex="-1"></a></span>
+<span id="cb330-14"><a href="what-are-structural-equation-models.html#cb330-14" tabindex="-1"></a><span class="co"># Step 3: Mardia&#39;s test for multivariate normality</span></span>
+<span id="cb330-15"><a href="what-are-structural-equation-models.html#cb330-15" tabindex="-1"></a><span class="co">#MVN::mvn(data = resids[, 1:2], mvn_test = &quot;mardia&quot;)</span></span>
+<span id="cb330-16"><a href="what-are-structural-equation-models.html#cb330-16" tabindex="-1"></a></span>
+<span id="cb330-17"><a href="what-are-structural-equation-models.html#cb330-17" tabindex="-1"></a><span class="co"># Step 1: Get residuals from lavaan model</span></span>
+<span id="cb330-18"><a href="what-are-structural-equation-models.html#cb330-18" tabindex="-1"></a><span class="co">#tryCatch({</span></span>
+<span id="cb330-19"><a href="what-are-structural-equation-models.html#cb330-19" tabindex="-1"></a><span class="co">#  resids &lt;- lavPredict(fit_full, type = &quot;ov&quot;)</span></span>
+<span id="cb330-20"><a href="what-are-structural-equation-models.html#cb330-20" tabindex="-1"></a>  </span>
+<span id="cb330-21"><a href="what-are-structural-equation-models.html#cb330-21" tabindex="-1"></a>  <span class="co"># Make sure residuals are numeric and have no missing values</span></span>
+<span id="cb330-22"><a href="what-are-structural-equation-models.html#cb330-22" tabindex="-1"></a><span class="co">#  if (!is.null(resids) &amp;&amp; is.matrix(resids) &amp;&amp; all(is.finite(resids[, 1:2]))) {</span></span>
+<span id="cb330-23"><a href="what-are-structural-equation-models.html#cb330-23" tabindex="-1"></a>    <span class="co"># Step 2: Multivariate Shapiro-Wilk (for n ≤ 50)</span></span>
+<span id="cb330-24"><a href="what-are-structural-equation-models.html#cb330-24" tabindex="-1"></a><span class="co">#    print(mshapiro.test(t(resids[, 1:2])))</span></span>
+<span id="cb330-25"><a href="what-are-structural-equation-models.html#cb330-25" tabindex="-1"></a></span>
+<span id="cb330-26"><a href="what-are-structural-equation-models.html#cb330-26" tabindex="-1"></a>    <span class="co"># Step 3: Mardia&#39;s test</span></span>
+<span id="cb330-27"><a href="what-are-structural-equation-models.html#cb330-27" tabindex="-1"></a><span class="co">#    print(MVN::mvn(data = resids[, 1:2], mvn_test = &quot;mardia&quot;))</span></span>
+<span id="cb330-28"><a href="what-are-structural-equation-models.html#cb330-28" tabindex="-1"></a><span class="co">#  } else {</span></span>
+<span id="cb330-29"><a href="what-are-structural-equation-models.html#cb330-29" tabindex="-1"></a><span class="co">#    message(&quot;Residuals are missing, not numeric, or contain NA/Inf values.&quot;)</span></span>
+<span id="cb330-30"><a href="what-are-structural-equation-models.html#cb330-30" tabindex="-1"></a><span class="co">#  }</span></span>
+<span id="cb330-31"><a href="what-are-structural-equation-models.html#cb330-31" tabindex="-1"></a><span class="co">#}, error = function(e) {</span></span>
+<span id="cb330-32"><a href="what-are-structural-equation-models.html#cb330-32" tabindex="-1"></a><span class="co">#  message(&quot;MVN test failed: &quot;, conditionMessage(e))</span></span>
+<span id="cb330-33"><a href="what-are-structural-equation-models.html#cb330-33" tabindex="-1"></a><span class="co">#})</span></span></code></pre></div>
+<p>⸻</p>
+<p>If Assumptions Are Violated…</p>
+<p>Option 1: Satorra-Bentler Correction</p>
+<div class="sourceCode" id="cb331"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb331-1"><a href="what-are-structural-equation-models.html#cb331-1" tabindex="-1"></a><span class="co">#fit_sb &lt;- sem(model_full, data = keeley, test = &quot;Satorra.Bentler&quot;)</span></span>
+<span id="cb331-2"><a href="what-are-structural-equation-models.html#cb331-2" tabindex="-1"></a><span class="co">#summary(fit_sb)</span></span></code></pre></div>
+<p>Option 2: Bollen-Stine Bootstrap</p>
+<div class="sourceCode" id="cb332"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb332-1"><a href="what-are-structural-equation-models.html#cb332-1" tabindex="-1"></a><span class="co">#fit_bs &lt;- sem(model_full, data = keeley, test = &quot;bollen.stine&quot;, se = &quot;boot&quot;, bootstrap = 1000)</span></span>
+<span id="cb332-2"><a href="what-are-structural-equation-models.html#cb332-2" tabindex="-1"></a><span class="co">#summary(fit_bs)</span></span></code></pre></div>
+<p>Summary:</p>
+<pre><code>•   Use fit indices and residuals to assess model performance.
+•   Check assumptions of normality; consider corrections if violated.
+•   Explore modification indices to identify potential improvements.</code></pre>
+</div>
+<div id="chapter-8-comparing-models-and-testing-mediation" class="section level3 hasAnchor" number="40.6.2">
+<h3><span class="header-section-number">40.6.2</span> Chapter 8: Comparing Models and Testing Mediation<a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>This section introduces two major approaches for comparing SEM models:
+• Likelihood Ratio Tests (LRTs) for nested models.
+• Information Criteria (e.g., AIC, AICc) for both nested and non-nested models.</p>
+<p>We also explore mediation, which refers to how a relationship between two variables is explained by one or more intervening variables.</p>
+<div class="sourceCode" id="cb334"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb334-1"><a href="what-are-structural-equation-models.html#cb334-1" tabindex="-1"></a><span class="co"># Load required libraries</span></span>
+<span id="cb334-2"><a href="what-are-structural-equation-models.html#cb334-2" tabindex="-1"></a><span class="co"># library(lavaan)</span></span>
+<span id="cb334-3"><a href="what-are-structural-equation-models.html#cb334-3" tabindex="-1"></a><span class="co"># library(AICcmodavg)</span></span>
+<span id="cb334-4"><a href="what-are-structural-equation-models.html#cb334-4" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb334-5"><a href="what-are-structural-equation-models.html#cb334-5" tabindex="-1"></a><span class="co"># # Fully Mediated Model</span></span>
+<span id="cb334-6"><a href="what-are-structural-equation-models.html#cb334-6" tabindex="-1"></a><span class="co"># fullMedModel &lt;- &#39;</span></span>
+<span id="cb334-7"><a href="what-are-structural-equation-models.html#cb334-7" tabindex="-1"></a><span class="co">#   firesev ~ age</span></span>
+<span id="cb334-8"><a href="what-are-structural-equation-models.html#cb334-8" tabindex="-1"></a><span class="co">#   cover ~ firesev</span></span>
+<span id="cb334-9"><a href="what-are-structural-equation-models.html#cb334-9" tabindex="-1"></a><span class="co"># &#39;</span></span>
+<span id="cb334-10"><a href="what-are-structural-equation-models.html#cb334-10" tabindex="-1"></a><span class="co"># fullMedSEM &lt;- sem(fullMedModel, data = keeley)</span></span>
+<span id="cb334-11"><a href="what-are-structural-equation-models.html#cb334-11" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb334-12"><a href="what-are-structural-equation-models.html#cb334-12" tabindex="-1"></a><span class="co"># # Partially Mediated Model</span></span>
+<span id="cb334-13"><a href="what-are-structural-equation-models.html#cb334-13" tabindex="-1"></a><span class="co"># partialMedModel &lt;- &#39;</span></span>
+<span id="cb334-14"><a href="what-are-structural-equation-models.html#cb334-14" tabindex="-1"></a><span class="co">#   firesev ~ age</span></span>
+<span id="cb334-15"><a href="what-are-structural-equation-models.html#cb334-15" tabindex="-1"></a><span class="co">#   cover ~ firesev + age</span></span>
+<span id="cb334-16"><a href="what-are-structural-equation-models.html#cb334-16" tabindex="-1"></a><span class="co"># &#39;</span></span>
+<span id="cb334-17"><a href="what-are-structural-equation-models.html#cb334-17" tabindex="-1"></a><span class="co"># partialMedSEM &lt;- sem(partialMedModel, data = keeley)</span></span>
+<span id="cb334-18"><a href="what-are-structural-equation-models.html#cb334-18" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb334-19"><a href="what-are-structural-equation-models.html#cb334-19" tabindex="-1"></a><span class="co"># # Likelihood Ratio Test (nested models)</span></span>
+<span id="cb334-20"><a href="what-are-structural-equation-models.html#cb334-20" tabindex="-1"></a><span class="co"># anova(partialMedSEM, fullMedSEM)</span></span></code></pre></div>
+<p>Interpretation: A non-significant LRT suggests that the simpler (fully mediated) model fits the data about as well as the more complex model.</p>
+<p>AIC-Based Model Comparison</p>
+<div class="sourceCode" id="cb335"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb335-1"><a href="what-are-structural-equation-models.html#cb335-1" tabindex="-1"></a><span class="co"># # install.packages(&quot;AICcmodavg&quot;)</span></span>
+<span id="cb335-2"><a href="what-are-structural-equation-models.html#cb335-2" tabindex="-1"></a><span class="co"># library(AICcmodavg)</span></span>
+<span id="cb335-3"><a href="what-are-structural-equation-models.html#cb335-3" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb335-4"><a href="what-are-structural-equation-models.html#cb335-4" tabindex="-1"></a><span class="co"># # AICc model comparison</span></span>
+<span id="cb335-5"><a href="what-are-structural-equation-models.html#cb335-5" tabindex="-1"></a><span class="co"># aictab(</span></span>
+<span id="cb335-6"><a href="what-are-structural-equation-models.html#cb335-6" tabindex="-1"></a><span class="co">#   cand.set = list(fullMedSEM, partialMedSEM),</span></span>
+<span id="cb335-7"><a href="what-are-structural-equation-models.html#cb335-7" tabindex="-1"></a><span class="co">#   modnames = c(&quot;Full&quot;, &quot;Partial&quot;)</span></span>
+<span id="cb335-8"><a href="what-are-structural-equation-models.html#cb335-8" tabindex="-1"></a><span class="co"># )</span></span></code></pre></div>
+<p>Interpretation: Models within 2 ΔAICc units are considered roughly equivalent. Higher AIC weight (AICcWt) indicates stronger support for that model.</p>
+<p>Additional Example: Distance and Species Richness</p>
+<p>Key Takeaways:</p>
+<pre><code>•   Use LRT for nested models; lower chi-square and higher p-value = simpler model may suffice.
+•   Use AICc for broader comparisons; lower AICc and higher weight = better.
+•   Mediation is central to SEM and can be tested with both approaches.
+•   Fully vs. Partially Mediated models differ by whether direct paths bypass mediators.</code></pre>
+</div>
+<div id="chapter-8-latent-variables-as-drivers" class="section level3 hasAnchor" number="40.6.3">
+<h3><span class="header-section-number">40.6.3</span> Chapter 8: Latent Variables as Drivers<a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>What is a Latent Variable?</p>
+<p>Latent variables are unobserved constructs that we infer from multiple observed indicators. They represent abstract concepts like intelligence, disturbance, or biodiversity.</p>
+<pre><code>•   In SEM, latent variables are drawn as circles.
+•   Observed indicators are squares or rectangles.
+•   Latent variables are typically estimated through Confirmatory Factor Analysis (CFA).</code></pre>
+<p>Confirmatory Factor Analysis (CFA)</p>
+<p>CFA allows you to test whether certain observed variables co-vary in ways consistent with an underlying theoretical construct.</p>
+<p>Example: Aposematism in Poison Frogs</p>
+<div class="sourceCode" id="cb338"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb338-1"><a href="what-are-structural-equation-models.html#cb338-1" tabindex="-1"></a><span class="co"># Sample covariance matrix from Santos &amp; Cannatella (2011)</span></span>
+<span id="cb338-2"><a href="what-are-structural-equation-models.html#cb338-2" tabindex="-1"></a><span class="co"># santosCov &lt;- read.table(&quot;https://raw.githubusercontent.com/username/santosCov.txt&quot;, na.strings = #&quot;.&quot;)</span></span>
+<span id="cb338-3"><a href="what-are-structural-equation-models.html#cb338-3" tabindex="-1"></a><span class="co">#santosCov &lt;- as.matrix(santosCov)</span></span>
+<span id="cb338-4"><a href="what-are-structural-equation-models.html#cb338-4" tabindex="-1"></a></span>
+<span id="cb338-5"><a href="what-are-structural-equation-models.html#cb338-5" tabindex="-1"></a><span class="co"># # Create covariance matrix manually (example values)</span></span>
+<span id="cb338-6"><a href="what-are-structural-equation-models.html#cb338-6" tabindex="-1"></a><span class="co"># santosCov &lt;- matrix(c(</span></span>
+<span id="cb338-7"><a href="what-are-structural-equation-models.html#cb338-7" tabindex="-1"></a><span class="co">#   1.00,  0.45, 0.38,</span></span>
+<span id="cb338-8"><a href="what-are-structural-equation-models.html#cb338-8" tabindex="-1"></a><span class="co">#   0.45,  1.00, 0.50,</span></span>
+<span id="cb338-9"><a href="what-are-structural-equation-models.html#cb338-9" tabindex="-1"></a><span class="co">#   0.38,  0.50, 1.00</span></span>
+<span id="cb338-10"><a href="what-are-structural-equation-models.html#cb338-10" tabindex="-1"></a><span class="co"># ), nrow = 3, byrow = TRUE)</span></span>
+<span id="cb338-11"><a href="what-are-structural-equation-models.html#cb338-11" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb338-12"><a href="what-are-structural-equation-models.html#cb338-12" tabindex="-1"></a><span class="co"># # Add row and column names (must match your CFA model exactly)</span></span>
+<span id="cb338-13"><a href="what-are-structural-equation-models.html#cb338-13" tabindex="-1"></a><span class="co"># colnames(santosCov) &lt;- rownames(santosCov) &lt;- c(&quot;Alkaloid.quantity&quot;, &quot;Alkaloid.diversity&quot;, &quot;Conspicuous.coloration&quot;)</span></span>
+<span id="cb338-14"><a href="what-are-structural-equation-models.html#cb338-14" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb338-15"><a href="what-are-structural-equation-models.html#cb338-15" tabindex="-1"></a><span class="co"># # Specify CFA model</span></span>
+<span id="cb338-16"><a href="what-are-structural-equation-models.html#cb338-16" tabindex="-1"></a><span class="co"># santosCFA1 &lt;- &#39;</span></span>
+<span id="cb338-17"><a href="what-are-structural-equation-models.html#cb338-17" tabindex="-1"></a><span class="co">#   Aposematism =~ Alkaloid.quantity + Alkaloid.diversity + Conspicuous.coloration</span></span>
+<span id="cb338-18"><a href="what-are-structural-equation-models.html#cb338-18" tabindex="-1"></a><span class="co"># &#39;</span></span>
+<span id="cb338-19"><a href="what-are-structural-equation-models.html#cb338-19" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb338-20"><a href="what-are-structural-equation-models.html#cb338-20" tabindex="-1"></a><span class="co"># # Fit the model</span></span>
+<span id="cb338-21"><a href="what-are-structural-equation-models.html#cb338-21" tabindex="-1"></a><span class="co"># santosFit1 &lt;- sem(santosCFA1, sample.cov = santosCov, sample.nobs = 21)</span></span>
+<span id="cb338-22"><a href="what-are-structural-equation-models.html#cb338-22" tabindex="-1"></a><span class="co"># summary(santosFit1, standardized = TRUE)</span></span></code></pre></div>
+<p>Why Use Latent Variables?</p>
+<pre><code>•   Increase accuracy by pooling information across multiple imperfect indicators.
+•   Reduce measurement error.
+•   Enable modeling of unobservable constructs.</code></pre>
+<p>Identification Rules (How to Know Your Model Can Be Estimated):</p>
+<pre><code>1.  T-Rule: Number of estimated parameters ≤ number of unique elements in the covariance matrix.
+2.  Three-indicator rule: Each latent variable has ≥ 3 uncorrelated indicators → SUFFICIENT.
+3.  Two-indicator rule: Works for multiple latent variables if indicators don’t share variance → SUFFICIENT.
+4.  Fixing scale:
+
+•   Set variance of latent = 1.0, or
+•   Set one loading to 1.0 to put latent on that indicator’s scale.</code></pre>
+<p>Models with 2 indicators and shared error may be underidentified.</p>
+<p>Fit a Second Latent Variable: Body Size</p>
+<div class="sourceCode" id="cb341"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb341-1"><a href="what-are-structural-equation-models.html#cb341-1" tabindex="-1"></a><span class="co">#santosSize &lt;- &#39;</span></span>
+<span id="cb341-2"><a href="what-are-structural-equation-models.html#cb341-2" tabindex="-1"></a><span class="co">#  Size =~ Log.Mass + Log.RMR + Log.Scope</span></span>
+<span id="cb341-3"><a href="what-are-structural-equation-models.html#cb341-3" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb341-4"><a href="what-are-structural-equation-models.html#cb341-4" tabindex="-1"></a></span>
+<span id="cb341-5"><a href="what-are-structural-equation-models.html#cb341-5" tabindex="-1"></a><span class="co">#santosSizeFit &lt;- sem(santosSize, sample.cov = santosCov, sample.nobs = 21)</span></span>
+<span id="cb341-6"><a href="what-are-structural-equation-models.html#cb341-6" tabindex="-1"></a><span class="co">#summary(santosSizeFit, standardized = TRUE)</span></span></code></pre></div>
+<p>Combine Latent Variables</p>
+<p>You can model multiple latent variables and test how they relate to each other.</p>
+<div class="sourceCode" id="cb342"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb342-1"><a href="what-are-structural-equation-models.html#cb342-1" tabindex="-1"></a><span class="co">#santosCFA2 &lt;- &#39;</span></span>
+<span id="cb342-2"><a href="what-are-structural-equation-models.html#cb342-2" tabindex="-1"></a><span class="co">#  Aposematism =~ Alkaloid.quantity + Alkaloid.diversity + Conspicuous.coloration + #Ant.Mite.Specialization + log.Prey</span></span>
+<span id="cb342-3"><a href="what-are-structural-equation-models.html#cb342-3" tabindex="-1"></a><span class="co">#  Scale =~ Log.Mass + Log.RMR + Log.Scope + Conspicuous.coloration</span></span>
+<span id="cb342-4"><a href="what-are-structural-equation-models.html#cb342-4" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb342-5"><a href="what-are-structural-equation-models.html#cb342-5" tabindex="-1"></a></span>
+<span id="cb342-6"><a href="what-are-structural-equation-models.html#cb342-6" tabindex="-1"></a><span class="co">#santosFit2 &lt;- sem(santosCFA2, sample.cov = santosCov, sample.nobs = 21)</span></span>
+<span id="cb342-7"><a href="what-are-structural-equation-models.html#cb342-7" tabindex="-1"></a><span class="co">#summary(santosFit2, standardized = TRUE)</span></span></code></pre></div>
+<p>Summary:</p>
+<pre><code>•   Latent variables allow you to estimate unobservable concepts.
+•   CFA is the method used to define latent variables in SEM.
+•   Identification is critical—use the rules to check if your model can be estimated.
+•   Measurement error is reduced by leveraging multiple indicators.</code></pre>
+</div>
+<div id="chapter-10-latent-responses-and-measurement-error" class="section level3 hasAnchor" number="40.6.4">
+<h3><span class="header-section-number">40.6.4</span> Chapter 10: Latent Responses and Measurement Error<a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb344"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb344-1"><a href="what-are-structural-equation-models.html#cb344-1" tabindex="-1"></a><span class="co"># library(lavaan)</span></span>
+<span id="cb344-2"><a href="what-are-structural-equation-models.html#cb344-2" tabindex="-1"></a><span class="co"># library(semPlot)</span></span></code></pre></div>
+<p>Overview</p>
+<p>In this section, we explore how latent variables can be modeled as responses and how to account for measurement error in observed indicators.</p>
+<p>Latent variables are constructs that cannot be measured directly (e.g., biodiversity, ecosystem health, intelligence), but are inferred from multiple observed indicators.</p>
+<p>Key Concepts</p>
+<p>Latent Variables as Responses</p>
+<p>Latent variables can be endogenous (influenced by other variables in the model). For instance:</p>
+<pre><code>•   A latent construct such as “Habitat Quality” could be influenced by soil moisture, disturbance, and vegetation cover.
+•   Each latent construct is defined by observed indicators, which are imperfect and contain measurement error.</code></pre>
+<p>Measurement Error</p>
+<p>SEM is powerful because it separates true score variance from error variance. Each observed variable has two components:
+• The true score linked to the latent construct.
+• The error term (random noise or instrument error).</p>
+<p>Accounting for measurement error prevents biased parameter estimates and inflated correlations.</p>
+<p>Example: Latent Response Model with Measurement Error</p>
+<p>We model a latent response Performance, influenced by an observed predictor Treatment, and measured via three indicators: perf1, perf2, perf3.</p>
+<div class="sourceCode" id="cb346"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb346-1"><a href="what-are-structural-equation-models.html#cb346-1" tabindex="-1"></a><span class="co"># # Define the SEM</span></span>
+<span id="cb346-2"><a href="what-are-structural-equation-models.html#cb346-2" tabindex="-1"></a><span class="co"># model &lt;- &#39;</span></span>
+<span id="cb346-3"><a href="what-are-structural-equation-models.html#cb346-3" tabindex="-1"></a><span class="co">#   # Measurement model</span></span>
+<span id="cb346-4"><a href="what-are-structural-equation-models.html#cb346-4" tabindex="-1"></a><span class="co">#   Performance =~ perf1 + perf2 + perf3</span></span>
+<span id="cb346-5"><a href="what-are-structural-equation-models.html#cb346-5" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb346-6"><a href="what-are-structural-equation-models.html#cb346-6" tabindex="-1"></a><span class="co">#   # Structural model</span></span>
+<span id="cb346-7"><a href="what-are-structural-equation-models.html#cb346-7" tabindex="-1"></a><span class="co">#   Performance ~ Treatment</span></span>
+<span id="cb346-8"><a href="what-are-structural-equation-models.html#cb346-8" tabindex="-1"></a><span class="co"># &#39;</span></span>
+<span id="cb346-9"><a href="what-are-structural-equation-models.html#cb346-9" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb346-10"><a href="what-are-structural-equation-models.html#cb346-10" tabindex="-1"></a><span class="co"># # Simulate data</span></span>
+<span id="cb346-11"><a href="what-are-structural-equation-models.html#cb346-11" tabindex="-1"></a><span class="co"># set.seed(123)</span></span>
+<span id="cb346-12"><a href="what-are-structural-equation-models.html#cb346-12" tabindex="-1"></a><span class="co"># n &lt;- 200</span></span>
+<span id="cb346-13"><a href="what-are-structural-equation-models.html#cb346-13" tabindex="-1"></a><span class="co"># Treatment &lt;- rnorm(n)</span></span>
+<span id="cb346-14"><a href="what-are-structural-equation-models.html#cb346-14" tabindex="-1"></a><span class="co"># perf1 &lt;- 0.6*Treatment + rnorm(n, sd = 1)</span></span>
+<span id="cb346-15"><a href="what-are-structural-equation-models.html#cb346-15" tabindex="-1"></a><span class="co"># perf2 &lt;- 0.6*Treatment + rnorm(n, sd = 1)</span></span>
+<span id="cb346-16"><a href="what-are-structural-equation-models.html#cb346-16" tabindex="-1"></a><span class="co"># perf3 &lt;- 0.6*Treatment + rnorm(n, sd = 1)</span></span>
+<span id="cb346-17"><a href="what-are-structural-equation-models.html#cb346-17" tabindex="-1"></a><span class="co"># data &lt;- data.frame(Treatment, perf1, perf2, perf3)</span></span>
+<span id="cb346-18"><a href="what-are-structural-equation-models.html#cb346-18" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb346-19"><a href="what-are-structural-equation-models.html#cb346-19" tabindex="-1"></a><span class="co"># # Fit the SEM</span></span>
+<span id="cb346-20"><a href="what-are-structural-equation-models.html#cb346-20" tabindex="-1"></a><span class="co"># fit &lt;- sem(model, data = data)</span></span>
+<span id="cb346-21"><a href="what-are-structural-equation-models.html#cb346-21" tabindex="-1"></a><span class="co"># summary(fit, standardized = TRUE)</span></span></code></pre></div>
+<p>Visualizing the SEM</p>
+<div class="sourceCode" id="cb347"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb347-1"><a href="what-are-structural-equation-models.html#cb347-1" tabindex="-1"></a><span class="co">#semPaths(fit, &quot;std&quot;, layout = &quot;tree&quot;, whatLabels = &quot;std&quot;)</span></span></code></pre></div>
+<p>Why Model Latent Responses?</p>
+<pre><code>•   More reliable constructs by combining multiple indicators.
+•   Reduces noise from any single observed variable.
+•   Better reflects theoretical constructs (e.g., stress, biodiversity).</code></pre>
+<p>Key Assumptions</p>
+<pre><code>•   Indicators are unidimensional (reflect one latent factor).
+•   Measurement errors are uncorrelated.
+•   Sufficient variation and correlation among indicators.</code></pre>
+<p>Takeaway</p>
+<p>Modeling latent responses allows you to capture complex, unobserved constructs while accounting for error in measurements. SEM enables estimation of both the relationships among constructs and their measurement structure.</p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="ordination-station.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="piecewise-sems.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/sarasouther/DataAnalysis/edit/main/23-StructuralEquationModelsI.Rmd",
+    "text": "Edit this page"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["_main.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

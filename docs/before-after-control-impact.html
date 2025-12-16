@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 21 Before-After-Control-Impact | Statistics for Ecology</title>
+  <meta name="description" content="Chapter 21 Before-After-Control-Impact | Statistics for Ecology" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 21 Before-After-Control-Impact | Statistics for Ecology" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="sarasouther/DataAnalysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 21 Before-After-Control-Impact | Statistics for Ecology" />
+  
+  
+  
+
+<meta name="author" content="Dr. Sara Souther" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="mixed-effects-models.html"/>
+<link rel="next" href="time-is-a-flat-circle.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.11/grViz.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Statistics for Ecology</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#learning-objectives"><i class="fa fa-check"></i><b>1.1</b> Learning Objectives</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="why-statistics.html"><a href="why-statistics.html"><i class="fa fa-check"></i><b>2</b> Why Statistics?</a></li>
+<li class="chapter" data-level="3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html"><i class="fa fa-check"></i><b>3</b> Back to the basics</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-can-statistics-tell-us"><i class="fa fa-check"></i><b>3.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="3.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-frequentist-framework"><i class="fa fa-check"></i><b>3.2</b> The Frequentist Framework</a></li>
+<li class="chapter" data-level="3.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#bayesian-statistics"><i class="fa fa-check"></i><b>3.3</b> Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#when-might-you-choose-bayesian-statistics"><i class="fa fa-check"></i><b>3.3.1</b> When might you choose Bayesian statistics?</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#data-types-and-why-they-matter"><i class="fa fa-check"></i><b>3.4</b> Data Types and Why They Matter</a></li>
+<li class="chapter" data-level="3.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#linking-data-types-to-distributions"><i class="fa fa-check"></i><b>3.5</b> Linking Data Types to Distributions</a></li>
+<li class="chapter" data-level="3.6" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#overview-of-common-statistical-distributions"><i class="fa fa-check"></i><b>3.6</b> Overview of Common Statistical Distributions</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-normal-distribution"><i class="fa fa-check"></i><b>3.6.1</b> The Normal Distribution</a></li>
+<li class="chapter" data-level="3.6.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-binomial-distribution-outcomes-are-success-or-failure"><i class="fa fa-check"></i><b>3.6.2</b> The Binomial Distribution: Outcomes are “success” or “failure”</a></li>
+<li class="chapter" data-level="3.6.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-poisson-distribution-counts-from-random-events"><i class="fa fa-check"></i><b>3.6.3</b> The Poisson Distribution: Counts from random events</a></li>
+<li class="chapter" data-level="3.6.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-negative-binomial-distribution-overdispersed-counts"><i class="fa fa-check"></i><b>3.6.4</b> The Negative Binomial Distribution: Overdispersed counts</a></li>
+<li class="chapter" data-level="3.6.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-uniform-distribution-all-values-equally-likely"><i class="fa fa-check"></i><b>3.6.5</b> The Uniform Distribution: All values equally likely</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-is-a-model"><i class="fa fa-check"></i><b>3.7</b> What is a model?</a></li>
+<li class="chapter" data-level="3.8" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#key-takeaways"><i class="fa fa-check"></i><b>3.8</b> Key takeaways</a></li>
+<li class="chapter" data-level="3.9" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#test-your-knowledge"><i class="fa fa-check"></i><b>3.9</b> Test your knowledge!</a></li>
+<li class="chapter" data-level="3.10" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#assignment"><i class="fa fa-check"></i><b>3.10</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html"><i class="fa fa-check"></i><b>4</b> Randomness and probability</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#the-sample-point-method"><i class="fa fa-check"></i><b>4.1</b> The sample point method</a></li>
+<li class="chapter" data-level="4.2" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#combinatorials"><i class="fa fa-check"></i><b>4.2</b> Combinatorials</a></li>
+<li class="chapter" data-level="4.3" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#union-and-intersection-of-events"><i class="fa fa-check"></i><b>4.3</b> Union and intersection of events</a></li>
+<li class="chapter" data-level="4.4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#conditional-probability"><i class="fa fa-check"></i><b>4.4</b> Conditional probability</a></li>
+<li class="chapter" data-level="4.5" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#multiplicative-law-of-probability-of-independent-events"><i class="fa fa-check"></i><b>4.5</b> Multiplicative Law of Probability of Independent Events</a></li>
+<li class="chapter" data-level="4.6" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#additive-law-of-probability-of-mutually-exclusive-events"><i class="fa fa-check"></i><b>4.6</b> Additive Law of Probability of Mutually Exclusive Events</a></li>
+<li class="chapter" data-level="4.7" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#general-additive-law-of-probability"><i class="fa fa-check"></i><b>4.7</b> General Additive Law of Probability</a></li>
+<li class="chapter" data-level="4.8" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#key-concepts"><i class="fa fa-check"></i><b>4.8</b> Key concepts</a></li>
+<li class="chapter" data-level="4.9" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html#practice-problems"><i class="fa fa-check"></i><b>4.9</b> Practice problems</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="expected-value-of-a-fair-die-roll.html"><a href="expected-value-of-a-fair-die-roll.html"><i class="fa fa-check"></i><b>5</b> Expected value of a fair die roll</a></li>
+<li class="chapter" data-level="6" data-path="variance-of-a-fair-die-roll.html"><a href="variance-of-a-fair-die-roll.html"><i class="fa fa-check"></i><b>6</b> Variance of a fair die roll</a></li>
+<li class="chapter" data-level="7" data-path="take-many-samples-and-calculate-means.html"><a href="take-many-samples-and-calculate-means.html"><i class="fa fa-check"></i><b>7</b> Take many samples and calculate means</a></li>
+<li class="chapter" data-level="8" data-path="uniform-population.html"><a href="uniform-population.html"><i class="fa fa-check"></i><b>8</b> Uniform population</a></li>
+<li class="chapter" data-level="9" data-path="exponential-population-highly-skewed.html"><a href="exponential-population-highly-skewed.html"><i class="fa fa-check"></i><b>9</b> Exponential population (highly skewed)</a></li>
+<li class="chapter" data-level="10" data-path="ppositive-pposdiseasepdisease-pposno-diseasepno-disease.html"><a href="ppositive-pposdiseasepdisease-pposno-diseasepno-disease.html"><i class="fa fa-check"></i><b>10</b> P(positive) = P(pos|disease)<em>P(disease) + P(pos|no disease)</em>P(no disease)</a></li>
+<li class="chapter" data-level="11" data-path="pdisease-positive-pposdisease-pdisease-ppositive.html"><a href="pdisease-positive-pposdisease-pdisease-ppositive.html"><i class="fa fa-check"></i><b>11</b> P(disease | positive) = P(pos|disease) * P(disease) / P(positive)</a></li>
+<li class="chapter" data-level="12" data-path="probability-of-9-or-10-heads-in-10-flips-of-fair-coin.html"><a href="probability-of-9-or-10-heads-in-10-flips-of-fair-coin.html"><i class="fa fa-check"></i><b>12</b> Probability of 9 or 10 heads in 10 flips of fair coin</a></li>
+<li class="chapter" data-level="13" data-path="data-exploration-and-assumption-checking.html"><a href="data-exploration-and-assumption-checking.html"><i class="fa fa-check"></i><b>13</b> Data Exploration and Assumption Checking</a></li>
+<li class="chapter" data-level="14" data-path="ecological-sampling.html"><a href="ecological-sampling.html"><i class="fa fa-check"></i><b>14</b> Ecological sampling</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#background"><i class="fa fa-check"></i><b>14.1</b> Background</a></li>
+<li class="chapter" data-level="14.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-approaches"><i class="fa fa-check"></i><b>14.2</b> Sampling approaches</a>
+<ul>
+<li class="chapter" data-level="14.2.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-sampling"><i class="fa fa-check"></i><b>14.2.1</b> Random sampling</a></li>
+<li class="chapter" data-level="14.2.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#stratified-random-sampling"><i class="fa fa-check"></i><b>14.2.2</b> Stratified random sampling</a></li>
+<li class="chapter" data-level="14.2.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#gridded-random-sampling"><i class="fa fa-check"></i><b>14.2.3</b> Gridded random sampling</a></li>
+<li class="chapter" data-level="14.2.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-cluster-sampling"><i class="fa fa-check"></i><b>14.2.4</b> Random cluster sampling</a></li>
+<li class="chapter" data-level="14.2.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#grts-sampling-generalized-random-tessellation-stratified-sampling"><i class="fa fa-check"></i><b>14.2.5</b> GRTS Sampling (Generalized Random-Tessellation Stratified Sampling)</a></li>
+<li class="chapter" data-level="14.2.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#understanding-design-weights"><i class="fa fa-check"></i><b>14.2.6</b> Understanding Design Weights</a></li>
+</ul></li>
+<li class="chapter" data-level="14.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#systematic-sampling"><i class="fa fa-check"></i><b>14.3</b> Systematic Sampling</a></li>
+<li class="chapter" data-level="14.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#adaptive-sampling-sampling-rare-or-patchy-species"><i class="fa fa-check"></i><b>14.4</b> Adaptive Sampling (Sampling Rare or Patchy Species)</a></li>
+<li class="chapter" data-level="14.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#imperfect-detection-in-ecological-sampling"><i class="fa fa-check"></i><b>14.5</b> Imperfect Detection in Ecological Sampling</a></li>
+<li class="chapter" data-level="14.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#temporal-sampling-and-study-designs-through-time"><i class="fa fa-check"></i><b>14.6</b> Temporal Sampling and Study Designs Through Time</a>
+<ul>
+<li class="chapter" data-level="14.6.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-panels"><i class="fa fa-check"></i><b>14.6.1</b> Sampling Panels</a></li>
+<li class="chapter" data-level="14.6.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#baci-designs-beforeaftercontrolimpact"><i class="fa fa-check"></i><b>14.6.2</b> BACI Designs (Before–After–Control–Impact)</a></li>
+</ul></li>
+<li class="chapter" data-level="14.7" data-path="ecological-sampling.html"><a href="ecological-sampling.html#plot-shapes-sizes-and-transects"><i class="fa fa-check"></i><b>14.7</b> Plot shapes, sizes, and transects</a></li>
+<li class="chapter" data-level="14.8" data-path="ecological-sampling.html"><a href="ecological-sampling.html#distance-sampling-and-point-counts"><i class="fa fa-check"></i><b>14.8</b> Distance Sampling and Point Counts</a></li>
+<li class="chapter" data-level="14.9" data-path="ecological-sampling.html"><a href="ecological-sampling.html#reducing-sampling-error"><i class="fa fa-check"></i><b>14.9</b> Reducing sampling error</a></li>
+<li class="chapter" data-level="14.10" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sample-size-determination-in-ecology-effect-sizes-and-precision"><i class="fa fa-check"></i><b>14.10</b> Sample Size Determination in Ecology: Effect Sizes and Precision</a></li>
+<li class="chapter" data-level="14.11" data-path="ecological-sampling.html"><a href="ecological-sampling.html#variables-of-interest"><i class="fa fa-check"></i><b>14.11</b> Variables of interest</a></li>
+<li class="chapter" data-level="14.12" data-path="ecological-sampling.html"><a href="ecological-sampling.html#test-your-knowledge-1"><i class="fa fa-check"></i><b>14.12</b> Test your knowledge</a></li>
+<li class="chapter" data-level="14.13" data-path="ecological-sampling.html"><a href="ecological-sampling.html#assignment-1"><i class="fa fa-check"></i><b>14.13</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="14.13.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#example-methods-sampling-design"><i class="fa fa-check"></i><b>14.13.1</b> Example Methods: Sampling Design</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="15" data-path="power-analysis.html"><a href="power-analysis.html"><i class="fa fa-check"></i><b>15</b> Power analysis</a>
+<ul>
+<li class="chapter" data-level="15.1" data-path="power-analysis.html"><a href="power-analysis.html#prework"><i class="fa fa-check"></i><b>15.1</b> Prework</a></li>
+<li class="chapter" data-level="15.2" data-path="power-analysis.html"><a href="power-analysis.html#statistical-power"><i class="fa fa-check"></i><b>15.2</b> Statistical power</a></li>
+<li class="chapter" data-level="15.3" data-path="power-analysis.html"><a href="power-analysis.html#describing-data"><i class="fa fa-check"></i><b>15.3</b> Describing data</a></li>
+</ul></li>
+<li class="chapter" data-level="16" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html"><i class="fa fa-check"></i><b>16</b> Selecting statistical tests</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-foray-into-statistics"><i class="fa fa-check"></i><b>16.1</b> A foray into statistics</a></li>
+<li class="chapter" data-level="16.2" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#pick-the-explanatory-and-response-variable"><i class="fa fa-check"></i><b>16.2</b> Pick the explanatory and response variable</a></li>
+<li class="chapter" data-level="16.3" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#variable-types-refresher"><i class="fa fa-check"></i><b>16.3</b> Variable types refresher</a></li>
+<li class="chapter" data-level="16.4" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#more-examples"><i class="fa fa-check"></i><b>16.4</b> More examples</a></li>
+<li class="chapter" data-level="16.5" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#the-decision-matrix"><i class="fa fa-check"></i><b>16.5</b> The decision matrix</a></li>
+<li class="chapter" data-level="16.6" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-note-on-assumptions"><i class="fa fa-check"></i><b>16.6</b> A note on assumptions</a></li>
+<li class="chapter" data-level="16.7" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#learning-goals"><i class="fa fa-check"></i><b>16.7</b> Learning goals</a></li>
+<li class="chapter" data-level="16.8" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#downloads-for-this-class"><i class="fa fa-check"></i><b>16.8</b> Downloads for this class</a></li>
+<li class="chapter" data-level="16.9" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#in-class-practice"><i class="fa fa-check"></i><b>16.9</b> In-class practice</a></li>
+<li class="chapter" data-level="16.10" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#assignment-choosing-and-running-the-right-test"><i class="fa fa-check"></i><b>16.10</b> Assignment: Choosing and Running the Right Test</a>
+<ul>
+<li class="chapter" data-level="16.10.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#deliverables"><i class="fa fa-check"></i><b>16.10.1</b> Deliverables</a></li>
+</ul></li>
+<li class="chapter" data-level="16.11" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#statistical-analyses-for-your-species-interaction-lab"><i class="fa fa-check"></i><b>16.11</b> Statistical analyses for your species interaction lab</a></li>
+</ul></li>
+<li class="chapter" data-level="17" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html"><i class="fa fa-check"></i><b>17</b> Basic statistical testing</a>
+<ul>
+<li class="chapter" data-level="17.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#a-short-statistical-review"><i class="fa fa-check"></i><b>17.1</b> A short statistical review</a>
+<ul>
+<li class="chapter" data-level="17.1.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#what-can-statistics-tell-us-1"><i class="fa fa-check"></i><b>17.1.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="17.1.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#sampling-populations"><i class="fa fa-check"></i><b>17.1.2</b> Sampling populations</a></li>
+</ul></li>
+<li class="chapter" data-level="17.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#hypothesis-testing-review"><i class="fa fa-check"></i><b>17.2</b> Hypothesis testing review</a></li>
+<li class="chapter" data-level="17.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#downloads-for-this-module"><i class="fa fa-check"></i><b>17.3</b> Downloads for this module</a></li>
+<li class="chapter" data-level="17.4" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#objectives"><i class="fa fa-check"></i><b>17.4</b> Objectives</a></li>
+<li class="chapter" data-level="17.5" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#tailed-tests"><i class="fa fa-check"></i><b>17.5</b> Tailed tests</a>
+<ul>
+<li class="chapter" data-level="17.5.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#generate-hypotheses"><i class="fa fa-check"></i><b>17.5.1</b> Generate hypotheses</a></li>
+<li class="chapter" data-level="17.5.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#calculate-a-test-statistic"><i class="fa fa-check"></i><b>17.5.2</b> Calculate a test statistic</a></li>
+<li class="chapter" data-level="17.5.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#determine-the-p-value"><i class="fa fa-check"></i><b>17.5.3</b> Determine the p-value</a></li>
+</ul></li>
+<li class="chapter" data-level="17.6" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#drawing-conclusions-from-statistics"><i class="fa fa-check"></i><b>17.6</b> Drawing conclusions from statistics</a></li>
+<li class="chapter" data-level="17.7" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#reporting-results"><i class="fa fa-check"></i><b>17.7</b> Reporting results</a></li>
+<li class="chapter" data-level="17.8" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#assignment-2"><i class="fa fa-check"></i><b>17.8</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="18" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html"><i class="fa fa-check"></i><b>18</b> Generalized Linear Models (GLMs)</a>
+<ul>
+<li class="chapter" data-level="18.1" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html#linear-models"><i class="fa fa-check"></i><b>18.1</b> Linear models</a></li>
+</ul></li>
+<li class="chapter" data-level="19" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>19</b> Generalized Linear Models</a>
+<ul>
+<li class="chapter" data-level="19.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#link-functions"><i class="fa fa-check"></i><b>19.1</b> Link functions</a></li>
+<li class="chapter" data-level="19.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#glms-in-r"><i class="fa fa-check"></i><b>19.2</b> GLMs in R</a></li>
+</ul></li>
+<li class="chapter" data-level="20" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html"><i class="fa fa-check"></i><b>20</b> Mixed Effects Models</a>
+<ul>
+<li class="chapter" data-level="20.1" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html#examples-in-r"><i class="fa fa-check"></i><b>20.1</b> Examples in R</a></li>
+</ul></li>
+<li class="chapter" data-level="21" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html"><i class="fa fa-check"></i><b>21</b> Before-After-Control-Impact</a>
+<ul>
+<li class="chapter" data-level="21.1" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#which-design"><i class="fa fa-check"></i><b>21.1</b> Which design</a></li>
+<li class="chapter" data-level="21.2" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#baci-design-2"><i class="fa fa-check"></i><b>21.2</b> BACI Design 2</a></li>
+</ul></li>
+<li class="chapter" data-level="22" data-path="time-is-a-flat-circle.html"><a href="time-is-a-flat-circle.html"><i class="fa fa-check"></i><b>22</b> Time is a flat circle</a></li>
+<li class="chapter" data-level="23" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html"><i class="fa fa-check"></i><b>23</b> Describing ecological patterns</a>
+<ul>
+<li class="chapter" data-level="23.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#when-to-use-model-selection"><i class="fa fa-check"></i><b>23.1</b> When to use model selection?</a></li>
+<li class="chapter" data-level="23.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-1-identifying-predictor-variables-or-co-variates-of-importance"><i class="fa fa-check"></i><b>23.2</b> Step 1: Identifying predictor variables or co-variates of importance</a></li>
+<li class="chapter" data-level="23.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-2-removing-colinear-variables"><i class="fa fa-check"></i><b>23.3</b> Step 2: Removing colinear variables</a>
+<ul>
+<li class="chapter" data-level="23.3.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#automated-variable-removal"><i class="fa fa-check"></i><b>23.3.1</b> Automated Variable Removal</a></li>
+<li class="chapter" data-level="23.3.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#expert-knowledge-driven-selection"><i class="fa fa-check"></i><b>23.3.2</b> Expert Knowledge-Driven Selection</a></li>
+<li class="chapter" data-level="23.3.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#blended-strategy-recommended"><i class="fa fa-check"></i><b>23.3.3</b> Blended Strategy (Recommended)</a></li>
+</ul></li>
+<li class="chapter" data-level="23.4" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#example-reducing-colinear-climate-variables"><i class="fa fa-check"></i><b>23.4</b> Example: Reducing colinear climate variables</a></li>
+<li class="chapter" data-level="23.5" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-3-select-the-best-model"><i class="fa fa-check"></i><b>23.5</b> Step 3: Select the best model</a>
+<ul>
+<li class="chapter" data-level="23.5.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#major-types-of-model-selection-overview-benefits-drawbacks-and-applications"><i class="fa fa-check"></i><b>23.5.1</b> Major Types of Model Selection: Overview, Benefits, Drawbacks, and Applications</a></li>
+<li class="chapter" data-level="23.5.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#stepwise-regression-based-on-aic-akaike-information-criterion."><i class="fa fa-check"></i><b>23.5.2</b> Stepwise regression based on AIC (Akaike Information Criterion).</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="24" data-path="plot-establishment.html"><a href="plot-establishment.html"><i class="fa fa-check"></i><b>24</b> Plot establishment</a></li>
+<li class="chapter" data-level="25" data-path="bootstrapping-and-resampling.html"><a href="bootstrapping-and-resampling.html"><i class="fa fa-check"></i><b>25</b> Bootstrapping and resampling</a></li>
+<li class="chapter" data-level="26" data-path="population-sensation.html"><a href="population-sensation.html"><i class="fa fa-check"></i><b>26</b> Population sensation</a>
+<ul>
+<li class="chapter" data-level="26.1" data-path="population-sensation.html"><a href="population-sensation.html#population-characteristics"><i class="fa fa-check"></i><b>26.1</b> Population characteristics</a></li>
+<li class="chapter" data-level="26.2" data-path="population-sensation.html"><a href="population-sensation.html#planning-a-census"><i class="fa fa-check"></i><b>26.2</b> Planning a census</a></li>
+<li class="chapter" data-level="26.3" data-path="population-sensation.html"><a href="population-sensation.html#life-cycle-diagrams"><i class="fa fa-check"></i><b>26.3</b> Life cycle diagrams</a></li>
+<li class="chapter" data-level="26.4" data-path="population-sensation.html"><a href="population-sensation.html#population-demographic-models"><i class="fa fa-check"></i><b>26.4</b> Population demographic models</a></li>
+<li class="chapter" data-level="26.5" data-path="population-sensation.html"><a href="population-sensation.html#integral-projection-models"><i class="fa fa-check"></i><b>26.5</b> Integral projection models</a></li>
+<li class="chapter" data-level="26.6" data-path="population-sensation.html"><a href="population-sensation.html#an-example-population-ecology-of-an-endangered-plant"><i class="fa fa-check"></i><b>26.6</b> An example: Population ecology of an endangered plant</a></li>
+<li class="chapter" data-level="26.7" data-path="population-sensation.html"><a href="population-sensation.html#putting-it-all-together"><i class="fa fa-check"></i><b>26.7</b> Putting it all together</a></li>
+<li class="chapter" data-level="26.8" data-path="population-sensation.html"><a href="population-sensation.html#generating-confidence-intervals"><i class="fa fa-check"></i><b>26.8</b> Generating confidence intervals</a></li>
+<li class="chapter" data-level="26.9" data-path="population-sensation.html"><a href="population-sensation.html#different-life-histories"><i class="fa fa-check"></i><b>26.9</b> Different life histories</a></li>
+</ul></li>
+<li class="chapter" data-level="27" data-path="permuting-your-brains-out.html"><a href="permuting-your-brains-out.html"><i class="fa fa-check"></i><b>27</b> Permuting your brains out</a></li>
+<li class="chapter" data-level="28" data-path="spatial-data.html"><a href="spatial-data.html"><i class="fa fa-check"></i><b>28</b> Spatial data</a></li>
+<li class="chapter" data-level="29" data-path="read.html"><a href="read.html"><i class="fa fa-check"></i><b>29</b> Read</a></li>
+<li class="chapter" data-level="30" data-path="check-structure.html"><a href="check-structure.html"><i class="fa fa-check"></i><b>30</b> Check structure</a></li>
+<li class="chapter" data-level="31" data-path="write.html"><a href="write.html"><i class="fa fa-check"></i><b>31</b> Write</a></li>
+<li class="chapter" data-level="32" data-path="read-1.html"><a href="read-1.html"><i class="fa fa-check"></i><b>32</b> Read</a></li>
+<li class="chapter" data-level="33" data-path="check-properties.html"><a href="check-properties.html"><i class="fa fa-check"></i><b>33</b> Check properties</a></li>
+<li class="chapter" data-level="34" data-path="write-1.html"><a href="write-1.html"><i class="fa fa-check"></i><b>34</b> Write</a></li>
+<li class="chapter" data-level="35" data-path="create-neighbor-list.html"><a href="create-neighbor-list.html"><i class="fa fa-check"></i><b>35</b> Create neighbor list</a></li>
+<li class="chapter" data-level="36" data-path="test-residuals.html"><a href="test-residuals.html"><i class="fa fa-check"></i><b>36</b> Test residuals</a></li>
+<li class="chapter" data-level="37" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html"><i class="fa fa-check"></i><b>37</b> Species Distribution Modeling</a>
+<ul>
+<li class="chapter" data-level="37.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#introduction-1"><i class="fa fa-check"></i><b>37.1</b> Introduction</a></li>
+<li class="chapter" data-level="37.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#a-brief-review-of-niche-theory"><i class="fa fa-check"></i><b>37.2</b> A brief review of niche theory</a></li>
+<li class="chapter" data-level="37.3" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#downloads-for-this-lab"><i class="fa fa-check"></i><b>37.3</b> Downloads for this lab</a></li>
+<li class="chapter" data-level="37.4" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#objectives-1"><i class="fa fa-check"></i><b>37.4</b> Objectives</a></li>
+<li class="chapter" data-level="37.5" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#methods"><i class="fa fa-check"></i><b>37.5</b> Methods</a>
+<ul>
+<li class="chapter" data-level="37.5.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#lets-get-modeling"><i class="fa fa-check"></i><b>37.5.1</b> Let’s get modeling</a></li>
+<li class="chapter" data-level="37.5.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#run-the-r-code"><i class="fa fa-check"></i><b>37.5.2</b> Run the R code</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="38" data-path="diversity-statistics.html"><a href="diversity-statistics.html"><i class="fa fa-check"></i><b>38</b> Diversity statistics</a>
+<ul>
+<li class="chapter" data-level="38.1" data-path="diversity-statistics.html"><a href="diversity-statistics.html#inext"><i class="fa fa-check"></i><b>38.1</b> iNext</a></li>
+<li class="chapter" data-level="38.2" data-path="diversity-statistics.html"><a href="diversity-statistics.html#coveragebased-re-sampling-curves"><i class="fa fa-check"></i><b>38.2</b> Coverage‐based R/E sampling curves</a></li>
+<li class="chapter" data-level="38.3" data-path="diversity-statistics.html"><a href="diversity-statistics.html#data-manipulation"><i class="fa fa-check"></i><b>38.3</b> Data manipulation</a></li>
+</ul></li>
+<li class="chapter" data-level="39" data-path="ordination-station.html"><a href="ordination-station.html"><i class="fa fa-check"></i><b>39</b> Ordination station</a></li>
+<li class="chapter" data-level="40" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html"><i class="fa fa-check"></i><b>40</b> What are structural equation models?</a>
+<ul>
+<li class="chapter" data-level="40.0.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#when-should-you-use-sem"><i class="fa fa-check"></i><b>40.0.1</b> When Should You Use SEM?</a></li>
+<li class="chapter" data-level="40.0.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression"><i class="fa fa-check"></i><b>40.0.2</b> How is SEM Different from Multiple Regression?</a></li>
+<li class="chapter" data-level="40.0.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary"><i class="fa fa-check"></i><b>40.0.3</b> Summary</a></li>
+<li class="chapter" data-level="40.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model"><i class="fa fa-check"></i><b>40.1</b> Anatomy of a Structural Equation Model</a>
+<ul>
+<li class="chapter" data-level="40.1.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#types-of-variables"><i class="fa fa-check"></i><b>40.1.1</b> Types of Variables</a></li>
+<li class="chapter" data-level="40.1.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#path-diagrams"><i class="fa fa-check"></i><b>40.1.2</b> Path Diagrams</a></li>
+</ul></li>
+<li class="chapter" data-level="40.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#building-multivariate-models"><i class="fa fa-check"></i><b>40.2</b> Building Multivariate Models</a>
+<ul>
+<li class="chapter" data-level="40.2.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-causality"><i class="fa fa-check"></i><b>40.2.1</b> What is Causality?</a></li>
+<li class="chapter" data-level="40.2.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression"><i class="fa fa-check"></i><b>40.2.2</b> Why move beyond Multiple Regression?</a></li>
+<li class="chapter" data-level="40.2.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#meta-modeling-your-system"><i class="fa fa-check"></i><b>40.2.3</b> Meta-Modeling Your System</a></li>
+</ul></li>
+<li class="chapter" data-level="40.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#from-concept-to-model"><i class="fa fa-check"></i><b>40.3</b> From Concept to Model</a></li>
+<li class="chapter" data-level="40.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams"><i class="fa fa-check"></i><b>40.4</b> Common Structures in Causal Diagrams</a>
+<ul>
+<li class="chapter" data-level="40.4.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chains-mediation-paths"><i class="fa fa-check"></i><b>40.4.1</b> Chains (Mediation Paths)</a></li>
+<li class="chapter" data-level="40.4.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#colliders"><i class="fa fa-check"></i><b>40.4.2</b> Colliders</a></li>
+<li class="chapter" data-level="40.4.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#forks-confounding-paths"><i class="fa fa-check"></i><b>40.4.3</b> Forks (Confounding Paths)</a></li>
+<li class="chapter" data-level="40.4.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#descendants-of-colliders"><i class="fa fa-check"></i><b>40.4.4</b> Descendants of Colliders</a></li>
+<li class="chapter" data-level="40.4.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-of-strcutures"><i class="fa fa-check"></i><b>40.4.5</b> Summary of strcutures</a></li>
+<li class="chapter" data-level="40.4.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifying-causality"><i class="fa fa-check"></i><b>40.4.6</b> Identifying Causality</a></li>
+<li class="chapter" data-level="40.4.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#backdoor-criterion"><i class="fa fa-check"></i><b>40.4.7</b> Backdoor Criterion</a></li>
+<li class="chapter" data-level="40.4.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#frontdoor-criterion"><i class="fa fa-check"></i><b>40.4.8</b> Frontdoor Criterion</a></li>
+<li class="chapter" data-level="40.4.9" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management"><i class="fa fa-check"></i><b>40.4.9</b> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management</a></li>
+<li class="chapter" data-level="40.4.10" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#adjustment-sets"><i class="fa fa-check"></i><b>40.4.10</b> Adjustment Sets</a></li>
+</ul></li>
+<li class="chapter" data-level="40.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem"><i class="fa fa-check"></i><b>40.5</b> Chapter 5: Covariance-Based Estimation in SEM</a>
+<ul>
+<li class="chapter" data-level="40.5.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-covariance-based-sem"><i class="fa fa-check"></i><b>40.5.1</b> What is Covariance-Based SEM?</a></li>
+<li class="chapter" data-level="40.5.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#maximum-likelihood-estimation"><i class="fa fa-check"></i><b>40.5.2</b> Maximum Likelihood Estimation</a></li>
+<li class="chapter" data-level="40.5.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation"><i class="fa fa-check"></i><b>40.5.3</b> Assumptions Behind ML Estimation</a></li>
+<li class="chapter" data-level="40.5.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifiability"><i class="fa fa-check"></i><b>40.5.4</b> Identifiability</a></li>
+<li class="chapter" data-level="40.5.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#degrees-of-freedom"><i class="fa fa-check"></i><b>40.5.5</b> Degrees of Freedom</a></li>
+<li class="chapter" data-level="40.5.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#sample-size-considerations"><i class="fa fa-check"></i><b>40.5.6</b> Sample Size Considerations</a></li>
+<li class="chapter" data-level="40.5.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-1"><i class="fa fa-check"></i><b>40.5.7</b> Summary</a></li>
+<li class="chapter" data-level="40.5.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan"><i class="fa fa-check"></i><b>40.5.8</b> Chapter 6: Structural Equation Modeling in R with lavaan</a></li>
+</ul></li>
+<li class="chapter" data-level="40.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation"><i class="fa fa-check"></i><b>40.6</b> Getting Started with lavaan – Model Specification, Estimation, and Interpretation</a>
+<ul>
+<li class="chapter" data-level="40.6.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality"><i class="fa fa-check"></i><b>40.6.1</b> Chapter 7:Assessing Fit and Normality</a></li>
+<li class="chapter" data-level="40.6.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation"><i class="fa fa-check"></i><b>40.6.2</b> Chapter 8: Comparing Models and Testing Mediation</a></li>
+<li class="chapter" data-level="40.6.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers"><i class="fa fa-check"></i><b>40.6.3</b> Chapter 8: Latent Variables as Drivers</a></li>
+<li class="chapter" data-level="40.6.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error"><i class="fa fa-check"></i><b>40.6.4</b> Chapter 10: Latent Responses and Measurement Error</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="41" data-path="piecewise-sems.html"><a href="piecewise-sems.html"><i class="fa fa-check"></i><b>41</b> Piecewise SEMs</a>
+<ul>
+<li class="chapter" data-level="41.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview"><i class="fa fa-check"></i><b>41.1</b> Overview</a></li>
+<li class="chapter" data-level="41.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem"><i class="fa fa-check"></i><b>41.2</b> Why Use Piecewise SEM, instead of a covariance SEM?</a>
+<ul>
+<li class="chapter" data-level="41.2.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#comparison-of-sem-approaches"><i class="fa fa-check"></i><b>41.2.1</b> Comparison of SEM Approaches</a></li>
+<li class="chapter" data-level="41.2.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-covariance-based-sem"><i class="fa fa-check"></i><b>41.2.2</b> Benefits of Covariance-Based SEM</a></li>
+<li class="chapter" data-level="41.2.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-piecewise-sem"><i class="fa fa-check"></i><b>41.2.3</b> Benefits of Piecewise SEM</a></li>
+<li class="chapter" data-level="41.2.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#when-to-use-each-approach"><i class="fa fa-check"></i><b>41.2.4</b> When to Use Each Approach</a></li>
+<li class="chapter" data-level="41.2.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#models-differ-in-approach"><i class="fa fa-check"></i><b>41.2.5</b> Models differ in approach</a></li>
+</ul></li>
+<li class="chapter" data-level="41.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona"><i class="fa fa-check"></i><b>41.3</b> SEM Example: Resilience to Drought in Arizona</a>
+<ul>
+<li class="chapter" data-level="41.3.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r"><i class="fa fa-check"></i><b>41.3.1</b> Chapter 12: Introduction to Piecewise SEM in R</a></li>
+</ul></li>
+<li class="chapter" data-level="41.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#part-1-what-is-piecewise-sem"><i class="fa fa-check"></i><b>41.4</b> Part 1: What is Piecewise SEM?</a>
+<ul>
+<li class="chapter" data-level="41.4.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem"><i class="fa fa-check"></i><b>41.4.1</b> Chapter 13: Nonlinearity and Interaction in SEM</a></li>
+<li class="chapter" data-level="41.4.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem"><i class="fa fa-check"></i><b>41.4.2</b> Chapter 14: GLMs with SEM using PiecewiseSEM</a></li>
+</ul></li>
+<li class="chapter" data-level="41.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview-1"><i class="fa fa-check"></i><b>41.5</b> Overview</a>
+<ul>
+<li class="chapter" data-level="41.5.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem"><i class="fa fa-check"></i><b>41.5.1</b> Chapter 15: Categorical Predictors &amp; Multigroup SEM</a></li>
+<li class="chapter" data-level="41.5.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r"><i class="fa fa-check"></i><b>41.5.2</b> Chapter 16: Multigroup SEM in R</a></li>
+<li class="chapter" data-level="41.5.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-17"><i class="fa fa-check"></i><b>41.5.3</b> Chapter 17:</a></li>
+</ul></li>
+<li class="chapter" data-level="41.6" data-path="piecewise-sems.html"><a href="piecewise-sems.html#example-with-powerline-data"><i class="fa fa-check"></i><b>41.6</b> Example with Powerline Data</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Statistics for Ecology</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="before-after-control-impact" class="section level1 hasAnchor" number="21">
+<h1><span class="header-section-number">Chapter 21</span> Before-After-Control-Impact<a href="before-after-control-impact.html#before-after-control-impact" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="which-design" class="section level2 hasAnchor" number="21.1">
+<h2><span class="header-section-number">21.1</span> Which design<a href="before-after-control-impact.html#which-design" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Four standard BACI DesignsFour standard BACI designs:
+1. Single impact site; single control site; one year before; oneyear after
+2. Single/multiple impact site; multiple control sites; one yearbefore; one year after
+3. Single impact site; single control site; multiple yearsbefore; multiple years after.
+4. Single impact site; multiple control sites; multiple yearsbefore; multiple years after</p>
+<p>See this tutorial</p>
+</div>
+<div id="baci-design-2" class="section level2 hasAnchor" number="21.2">
+<h2><span class="header-section-number">21.2</span> BACI Design 2<a href="before-after-control-impact.html#baci-design-2" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="before-after-control-impact.html#cb155-1" tabindex="-1"></a><span class="co">#test1 &lt;- lmer(responsevariable ~ GrazingTreatment+Time+GrazingTreatment:Time, random~1|Plot/Time, data=yourdata)</span></span></code></pre></div>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="mixed-effects-models.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="time-is-a-flat-circle.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/sarasouther/DataAnalysis/edit/main/13-SpecialDesigns_BACI.Rmd",
+    "text": "Edit this page"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["_main.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
