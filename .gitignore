@@ -18,10 +18,6 @@ _bookdown_files/
 .DS_Store
 Thumbs.db
 
-# HTML outputs (optional to ignore)
-*.html
-*.utf8.md
-
 # Quarto / Pandoc intermediates
 *.knit.md
 *.utf8.md
