@@ -20,13 +20,14 @@ rmd_files:
   - 12-MixedEffectsModels.Rmd
   - 13-SpecialDesigns_BACI.Rmd
   - 14-SpecialDesigns_TimeSeriesAnalysis.Rmd
-  - 15-ComplexSystemsModelSelection.Rmd
+  #- 15-ComplexSystemsModelSelection.Rmd
   - 16-BootstrappingResampling.Rmd
   - 17-PopulationEcology.Rmd
-  - 18-PermutationBasedMethods.Rmd
+  - 18-IntegralProjectionModels.Rmd
   - 19-WorkingwSpatialData.Rmd
   - 20-SpeciesDistributionModeling.Rmd
   - 21-IntroductionToDiversityStats.Rmd
   - 22-OrdinationMethods.Rmd
   - 23-StructuralEquationModelsI.Rmd
   - 24-StructuralEquationModelsII.Rmd
+  - 25-PermutationBasedMethods.Rmd

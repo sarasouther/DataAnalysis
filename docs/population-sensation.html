@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 26 Population sensation | Statistics for Ecology</title>
-  <meta name="description" content="Chapter 26 Population sensation | Statistics for Ecology" />
+  <title>Chapter 24 Population sensation | Statistics for Ecology</title>
+  <meta name="description" content="Chapter 24 Population sensation | Statistics for Ecology" />
   <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 26 Population sensation | Statistics for Ecology" />
+  <meta property="og:title" content="Chapter 24 Population sensation | Statistics for Ecology" />
   <meta property="og:type" content="book" />
   
   
   <meta name="github-repo" content="sarasouther/DataAnalysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 26 Population sensation | Statistics for Ecology" />
+  <meta name="twitter:title" content="Chapter 24 Population sensation | Statistics for Ecology" />
   
   
   
@@ -30,7 +30,7 @@
   
   
 <link rel="prev" href="bootstrapping-and-resampling.html"/>
-<link rel="next" href="permuting-your-brains-out.html"/>
+<link rel="next" href="integral-population-models.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -149,29 +149,32 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#learning-objectives"><i class="fa fa-check"></i><b>1.1</b> Learning Objectives</a></li>
 </ul></li>
-<li class="chapter" data-level="2" data-path="why-statistics.html"><a href="why-statistics.html"><i class="fa fa-check"></i><b>2</b> Why Statistics?</a></li>
-<li class="chapter" data-level="3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html"><i class="fa fa-check"></i><b>3</b> Back to the basics</a>
+<li class="chapter" data-level="2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html"><i class="fa fa-check"></i><b>2</b> Back to the basics</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-can-statistics-tell-us"><i class="fa fa-check"></i><b>3.1</b> What can statistics tell us?</a></li>
-<li class="chapter" data-level="3.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-frequentist-framework"><i class="fa fa-check"></i><b>3.2</b> The Frequentist Framework</a></li>
-<li class="chapter" data-level="3.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#bayesian-statistics"><i class="fa fa-check"></i><b>3.3</b> Bayesian statistics</a>
+<li class="chapter" data-level="2.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-can-statistics-tell-us"><i class="fa fa-check"></i><b>2.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="2.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-frequentist-framework"><i class="fa fa-check"></i><b>2.2</b> The Frequentist Framework</a></li>
+<li class="chapter" data-level="2.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#bayesian-statistics"><i class="fa fa-check"></i><b>2.3</b> Bayesian statistics</a>
 <ul>
-<li class="chapter" data-level="3.3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#when-might-you-choose-bayesian-statistics"><i class="fa fa-check"></i><b>3.3.1</b> When might you choose Bayesian statistics?</a></li>
+<li class="chapter" data-level="2.3.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#when-might-you-choose-bayesian-statistics"><i class="fa fa-check"></i><b>2.3.1</b> When might you choose Bayesian statistics?</a></li>
 </ul></li>
-<li class="chapter" data-level="3.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#data-types-and-why-they-matter"><i class="fa fa-check"></i><b>3.4</b> Data Types and Why They Matter</a></li>
-<li class="chapter" data-level="3.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#linking-data-types-to-distributions"><i class="fa fa-check"></i><b>3.5</b> Linking Data Types to Distributions</a></li>
-<li class="chapter" data-level="3.6" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#overview-of-common-statistical-distributions"><i class="fa fa-check"></i><b>3.6</b> Overview of Common Statistical Distributions</a>
-<ul>
-<li class="chapter" data-level="3.6.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-normal-distribution"><i class="fa fa-check"></i><b>3.6.1</b> The Normal Distribution</a></li>
-<li class="chapter" data-level="3.6.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-binomial-distribution-outcomes-are-success-or-failure"><i class="fa fa-check"></i><b>3.6.2</b> The Binomial Distribution: Outcomes are “success” or “failure”</a></li>
-<li class="chapter" data-level="3.6.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-poisson-distribution-counts-from-random-events"><i class="fa fa-check"></i><b>3.6.3</b> The Poisson Distribution: Counts from random events</a></li>
-<li class="chapter" data-level="3.6.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-negative-binomial-distribution-overdispersed-counts"><i class="fa fa-check"></i><b>3.6.4</b> The Negative Binomial Distribution: Overdispersed counts</a></li>
-<li class="chapter" data-level="3.6.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-uniform-distribution-all-values-equally-likely"><i class="fa fa-check"></i><b>3.6.5</b> The Uniform Distribution: All values equally likely</a></li>
+<li class="chapter" data-level="2.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-is-a-model"><i class="fa fa-check"></i><b>2.4</b> What is a model?</a></li>
+<li class="chapter" data-level="2.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#test-your-knowledge"><i class="fa fa-check"></i><b>2.5</b> Test your knowledge!</a></li>
+<li class="chapter" data-level="2.6" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#assignment"><i class="fa fa-check"></i><b>2.6</b> Assignment</a></li>
 </ul></li>
-<li class="chapter" data-level="3.7" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-is-a-model"><i class="fa fa-check"></i><b>3.7</b> What is a model?</a></li>
-<li class="chapter" data-level="3.8" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#key-takeaways"><i class="fa fa-check"></i><b>3.8</b> Key takeaways</a></li>
-<li class="chapter" data-level="3.9" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#test-your-knowledge"><i class="fa fa-check"></i><b>3.9</b> Test your knowledge!</a></li>
-<li class="chapter" data-level="3.10" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#assignment"><i class="fa fa-check"></i><b>3.10</b> Assignment</a></li>
+<li class="chapter" data-level="3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html"><i class="fa fa-check"></i><b>3</b> Data Types and Why They Matter</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#linking-data-types-to-distributions"><i class="fa fa-check"></i><b>3.1</b> Linking Data Types to Distributions</a></li>
+<li class="chapter" data-level="3.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#overview-of-common-statistical-distributions"><i class="fa fa-check"></i><b>3.2</b> Overview of Common Statistical Distributions</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-normal-distribution"><i class="fa fa-check"></i><b>3.2.1</b> The Normal Distribution</a></li>
+<li class="chapter" data-level="3.2.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-binomial-distribution-outcomes-are-success-or-failure"><i class="fa fa-check"></i><b>3.2.2</b> The Binomial Distribution: Outcomes are “success” or “failure”</a></li>
+<li class="chapter" data-level="3.2.3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-poisson-distribution-counts-from-random-events"><i class="fa fa-check"></i><b>3.2.3</b> The Poisson Distribution: Counts from random events</a></li>
+<li class="chapter" data-level="3.2.4" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-negative-binomial-distribution-overdispersed-counts"><i class="fa fa-check"></i><b>3.2.4</b> The Negative Binomial Distribution: Overdispersed counts</a></li>
+<li class="chapter" data-level="3.2.5" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-uniform-distribution-all-values-equally-likely"><i class="fa fa-check"></i><b>3.2.5</b> The Uniform Distribution: All values equally likely</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#key-takeaways"><i class="fa fa-check"></i><b>3.3</b> Key takeaways</a></li>
+<li class="chapter" data-level="3.4" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#test-your-knowledge-1"><i class="fa fa-check"></i><b>3.4</b> Test your knowledge!</a></li>
+<li class="chapter" data-level="3.5" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#assignment-1"><i class="fa fa-check"></i><b>3.5</b> Assignment</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="randomness-and-probability.html"><a href="randomness-and-probability.html"><i class="fa fa-check"></i><b>4</b> Randomness and probability</a>
 <ul>
@@ -219,8 +222,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="14.9" data-path="ecological-sampling.html"><a href="ecological-sampling.html#reducing-sampling-error"><i class="fa fa-check"></i><b>14.9</b> Reducing sampling error</a></li>
 <li class="chapter" data-level="14.10" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sample-size-determination-in-ecology-effect-sizes-and-precision"><i class="fa fa-check"></i><b>14.10</b> Sample Size Determination in Ecology: Effect Sizes and Precision</a></li>
 <li class="chapter" data-level="14.11" data-path="ecological-sampling.html"><a href="ecological-sampling.html#variables-of-interest"><i class="fa fa-check"></i><b>14.11</b> Variables of interest</a></li>
-<li class="chapter" data-level="14.12" data-path="ecological-sampling.html"><a href="ecological-sampling.html#test-your-knowledge-1"><i class="fa fa-check"></i><b>14.12</b> Test your knowledge</a></li>
-<li class="chapter" data-level="14.13" data-path="ecological-sampling.html"><a href="ecological-sampling.html#assignment-1"><i class="fa fa-check"></i><b>14.13</b> Assignment</a>
+<li class="chapter" data-level="14.12" data-path="ecological-sampling.html"><a href="ecological-sampling.html#test-your-knowledge-2"><i class="fa fa-check"></i><b>14.12</b> Test your knowledge</a></li>
+<li class="chapter" data-level="14.13" data-path="ecological-sampling.html"><a href="ecological-sampling.html#assignment-2"><i class="fa fa-check"></i><b>14.13</b> Assignment</a>
 <ul>
 <li class="chapter" data-level="14.13.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#example-methods-sampling-design"><i class="fa fa-check"></i><b>14.13.1</b> Example Methods: Sampling Design</a></li>
 </ul></li>
@@ -266,7 +269,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="17.6" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#drawing-conclusions-from-statistics"><i class="fa fa-check"></i><b>17.6</b> Drawing conclusions from statistics</a></li>
 <li class="chapter" data-level="17.7" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#reporting-results"><i class="fa fa-check"></i><b>17.7</b> Reporting results</a></li>
-<li class="chapter" data-level="17.8" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#assignment-2"><i class="fa fa-check"></i><b>17.8</b> Assignment</a></li>
+<li class="chapter" data-level="17.8" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#assignment-3"><i class="fa fa-check"></i><b>17.8</b> Assignment</a></li>
 </ul></li>
 <li class="chapter" data-level="18" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html"><i class="fa fa-check"></i><b>18</b> Generalized Linear Models (GLMs)</a>
 <ul>
@@ -287,143 +290,188 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="21.2" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#baci-design-2"><i class="fa fa-check"></i><b>21.2</b> BACI Design 2</a></li>
 </ul></li>
 <li class="chapter" data-level="22" data-path="time-is-a-flat-circle.html"><a href="time-is-a-flat-circle.html"><i class="fa fa-check"></i><b>22</b> Time is a flat circle</a></li>
-<li class="chapter" data-level="23" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html"><i class="fa fa-check"></i><b>23</b> Describing ecological patterns</a>
+<li class="chapter" data-level="23" data-path="bootstrapping-and-resampling.html"><a href="bootstrapping-and-resampling.html"><i class="fa fa-check"></i><b>23</b> Bootstrapping and resampling</a></li>
+<li class="chapter" data-level="24" data-path="population-sensation.html"><a href="population-sensation.html"><i class="fa fa-check"></i><b>24</b> Population sensation</a>
 <ul>
-<li class="chapter" data-level="23.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#when-to-use-model-selection"><i class="fa fa-check"></i><b>23.1</b> When to use model selection?</a></li>
-<li class="chapter" data-level="23.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-1-identifying-predictor-variables-or-co-variates-of-importance"><i class="fa fa-check"></i><b>23.2</b> Step 1: Identifying predictor variables or co-variates of importance</a></li>
-<li class="chapter" data-level="23.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-2-removing-colinear-variables"><i class="fa fa-check"></i><b>23.3</b> Step 2: Removing colinear variables</a>
+<li class="chapter" data-level="24.1" data-path="population-sensation.html"><a href="population-sensation.html#population-characteristics"><i class="fa fa-check"></i><b>24.1</b> Population characteristics</a></li>
+<li class="chapter" data-level="24.2" data-path="population-sensation.html"><a href="population-sensation.html#planning-a-census"><i class="fa fa-check"></i><b>24.2</b> Planning a census</a></li>
+<li class="chapter" data-level="24.3" data-path="population-sensation.html"><a href="population-sensation.html#life-cycle-diagrams"><i class="fa fa-check"></i><b>24.3</b> Life cycle diagrams</a></li>
+<li class="chapter" data-level="24.4" data-path="population-sensation.html"><a href="population-sensation.html#population-demographic-models"><i class="fa fa-check"></i><b>24.4</b> Population demographic models</a>
 <ul>
-<li class="chapter" data-level="23.3.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#automated-variable-removal"><i class="fa fa-check"></i><b>23.3.1</b> Automated Variable Removal</a></li>
-<li class="chapter" data-level="23.3.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#expert-knowledge-driven-selection"><i class="fa fa-check"></i><b>23.3.2</b> Expert Knowledge-Driven Selection</a></li>
-<li class="chapter" data-level="23.3.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#blended-strategy-recommended"><i class="fa fa-check"></i><b>23.3.3</b> Blended Strategy (Recommended)</a></li>
+<li class="chapter" data-level="24.4.1" data-path="population-sensation.html"><a href="population-sensation.html#unstructured-models"><i class="fa fa-check"></i><b>24.4.1</b> Unstructured Models</a></li>
+<li class="chapter" data-level="24.4.2" data-path="population-sensation.html"><a href="population-sensation.html#structured-models"><i class="fa fa-check"></i><b>24.4.2</b> Structured Models</a></li>
 </ul></li>
-<li class="chapter" data-level="23.4" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#example-reducing-colinear-climate-variables"><i class="fa fa-check"></i><b>23.4</b> Example: Reducing colinear climate variables</a></li>
-<li class="chapter" data-level="23.5" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-3-select-the-best-model"><i class="fa fa-check"></i><b>23.5</b> Step 3: Select the best model</a>
+<li class="chapter" data-level="24.5" data-path="population-sensation.html"><a href="population-sensation.html#integral-projection-models"><i class="fa fa-check"></i><b>24.5</b> Integral projection models</a></li>
+<li class="chapter" data-level="24.6" data-path="population-sensation.html"><a href="population-sensation.html#population-dynamics"><i class="fa fa-check"></i><b>24.6</b> Population dynamics</a>
 <ul>
-<li class="chapter" data-level="23.5.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#major-types-of-model-selection-overview-benefits-drawbacks-and-applications"><i class="fa fa-check"></i><b>23.5.1</b> Major Types of Model Selection: Overview, Benefits, Drawbacks, and Applications</a></li>
-<li class="chapter" data-level="23.5.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#stepwise-regression-based-on-aic-akaike-information-criterion."><i class="fa fa-check"></i><b>23.5.2</b> Stepwise regression based on AIC (Akaike Information Criterion).</a></li>
+<li class="chapter" data-level="24.6.1" data-path="population-sensation.html"><a href="population-sensation.html#population-growth-rate"><i class="fa fa-check"></i><b>24.6.1</b> Population growth rate</a></li>
+<li class="chapter" data-level="24.6.2" data-path="population-sensation.html"><a href="population-sensation.html#stable-stage-distribution"><i class="fa fa-check"></i><b>24.6.2</b> Stable stage distribution</a></li>
+<li class="chapter" data-level="24.6.3" data-path="population-sensation.html"><a href="population-sensation.html#reproductive-value"><i class="fa fa-check"></i><b>24.6.3</b> Reproductive value</a></li>
+<li class="chapter" data-level="24.6.4" data-path="population-sensation.html"><a href="population-sensation.html#sensitivities-absolute-effects"><i class="fa fa-check"></i><b>24.6.4</b> Sensitivities: absolute effects</a></li>
+<li class="chapter" data-level="24.6.5" data-path="population-sensation.html"><a href="population-sensation.html#elasticities-proportional-effects"><i class="fa fa-check"></i><b>24.6.5</b> Elasticities: proportional effects</a></li>
+<li class="chapter" data-level="24.6.6" data-path="population-sensation.html"><a href="population-sensation.html#beyond-asymptotic-dynamics-transient-behavior"><i class="fa fa-check"></i><b>24.6.6</b> Beyond asymptotic dynamics: transient behavior</a></li>
 </ul></li>
-</ul></li>
-<li class="chapter" data-level="24" data-path="plot-establishment.html"><a href="plot-establishment.html"><i class="fa fa-check"></i><b>24</b> Plot establishment</a></li>
-<li class="chapter" data-level="25" data-path="bootstrapping-and-resampling.html"><a href="bootstrapping-and-resampling.html"><i class="fa fa-check"></i><b>25</b> Bootstrapping and resampling</a></li>
-<li class="chapter" data-level="26" data-path="population-sensation.html"><a href="population-sensation.html"><i class="fa fa-check"></i><b>26</b> Population sensation</a>
+<li class="chapter" data-level="24.7" data-path="population-sensation.html"><a href="population-sensation.html#chapter-summary"><i class="fa fa-check"></i><b>24.7</b> Chapter summary</a></li>
+<li class="chapter" data-level="24.8" data-path="population-sensation.html"><a href="population-sensation.html#test-your-knowledge-3"><i class="fa fa-check"></i><b>24.8</b> Test your knowledge</a></li>
+<li class="chapter" data-level="24.9" data-path="population-sensation.html"><a href="population-sensation.html#assignment-4"><i class="fa fa-check"></i><b>24.9</b> Assignment</a>
 <ul>
-<li class="chapter" data-level="26.1" data-path="population-sensation.html"><a href="population-sensation.html#population-characteristics"><i class="fa fa-check"></i><b>26.1</b> Population characteristics</a></li>
-<li class="chapter" data-level="26.2" data-path="population-sensation.html"><a href="population-sensation.html#planning-a-census"><i class="fa fa-check"></i><b>26.2</b> Planning a census</a></li>
-<li class="chapter" data-level="26.3" data-path="population-sensation.html"><a href="population-sensation.html#life-cycle-diagrams"><i class="fa fa-check"></i><b>26.3</b> Life cycle diagrams</a></li>
-<li class="chapter" data-level="26.4" data-path="population-sensation.html"><a href="population-sensation.html#population-demographic-models"><i class="fa fa-check"></i><b>26.4</b> Population demographic models</a></li>
-<li class="chapter" data-level="26.5" data-path="population-sensation.html"><a href="population-sensation.html#integral-projection-models"><i class="fa fa-check"></i><b>26.5</b> Integral projection models</a></li>
-<li class="chapter" data-level="26.6" data-path="population-sensation.html"><a href="population-sensation.html#an-example-population-ecology-of-an-endangered-plant"><i class="fa fa-check"></i><b>26.6</b> An example: Population ecology of an endangered plant</a></li>
-<li class="chapter" data-level="26.7" data-path="population-sensation.html"><a href="population-sensation.html#putting-it-all-together"><i class="fa fa-check"></i><b>26.7</b> Putting it all together</a></li>
-<li class="chapter" data-level="26.8" data-path="population-sensation.html"><a href="population-sensation.html#generating-confidence-intervals"><i class="fa fa-check"></i><b>26.8</b> Generating confidence intervals</a></li>
-<li class="chapter" data-level="26.9" data-path="population-sensation.html"><a href="population-sensation.html#different-life-histories"><i class="fa fa-check"></i><b>26.9</b> Different life histories</a></li>
-</ul></li>
-<li class="chapter" data-level="27" data-path="permuting-your-brains-out.html"><a href="permuting-your-brains-out.html"><i class="fa fa-check"></i><b>27</b> Permuting your brains out</a></li>
-<li class="chapter" data-level="28" data-path="spatial-data.html"><a href="spatial-data.html"><i class="fa fa-check"></i><b>28</b> Spatial data</a></li>
-<li class="chapter" data-level="29" data-path="read.html"><a href="read.html"><i class="fa fa-check"></i><b>29</b> Read</a></li>
-<li class="chapter" data-level="30" data-path="check-structure.html"><a href="check-structure.html"><i class="fa fa-check"></i><b>30</b> Check structure</a></li>
-<li class="chapter" data-level="31" data-path="write.html"><a href="write.html"><i class="fa fa-check"></i><b>31</b> Write</a></li>
-<li class="chapter" data-level="32" data-path="read-1.html"><a href="read-1.html"><i class="fa fa-check"></i><b>32</b> Read</a></li>
-<li class="chapter" data-level="33" data-path="check-properties.html"><a href="check-properties.html"><i class="fa fa-check"></i><b>33</b> Check properties</a></li>
-<li class="chapter" data-level="34" data-path="write-1.html"><a href="write-1.html"><i class="fa fa-check"></i><b>34</b> Write</a></li>
-<li class="chapter" data-level="35" data-path="create-neighbor-list.html"><a href="create-neighbor-list.html"><i class="fa fa-check"></i><b>35</b> Create neighbor list</a></li>
-<li class="chapter" data-level="36" data-path="test-residuals.html"><a href="test-residuals.html"><i class="fa fa-check"></i><b>36</b> Test residuals</a></li>
-<li class="chapter" data-level="37" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html"><i class="fa fa-check"></i><b>37</b> Species Distribution Modeling</a>
-<ul>
-<li class="chapter" data-level="37.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#introduction-1"><i class="fa fa-check"></i><b>37.1</b> Introduction</a></li>
-<li class="chapter" data-level="37.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#a-brief-review-of-niche-theory"><i class="fa fa-check"></i><b>37.2</b> A brief review of niche theory</a></li>
-<li class="chapter" data-level="37.3" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#downloads-for-this-lab"><i class="fa fa-check"></i><b>37.3</b> Downloads for this lab</a></li>
-<li class="chapter" data-level="37.4" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#objectives-1"><i class="fa fa-check"></i><b>37.4</b> Objectives</a></li>
-<li class="chapter" data-level="37.5" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#methods"><i class="fa fa-check"></i><b>37.5</b> Methods</a>
-<ul>
-<li class="chapter" data-level="37.5.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#lets-get-modeling"><i class="fa fa-check"></i><b>37.5.1</b> Let’s get modeling</a></li>
-<li class="chapter" data-level="37.5.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#run-the-r-code"><i class="fa fa-check"></i><b>37.5.2</b> Run the R code</a></li>
+<li class="chapter" data-level="24.9.1" data-path="population-sensation.html"><a href="population-sensation.html#your-task"><i class="fa fa-check"></i><b>24.9.1</b> Your task</a></li>
+<li class="chapter" data-level="24.9.2" data-path="population-sensation.html"><a href="population-sensation.html#guidelines"><i class="fa fa-check"></i><b>24.9.2</b> Guidelines</a></li>
+<li class="chapter" data-level="24.9.3" data-path="population-sensation.html"><a href="population-sensation.html#what-to-submit"><i class="fa fa-check"></i><b>24.9.3</b> What to submit</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="38" data-path="diversity-statistics.html"><a href="diversity-statistics.html"><i class="fa fa-check"></i><b>38</b> Diversity statistics</a>
+<li class="chapter" data-level="25" data-path="integral-population-models.html"><a href="integral-population-models.html"><i class="fa fa-check"></i><b>25</b> Integral Population Models</a>
 <ul>
-<li class="chapter" data-level="38.1" data-path="diversity-statistics.html"><a href="diversity-statistics.html#inext"><i class="fa fa-check"></i><b>38.1</b> iNext</a></li>
-<li class="chapter" data-level="38.2" data-path="diversity-statistics.html"><a href="diversity-statistics.html#coveragebased-re-sampling-curves"><i class="fa fa-check"></i><b>38.2</b> Coverage‐based R/E sampling curves</a></li>
-<li class="chapter" data-level="38.3" data-path="diversity-statistics.html"><a href="diversity-statistics.html#data-manipulation"><i class="fa fa-check"></i><b>38.3</b> Data manipulation</a></li>
-</ul></li>
-<li class="chapter" data-level="39" data-path="ordination-station.html"><a href="ordination-station.html"><i class="fa fa-check"></i><b>39</b> Ordination station</a></li>
-<li class="chapter" data-level="40" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html"><i class="fa fa-check"></i><b>40</b> What are structural equation models?</a>
+<li class="chapter" data-level="25.1" data-path="integral-population-models.html"><a href="integral-population-models.html#case-study-modeling-an-endangered-hawaiian-plant"><i class="fa fa-check"></i><b>25.1</b> Case Study: Modeling an Endangered Hawaiian Plant</a>
 <ul>
-<li class="chapter" data-level="40.0.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#when-should-you-use-sem"><i class="fa fa-check"></i><b>40.0.1</b> When Should You Use SEM?</a></li>
-<li class="chapter" data-level="40.0.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression"><i class="fa fa-check"></i><b>40.0.2</b> How is SEM Different from Multiple Regression?</a></li>
-<li class="chapter" data-level="40.0.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary"><i class="fa fa-check"></i><b>40.0.3</b> Summary</a></li>
-<li class="chapter" data-level="40.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model"><i class="fa fa-check"></i><b>40.1</b> Anatomy of a Structural Equation Model</a>
+<li class="chapter" data-level="25.1.1" data-path="integral-population-models.html"><a href="integral-population-models.html#why-model-s.-lanceolata-populations"><i class="fa fa-check"></i><b>25.1.1</b> Why model S. lanceolata populations?</a></li>
+<li class="chapter" data-level="25.1.2" data-path="integral-population-models.html"><a href="integral-population-models.html#the-management-question"><i class="fa fa-check"></i><b>25.1.2</b> The management question:</a></li>
+</ul></li>
+<li class="chapter" data-level="25.2" data-path="integral-population-models.html"><a href="integral-population-models.html#designing-a-demographic-census-timing-and-measurements"><i class="fa fa-check"></i><b>25.2</b> Designing a Demographic Census: Timing and Measurements</a>
 <ul>
-<li class="chapter" data-level="40.1.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#types-of-variables"><i class="fa fa-check"></i><b>40.1.1</b> Types of Variables</a></li>
-<li class="chapter" data-level="40.1.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#path-diagrams"><i class="fa fa-check"></i><b>40.1.2</b> Path Diagrams</a></li>
+<li class="chapter" data-level="25.2.1" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-1-census-timing-must-align-with-the-organisms-life-cycle"><i class="fa fa-check"></i><b>25.2.1</b> Principle 1: Census Timing Must Align with the Organism’s Life Cycle</a></li>
+<li class="chapter" data-level="25.2.2" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-2-measurements-must-link-to-vital-rates"><i class="fa fa-check"></i><b>25.2.2</b> Principle 2: Measurements Must Link to Vital Rates</a></li>
+<li class="chapter" data-level="25.2.3" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-3-track-individual-fates-through-time"><i class="fa fa-check"></i><b>25.2.3</b> Principle 3: Track Individual Fates Through Time</a></li>
+<li class="chapter" data-level="25.2.4" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-4-document-context-and-threats"><i class="fa fa-check"></i><b>25.2.4</b> Principle 4: Document Context and Threats</a></li>
+<li class="chapter" data-level="25.2.5" data-path="integral-population-models.html"><a href="integral-population-models.html#understanding-state-variables-in-ipms"><i class="fa fa-check"></i><b>25.2.5</b> Understanding State Variables in IPMs</a></li>
+<li class="chapter" data-level="25.2.6" data-path="integral-population-models.html"><a href="integral-population-models.html#explore-potential-state-variables"><i class="fa fa-check"></i><b>25.2.6</b> Explore Potential State Variables</a></li>
+<li class="chapter" data-level="25.2.7" data-path="integral-population-models.html"><a href="integral-population-models.html#visualize-distribution-of-candidate-state-variables"><i class="fa fa-check"></i><b>25.2.7</b> Visualize Distribution of Candidate State Variables</a></li>
+<li class="chapter" data-level="25.2.8" data-path="integral-population-models.html"><a href="integral-population-models.html#selecting-our-state-variable"><i class="fa fa-check"></i><b>25.2.8</b> Selecting Our State Variable</a></li>
+<li class="chapter" data-level="25.2.9" data-path="integral-population-models.html"><a href="integral-population-models.html#the-dimensionality-problem"><i class="fa fa-check"></i><b>25.2.9</b> The dimensionality problem</a></li>
 </ul></li>
-<li class="chapter" data-level="40.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#building-multivariate-models"><i class="fa fa-check"></i><b>40.2</b> Building Multivariate Models</a>
+<li class="chapter" data-level="25.3" data-path="integral-population-models.html"><a href="integral-population-models.html#packages-and-approaches-to-creating-ipms"><i class="fa fa-check"></i><b>25.3</b> Packages and approaches to creating IPMs</a>
 <ul>
-<li class="chapter" data-level="40.2.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-causality"><i class="fa fa-check"></i><b>40.2.1</b> What is Causality?</a></li>
-<li class="chapter" data-level="40.2.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression"><i class="fa fa-check"></i><b>40.2.2</b> Why move beyond Multiple Regression?</a></li>
-<li class="chapter" data-level="40.2.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#meta-modeling-your-system"><i class="fa fa-check"></i><b>40.2.3</b> Meta-Modeling Your System</a></li>
+<li class="chapter" data-level="25.3.1" data-path="integral-population-models.html"><a href="integral-population-models.html#ipmr-a-modern-flexible-ipm-framework"><i class="fa fa-check"></i><b>25.3.1</b> ipmr: a modern, flexible IPM framework</a></li>
+<li class="chapter" data-level="25.3.2" data-path="integral-population-models.html"><a href="integral-population-models.html#ipmpack-a-more-automated-ipm-workflow"><i class="fa fa-check"></i><b>25.3.2</b> IPMpack: a more automated IPM workflow</a></li>
+<li class="chapter" data-level="25.3.3" data-path="integral-population-models.html"><a href="integral-population-models.html#hand-coded-ipms-maximum-transparency"><i class="fa fa-check"></i><b>25.3.3</b> Hand-coded IPMs: maximum transparency</a></li>
 </ul></li>
-<li class="chapter" data-level="40.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#from-concept-to-model"><i class="fa fa-check"></i><b>40.3</b> From Concept to Model</a></li>
-<li class="chapter" data-level="40.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams"><i class="fa fa-check"></i><b>40.4</b> Common Structures in Causal Diagrams</a>
+<li class="chapter" data-level="25.4" data-path="integral-population-models.html"><a href="integral-population-models.html#building-an-ipm-structuring-linear-models-variable-transformations-and-dealing-with-outliers"><i class="fa fa-check"></i><b>25.4</b> Building an IPM: Structuring linear models, variable transformations, and dealing with outliers</a>
 <ul>
-<li class="chapter" data-level="40.4.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chains-mediation-paths"><i class="fa fa-check"></i><b>40.4.1</b> Chains (Mediation Paths)</a></li>
-<li class="chapter" data-level="40.4.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#colliders"><i class="fa fa-check"></i><b>40.4.2</b> Colliders</a></li>
-<li class="chapter" data-level="40.4.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#forks-confounding-paths"><i class="fa fa-check"></i><b>40.4.3</b> Forks (Confounding Paths)</a></li>
-<li class="chapter" data-level="40.4.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#descendants-of-colliders"><i class="fa fa-check"></i><b>40.4.4</b> Descendants of Colliders</a></li>
-<li class="chapter" data-level="40.4.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-of-strcutures"><i class="fa fa-check"></i><b>40.4.5</b> Summary of strcutures</a></li>
-<li class="chapter" data-level="40.4.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifying-causality"><i class="fa fa-check"></i><b>40.4.6</b> Identifying Causality</a></li>
-<li class="chapter" data-level="40.4.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#backdoor-criterion"><i class="fa fa-check"></i><b>40.4.7</b> Backdoor Criterion</a></li>
-<li class="chapter" data-level="40.4.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#frontdoor-criterion"><i class="fa fa-check"></i><b>40.4.8</b> Frontdoor Criterion</a></li>
-<li class="chapter" data-level="40.4.9" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management"><i class="fa fa-check"></i><b>40.4.9</b> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management</a></li>
-<li class="chapter" data-level="40.4.10" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#adjustment-sets"><i class="fa fa-check"></i><b>40.4.10</b> Adjustment Sets</a></li>
+<li class="chapter" data-level="25.4.1" data-path="integral-population-models.html"><a href="integral-population-models.html#variable-transformations-and-scale"><i class="fa fa-check"></i><b>25.4.1</b> Variable transformations and scale</a></li>
+<li class="chapter" data-level="25.4.2" data-path="integral-population-models.html"><a href="integral-population-models.html#dealing-with-zeros-missing-values-and-outliers"><i class="fa fa-check"></i><b>25.4.2</b> Dealing with zeros, missing values, and outliers</a></li>
+<li class="chapter" data-level="25.4.3" data-path="integral-population-models.html"><a href="integral-population-models.html#parallel-ipm-workflows"><i class="fa fa-check"></i><b>25.4.3</b> Parallel IPM workflows</a></li>
+<li class="chapter" data-level="25.4.4" data-path="integral-population-models.html"><a href="integral-population-models.html#growth-transitions"><i class="fa fa-check"></i><b>25.4.4</b> Growth transitions</a></li>
 </ul></li>
-<li class="chapter" data-level="40.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem"><i class="fa fa-check"></i><b>40.5</b> Chapter 5: Covariance-Based Estimation in SEM</a>
+<li class="chapter" data-level="25.5" data-path="integral-population-models.html"><a href="integral-population-models.html#constructing-a-transition-matrix"><i class="fa fa-check"></i><b>25.5</b> Constructing a transition matrix</a></li>
+<li class="chapter" data-level="25.6" data-path="integral-population-models.html"><a href="integral-population-models.html#building-an-ipm-boundary-points-mesh-points-and-step-size"><i class="fa fa-check"></i><b>25.6</b> Building an IPM: Boundary points, mesh points, and step size</a></li>
+<li class="chapter" data-level="25.7" data-path="integral-population-models.html"><a href="integral-population-models.html#model-evaluation-eviction"><i class="fa fa-check"></i><b>25.7</b> Model Evaluation: Eviction</a>
 <ul>
-<li class="chapter" data-level="40.5.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-covariance-based-sem"><i class="fa fa-check"></i><b>40.5.1</b> What is Covariance-Based SEM?</a></li>
-<li class="chapter" data-level="40.5.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#maximum-likelihood-estimation"><i class="fa fa-check"></i><b>40.5.2</b> Maximum Likelihood Estimation</a></li>
-<li class="chapter" data-level="40.5.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation"><i class="fa fa-check"></i><b>40.5.3</b> Assumptions Behind ML Estimation</a></li>
-<li class="chapter" data-level="40.5.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifiability"><i class="fa fa-check"></i><b>40.5.4</b> Identifiability</a></li>
-<li class="chapter" data-level="40.5.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#degrees-of-freedom"><i class="fa fa-check"></i><b>40.5.5</b> Degrees of Freedom</a></li>
-<li class="chapter" data-level="40.5.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#sample-size-considerations"><i class="fa fa-check"></i><b>40.5.6</b> Sample Size Considerations</a></li>
-<li class="chapter" data-level="40.5.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-1"><i class="fa fa-check"></i><b>40.5.7</b> Summary</a></li>
-<li class="chapter" data-level="40.5.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan"><i class="fa fa-check"></i><b>40.5.8</b> Chapter 6: Structural Equation Modeling in R with lavaan</a></li>
+<li class="chapter" data-level="25.7.1" data-path="integral-population-models.html"><a href="integral-population-models.html#why-eviction-matters"><i class="fa fa-check"></i><b>25.7.1</b> Why Eviction Matters</a></li>
+<li class="chapter" data-level="25.7.2" data-path="integral-population-models.html"><a href="integral-population-models.html#eviction-correction-strategies"><i class="fa fa-check"></i><b>25.7.2</b> Eviction Correction Strategies</a></li>
+<li class="chapter" data-level="25.7.3" data-path="integral-population-models.html"><a href="integral-population-models.html#summary"><i class="fa fa-check"></i><b>25.7.3</b> Summary</a></li>
 </ul></li>
-<li class="chapter" data-level="40.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation"><i class="fa fa-check"></i><b>40.6</b> Getting Started with lavaan – Model Specification, Estimation, and Interpretation</a>
+<li class="chapter" data-level="25.8" data-path="integral-population-models.html"><a href="integral-population-models.html#estimating-population-dynamics-parameters"><i class="fa fa-check"></i><b>25.8</b> Estimating population dynamics parameters</a></li>
+<li class="chapter" data-level="25.9" data-path="integral-population-models.html"><a href="integral-population-models.html#calculating-confidence-intervals"><i class="fa fa-check"></i><b>25.9</b> Calculating confidence intervals</a></li>
+<li class="chapter" data-level="25.10" data-path="integral-population-models.html"><a href="integral-population-models.html#putting-this-all-together-in-code-form"><i class="fa fa-check"></i><b>25.10</b> Putting this all together in code form!</a></li>
+<li class="chapter" data-level="25.11" data-path="integral-population-models.html"><a href="integral-population-models.html#test-your-knowledge-4"><i class="fa fa-check"></i><b>25.11</b> Test your knowledge</a></li>
+<li class="chapter" data-level="25.12" data-path="integral-population-models.html"><a href="integral-population-models.html#assignment-5"><i class="fa fa-check"></i><b>25.12</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="26" data-path="spatial-data.html"><a href="spatial-data.html"><i class="fa fa-check"></i><b>26</b> Spatial data</a></li>
+<li class="chapter" data-level="27" data-path="read.html"><a href="read.html"><i class="fa fa-check"></i><b>27</b> Read</a></li>
+<li class="chapter" data-level="28" data-path="check-structure.html"><a href="check-structure.html"><i class="fa fa-check"></i><b>28</b> Check structure</a></li>
+<li class="chapter" data-level="29" data-path="write.html"><a href="write.html"><i class="fa fa-check"></i><b>29</b> Write</a></li>
+<li class="chapter" data-level="30" data-path="read-1.html"><a href="read-1.html"><i class="fa fa-check"></i><b>30</b> Read</a></li>
+<li class="chapter" data-level="31" data-path="check-properties.html"><a href="check-properties.html"><i class="fa fa-check"></i><b>31</b> Check properties</a></li>
+<li class="chapter" data-level="32" data-path="write-1.html"><a href="write-1.html"><i class="fa fa-check"></i><b>32</b> Write</a></li>
+<li class="chapter" data-level="33" data-path="create-neighbor-list.html"><a href="create-neighbor-list.html"><i class="fa fa-check"></i><b>33</b> Create neighbor list</a></li>
+<li class="chapter" data-level="34" data-path="test-residuals.html"><a href="test-residuals.html"><i class="fa fa-check"></i><b>34</b> Test residuals</a></li>
+<li class="chapter" data-level="35" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html"><i class="fa fa-check"></i><b>35</b> Species Distribution Modeling</a>
 <ul>
-<li class="chapter" data-level="40.6.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality"><i class="fa fa-check"></i><b>40.6.1</b> Chapter 7:Assessing Fit and Normality</a></li>
-<li class="chapter" data-level="40.6.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation"><i class="fa fa-check"></i><b>40.6.2</b> Chapter 8: Comparing Models and Testing Mediation</a></li>
-<li class="chapter" data-level="40.6.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers"><i class="fa fa-check"></i><b>40.6.3</b> Chapter 8: Latent Variables as Drivers</a></li>
-<li class="chapter" data-level="40.6.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error"><i class="fa fa-check"></i><b>40.6.4</b> Chapter 10: Latent Responses and Measurement Error</a></li>
-</ul></li>
-</ul></li>
-<li class="chapter" data-level="41" data-path="piecewise-sems.html"><a href="piecewise-sems.html"><i class="fa fa-check"></i><b>41</b> Piecewise SEMs</a>
+<li class="chapter" data-level="35.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#introduction-1"><i class="fa fa-check"></i><b>35.1</b> Introduction</a></li>
+<li class="chapter" data-level="35.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#a-brief-review-of-niche-theory"><i class="fa fa-check"></i><b>35.2</b> A brief review of niche theory</a></li>
+<li class="chapter" data-level="35.3" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#downloads-for-this-lab"><i class="fa fa-check"></i><b>35.3</b> Downloads for this lab</a></li>
+<li class="chapter" data-level="35.4" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#objectives-1"><i class="fa fa-check"></i><b>35.4</b> Objectives</a></li>
+<li class="chapter" data-level="35.5" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#methods"><i class="fa fa-check"></i><b>35.5</b> Methods</a>
 <ul>
-<li class="chapter" data-level="41.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview"><i class="fa fa-check"></i><b>41.1</b> Overview</a></li>
-<li class="chapter" data-level="41.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem"><i class="fa fa-check"></i><b>41.2</b> Why Use Piecewise SEM, instead of a covariance SEM?</a>
+<li class="chapter" data-level="35.5.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#lets-get-modeling"><i class="fa fa-check"></i><b>35.5.1</b> Let’s get modeling</a></li>
+<li class="chapter" data-level="35.5.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#run-the-r-code"><i class="fa fa-check"></i><b>35.5.2</b> Run the R code</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="36" data-path="diversity-statistics.html"><a href="diversity-statistics.html"><i class="fa fa-check"></i><b>36</b> Diversity statistics</a>
 <ul>
-<li class="chapter" data-level="41.2.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#comparison-of-sem-approaches"><i class="fa fa-check"></i><b>41.2.1</b> Comparison of SEM Approaches</a></li>
-<li class="chapter" data-level="41.2.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-covariance-based-sem"><i class="fa fa-check"></i><b>41.2.2</b> Benefits of Covariance-Based SEM</a></li>
-<li class="chapter" data-level="41.2.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-piecewise-sem"><i class="fa fa-check"></i><b>41.2.3</b> Benefits of Piecewise SEM</a></li>
-<li class="chapter" data-level="41.2.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#when-to-use-each-approach"><i class="fa fa-check"></i><b>41.2.4</b> When to Use Each Approach</a></li>
-<li class="chapter" data-level="41.2.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#models-differ-in-approach"><i class="fa fa-check"></i><b>41.2.5</b> Models differ in approach</a></li>
+<li class="chapter" data-level="36.1" data-path="diversity-statistics.html"><a href="diversity-statistics.html#inext"><i class="fa fa-check"></i><b>36.1</b> iNext</a></li>
+<li class="chapter" data-level="36.2" data-path="diversity-statistics.html"><a href="diversity-statistics.html#coveragebased-re-sampling-curves"><i class="fa fa-check"></i><b>36.2</b> Coverage‐based R/E sampling curves</a></li>
+<li class="chapter" data-level="36.3" data-path="diversity-statistics.html"><a href="diversity-statistics.html#data-manipulation"><i class="fa fa-check"></i><b>36.3</b> Data manipulation</a></li>
 </ul></li>
-<li class="chapter" data-level="41.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona"><i class="fa fa-check"></i><b>41.3</b> SEM Example: Resilience to Drought in Arizona</a>
+<li class="chapter" data-level="37" data-path="ordination-station.html"><a href="ordination-station.html"><i class="fa fa-check"></i><b>37</b> Ordination station</a></li>
+<li class="chapter" data-level="38" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html"><i class="fa fa-check"></i><b>38</b> What are structural equation models?</a>
 <ul>
-<li class="chapter" data-level="41.3.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r"><i class="fa fa-check"></i><b>41.3.1</b> Chapter 12: Introduction to Piecewise SEM in R</a></li>
-</ul></li>
-<li class="chapter" data-level="41.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#part-1-what-is-piecewise-sem"><i class="fa fa-check"></i><b>41.4</b> Part 1: What is Piecewise SEM?</a>
+<li class="chapter" data-level="38.0.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#when-should-you-use-sem"><i class="fa fa-check"></i><b>38.0.1</b> When Should You Use SEM?</a></li>
+<li class="chapter" data-level="38.0.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression"><i class="fa fa-check"></i><b>38.0.2</b> How is SEM Different from Multiple Regression?</a></li>
+<li class="chapter" data-level="38.0.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-1"><i class="fa fa-check"></i><b>38.0.3</b> Summary</a></li>
+<li class="chapter" data-level="38.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model"><i class="fa fa-check"></i><b>38.1</b> Anatomy of a Structural Equation Model</a>
 <ul>
-<li class="chapter" data-level="41.4.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem"><i class="fa fa-check"></i><b>41.4.1</b> Chapter 13: Nonlinearity and Interaction in SEM</a></li>
-<li class="chapter" data-level="41.4.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem"><i class="fa fa-check"></i><b>41.4.2</b> Chapter 14: GLMs with SEM using PiecewiseSEM</a></li>
+<li class="chapter" data-level="38.1.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#types-of-variables"><i class="fa fa-check"></i><b>38.1.1</b> Types of Variables</a></li>
+<li class="chapter" data-level="38.1.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#path-diagrams"><i class="fa fa-check"></i><b>38.1.2</b> Path Diagrams</a></li>
 </ul></li>
-<li class="chapter" data-level="41.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview-1"><i class="fa fa-check"></i><b>41.5</b> Overview</a>
+<li class="chapter" data-level="38.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#building-multivariate-models"><i class="fa fa-check"></i><b>38.2</b> Building Multivariate Models</a>
 <ul>
-<li class="chapter" data-level="41.5.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem"><i class="fa fa-check"></i><b>41.5.1</b> Chapter 15: Categorical Predictors &amp; Multigroup SEM</a></li>
-<li class="chapter" data-level="41.5.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r"><i class="fa fa-check"></i><b>41.5.2</b> Chapter 16: Multigroup SEM in R</a></li>
-<li class="chapter" data-level="41.5.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-17"><i class="fa fa-check"></i><b>41.5.3</b> Chapter 17:</a></li>
+<li class="chapter" data-level="38.2.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-causality"><i class="fa fa-check"></i><b>38.2.1</b> What is Causality?</a></li>
+<li class="chapter" data-level="38.2.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression"><i class="fa fa-check"></i><b>38.2.2</b> Why move beyond Multiple Regression?</a></li>
+<li class="chapter" data-level="38.2.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#meta-modeling-your-system"><i class="fa fa-check"></i><b>38.2.3</b> Meta-Modeling Your System</a></li>
 </ul></li>
-<li class="chapter" data-level="41.6" data-path="piecewise-sems.html"><a href="piecewise-sems.html#example-with-powerline-data"><i class="fa fa-check"></i><b>41.6</b> Example with Powerline Data</a></li>
+<li class="chapter" data-level="38.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#from-concept-to-model"><i class="fa fa-check"></i><b>38.3</b> From Concept to Model</a></li>
+<li class="chapter" data-level="38.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams"><i class="fa fa-check"></i><b>38.4</b> Common Structures in Causal Diagrams</a>
+<ul>
+<li class="chapter" data-level="38.4.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chains-mediation-paths"><i class="fa fa-check"></i><b>38.4.1</b> Chains (Mediation Paths)</a></li>
+<li class="chapter" data-level="38.4.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#colliders"><i class="fa fa-check"></i><b>38.4.2</b> Colliders</a></li>
+<li class="chapter" data-level="38.4.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#forks-confounding-paths"><i class="fa fa-check"></i><b>38.4.3</b> Forks (Confounding Paths)</a></li>
+<li class="chapter" data-level="38.4.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#descendants-of-colliders"><i class="fa fa-check"></i><b>38.4.4</b> Descendants of Colliders</a></li>
+<li class="chapter" data-level="38.4.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-of-strcutures"><i class="fa fa-check"></i><b>38.4.5</b> Summary of strcutures</a></li>
+<li class="chapter" data-level="38.4.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifying-causality"><i class="fa fa-check"></i><b>38.4.6</b> Identifying Causality</a></li>
+<li class="chapter" data-level="38.4.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#backdoor-criterion"><i class="fa fa-check"></i><b>38.4.7</b> Backdoor Criterion</a></li>
+<li class="chapter" data-level="38.4.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#frontdoor-criterion"><i class="fa fa-check"></i><b>38.4.8</b> Frontdoor Criterion</a></li>
+<li class="chapter" data-level="38.4.9" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management"><i class="fa fa-check"></i><b>38.4.9</b> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management</a></li>
+<li class="chapter" data-level="38.4.10" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#adjustment-sets"><i class="fa fa-check"></i><b>38.4.10</b> Adjustment Sets</a></li>
 </ul></li>
+<li class="chapter" data-level="38.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem"><i class="fa fa-check"></i><b>38.5</b> Chapter 5: Covariance-Based Estimation in SEM</a>
+<ul>
+<li class="chapter" data-level="38.5.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-covariance-based-sem"><i class="fa fa-check"></i><b>38.5.1</b> What is Covariance-Based SEM?</a></li>
+<li class="chapter" data-level="38.5.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#maximum-likelihood-estimation"><i class="fa fa-check"></i><b>38.5.2</b> Maximum Likelihood Estimation</a></li>
+<li class="chapter" data-level="38.5.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation"><i class="fa fa-check"></i><b>38.5.3</b> Assumptions Behind ML Estimation</a></li>
+<li class="chapter" data-level="38.5.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifiability"><i class="fa fa-check"></i><b>38.5.4</b> Identifiability</a></li>
+<li class="chapter" data-level="38.5.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#degrees-of-freedom"><i class="fa fa-check"></i><b>38.5.5</b> Degrees of Freedom</a></li>
+<li class="chapter" data-level="38.5.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#sample-size-considerations"><i class="fa fa-check"></i><b>38.5.6</b> Sample Size Considerations</a></li>
+<li class="chapter" data-level="38.5.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-2"><i class="fa fa-check"></i><b>38.5.7</b> Summary</a></li>
+<li class="chapter" data-level="38.5.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan"><i class="fa fa-check"></i><b>38.5.8</b> Chapter 6: Structural Equation Modeling in R with lavaan</a></li>
+</ul></li>
+<li class="chapter" data-level="38.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation"><i class="fa fa-check"></i><b>38.6</b> Getting Started with lavaan – Model Specification, Estimation, and Interpretation</a>
+<ul>
+<li class="chapter" data-level="38.6.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality"><i class="fa fa-check"></i><b>38.6.1</b> Chapter 7:Assessing Fit and Normality</a></li>
+<li class="chapter" data-level="38.6.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation"><i class="fa fa-check"></i><b>38.6.2</b> Chapter 8: Comparing Models and Testing Mediation</a></li>
+<li class="chapter" data-level="38.6.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers"><i class="fa fa-check"></i><b>38.6.3</b> Chapter 8: Latent Variables as Drivers</a></li>
+<li class="chapter" data-level="38.6.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error"><i class="fa fa-check"></i><b>38.6.4</b> Chapter 10: Latent Responses and Measurement Error</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="39" data-path="piecewise-sems.html"><a href="piecewise-sems.html"><i class="fa fa-check"></i><b>39</b> Piecewise SEMs</a>
+<ul>
+<li class="chapter" data-level="39.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview"><i class="fa fa-check"></i><b>39.1</b> Overview</a></li>
+<li class="chapter" data-level="39.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem"><i class="fa fa-check"></i><b>39.2</b> Why Use Piecewise SEM, instead of a covariance SEM?</a>
+<ul>
+<li class="chapter" data-level="39.2.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#comparison-of-sem-approaches"><i class="fa fa-check"></i><b>39.2.1</b> Comparison of SEM Approaches</a></li>
+<li class="chapter" data-level="39.2.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-covariance-based-sem"><i class="fa fa-check"></i><b>39.2.2</b> Benefits of Covariance-Based SEM</a></li>
+<li class="chapter" data-level="39.2.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-piecewise-sem"><i class="fa fa-check"></i><b>39.2.3</b> Benefits of Piecewise SEM</a></li>
+<li class="chapter" data-level="39.2.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#when-to-use-each-approach"><i class="fa fa-check"></i><b>39.2.4</b> When to Use Each Approach</a></li>
+<li class="chapter" data-level="39.2.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#models-differ-in-approach"><i class="fa fa-check"></i><b>39.2.5</b> Models differ in approach</a></li>
+</ul></li>
+<li class="chapter" data-level="39.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona"><i class="fa fa-check"></i><b>39.3</b> SEM Example: Resilience to Drought in Arizona</a>
+<ul>
+<li class="chapter" data-level="39.3.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r"><i class="fa fa-check"></i><b>39.3.1</b> Chapter 12: Introduction to Piecewise SEM in R</a></li>
+</ul></li>
+<li class="chapter" data-level="39.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#part-1-what-is-piecewise-sem"><i class="fa fa-check"></i><b>39.4</b> Part 1: What is Piecewise SEM?</a>
+<ul>
+<li class="chapter" data-level="39.4.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem"><i class="fa fa-check"></i><b>39.4.1</b> Chapter 13: Nonlinearity and Interaction in SEM</a></li>
+<li class="chapter" data-level="39.4.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem"><i class="fa fa-check"></i><b>39.4.2</b> Chapter 14: GLMs with SEM using PiecewiseSEM</a></li>
+</ul></li>
+<li class="chapter" data-level="39.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview-1"><i class="fa fa-check"></i><b>39.5</b> Overview</a>
+<ul>
+<li class="chapter" data-level="39.5.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem"><i class="fa fa-check"></i><b>39.5.1</b> Chapter 15: Categorical Predictors &amp; Multigroup SEM</a></li>
+<li class="chapter" data-level="39.5.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r"><i class="fa fa-check"></i><b>39.5.2</b> Chapter 16: Multigroup SEM in R</a></li>
+<li class="chapter" data-level="39.5.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-17"><i class="fa fa-check"></i><b>39.5.3</b> Chapter 17:</a></li>
+</ul></li>
+<li class="chapter" data-level="39.6" data-path="piecewise-sems.html"><a href="piecewise-sems.html#example-with-powerline-data"><i class="fa fa-check"></i><b>39.6</b> Example with Powerline Data</a></li>
+</ul></li>
+<li class="chapter" data-level="40" data-path="permuting-your-brains-out.html"><a href="permuting-your-brains-out.html"><i class="fa fa-check"></i><b>40</b> Permuting your brains out</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
 
@@ -444,366 +492,568 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="population-sensation" class="section level1 hasAnchor" number="26">
-<h1><span class="header-section-number">Chapter 26</span> Population sensation<a href="population-sensation.html#population-sensation" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="population-sensation" class="section level1 hasAnchor" number="24">
+<h1><span class="header-section-number">Chapter 24</span> Population sensation<a href="population-sensation.html#population-sensation" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>Populations contain multitudes - numerous interacting individuals of the same species with slightly different genetic backgrounds, sharing genes, colonizing new areas, responding to environmental stimuli. Populations are hot-pots of evolution and essential for understanding species viability, especially when species are rare. Population-level studies have contributed fundamental ecological knowledge in evolution, range dynamics, and species conservation. Now that we are all jazzed about populations, let’s learn about how to describe them and their dynamics quantitative! May your knowledge acquisition be exponential!</p>
-<div id="population-characteristics" class="section level2 hasAnchor" number="26.1">
-<h2><span class="header-section-number">26.1</span> Population characteristics<a href="population-sensation.html#population-characteristics" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="population-characteristics" class="section level2 hasAnchor" number="24.1">
+<h2><span class="header-section-number">24.1</span> Population characteristics<a href="population-sensation.html#population-characteristics" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>In population ecology, we commonly describe populations in terms of <em>size</em> and <em>structure</em>. Size is simply the number of individuals in a population and structure refers to the proportion of individuals across age or size classes. For rare species or species with low population sizes, population size can be directly estimated through a <em>census</em>. Just as it seems, a <em>census</em> is when each individual is counted. We often collect information pertinent to understanding demographic vital rates of individuals that are censused - just like we do in the U.S. census. For plants, rather than collect information on religious background or age as we would for populations of humans, we typically record the size of the plant and other salient characteristics derived from an understanding of the species’ breeding system, dispersal mechanism, life history, and ecology. When species are abundant, we use other methods to estimate population size, such as density (i.e., how many individuals occur within a particular area) or sub-sampling (i.e., collecting census data within a plot). If a species if cryptic, meaning hard to observe (as is the case for most animals), we use mark-recapture or occupancy modeling to estimate population size and structure.</p>
 </div>
-<div id="planning-a-census" class="section level2 hasAnchor" number="26.2">
-<h2><span class="header-section-number">26.2</span> Planning a census<a href="population-sensation.html#planning-a-census" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="planning-a-census" class="section level2 hasAnchor" number="24.2">
+<h2><span class="header-section-number">24.2</span> Planning a census<a href="population-sensation.html#planning-a-census" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Censuses are the ideal method for collecting demographic data, since it allows in-depth and comprehensive examination of the population (and it’s dynamics!). Let’s discuss some considerations for establishing a census protocol. When conducting a census, you want to plan on capturing critical life events and ensure that you are able to capture those life events through time (for multiple years). Let’s look at an example and establish a plan to census individuals within a population of this hypothetical species.</p>
-<p><img src="/Users/sks379/Desktop/GraduateStudents/Stats%20and%20Lit%20Review%20Lessons/Population%20Ecology/CensusStructure.png" />
+<p><img src="figures/PopulationEcology/CensusStructure.png" alt="Phenology of a perennial herb" />
 The figure above shows a typical phenological pattern for an understory plant species in the eastern deciduous forest. These plants are dormant throughout the winter when temperatures are cold enough to freeze plant tissue. All plants, adults and new seedlings, emerge in the spring, and grow to their full size for the summer over a few week period in early spring. Then, they begin flowering and seed development in late summer, then disperse seeds into the fall.</p>
 <p>The first census indicated in this figure takes place after emergence in the spring once plants have reached their final size for the growing season. The census is planned to occur as early as possible post-growth in order to assess recruitment (new seedlings that enter the population), since seedlings tend to start to die-off through time.</p>
 <p>Seeds of this species require an 18-month stratification period prior to germination. In order to census across all members of the population, including seeds, we need to include the second census to quantify the number of seeds present at census 1, since counting seeds post-dispersal is almost impossible.</p>
 <p>Note that we could capture individuals across all important classes, adult plants, seedlings and seeds, if we conducted a single census at time point 2. Why not conduct a single census? In this case, the researchers were interested in causes of mortality of plants, particularly new germinants, across the growing season. By conducting the census in the spring, they were able to identify all plants that emerged that year and note if those plants were lost during the growing season and in many cases ascribe a reason for the mortality of the plant.</p>
 </div>
-<div id="life-cycle-diagrams" class="section level2 hasAnchor" number="26.3">
-<h2><span class="header-section-number">26.3</span> Life cycle diagrams<a href="population-sensation.html#life-cycle-diagrams" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="life-cycle-diagrams" class="section level2 hasAnchor" number="24.3">
+<h2><span class="header-section-number">24.3</span> Life cycle diagrams<a href="population-sensation.html#life-cycle-diagrams" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>In the above example, the census was timed to measure the performance and fate of important classes within the population. A useful tool for developing census protocols and demographic models is called a life cycle diagram. A life cycle diagram indicates important life stages and possible transitions among those stages. Continuing with our example above, we develop the following life history diagram.</p>
-<p><img src="/Users/sks379/Desktop/GraduateStudents/Stats%20and%20Lit%20Review%20Lessons/Population%20Ecology/Figure_LifeCycleDiagram.png" />
+<p><img src="figures/PopulationEcology/Figure_LifeCycleDiagram.png" alt="Life cycle diagram" />
 Here, you will note several important demographic characteristics of this species. First, on the right hand side of the diagram, you can see that the researchers have classified plants into several groups: new seedlings, &gt;1 year old seedlings, juveniles, small adults and large adults. These categories were selected because individuals within the categories share similar rates of reproduction and survival (vital rates). On the left hand side of the diagram, you will see that this species forms a seedbank and that seeds within this seed back persist around 45 months.</p>
 </div>
-<div id="population-demographic-models" class="section level2 hasAnchor" number="26.4">
-<h2><span class="header-section-number">26.4</span> Population demographic models<a href="population-sensation.html#population-demographic-models" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="population-demographic-models" class="section level2 hasAnchor" number="24.4">
+<h2><span class="header-section-number">24.4</span> Population demographic models<a href="population-sensation.html#population-demographic-models" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Population demographic models allow us to predict population trajectories, evaluate management strategies, understand extinction risk, and identify key life stages for conservation. Population demographic models come in several forms. We will take a deep dive into Integral Projection Models (IPMs), but understanding the various forms of population models will help you understand IPMs better!</p>
+<div id="unstructured-models" class="section level3 hasAnchor" number="24.4.1">
+<h3><span class="header-section-number">24.4.1</span> Unstructured Models<a href="population-sensation.html#unstructured-models" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Unstructured models refer to population growth models that do not distinguish among individuals within a population. In these models, all individuals are treated as equivalent, meaning they are assumed to have the same probabilities of survival and reproduction, regardless of differences in age, size, or life stage. Because unstructured models treat all individuals as identical, they are best suited for simple or theoretical questions and often serve as a foundation for more complex, structured population models that account for age, size, or stage.</p>
+<p>The most basic population model describes a population experiencing exponential growth. Exponential growth—the idea that populations increase multiplicatively rather than additively — is foundational to Darwin’s development of the Theory of Evolution by Natural Selection. Darwin recognized that organisms have the capacity to produce far more offspring than are needed to replace themselves, and yet the world is not overrun by offspring (for example, ladybugs). From this insight, he reasoned that not all individuals can survive and reproduce, and that selection must therefore operate strongly and continuously. This differential survival and reproduction provides the mechanism by which natural selection can drive evolutionary change over time.</p>
+<p>Since the concept of multiplicative growth is central to the equation for exponential growth rate, let’s compare additive versus exponential growth.</p>
+<p><strong>Additive growth</strong> means a population increases by a fixed number of individuals each time step, regardless of how large the population already is.</p>
+<p>You can think of it as: “The population gains the same number each year.”</p>
+<p>Example:</p>
+<ul>
+<li>Start with 100 individuals</li>
+<li>Add 10 individuals each year</li>
+<li>Population over time: Year 0: 100; Year 1: 110; Year 2: 120; Year 3: 130</li>
+</ul>
+<p>Mathematically, this looks like:</p>
+<p><span class="math display">\[
+N_{t+1} = N_t + b
+\]</span>
+where b is a constant number added each time step.</p>
+<p><strong>Multiplicative growth</strong> means the population increases by a proportion of its current size each time step.</p>
+<p>You can think of it as: “The population grows by a percentage.”</p>
+<p>Example:</p>
+<ul>
+<li>Start with 100 individuals</li>
+<li>Grow by 10% per year</li>
+<li>Population over time: Year 0: 100; Year 1: 110; Year 2: 121; Year 3: 133</li>
+</ul>
+<p>Additive growth increases a population by a fixed number, while multiplicative growth increases a population by a proportion of its current size—making growth faster as populations get larger.</p>
+<p>Mathematically, this looks like:</p>
+<p><span class="math display">\[
+N_{t+1} = \lambda N_t
+\]</span>
+or in continuous time:
+<span class="math display">\[
+\frac{dN}{dt} = rN
+\]</span>
+This form of growth is biologically realistic over short time scales and is the foundation of population ecology and evolutionary theory.</p>
+<div id="exponential-growth-unlimited-resources-constant-per-capita-growth" class="section level4 hasAnchor" number="24.4.1.1">
+<h4><span class="header-section-number">24.4.1.1</span> Exponential Growth: Unlimited resources, constant per capita growth<a href="population-sensation.html#exponential-growth-unlimited-resources-constant-per-capita-growth" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><strong>When to use</strong>: Short-term projections, invasive species establishment
+<strong>Key assumption</strong>: No limits to growth
+<strong>Equations</strong>:</p>
+<p>The continuous-time exponential growth model describes how a population grows when
+resources are unlimited and the per-capita growth rate remains constant.</p>
+<p><span class="math display">\[
+N(t) = N_0 e^{rt}
+\]</span>
+where:</p>
+<ul>
+<li><span class="math inline">\(N(t)\)</span> is the population size at time <span class="math inline">\(t\)</span></li>
+<li><span class="math inline">\(N_0\)</span> is the initial population size (at <span class="math inline">\(t = 0\)</span>)</li>
+<li><span class="math inline">\(r\)</span> is the intrinsic rate of increase</li>
+<li><span class="math inline">\(e\)</span> is the base of the natural logarithm</li>
+<li><span class="math inline">\(t\)</span> is time</li>
+</ul>
+<p>or more simply:
+<span class="math display">\[
+N_{t+1} = \lambda N_t
+\]</span>
+Given that it is exceedingly rare that there are no limits to population growth, population ecologist rarely use exponential growth models (I’ve never used this model for research).</p>
 </div>
-<div id="integral-projection-models" class="section level2 hasAnchor" number="26.5">
-<h2><span class="header-section-number">26.5</span> Integral projection models<a href="population-sensation.html#integral-projection-models" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Instead of binning individuals into stages, Integral Projection Models (IPMs) are built upon linear models that relate a <em>state variable</em> (usually a metric of size in plants) to important vital rates.</p>
+<div id="logistic-growth-density-dependent-regulation" class="section level4 hasAnchor" number="24.4.1.2">
+<h4><span class="header-section-number">24.4.1.2</span> Logistic Growth: Density-dependent regulation<a href="population-sensation.html#logistic-growth-density-dependent-regulation" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>In real ecosystems, resources are finite, so populations cannot grow exponentially forever. The logistic growth model captures this reality by slowing population growth as population size approaches carrying capacity—the maximum number of individuals an environment can support over time.</p>
+<p><strong>When to use</strong>: Populations approaching carrying capacity
+<strong>Key assumption</strong>: Negative density dependence, as populations get larger, per capita (per individual) growth decreases.</p>
+<p>The logistic growth model is written as:</p>
+<p><span class="math display">\[
+\frac{dN}{dt} = rN\left(1 - \frac{N}{K}\right)
+\]</span>
+where:</p>
+<ul>
+<li><span class="math inline">\(N\)</span> is population size</li>
+<li><span class="math inline">\(r\)</span> is the intrinsic rate of increase</li>
+<li><span class="math inline">\(K\)</span> is the carrying capacity</li>
+</ul>
+<p>When population size (<span class="math inline">\(N\)</span>) is small relative to carrying capacity (<span class="math inline">\(K\)</span>), the term
+<span class="math inline">\(\left(1 - \frac{N}{K}\right)\)</span> is close to 1 and population growth is approximately exponential. As <span class="math inline">\(N\)</span> approaches <span class="math inline">\(K\)</span>, this term approaches 0, slowing growth until the population stabilizes. Note that the logistic growth equation is essentially the continuous exponential growth equation with a penalty for large populations!</p>
 </div>
-<div id="an-example-population-ecology-of-an-endangered-plant" class="section level2 hasAnchor" number="26.6">
-<h2><span class="header-section-number">26.6</span> An example: Population ecology of an endangered plant<a href="population-sensation.html#an-example-population-ecology-of-an-endangered-plant" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p><em>Pectis imberbis</em> is an endangered plant species endemic to southern Arizona. In 2019, several researchers from NAU traveled to the largest population of <em>P. imberbis</em> in the state located on the Coronado National Memorial. They tagged, mapped and measured a sub-sample of this population in order to identify an appropriate state variable for <em>P. imberbis</em>. Using model selection tools (i.e., Aikaike Information Criterion (AIC)), the size metric that best explained variation in growth, survival and reproduction was selected. For <em>P. imberbis</em>, researchers explored a variety of state variables, including number of leaves, length of the longest leaf, stem number, height, and composite variables based on this metrics (like leaf number*number of leaves to estimate total plant foliage). In this case, height was the best predictor of performance and will serve as the state variable for demographic analyses.</p>
-<p>First, let’s load a few important packages and set our working directory.</p>
-<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb191-1"><a href="population-sensation.html#cb191-1" tabindex="-1"></a><span class="co">#Note that you have to go to the CRAN website to install IPMpack for the first time:</span></span>
-<span id="cb191-2"><a href="population-sensation.html#cb191-2" tabindex="-1"></a><span class="co">#install.packages(&quot;IPMpack&quot;, repos = &quot;http://R-Forge.R-project.org&quot;, type = &quot;source&quot;)</span></span>
-<span id="cb191-3"><a href="population-sensation.html#cb191-3" tabindex="-1"></a><span class="co">#devtools::install_github(&quot;CRAN/IPMpack&quot;)</span></span>
-<span id="cb191-4"><a href="population-sensation.html#cb191-4" tabindex="-1"></a></span>
-<span id="cb191-5"><a href="population-sensation.html#cb191-5" tabindex="-1"></a><span class="co">#Load packages</span></span>
-<span id="cb191-6"><a href="population-sensation.html#cb191-6" tabindex="-1"></a><span class="co">#library(IPMpack)</span></span>
-<span id="cb191-7"><a href="population-sensation.html#cb191-7" tabindex="-1"></a><span class="fu">library</span>(fields)</span>
-<span id="cb191-8"><a href="population-sensation.html#cb191-8" tabindex="-1"></a><span class="fu">library</span>(car)</span>
-<span id="cb191-9"><a href="population-sensation.html#cb191-9" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb191-10"><a href="population-sensation.html#cb191-10" tabindex="-1"></a><span class="fu">library</span>(grid)</span>
-<span id="cb191-11"><a href="population-sensation.html#cb191-11" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
-<span id="cb191-12"><a href="population-sensation.html#cb191-12" tabindex="-1"></a><span class="fu">library</span>(ggthemes) </span>
-<span id="cb191-13"><a href="population-sensation.html#cb191-13" tabindex="-1"></a></span>
-<span id="cb191-14"><a href="population-sensation.html#cb191-14" tabindex="-1"></a><span class="co">#remember in your own work that is it really convenient to set up a working directory! Here is an example:</span></span>
-<span id="cb191-15"><a href="population-sensation.html#cb191-15" tabindex="-1"></a><span class="co">#setwd(&quot;/Users/sks379/Desktop/pectisanalyses/FinalPectisAnalyses&quot;) #laptop </span></span></code></pre></div>
-<p>Once a state variable was identified, the team went back the next several years and collected demographic data on all plants. Let’s build our model for the first pair of transition years.</p>
-<div class="sourceCode" id="cb192"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb192-1"><a href="population-sensation.html#cb192-1" tabindex="-1"></a><span class="co">#read in data (it needs to be imported as a dataframe names pectisdata)</span></span>
-<span id="cb192-2"><a href="population-sensation.html#cb192-2" tabindex="-1"></a><span class="co">#pectisdata &lt;- read.csv(&quot;/Users/sks379/Desktop/pectisanalyses/FinalPectisAnalyses/FinalTransitionMatrices/exampleIPMendangeredplant.csv&quot;, header=TRUE)</span></span>
-<span id="cb192-3"><a href="population-sensation.html#cb192-3" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://drive.google.com/uc?export=download&amp;id=10vtDeB4yXtic7lLa8oTpCDQft10vtYDM&quot;</span></span>
-<span id="cb192-4"><a href="population-sensation.html#cb192-4" tabindex="-1"></a>pectisdata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(url)</span>
-<span id="cb192-5"><a href="population-sensation.html#cb192-5" tabindex="-1"></a></span>
-<span id="cb192-6"><a href="population-sensation.html#cb192-6" tabindex="-1"></a><span class="co">#exclude poor quality data</span></span>
-<span id="cb192-7"><a href="population-sensation.html#cb192-7" tabindex="-1"></a><span class="co">#pectisipm &lt;- dplyr::filter(pectisdata, Exclude == &quot;0&quot;)</span></span>
-<span id="cb192-8"><a href="population-sensation.html#cb192-8" tabindex="-1"></a></span>
-<span id="cb192-9"><a href="population-sensation.html#cb192-9" tabindex="-1"></a><span class="co">#prepare the dataset</span></span>
-<span id="cb192-10"><a href="population-sensation.html#cb192-10" tabindex="-1"></a>pectis <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pectisdata)</span>
-<span id="cb192-11"><a href="population-sensation.html#cb192-11" tabindex="-1"></a>pectis<span class="sc">$</span>size <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(pectis<span class="sc">$</span>size))</span>
-<span id="cb192-12"><a href="population-sensation.html#cb192-12" tabindex="-1"></a>pectis<span class="sc">$</span>sizeNext <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(pectis<span class="sc">$</span>sizeNext))</span>
-<span id="cb192-13"><a href="population-sensation.html#cb192-13" tabindex="-1"></a></span>
-<span id="cb192-14"><a href="population-sensation.html#cb192-14" tabindex="-1"></a><span class="fu">head</span>(pectis)</span></code></pre></div>
-<pre><code>##   id  size surv sizeNext fec1   fec2 Site DeerBrowse2020 BrowseLevel2020 Cover2020
-## 1  1  69.3    0       NA    1  154.5  CNM              N            &lt;NA&gt;         L
-## 2  4  57.7    1     58.4    1   30.9  CNM              Y               L         L
-## 3  6  68.5    1     48.3    1   72.1  CNM              N            &lt;NA&gt;        BG
-## 4  7 101.6    1     57.4    1  257.5  CNM              Y               L         L
-## 5  8  57.9    1     68.0    1  370.8  CNM              Y               L        BG
-## 6 10  84.7    1     18.5    1 1339.0  CNM              N            &lt;NA&gt;        BG
-##   ProtectedFRBrowse2020     Notes2020 Notes2021
-## 1                     N                        
-## 2                     N                        
-## 3                     N INSECT DAMAGE          
-## 4                     N                        
-## 5                     N                        
-## 6                     N</code></pre>
-<p>Notice the structure of the dataset! This dataframe tracks the fate of all individuals in the population from time 1 to time 2. The ‘id’ column corresponds with the tag number for each plant. The ‘size’ column contains sizes (in this case heights) of individuals in time 1, while ‘sizeNext’ indicates the size at time 2. In the ‘surv’ column, the fate of the individual at time 2 is indicated by either a 0 (died) or 1 (survived). For individuals that died, we place an ‘NA’ in the sizeNext column, since that individual didn’t exist that year!</p>
-<p>Reproduction is always the most complex part of demographic modeling for plant species. Often, a reproductive cycle includes cryptic stages (seeds!) that are hard to track, may include vegetative and sexual reproductive components, and may involve several processes (like flower production and seed production) that may be important to examine to understand <em>why</em> population growth rates vary!</p>
-<p><em>Pectis imberbis</em> forms a seed bank with seeds remaining viable for at least 3 years (this was determined through a seed cage experiment). We do not include seed bank dynamics in this model, since seed dynamics are difficult to track across multiple sites and years, and manipulating seeds seems to affect their fate (germination, viability). For this reason, we have built the models such that seeds produced in year 1 has the potential to germinate in year 2 or perish. Luckily, ignoring the seed bank for species with high rates of seed production has negligible affects on population growth, and this pattern (higher rates of viability in the year following seed production) reflects the biology of this species. The ‘IPM package’ recognizes seedlings as seedlings based on the data structure. A new seedling won’t have a size, survival or reproductive values in year 1 (NAs are added to this column), but will have a measurement in the ‘sizeNext’ column.</p>
-<p>We’ve broken reproduction into two components, fec1 and fec2. If an individual reproduced, we mark a ‘1’ in fec1, if the individual didn’t reproduce, then we add a ‘0’ to the fec1 column. For those individuals that did reproduce, the fec2 column contains the number of seeds produced. Again notice that if an individual didn’t reproduce, we place an ‘NA’ in the fec2 column. Finally, we’ve documented other observations for each individual that we think might explain population growth rates, like whether a plant has been browsed by deer or is in competition with other vegetation.</p>
-<p>IPMs are only as good as the linear models that comprise them! As a critical first step in analyses, we have to take a look at the relationship between our state variable and growth, reproduction and survival. We want to be sure to address any issues with normality and unequal variance. First, examine variance; if variation depends on the state variable, include this in the model (we’ll do this in a minute). It is fairly common in plants to see, for instance, that growth rates are more variable in larger individuals.</p>
-<div class="sourceCode" id="cb194"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb194-1"><a href="population-sensation.html#cb194-1" tabindex="-1"></a><span class="co">#evaluating data for IPM construction</span></span>
-<span id="cb194-2"><a href="population-sensation.html#cb194-2" tabindex="-1"></a>growth <span class="ot">&lt;-</span> <span class="fu">lm</span>(sizeNext <span class="sc">~</span> size, <span class="at">na.action =</span> na.omit, <span class="at">data=</span>pectis)</span>
-<span id="cb194-3"><a href="population-sensation.html#cb194-3" tabindex="-1"></a>resid <span class="ot">&lt;-</span> <span class="fu">residuals</span>(growth)</span>
-<span id="cb194-4"><a href="population-sensation.html#cb194-4" tabindex="-1"></a><span class="fu">shapiro.test</span>(resid)</span></code></pre></div>
-<pre><code>## 
-##  Shapiro-Wilk normality test
-## 
-## data:  resid
-## W = 0.29287, p-value &lt; 2.2e-16</code></pre>
-<div class="sourceCode" id="cb196"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb196-1"><a href="population-sensation.html#cb196-1" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">fitted</span>(growth), <span class="fu">residuals</span>(growth))</span>
-<span id="cb196-2"><a href="population-sensation.html#cb196-2" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(<span class="fu">residuals</span>(growth)<span class="sc">~</span><span class="fu">fitted</span>(growth)))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-64-1.png" width="960" style="display: block; margin: auto;" />
-This figure is showing a scatter plot of residuals on the y axis and fitted values (estimated responses) on the x axis. We use these scatterplots to detect non-linearity, unequal error variances, and outliers. The residuals should “bounce randomly” around the 0 line, indicating that the assumption that the relationship is linear is reasonable. You also show see that the residuals roughly form a “horizontal band” around the 0 line, indicating that the variances of the error terms are equal. Finally, we looking for a dataset in which no one residual “stands out” from the basic random pattern of residuals. Let’s look at these residuals another way and use label the outliers so that we can remove them if necessary!</p>
-<div class="sourceCode" id="cb197"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb197-1"><a href="population-sensation.html#cb197-1" tabindex="-1"></a>id.n <span class="ot">=</span> <span class="fu">length</span>(pectis<span class="sc">$</span>id)</span>
-<span id="cb197-2"><a href="population-sensation.html#cb197-2" tabindex="-1"></a><span class="fu">qqPlot</span>(growth, <span class="at">distribution =</span> <span class="st">&quot;norm&quot;</span>, <span class="at">id.method=</span><span class="st">&quot;y&quot;</span>, <span class="at">id.cex =</span> <span class="fl">0.6</span>, <span class="at">id.n=</span>id.n, <span class="at">id.col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">id.location =</span> <span class="st">&quot;ab&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-65-1.png" width="960" style="display: block; margin: auto;" /></p>
-<pre><code>## [1] 551 628</code></pre>
-<p>A quantile-quantile plot, often abbreviated as Q-Q plot, is a graphical tool used to assess whether a dataset follows a particular theoretical distribution, such as the normal distribution. It compares the quantiles of the observed data against the quantiles of the expected theoretical distribution.</p>
-<p>Here’s how to interpret a Q-Q plot: The <em>x-axis</em> of the Q-Q plot represents the theoretical quantiles from a specified distribution (e.g., the normal distribution). The <em>y-axis</em> represents the quantiles of the observed data. If the points on the Q-Q plot fall approximately along a straight line, it suggests that the data follows the theoretical distribution. Deviations from the straight line indicate departures from the assumed distribution. If points are above the line, it suggests that the observed values are higher than expected for that quantile. If points are below the line, it suggests that the observed values are lower than expected for that quantile. The ends of the Q-Q plot are often of particular interest. Deviations in the tails can indicate differences in tail behavior.</p>
-<p>Note to self: (In this example, there is no pattern to the residuals, so we don’t need to include size based variance models, but in final tutorial, maybe add a picture of size based variation (can grab pic from mee312146)).</p>
-<p>Uh oh. Our slope is wonky and there are those darn outliers. From a brief once-over, the outliers maybe driving the slope issue that we are observing. It is good practice to try to determine whether it is legitimate to remove outliers from any statistical analysis. In demographic studies, there are so many plants and many reasonable possibilities for why we may observe a strange transition from one year to the next.</p>
-<p>For example:
-1) In the first year, someone measured the plant, but it had already been browsed by a deer and so was extra short, and then appears to grow like wild in the following year
-2) Someone took data on the wrong space on the datasheet
-3) Someone couldn’t find a mama plant, who actually died, so accidentally measured a baby that had germinated in a nearby spot</p>
-<p>Given this, unlike with standard statistical analyses, we tend to be less stringent about when we remove outliers. Let’s take a look at those residuals.</p>
-<div class="sourceCode" id="cb199"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb199-1"><a href="population-sensation.html#cb199-1" tabindex="-1"></a>row_index <span class="ot">&lt;-</span> <span class="dv">161</span></span>
-<span id="cb199-2"><a href="population-sensation.html#cb199-2" tabindex="-1"></a>value <span class="ot">&lt;-</span> pectis[row_index,]</span>
-<span id="cb199-3"><a href="population-sensation.html#cb199-3" tabindex="-1"></a><span class="fu">print</span>(value)</span></code></pre></div>
-<pre><code>##      id size surv sizeNext fec1  fec2 Site DeerBrowse2020 BrowseLevel2020 Cover2020
-## 161 191   71    1     47.3    1 154.5  CNM              N            &lt;NA&gt;        PG
-##     ProtectedFRBrowse2020 Notes2020 Notes2021
-## 161                     N</code></pre>
-<div class="sourceCode" id="cb201"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb201-1"><a href="population-sensation.html#cb201-1" tabindex="-1"></a><span class="co">#or you can generate the id and use that to subset (just looking at the id number from above)</span></span>
-<span id="cb201-2"><a href="population-sensation.html#cb201-2" tabindex="-1"></a>target_id <span class="ot">&lt;-</span> <span class="dv">68</span></span>
-<span id="cb201-3"><a href="population-sensation.html#cb201-3" tabindex="-1"></a>row_data_index <span class="ot">&lt;-</span> pectis[pectis<span class="sc">$</span>ID <span class="sc">==</span> target_id, ]</span>
-<span id="cb201-4"><a href="population-sensation.html#cb201-4" tabindex="-1"></a><span class="fu">print</span>(row_data_index)</span></code></pre></div>
-<pre><code>##  [1] id                    size                  surv                  sizeNext             
-##  [5] fec1                  fec2                  Site                  DeerBrowse2020       
-##  [9] BrowseLevel2020       Cover2020             ProtectedFRBrowse2020 Notes2020            
-## [13] Notes2021            
-## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
-<div class="sourceCode" id="cb203"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb203-1"><a href="population-sensation.html#cb203-1" tabindex="-1"></a><span class="co">#check out the other outlier</span></span>
-<span id="cb203-2"><a href="population-sensation.html#cb203-2" tabindex="-1"></a>row_index <span class="ot">&lt;-</span> <span class="dv">84</span></span>
-<span id="cb203-3"><a href="population-sensation.html#cb203-3" tabindex="-1"></a>value <span class="ot">&lt;-</span> pectis[row_index,]</span>
-<span id="cb203-4"><a href="population-sensation.html#cb203-4" tabindex="-1"></a><span class="fu">print</span>(value) <span class="co">#note id number is 627</span></span></code></pre></div>
-<pre><code>##     id size surv sizeNext fec1 fec2 Site DeerBrowse2020 BrowseLevel2020 Cover2020
-## 84 106 30.2    1     38.7    1 30.9  CNM              Y               M        PG
-##    ProtectedFRBrowse2020 Notes2020 Notes2021
-## 84                     Y</code></pre>
-<p>Unsurprisingly, there is no ready reason why individuals 161 and 84 would be acting strangely BUT they do behave in weird ways!!! (Did someone miss a decimal point?) AND I want to favor the the numerous individuals that conform to the model. Let’s remove those one or more outliers! I take a gentle hand with this removal of outliers and will start with just removing 161.</p>
-<div class="sourceCode" id="cb205"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb205-1"><a href="population-sensation.html#cb205-1" tabindex="-1"></a>pectis <span class="ot">&lt;-</span> pectis[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">161</span>),] </span>
-<span id="cb205-2"><a href="population-sensation.html#cb205-2" tabindex="-1"></a></span>
-<span id="cb205-3"><a href="population-sensation.html#cb205-3" tabindex="-1"></a>growth <span class="ot">&lt;-</span> <span class="fu">lm</span>(sizeNext <span class="sc">~</span> size, <span class="at">na.action =</span> na.omit, <span class="at">data=</span>pectis)</span>
-<span id="cb205-4"><a href="population-sensation.html#cb205-4" tabindex="-1"></a></span>
-<span id="cb205-5"><a href="population-sensation.html#cb205-5" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">1</span>))</span>
-<span id="cb205-6"><a href="population-sensation.html#cb205-6" tabindex="-1"></a></span>
-<span id="cb205-7"><a href="population-sensation.html#cb205-7" tabindex="-1"></a>id.n <span class="ot">=</span> <span class="fu">length</span>(pectis<span class="sc">$</span>id)</span>
-<span id="cb205-8"><a href="population-sensation.html#cb205-8" tabindex="-1"></a><span class="fu">plot</span>(sizeNext <span class="sc">~</span> size, <span class="at">xlab=</span><span class="st">&quot;Height (cm) year 1&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;Height (cm) year 2&quot;</span>, <span class="at">data=</span>pectis)</span>
-<span id="cb205-9"><a href="population-sensation.html#cb205-9" tabindex="-1"></a><span class="fu">qqPlot</span>(growth, <span class="at">distribution =</span> <span class="st">&quot;norm&quot;</span>, <span class="at">id.method=</span><span class="st">&quot;y&quot;</span>, <span class="at">id.cex =</span> <span class="fl">0.6</span>, <span class="at">id.n=</span>id.n, <span class="at">id.col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">id.location =</span> <span class="st">&quot;ab&quot;</span>)</span></code></pre></div>
-<pre><code>## 551 628 
-## 550 627</code></pre>
-<div class="sourceCode" id="cb207"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb207-1"><a href="population-sensation.html#cb207-1" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(<span class="fu">residuals</span>(growth)<span class="sc">~</span><span class="fu">fitted</span>(growth)))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-67-1.png" width="960" style="display: block; margin: auto;" />
-Uh oh. Still not normal. Let’s remove additional outliers.</p>
-<div class="sourceCode" id="cb208"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb208-1"><a href="population-sensation.html#cb208-1" tabindex="-1"></a>pectis <span class="ot">&lt;-</span> pectis[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">82</span>, <span class="dv">84</span>),] </span>
-<span id="cb208-2"><a href="population-sensation.html#cb208-2" tabindex="-1"></a></span>
-<span id="cb208-3"><a href="population-sensation.html#cb208-3" tabindex="-1"></a>growth <span class="ot">&lt;-</span> <span class="fu">lm</span>(sizeNext <span class="sc">~</span> size, <span class="at">na.action =</span> na.omit, <span class="at">data=</span>pectis)</span>
-<span id="cb208-4"><a href="population-sensation.html#cb208-4" tabindex="-1"></a>resid <span class="ot">&lt;-</span> <span class="fu">residuals</span>(growth)</span>
-<span id="cb208-5"><a href="population-sensation.html#cb208-5" tabindex="-1"></a><span class="fu">shapiro.test</span>(resid)</span></code></pre></div>
-<pre><code>## 
-##  Shapiro-Wilk normality test
-## 
-## data:  resid
-## W = 0.29196, p-value &lt; 2.2e-16</code></pre>
-<div class="sourceCode" id="cb210"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb210-1"><a href="population-sensation.html#cb210-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">1</span>))</span>
-<span id="cb210-2"><a href="population-sensation.html#cb210-2" tabindex="-1"></a></span>
-<span id="cb210-3"><a href="population-sensation.html#cb210-3" tabindex="-1"></a>id.n <span class="ot">=</span> <span class="fu">length</span>(pectis<span class="sc">$</span>id)</span>
-<span id="cb210-4"><a href="population-sensation.html#cb210-4" tabindex="-1"></a><span class="fu">plot</span>(sizeNext <span class="sc">~</span> size, <span class="at">xlab=</span><span class="st">&quot;Height (cm) year 1&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;Height (cm) year 2&quot;</span>, <span class="at">data=</span>pectis)</span>
-<span id="cb210-5"><a href="population-sensation.html#cb210-5" tabindex="-1"></a><span class="fu">qqPlot</span>(growth, <span class="at">distribution =</span> <span class="st">&quot;norm&quot;</span>, <span class="at">id.method=</span><span class="st">&quot;y&quot;</span>, <span class="at">id.cex =</span> <span class="fl">0.6</span>, <span class="at">id.n=</span>id.n, <span class="at">id.col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">id.location =</span> <span class="st">&quot;ab&quot;</span>)</span></code></pre></div>
-<pre><code>## 551 628 
-## 548 625</code></pre>
-<div class="sourceCode" id="cb212"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb212-1"><a href="population-sensation.html#cb212-1" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(<span class="fu">residuals</span>(growth)<span class="sc">~</span><span class="fu">fitted</span>(growth)))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-68-1.png" width="960" style="display: block; margin: auto;" /></p>
-<p>Yay! This is looking better now. While we are looking at size data, let’s take a look set a couple of parameters that we will need to build an IPM.</p>
-<p>Set bounds for IPM============================
-To integrate the kernel, we will need:
-1) boundary points (the edges of the cells defining the matrix)
-2) mesh points (the centers of the cells defining the matrix and the points at which the matrix is evaluated for the midpoint rule of numerical integration)
-3) step size (the widths of the cells)</p>
-<p>Boundary points====
-Because size based predictions are generated from regressions, you can sometimes get projected sizes that are biologically dubious.
-For this reason, we create bounds on how big or small plants can become.
-To do this, I use the size based data from the population, and create a max and min limits that coorespond to the min/max +/- 1 standard deviation</p>
-<div class="sourceCode" id="cb213"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb213-1"><a href="population-sensation.html#cb213-1" tabindex="-1"></a>minimumsize1 <span class="ot">&lt;-</span> <span class="fu">min</span>(pectis<span class="sc">$</span>size, <span class="at">na.rm=</span>T); minimumsize1</span></code></pre></div>
-<pre><code>## [1] 23</code></pre>
-<div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="population-sensation.html#cb215-1" tabindex="-1"></a>minimumsize2 <span class="ot">&lt;-</span> <span class="fu">min</span>(pectis<span class="sc">$</span>sizeNext, <span class="at">na.rm=</span>T); minimumsize2</span></code></pre></div>
-<pre><code>## [1] 8.7</code></pre>
-<div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb217-1"><a href="population-sensation.html#cb217-1" tabindex="-1"></a>maximumsize1 <span class="ot">&lt;-</span> <span class="fu">max</span>(pectis<span class="sc">$</span>size, <span class="at">na.rm=</span>T); maximumsize1</span></code></pre></div>
-<pre><code>## [1] 116.4</code></pre>
-<div class="sourceCode" id="cb219"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb219-1"><a href="population-sensation.html#cb219-1" tabindex="-1"></a>maximumsize2 <span class="ot">&lt;-</span> <span class="fu">max</span>(pectis<span class="sc">$</span>sizeNext, <span class="at">na.rm=</span>T); maximumsize2</span></code></pre></div>
-<pre><code>## [1] 631</code></pre>
-<div class="sourceCode" id="cb221"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb221-1"><a href="population-sensation.html#cb221-1" tabindex="-1"></a>standarddev <span class="ot">&lt;-</span> <span class="fu">sd</span>(pectis<span class="sc">$</span>size, <span class="at">na.rm=</span>T); standarddev</span></code></pre></div>
-<pre><code>## [1] 15.1035</code></pre>
-<div class="sourceCode" id="cb223"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb223-1"><a href="population-sensation.html#cb223-1" tabindex="-1"></a>minSize <span class="ot">&lt;-</span> minimumsize2; minSize <span class="co">#true minimum</span></span></code></pre></div>
-<pre><code>## [1] 8.7</code></pre>
-<div class="sourceCode" id="cb225"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb225-1"><a href="population-sensation.html#cb225-1" tabindex="-1"></a>maxSize <span class="ot">&lt;-</span> maximumsize2 <span class="sc">+</span> standarddev; maxSize <span class="co">#1 standard deviation all adult plants year 1</span></span></code></pre></div>
-<pre><code>## [1] 646.1035</code></pre>
-<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb227-1"><a href="population-sensation.html#cb227-1" tabindex="-1"></a>nBigMatrix <span class="ot">=</span> <span class="dv">100</span> <span class="co">#dictates bin size</span></span>
-<span id="cb227-2"><a href="population-sensation.html#cb227-2" tabindex="-1"></a>x<span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="at">from=</span><span class="dv">0</span>,<span class="at">to=</span><span class="dv">135</span>,<span class="at">length=</span><span class="dv">1001</span>) <span class="co">#Seems fairly standard to create a matrix with these dimensions</span></span>
-<span id="cb227-3"><a href="population-sensation.html#cb227-3" tabindex="-1"></a>x0<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">size=</span>x,<span class="at">size2=</span>x<span class="sc">*</span>x)</span></code></pre></div>
-<p>Alrighty, now let’s explore relationships that will form the rest of the model! Let’s start with survival. We will use the DHARMa package to test for deviation from a binomial distribution and identify outliers.</p>
-<div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb228-1"><a href="population-sensation.html#cb228-1" tabindex="-1"></a><span class="co">#create a glm to predict survival</span></span>
-<span id="cb228-2"><a href="population-sensation.html#cb228-2" tabindex="-1"></a>survival <span class="ot">&lt;-</span> <span class="fu">glm</span>(surv <span class="sc">~</span> size, <span class="at">na.action =</span> na.omit, <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="at">data=</span>pectis)</span>
-<span id="cb228-3"><a href="population-sensation.html#cb228-3" tabindex="-1"></a></span>
-<span id="cb228-4"><a href="population-sensation.html#cb228-4" tabindex="-1"></a><span class="co"># Install and load the DHARMa package</span></span>
-<span id="cb228-5"><a href="population-sensation.html#cb228-5" tabindex="-1"></a><span class="co">#install.packages(&quot;DHARMa&quot;,  dependencies = TRUE)</span></span>
-<span id="cb228-6"><a href="population-sensation.html#cb228-6" tabindex="-1"></a><span class="fu">library</span>(DHARMa)</span>
-<span id="cb228-7"><a href="population-sensation.html#cb228-7" tabindex="-1"></a></span>
-<span id="cb228-8"><a href="population-sensation.html#cb228-8" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(survival, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
-<span id="cb228-9"><a href="population-sensation.html#cb228-9" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">testResiduals</span>(survival)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-70-1.png" width="960" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="population-sensation.html#cb229-1" tabindex="-1"></a><span class="co">#if you need to identify outliers</span></span>
-<span id="cb229-2"><a href="population-sensation.html#cb229-2" tabindex="-1"></a>object1 <span class="ot">&lt;-</span> <span class="fu">simulateResiduals</span>(<span class="at">fittedModel =</span> survival)</span>
-<span id="cb229-3"><a href="population-sensation.html#cb229-3" tabindex="-1"></a><span class="fu">outliers</span>(object1, <span class="at">lowerQuantile =</span> <span class="dv">0</span>, <span class="at">upperQuantile =</span> <span class="dv">1</span>,</span>
-<span id="cb229-4"><a href="population-sensation.html#cb229-4" tabindex="-1"></a>  <span class="at">return =</span> <span class="fu">c</span>(<span class="st">&quot;index&quot;</span>, <span class="st">&quot;logical&quot;</span>))</span></code></pre></div>
-<pre><code>## integer(0)</code></pre>
-<div class="sourceCode" id="cb231"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb231-1"><a href="population-sensation.html#cb231-1" tabindex="-1"></a><span class="co">#you can do this for flowering, but this year everything flowered so you will get an error</span></span>
-<span id="cb231-2"><a href="population-sensation.html#cb231-2" tabindex="-1"></a>flowering <span class="ot">&lt;-</span> <span class="fu">glm</span>(fec1 <span class="sc">~</span> size, <span class="at">na.action =</span> na.omit, <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="at">data =</span> pectis)</span>
-<span id="cb231-3"><a href="population-sensation.html#cb231-3" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(flowering, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
-<span id="cb231-4"><a href="population-sensation.html#cb231-4" tabindex="-1"></a><span class="co">#test &lt;- testResiduals(flowering)</span></span></code></pre></div>
-<p>Everything looks good with the survival (deviation and outlier tests are non-significant (n.s.))! Now, let’s look at seed production, which is count-based and conforms to a poisson distribution. The package below isn’t working - don’t worry about it at this time - it is unusual to do this anyway!</p>
-<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb232-1"><a href="population-sensation.html#cb232-1" tabindex="-1"></a>reproduction <span class="ot">&lt;-</span> <span class="fu">filter</span>(pectis, fec1 <span class="sc">==</span> <span class="st">&quot;1&quot;</span>)</span>
-<span id="cb232-2"><a href="population-sensation.html#cb232-2" tabindex="-1"></a></span>
-<span id="cb232-3"><a href="population-sensation.html#cb232-3" tabindex="-1"></a>seeds <span class="ot">&lt;-</span> <span class="fu">glm</span>(fec2 <span class="sc">~</span> size, <span class="at">na.action =</span> na.omit, <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>, <span class="at">data =</span> reproduction)</span>
-<span id="cb232-4"><a href="population-sensation.html#cb232-4" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(seeds, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
-<span id="cb232-5"><a href="population-sensation.html#cb232-5" tabindex="-1"></a><span class="fu">qqnorm</span>(residuals)</span>
-<span id="cb232-6"><a href="population-sensation.html#cb232-6" tabindex="-1"></a><span class="fu">qqline</span>(residuals)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-71-1.png" width="960" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="population-sensation.html#cb233-1" tabindex="-1"></a>test_seeds <span class="ot">&lt;-</span> <span class="fu">testResiduals</span>(seeds)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-71-2.png" width="960" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb234"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb234-1"><a href="population-sensation.html#cb234-1" tabindex="-1"></a>object2 <span class="ot">&lt;-</span> <span class="fu">simulateResiduals</span>(<span class="at">fittedModel =</span> seeds)</span>
-<span id="cb234-2"><a href="population-sensation.html#cb234-2" tabindex="-1"></a><span class="fu">outliers</span>(object2, <span class="at">lowerQuantile =</span> <span class="dv">0</span>, <span class="at">upperQuantile =</span> <span class="dv">1</span>,</span>
-<span id="cb234-3"><a href="population-sensation.html#cb234-3" tabindex="-1"></a>  <span class="at">return =</span> <span class="fu">c</span>(<span class="st">&quot;index&quot;</span>, <span class="st">&quot;logical&quot;</span>))</span></code></pre></div>
-<pre><code>##   [1]   1   2   3   4   6   7   8   9  10  11  13  14  15  16  17  18  19  20  21  22  23  24
-##  [23]  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46
-##  [45]  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  68  69  70
-##  [67]  71  72  73  74  75  76  77  78  79  80  81  83  84  85  86  88  89  90  91  92  93  94
-##  [89]  95  96  97  98  99 100 101 102 103 104 105 106 107 108 109 110 111 113 114 115 116 117
-## [111] 118 119 120 121 122 123 124 125 126 128 129 130 131 132 133 134 135 136 137 138 139 140
-## [133] 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162
-## [155] 163 164 165 166 167 168 169 170 172 173 174 175 176 177 178 179 180 181 182 183 184 185
-## [177] 186 187 188 189 190 191 192 193 194 195 197 198 199 200 202 203 204 205 206 207 208 209
-## [199] 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 226 227 228 229 230 231 232
-## [221] 233 234 235 236 237 239 240 241 242 243 244 245 246 247 249 250 251 252 253 254 255 256
-## [243] 257 258 259 260 262 263 264 265 266 267 268 269 270 271 273 274 275 276 277 278 279 280
-## [265] 281 282 283 284 285 286 287 288 289 290 292 293 294 295 296 297 298 299 300 301 302 303
-## [287] 304 305 306 307 309 310 311 312 313 314 315 316 317 318 319 322 323 324 325 326 327 328
-## [309] 331 332 333 335 336 337 338 339 340 342 343 344 345 346 347 348 349 350 351 352 353 354
-## [331] 355 356 357 358 359 361 362 363 364 365 366 367 368 369 370 371 372 373 374 375 376 377
-## [353] 378 379 381 382 383 384 385 386 387 388 389 390 391 392 393 394 395 397 398 399 400 402
-## [375] 403 404 405 406 408 409 410 411 413 414 415 417 418 419 420 421 422 423 425 426 428 429
-## [397] 430 432 433 434 436 437 438 439 440 441 442 443 444 445 447 448 449 450 451 452 453 455
-## [419] 456 457 458 459 460 461 462 463 464 465 466 467 468 469 470 471 472 473 474 475 476 477
-## [441] 478 480 481 482 483 484 485 486 487 488 490 491 492 493 494 495 496 497 498 499 500 501
-## [463] 502 503 504 505 506 507 508 509 510 511 512 513 514 515 516 517 518 519 520 521 522 523
-## [485] 524 525 526 527 528 529 531 532 534 535 536 537 538 539 540 541 542 543 545 546 547 548
-## [507] 549 550 551 552 553 554 555 556 557 558 559 560 561 562 563 564 565 567 568 569 570 572
-## [529] 573 574 575 576 577 578 579 580 581 582 583 584 585 586 588 589 590 591 592 593 594 595
-## [551] 596 597 598 599 600 601 602 603 604 606 607 608 609 610 611 612 614 615 616 617 618 619
-## [573] 621 622 623 624 625 626 627 629 630 632 633 634 635 637 638 639 640 641 642 643 644 646
-## [595] 647 648 649 650 651 652 653 655 656 658 659 660 661 662 664 665 666 667 669 670 671 672
-## [617] 673 674 675 676 677 678 679 680 682 684 686 687 688 689 690 691 692 693 694 695 696 697
-## [639] 698 699 700</code></pre>
-<p>Let’s take a comprehensive look at our different regressions that will be used to build the IPM.</p>
-<div class="sourceCode" id="cb236"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb236-1"><a href="population-sensation.html#cb236-1" tabindex="-1"></a><span class="co">#explore different regression models for relating growth, survival and reproduction to state variable</span></span>
-<span id="cb236-2"><a href="population-sensation.html#cb236-2" tabindex="-1"></a><span class="co">#=============================================</span></span>
-<span id="cb236-3"><a href="population-sensation.html#cb236-3" tabindex="-1"></a><span class="co">#explore vital rate data</span></span>
-<span id="cb236-4"><a href="population-sensation.html#cb236-4" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">1</span>))</span>
-<span id="cb236-5"><a href="population-sensation.html#cb236-5" tabindex="-1"></a><span class="fu">plot</span>(pectis<span class="sc">$</span>size,<span class="fu">jitter</span>(pectis<span class="sc">$</span>surv),<span class="at">xlab=</span><span class="st">&quot;Size (t)&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;Survival to t+1&quot;</span>)</span>
-<span id="cb236-6"><a href="population-sensation.html#cb236-6" tabindex="-1"></a><span class="fu">plot</span>(pectis<span class="sc">$</span>size,pectis<span class="sc">$</span>sizeNext,<span class="at">xlab=</span><span class="st">&quot;Size (t)&quot;</span>,<span class="at">ylab=</span><span class="st">&quot;Size (t+1)&quot;</span>) </span>
-<span id="cb236-7"><a href="population-sensation.html#cb236-7" tabindex="-1"></a><span class="fu">plot</span>(pectis<span class="sc">$</span>size,<span class="fu">jitter</span>(pectis<span class="sc">$</span>fec1),<span class="at">xlab=</span><span class="st">&quot;Size (t)&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;Flowering probability&quot;</span>)</span>
-<span id="cb236-8"><a href="population-sensation.html#cb236-8" tabindex="-1"></a><span class="fu">plot</span>(pectis<span class="sc">$</span>size,pectis<span class="sc">$</span>fec2,<span class="at">xlab=</span><span class="st">&quot;Size (t)&quot;</span>,<span class="at">ylab=</span><span class="st">&quot;Flower Head Number&quot;</span>) </span>
-<span id="cb236-9"><a href="population-sensation.html#cb236-9" tabindex="-1"></a><span class="fu">hist</span>(pectis<span class="sc">$</span>sizeNext[<span class="fu">is.na</span>(pectis<span class="sc">$</span>size)], <span class="at">xlab=</span><span class="st">&quot;Recruit Size&quot;</span>, <span class="at">main=</span><span class="st">&quot;&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-72-1.png" width="960" style="display: block; margin: auto;" />
-All of these relationships look good. While we will retain the same state variable across all years, the nature of the relationship may change annually. For this reason, each year that we build a model, we will need to run model comparisons and select the most appropriate model. Let’s start with growth!</p>
-<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="population-sensation.html#cb237-1" tabindex="-1"></a><span class="co">#install.packages(&quot;IPMpack&quot;, repos = &quot;http://R-Forge.R-project.org&quot;, type = &quot;source&quot;)</span></span>
-<span id="cb237-2"><a href="population-sensation.html#cb237-2" tabindex="-1"></a><span class="co">#devtools::install_github(&quot;CRAN/IPMpack&quot;)</span></span>
-<span id="cb237-3"><a href="population-sensation.html#cb237-3" tabindex="-1"></a><span class="co">#see https://levisc8.github.io/ipmr/articles/ipmr-introduction.html</span></span>
-<span id="cb237-4"><a href="population-sensation.html#cb237-4" tabindex="-1"></a></span>
-<span id="cb237-5"><a href="population-sensation.html#cb237-5" tabindex="-1"></a><span class="co">#Load packages</span></span>
-<span id="cb237-6"><a href="population-sensation.html#cb237-6" tabindex="-1"></a><span class="fu">library</span>(IPMpack)</span>
-<span id="cb237-7"><a href="population-sensation.html#cb237-7" tabindex="-1"></a></span>
-<span id="cb237-8"><a href="population-sensation.html#cb237-8" tabindex="-1"></a><span class="co">#growth model constuction</span></span>
-<span id="cb237-9"><a href="population-sensation.html#cb237-9" tabindex="-1"></a><span class="fu">growthModelComp</span>(<span class="at">dataf =</span> pectis, <span class="at">makePlot =</span> <span class="cn">TRUE</span>, <span class="at">legendPos =</span> <span class="st">&quot;bottomright&quot;</span>, <span class="at">mainTitle =</span> <span class="st">&quot;Growth&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-73-1.png" width="960" style="display: block; margin: auto;" /></p>
-<pre><code>## $summaryTable
-##                 Exp. Vars   Reg. Type              AIC
-## 1            sizeNext ~ 1 constantVar 5927.06461395333
-## 2         sizeNext ~ size constantVar 5920.14756906622
-## 3 sizeNext ~ size + size2 constantVar 5921.98357878777
-## 
-## $growthObjects
-## $growthObjects[[1]]
-## An object of class &quot;growthObj&quot;
-## Slot &quot;fit&quot;:
-## 
-## Call:
-## lm(formula = Formula, data = dataf)
-## 
-## Coefficients:
-## (Intercept)  
-##        60.6  
-## 
-## 
-## Slot &quot;sd&quot;:
-## [1] 37.60413
-## 
-## 
-## $growthObjects[[2]]
-## An object of class &quot;growthObj&quot;
-## Slot &quot;fit&quot;:
-## 
-## Call:
-## lm(formula = Formula, data = dataf)
-## 
-## Coefficients:
-## (Intercept)         size  
-##     39.8024       0.3132  
-## 
-## 
-## Slot &quot;sd&quot;:
-## [1] 37.35147
-## 
-## 
-## $growthObjects[[3]]
-## An object of class &quot;growthObj&quot;
-## Slot &quot;fit&quot;:
-## 
-## Call:
-## lm(formula = Formula, data = dataf)
-## 
-## Coefficients:
-## (Intercept)         size        size2  
-##   32.075502     0.556869    -0.001828  
-## 
-## 
-## Slot &quot;sd&quot;:
-## [1] 37.37822</code></pre>
-<p>This handy piece of code quickly compares different model fits, the slope, a linear fit, and a polynomial fit. Since the lowest AIC value indicates the model-of-best-fit, then we will choose the 2nd order polynomial model. Now, let’s build our growth model! We also know from our previous analyses that the variation was equal, so we select ‘constantVar’. Finally size is continuous, so we select ‘gaussian’.</p>
-<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb239-1"><a href="population-sensation.html#cb239-1" tabindex="-1"></a><span class="co">#select best model - model with lowest values</span></span>
-<span id="cb239-2"><a href="population-sensation.html#cb239-2" tabindex="-1"></a><span class="co">#go &lt;-makeGrowthObj(dataf = pectis, Formula = sizeNext~size + size2, regType = &quot;constantVar&quot;, Family=&quot;gaussian&quot;)</span></span></code></pre></div>
-<p>Let’s compare survival models now!</p>
-<div class="sourceCode" id="cb240"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb240-1"><a href="population-sensation.html#cb240-1" tabindex="-1"></a><span class="co">#pectis_clean &lt;- na.omit(pectis_surv)</span></span>
-<span id="cb240-2"><a href="population-sensation.html#cb240-2" tabindex="-1"></a></span>
-<span id="cb240-3"><a href="population-sensation.html#cb240-3" tabindex="-1"></a><span class="co">#survModelComp(dataf = pectis_clean, makePlot = TRUE, legendPos = &quot;bottomright&quot;, mainTitle = &quot;Survival&quot;)</span></span>
-<span id="cb240-4"><a href="population-sensation.html#cb240-4" tabindex="-1"></a><span class="co">#survModelComp(dataf = pectis, makePlot = TRUE, legendPos = &quot;bottomright&quot;, mainTitle = &quot;Survival&quot;)</span></span></code></pre></div>
-<p>Here, the model of best fit is the first order model. Let’s build the survival object.</p>
-<div class="sourceCode" id="cb241"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb241-1"><a href="population-sensation.html#cb241-1" tabindex="-1"></a><span class="co">#select best model - model with lowest values</span></span>
-<span id="cb241-2"><a href="population-sensation.html#cb241-2" tabindex="-1"></a><span class="co">#so &lt;- makeSurvObj(dataf = pectis_clean, Formula = surv~size+size2)</span></span></code></pre></div>
-<p>The process for creating fecundity objects is not quite as streamlined, so let’s develop our own code to compare fecundity models. For <em>P. imberbis</em>, we break reproduction into two components: 1) whether a plant reproduces, and 2) if a plant reproduces, how many seeds are produced as a function of size.</p>
-<p>We will select the linear model. Now let’s look at seed production.</p>
-<div class="sourceCode" id="cb242"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb242-1"><a href="population-sensation.html#cb242-1" tabindex="-1"></a><span class="co">#Test various fertility models to select best model </span></span>
-<span id="cb242-2"><a href="population-sensation.html#cb242-2" tabindex="-1"></a><span class="co">#Seed production of reproductive plants</span></span></code></pre></div>
-<p>Now let’s build the fecundity kernel. I will explain all of this later - all you need to do is change the formula structure following the ‘fo &lt;-’ code to reflect the models of best fit.</p>
 </div>
-<div id="putting-it-all-together" class="section level2 hasAnchor" number="26.7">
-<h2><span class="header-section-number">26.7</span> Putting it all together<a href="population-sensation.html#putting-it-all-together" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="structured-models" class="section level3 hasAnchor" number="24.4.2">
+<h3><span class="header-section-number">24.4.2</span> Structured Models<a href="population-sensation.html#structured-models" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For most macroecological applications—such as modeling population growth in plants, tigers, or mice—unstructured models are inappropriate because individuals differ substantially in their probabilities of survival and reproduction depending on their age, size, or life stage. To address this, age-structured population models were developed in the mid-20th century.</p>
+<p>In 1945, Patrick Leslie introduced the Leslie matrix, a discrete-time, age-structured model designed to track populations divided into age classes. Leslie’s work was motivated largely by human demography and vertebrate populations, where age is relatively easy to determine and closely tied to survival and reproduction. The Leslie matrix provided a powerful framework for predicting population growth rates, stable age distributions, and sensitivity to changes in survival or fecundity.</p>
+<p>However, for many organisms—particularly plants and invertebrates—age is difficult or impossible to measure, and demographic rates are often more strongly associated with developmental stage or size than chronological age. In response, Lefkovitch (1965) extended Leslie’s framework to create the stage-structured matrix model, which allows individuals to transition among life stages rather than progress strictly by age. This innovation made structured population modeling broadly applicable across ecological systems, especially for organisms with complex life cycles or variable growth rates.</p>
+<p>Hal Caswell formalized, unified, and generalized structured population models into a coherent mathematical and ecological framework. His book is the cornerstone reference for population modeling, especially for ecology: Caswell, H. (2001; updated 2019). Matrix Population Models: Construction, Analysis, and Interpretation.</p>
+<p>William F. Morris and Daniel F. Doak further tuned population analysis for conservation, focusing on viability analyses, in their seminal book: Morris, W. F., &amp; Doak, D. F. (2002). Quantitative Conservation Biology.</p>
+<p>These are great references and citations to use in your research!</p>
+<div id="age-structured-models-leslie-matrix" class="section level4 hasAnchor" number="24.4.2.1">
+<h4><span class="header-section-number">24.4.2.1</span> Age-structured models (Leslie matrix)<a href="population-sensation.html#age-structured-models-leslie-matrix" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Structure: Discrete age classes</p>
+<p><strong>When to use</strong>:</p>
+<ul>
+<li>Species with clearly defined age classes</li>
+<li>Long-lived organisms where age strongly predicts survival and reproduction</li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<ul>
+<li>Mammals</li>
+</ul>
+<p>Because demographic rates in many ecological systems depend more on size or stage than on age, we will walk through a matrix model example below using a stage-structured (Lefkovitch) matrix. The mathematics underlying this approach is essentially identical to that of age-structured models.</p>
 </div>
-<div id="generating-confidence-intervals" class="section level2 hasAnchor" number="26.8">
-<h2><span class="header-section-number">26.8</span> Generating confidence intervals<a href="population-sensation.html#generating-confidence-intervals" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>We will rerun it all over again - remember to update your models!</p>
-<div class="sourceCode" id="cb243"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb243-1"><a href="population-sensation.html#cb243-1" tabindex="-1"></a><span class="co">#create dataframe to store results</span></span></code></pre></div>
+<div id="stage-structured-models-lefkovitch-matrix" class="section level4 hasAnchor" number="24.4.2.2">
+<h4><span class="header-section-number">24.4.2.2</span> Stage-structured models (Lefkovitch matrix)<a href="population-sensation.html#stage-structured-models-lefkovitch-matrix" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Structure: Discrete life stages (e.g., juvenile, subadult, adult)</p>
+<p><strong>When to use</strong>:</p>
+<ul>
+<li>Age is difficult or impossible to determine</li>
+<li>Demographic rates depend more on stage or size than age</li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<ul>
+<li>Plants (seedling, sapling, adult)</li>
+<li>Insects with metamorphosis</li>
+<li>Amphibians</li>
+</ul>
+<p>Using matrices to model population dynamics allows us to track the fate of individuals
+in a population within a single, unified framework. To build a demographic model,
+population ecologists first describe the species’ life cycle, identifying groups of
+individuals that share similar vital rates, such as survival, growth, and reproduction.</p>
+<p>These groups—often called <em>stages</em>—form the structure of the matrix. Each column
+represents individuals currently in a given stage, and each row represents the stage
+they may transition into during the next time step. The values in the matrix describe
+the probabilities of survival, transitions among stages, and reproduction.</p>
+<div id="example-a-stage-structured-lefkovitch-matrix" class="section level5 hasAnchor" number="24.4.2.2.1">
+<h5><span class="header-section-number">24.4.2.2.1</span> Example: A stage-structured (Lefkovitch) matrix<a href="population-sensation.html#example-a-stage-structured-lefkovitch-matrix" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<p>Let’s look at a matrix for a hypothetical plant population. We’ve broken the population into three stages Juveniles, Subadults, and Adults. The adults are the only stage able to reproduce. We start with a population consisting of 100 juveniles, 50 subadults, 20 adults.</p>
+<p>Let’s transform this life cycle diagram into a matrix! To do this, you would have marked the plants in this population and conducted a census. You would then be able to quantify all the possible transitions, marked by arrows connecting stages in the life cycle diagram.</p>
+<p>Load programs:</p>
+<p>Create a life cycle diagram:</p>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="population-sensation.html#cb155-1" tabindex="-1"></a><span class="co"># Create life cycle diagram for the plant example</span></span>
+<span id="cb155-2"><a href="population-sensation.html#cb155-2" tabindex="-1"></a><span class="fu">grViz</span>(<span class="st">&quot;</span></span>
+<span id="cb155-3"><a href="population-sensation.html#cb155-3" tabindex="-1"></a><span class="st">digraph plant_lifecycle {</span></span>
+<span id="cb155-4"><a href="population-sensation.html#cb155-4" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb155-5"><a href="population-sensation.html#cb155-5" tabindex="-1"></a><span class="st">  # Graph attributes</span></span>
+<span id="cb155-6"><a href="population-sensation.html#cb155-6" tabindex="-1"></a><span class="st">  graph [rankdir = LR, fontsize = 12]</span></span>
+<span id="cb155-7"><a href="population-sensation.html#cb155-7" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb155-8"><a href="population-sensation.html#cb155-8" tabindex="-1"></a><span class="st">  # Node definitions with labels</span></span>
+<span id="cb155-9"><a href="population-sensation.html#cb155-9" tabindex="-1"></a><span class="st">  node [shape = circle, style = filled, fillcolor = lightblue, </span></span>
+<span id="cb155-10"><a href="population-sensation.html#cb155-10" tabindex="-1"></a><span class="st">        fontname = Helvetica, fontsize = 14]</span></span>
+<span id="cb155-11"><a href="population-sensation.html#cb155-11" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb155-12"><a href="population-sensation.html#cb155-12" tabindex="-1"></a><span class="st">  Seeds [label = &#39;Seeds</span><span class="sc">\n</span><span class="st">(S)&#39;]</span></span>
+<span id="cb155-13"><a href="population-sensation.html#cb155-13" tabindex="-1"></a><span class="st">  Juveniles [label = &#39;Juveniles</span><span class="sc">\n</span><span class="st">(J)&#39;]</span></span>
+<span id="cb155-14"><a href="population-sensation.html#cb155-14" tabindex="-1"></a><span class="st">  Adults [label = &#39;Adults</span><span class="sc">\n</span><span class="st">(A)&#39;]</span></span>
+<span id="cb155-15"><a href="population-sensation.html#cb155-15" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb155-16"><a href="population-sensation.html#cb155-16" tabindex="-1"></a><span class="st">  # Edge definitions with labels showing transition probabilities</span></span>
+<span id="cb155-17"><a href="population-sensation.html#cb155-17" tabindex="-1"></a><span class="st">  Seeds -&gt; Seeds [label = &#39;0.05</span><span class="sc">\n</span><span class="st">(stay seed)&#39;, fontsize = 10]</span></span>
+<span id="cb155-18"><a href="population-sensation.html#cb155-18" tabindex="-1"></a><span class="st">  Seeds -&gt; Juveniles [label = &#39;0.10</span><span class="sc">\n</span><span class="st">(germinate)&#39;, fontsize = 10]</span></span>
+<span id="cb155-19"><a href="population-sensation.html#cb155-19" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb155-20"><a href="population-sensation.html#cb155-20" tabindex="-1"></a><span class="st">  Juveniles -&gt; Juveniles [label = &#39;0.30</span><span class="sc">\n</span><span class="st">(stay juv)&#39;, fontsize = 10]</span></span>
+<span id="cb155-21"><a href="population-sensation.html#cb155-21" tabindex="-1"></a><span class="st">  Juveniles -&gt; Adults [label = &#39;0.50</span><span class="sc">\n</span><span class="st">(mature)&#39;, fontsize = 10]</span></span>
+<span id="cb155-22"><a href="population-sensation.html#cb155-22" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb155-23"><a href="population-sensation.html#cb155-23" tabindex="-1"></a><span class="st">  Adults -&gt; Adults [label = &#39;0.90</span><span class="sc">\n</span><span class="st">(survive)&#39;, fontsize = 10]</span></span>
+<span id="cb155-24"><a href="population-sensation.html#cb155-24" tabindex="-1"></a><span class="st">  Adults -&gt; Seeds [label = &#39;15.0</span><span class="sc">\n</span><span class="st">(fecundity)&#39;, fontsize = 10, </span></span>
+<span id="cb155-25"><a href="population-sensation.html#cb155-25" tabindex="-1"></a><span class="st">                   color = red, penwidth = 2]</span></span>
+<span id="cb155-26"><a href="population-sensation.html#cb155-26" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb155-27"><a href="population-sensation.html#cb155-27" tabindex="-1"></a><span class="st">&quot;</span>)</span></code></pre></div>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-83b59cb9d6facaf5e0f5" style="width:960px;height:768px;"></div>
+<script type="application/json" data-for="htmlwidget-83b59cb9d6facaf5e0f5">{"x":{"diagram":"\ndigraph plant_lifecycle {\n  \n  # Graph attributes\n  graph [rankdir = LR, fontsize = 12]\n  \n  # Node definitions with labels\n  node [shape = circle, style = filled, fillcolor = lightblue, \n        fontname = Helvetica, fontsize = 14]\n  \n  Seeds [label = \"Seeds\n(S)\"]\n  Juveniles [label = \"Juveniles\n(J)\"]\n  Adults [label = \"Adults\n(A)\"]\n  \n  # Edge definitions with labels showing transition probabilities\n  Seeds -> Seeds [label = \"0.05\n(stay seed)\", fontsize = 10]\n  Seeds -> Juveniles [label = \"0.10\n(germinate)\", fontsize = 10]\n  \n  Juveniles -> Juveniles [label = \"0.30\n(stay juv)\", fontsize = 10]\n  Juveniles -> Adults [label = \"0.50\n(mature)\", fontsize = 10]\n  \n  Adults -> Adults [label = \"0.90\n(survive)\", fontsize = 10]\n  Adults -> Seeds [label = \"15.0\n(fecundity)\", fontsize = 10, \n                   color = red, penwidth = 2]\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<p>Let’s transform this into a matrix!</p>
+<div class="sourceCode" id="cb156"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb156-1"><a href="population-sensation.html#cb156-1" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="dv">0</span>,    <span class="co"># Juveniles column</span></span>
+<span id="cb156-2"><a href="population-sensation.html#cb156-2" tabindex="-1"></a>              <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="fl">0.2</span>,    <span class="co"># Subadults column</span></span>
+<span id="cb156-3"><a href="population-sensation.html#cb156-3" tabindex="-1"></a>              <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.8</span>),     <span class="co"># Adults column (with fecundity)</span></span>
+<span id="cb156-4"><a href="population-sensation.html#cb156-4" tabindex="-1"></a>            <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb156-5"><a href="population-sensation.html#cb156-5" tabindex="-1"></a></span>
+<span id="cb156-6"><a href="population-sensation.html#cb156-6" tabindex="-1"></a><span class="co"># Let&#39;s look at the matrix</span></span>
+<span id="cb156-7"><a href="population-sensation.html#cb156-7" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb156-8"><a href="population-sensation.html#cb156-8" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb156-9"><a href="population-sensation.html#cb156-9" tabindex="-1"></a></span>
+<span id="cb156-10"><a href="population-sensation.html#cb156-10" tabindex="-1"></a><span class="co"># Name stages</span></span>
+<span id="cb156-11"><a href="population-sensation.html#cb156-11" tabindex="-1"></a>stages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Juvenile&quot;</span>, <span class="st">&quot;Subadult&quot;</span>, <span class="st">&quot;Adult&quot;</span>)</span>
+<span id="cb156-12"><a href="population-sensation.html#cb156-12" tabindex="-1"></a></span>
+<span id="cb156-13"><a href="population-sensation.html#cb156-13" tabindex="-1"></a><span class="co"># Convert matrix to a tidy table</span></span>
+<span id="cb156-14"><a href="population-sensation.html#cb156-14" tabindex="-1"></a>A_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(A)</span>
+<span id="cb156-15"><a href="population-sensation.html#cb156-15" tabindex="-1"></a><span class="fu">colnames</span>(A_df) <span class="ot">&lt;-</span> stages</span>
+<span id="cb156-16"><a href="population-sensation.html#cb156-16" tabindex="-1"></a><span class="fu">rownames</span>(A_df) <span class="ot">&lt;-</span> stages</span>
+<span id="cb156-17"><a href="population-sensation.html#cb156-17" tabindex="-1"></a></span>
+<span id="cb156-18"><a href="population-sensation.html#cb156-18" tabindex="-1"></a><span class="co"># Display nicely</span></span>
+<span id="cb156-19"><a href="population-sensation.html#cb156-19" tabindex="-1"></a><span class="fu">kable</span>(A_df, <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb156-20"><a href="population-sensation.html#cb156-20" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">&quot;Stage-structured (Lefkovitch) projection matrix&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:unnamed-chunk-54">Table 24.1: </span>Stage-structured (Lefkovitch) projection matrix</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Juvenile</th>
+<th align="right">Subadult</th>
+<th align="right">Adult</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Juvenile</td>
+<td align="right">0.1</td>
+<td align="right">0.0</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Subadult</td>
+<td align="right">0.3</td>
+<td align="right">0.5</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Adult</td>
+<td align="right">0.0</td>
+<td align="right">0.2</td>
+<td align="right">0.8</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="population-sensation.html#cb157-1" tabindex="-1"></a><span class="co"># Starting population vector</span></span>
+<span id="cb157-2"><a href="population-sensation.html#cb157-2" tabindex="-1"></a>n0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">50</span>, <span class="dv">20</span>)  <span class="co"># 100 juveniles, 50 subadults, 20 adults</span></span>
+<span id="cb157-3"><a href="population-sensation.html#cb157-3" tabindex="-1"></a></span>
+<span id="cb157-4"><a href="population-sensation.html#cb157-4" tabindex="-1"></a><span class="co"># Project one time step</span></span>
+<span id="cb157-5"><a href="population-sensation.html#cb157-5" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> A <span class="sc">%*%</span> n0</span></code></pre></div>
+<p>Here, the population vector lists the number of individuals in each stage at time <span class="math inline">\(t\)</span>,
+and matrix multiplication projects the population forward one time step to <span class="math inline">\(t + 1\)</span>.
+To see what is happening biologically, we can write out the matrix multiplication
+explicitly for one time step:</p>
+<p>The number of juveniles at the next time step is calculated as:</p>
+<p><span class="math display">\[
+n(J, t+1) = 0.1(100) = 10
+\]</span></p>
+<p>This means that 10% of the 100 juveniles present at time <span class="math inline">\(t\)</span> survive and remain in the juvenile stage.</p>
+<p>The number of subadults at the next time step is calculated as:</p>
+<p><span class="math display">\[
+n(S, t+1) = 0.3(100) + 0.5(50) = 55
+\]</span></p>
+<p>This includes contributions from two processes:</p>
+<ul>
+<li>30% of juveniles grow into subadults</li>
+<li>50% of subadults survive and remain subadults</li>
+</ul>
+<p>The number of adults at the next time step is calculated as:</p>
+<p><span class="math display">\[
+n(A, t+1) = 0.2(50) + 0.8(20) = 26
+\]</span></p>
+<p>This reflects:</p>
+<ul>
+<li>Maturation of subadults into adults</li>
+<li>Survival of existing adults</li>
+</ul>
+<div id="total-population-size-and-growth" class="section level6 hasAnchor" number="24.4.2.2.1.1">
+<h6><span class="header-section-number">24.4.2.2.1.1</span> Total population size and growth<a href="population-sensation.html#total-population-size-and-growth" class="anchor-section" aria-label="Anchor link to header"></a></h6>
+<p>The total population size at time <span class="math inline">\(t\)</span> is the sum of individuals across all stages:</p>
+<p><span class="math display">\[
+N_t = 100 + 50 + 20 = 170
+\]</span></p>
+<p>The total population size at time <span class="math inline">\(t+1\)</span> is:</p>
+<p><span class="math display">\[
+N_{t+1} = 10 + 55 + 26 = 91
+\]</span></p>
+<p>The absolute change in population size is:</p>
+<p><span class="math display">\[
+\Delta N = N_{t+1} - N_t = 91 - 170 = -79
+\]</span></p>
+<p>This indicates that the population declined by 79 individuals over one time step.</p>
+<p>The proportional population growth rate over one time step is:</p>
+<p><span class="math display">\[
+\lambda = \frac{N_{t+1}}{N_t} = \frac{91}{170} \approx 0.54
+\]</span></p>
+<p>A value of <span class="math inline">\(\lambda &lt; 1\)</span> indicates that, under these demographic rates, the population is declining. Et viola! That is basic matrix math!</p>
+<p>Want to learn how to multiply matrices? <a href="https://youtu.be/rxpFy5wyOrE?si=DYFjVdMCSNbU8vhy">Leslie matrix population projection example (YouTube)</a></p>
+<p>These short-term, time-dependent dynamics are summarized using a suite of metrics collectively referred to as <strong>transient dynamics</strong>. These measures capture how populations behave before reaching long-term equilibrium, and we will explore them in more detail shortly.</p>
 </div>
-<div id="different-life-histories" class="section level2 hasAnchor" number="26.9">
-<h2><span class="header-section-number">26.9</span> Different life histories<a href="population-sensation.html#different-life-histories" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Let’s develop an IPM that includes both vegetative and sexual reproduction. We will use the endangered species, Stenogyne angustifolia, a species of mint endemic to Hawai’i, as an example.</p>
+<div id="population-growth-rate-λ-the-dominant-eigenvalue" class="section level6 hasAnchor" number="24.4.2.2.1.2">
+<h6><span class="header-section-number">24.4.2.2.1.2</span> Population growth rate (λ): the dominant eigenvalue<a href="#population-growth-rate-%CE%BB-the-dominant-eigenvalue" class="anchor-section" aria-label="Anchor link to header"></a></h6>
+<p>After many time steps (repeat the process above), a structured population tends to settle into a stable pattern in which the relative proportions of individuals in each stage remain constant, even though the total population size may be changing. The rate at which the population grows or declines at this stable structure is denoted by <span class="math inline">\(\lambda\)</span> (lambda).</p>
+<p>Transient dynamics capture how populations behave over short time scales and can be strongly influenced by the initial mix of life stages. While these short-term responses are often ecologically important, they can be difficult to compare across populations because they depend on where the population starts. By contrast, describes the long-term growth or decline of a population once it has settled into a stable stage distribution. Because is determined by the underlying life cycle rather than initial conditions, it provides a consistent and interpretable measure of population viability and long-term persistence.</p>
+<p><strong>Conceptual definition</strong>: λ is the long-term, proportional population growth rate implied by the matrix.</p>
+<pre><code>•   $\lambda &gt; 1$: population grows
+•   $\lambda = 1$: population is stable
+•   $\lambda &lt; 1$: population declines</code></pre>
+<p>Mathematically, <span class="math inline">\(\lambda\)</span> is the <strong>dominant eigenvalue</strong> of the projection matrix:</p>
+<p><span class="math display">\[
+\mathbf{A}\mathbf{n} = \lambda \mathbf{n}
+\]</span>
+In practice, <span class="math inline">\(\lambda\)</span> can be interpreted as the ratio of population size between
+successive time steps once the population has reached its stable stage distribution:</p>
+<p><span class="math display">\[
+\lambda = \frac{N_{t+1}}{N_t}
+\]</span>
+Mathematically, is the dominant eigenvalue of the projection matrix. When the matrix is repeatedly multiplied by a population vector, the population eventually grows or declines at a constant proportional rate, and that rate is given by .</p>
+<p><strong>What is an eigenvalue?</strong>
+Think of a matrix as a machine that reshuffles individuals among life stages. Most starting populations change shape as they pass through this machine. Eventually, the population settles into a stable mix of juveniles, subadults, and adults. After that point, the matrix redistributes individuals in the same proportions each time step, so the population simply grows or shrinks without changing its stage structure. The number that tells us how much larger or smaller the population gets each step is called the dominant eigenvalue, . Let me show you in terms of matrix structure:</p>
+<div id="the-projection-matrix-structure" class="section level7" number="24.4.2.2.1.2.1">
+<p class="heading"><span class="header-section-number">24.4.2.2.1.2.1</span> The projection matrix (structure)</p>
+<p>The A or transition matrix (as we call the matrix the summarizes transitions / dynamics), consists of these parts:</p>
+<ul>
+<li>Rows = stage at t+1</li>
+<li>Columns = stage at t</li>
+<li>Entries = survival, growth, reproduction</li>
+</ul>
+</div>
+<div id="eigenvectors-stage-structure" class="section level7" number="24.4.2.2.1.2.2">
+<p class="heading"><span class="header-section-number">24.4.2.2.1.2.2</span> Eigenvectors = stage structure</p>
+<p>An eigenvector describes a pattern of stage abundances:</p>
+<ul>
+<li>Dominant eigenvector → stable stage distribution</li>
+<li>Subdominant eigenvectors → transient dynamics (oscillations, overshoot, lag)</li>
+</ul>
+</div>
+<div id="eigenvalues-scaling-rates" class="section level7" number="24.4.2.2.1.2.3">
+<p class="heading"><span class="header-section-number">24.4.2.2.1.2.3</span> Eigenvalues = scaling rates</p>
+<p>Eigenvalues tell us how fast those patterns grow or decay.</p>
+<ul>
+<li>Dominant eigenvalue (_1) → long-term growth rate</li>
+<li>Subdominant eigenvalues (_2, _3) → how fast transients fade</li>
+</ul>
+</div>
+<div id="why-dominant-matters" class="section level7" number="24.4.2.2.1.2.4">
+<p class="heading"><span class="header-section-number">24.4.2.2.1.2.4</span> Why “dominant” matters</p>
+<p>The dominant eigenvalue is called “dominant” because it eventually overwhelms all other dynamics. No matter how a population starts, its long-term behavior is governed by this single value.</p>
+<p>This matrix-based framework provides the foundation for sensitivity analyses, elasticities, and more advanced models such as Integral Projection Models (IPMs), which extend the same logic to continuous size variables.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="integral-projection-models" class="section level2 hasAnchor" number="24.5">
+<h2><span class="header-section-number">24.5</span> Integral projection models<a href="population-sensation.html#integral-projection-models" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>When building standard matrix population models, stages are defined based on our understanding of which groups within a population exhibit similar vital rates. In reality, however, vital rates often vary continuously among individuals rather than falling into discrete categories. As a result, stage boundaries are frequently imposed by binning individuals into classes that may be somewhat arbitrary. In some cases this binning is practical or biologically justified—for example, when land managers conduct rapid censuses by counting only large, reproductively mature individuals. In many systems, however, discrete stages are approximations rather than natural divisions of demographic variation.</p>
+<p>Instead of binning individuals into discrete stages, <strong>Integral Projection Models (IPMs)</strong> describe population dynamics using a <em>continuous state variable</em>, most commonly a measure of individual size (such as height, diameter, or biomass in plants). In IPMs, vital rates—such as survival, growth, and reproduction—are modeled as functions of this state variable using statistical models fit to data.</p>
+<p>Conceptually, IPMs extend stage-structured matrix models by replacing discrete stage classes with a continuous size axis. This allows IPMs to capture fine-scale demographic variation without requiring arbitrary size bins. One useful way to think about an IPM is as an extremely fine-grained matrix model. Instead of a small matrix with a handful of discrete stages, an IPM can be viewed as a very large matrix in which individuals are divided into many tiny size classes, each with correspondingly small transition probabilities. In practice, this “infinite matrix” is represented mathematically by a kernel that combines survival, growth, and reproduction processes.</p>
+<p>This kernel plays the same conceptual role as a projection matrix in a matrix population model: it maps the population’s size distribution at time t to the distribution at time t+1. As in matrix models, repeated application of the kernel leads to a stable size distribution and a long-term population growth rate, .</p>
+<p>Mathematically, IPMs are built from a <em>kernel</em> that combines survival, growth, and reproduction processes. This kernel plays the same role as a projection matrix in a matrix population model: it maps the population’s size distribution at time <span class="math inline">\(t\)</span> to the distribution at time <span class="math inline">\(t+1\)</span>. As in matrix models, repeated application of the kernel leads to a stable size distribution and a long-term population growth rate, <span class="math inline">\(\lambda\)</span>.</p>
+<p>Because IPMs preserve the biological logic of matrix models while allowing demographic rates to vary smoothly with size, they are particularly well suited for plant populations and other organisms in which size, rather than age or stage, best predicts survival and reproduction.</p>
+<p>Since my lab uses IPMs for most demographic analyses, we will explore these models in detail in the next chapter!</p>
+</div>
+<div id="population-dynamics" class="section level2 hasAnchor" number="24.6">
+<h2><span class="header-section-number">24.6</span> Population dynamics<a href="population-sensation.html#population-dynamics" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Once a demographic model has been constructed—whether as a stage-structured matrix or an Integral Projection Model—it can be used to quantify a wide range of population-level properties. These quantities describe not only whether a population is growing or declining, but also <em>why</em> it behaves the way it does and which demographic processes matter most.</p>
+<p>Together, these quantities are referred to as <strong>population dynamics</strong>, and they provide insight into long-term growth, short-term responses to disturbance, and the sensitivity of populations to changes in survival, growth, or reproduction.</p>
+<div id="population-growth-rate" class="section level3 hasAnchor" number="24.6.1">
+<h3><span class="header-section-number">24.6.1</span> Population growth rate<a href="population-sensation.html#population-growth-rate" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The most fundamental quantity derived from a projection matrix is the long-term population growth rate, <span class="math inline">\(\lambda\)</span>. As discussed above, <span class="math inline">\(\lambda\)</span> is the dominant eigenvalue of the matrix and describes whether a population is expected to grow (<span class="math inline">\(\lambda &gt; 1\)</span>), decline (<span class="math inline">\(\lambda &lt; 1\)</span>), or remain stable (<span class="math inline">\(\lambda = 1\)</span>) once it reaches a stable structure. We calculated this above!</p>
+</div>
+<div id="stable-stage-distribution" class="section level3 hasAnchor" number="24.6.2">
+<h3><span class="header-section-number">24.6.2</span> Stable stage distribution<a href="population-sensation.html#stable-stage-distribution" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Associated with <span class="math inline">\(\lambda\)</span> is the <strong>stable stage distribution</strong>, given by the dominant right eigenvector of the projection matrix. This distribution describes the long-term proportion of individuals in each stage, independent of initial population structure.</p>
+</div>
+<div id="reproductive-value" class="section level3 hasAnchor" number="24.6.3">
+<h3><span class="header-section-number">24.6.3</span> Reproductive value<a href="population-sensation.html#reproductive-value" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <strong>reproductive value</strong> of each stage, given by the dominant left eigenvector, describes the relative contribution of individuals in different stages to future population growth. Stages with high reproductive value have a disproportionate influence on population dynamics.</p>
+</div>
+<div id="sensitivities-absolute-effects" class="section level3 hasAnchor" number="24.6.4">
+<h3><span class="header-section-number">24.6.4</span> Sensitivities: absolute effects<a href="population-sensation.html#sensitivities-absolute-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Sensitivity analysis</strong> quantifies how much <span class="math inline">\(\lambda\)</span> would change in response to a small absolute change in a given matrix element. Sensitivities answer the question: <em>If this vital rate increased slightly, how much would population growth change?</em></p>
+<p>Let <span class="math inline">\(\mathbf{A}\)</span> be a population projection matrix with dominant eigenvalue
+<span class="math inline">\(\lambda\)</span>, right eigenvector <span class="math inline">\(\mathbf{w}\)</span> (stable stage distribution), and left
+eigenvector <span class="math inline">\(\mathbf{v}\)</span> (reproductive value), scaled such that:</p>
+<p><span class="math display">\[
+\mathbf{v}^\top \mathbf{w} = 1
+\]</span>
+The <strong>sensitivity</strong> of population growth rate <span class="math inline">\(\lambda\)</span> to a matrix element <span class="math inline">\(a_{ij}\)</span>
+is defined as:</p>
+<p><span class="math display">\[
+s_{ij} = \frac{\partial \lambda}{\partial a_{ij}}
+\]</span></p>
+<p>For matrix population models, sensitivities can be calculated as:</p>
+<p><span class="math display">\[
+s_{ij} = v_i w_j
+\]</span>
+Sensitivity measures how much <span class="math inline">\(\lambda\)</span> changes in response to a small absolute change in a vital rate.</p>
+</div>
+<div id="elasticities-proportional-effects" class="section level3 hasAnchor" number="24.6.5">
+<h3><span class="header-section-number">24.6.5</span> Elasticities: proportional effects<a href="population-sensation.html#elasticities-proportional-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Because vital rates are measured on different scales, sensitivities can be difficult to compare directly. <strong>Elasticity analysis</strong> rescales sensitivities to measure the proportional change in <span class="math inline">\(\lambda\)</span> resulting from a proportional change in a matrix element.</p>
+<p>Elasticities answer the question: <em>Which life-history processes does population growth depend on most, relative to their current values?</em> Since elasticities allow us to compare across species, reveal life-history strategies, and can be useful for management prioritization, we use and report elasticities more frequently than sensitivities.</p>
+<p>Because matrix elements are measured on different scales, sensitivities are often
+rescaled to obtain <strong>elasticities</strong>, which measure proportional effects.</p>
+<p>The elasticity of <span class="math inline">\(\lambda\)</span> with respect to matrix element <span class="math inline">\(a_{ij}\)</span> is:</p>
+<p><span class="math display">\[
+e_{ij} = \frac{a_{ij}}{\lambda} \frac{\partial \lambda}{\partial a_{ij}}
+\]</span></p>
+<p>Substituting the sensitivity expression gives:</p>
+<p><span class="math display">\[
+e_{ij} = \frac{a_{ij}}{\lambda} v_i w_j
+\]</span>
+The sum of all elasticities equals 1:</p>
+<p><span class="math display">\[
+\sum_{i,j} e_{ij} = 1
+\]</span>
+Together, sensitivities and elasticities reveal how population growth is partitioned among survival, growth, and reproduction. For example, long-lived species often show high elasticity to adult survival, whereas short-lived or fast-growing species tend to show higher elasticity to reproduction.</p>
+</div>
+<div id="beyond-asymptotic-dynamics-transient-behavior" class="section level3 hasAnchor" number="24.6.6">
+<h3><span class="header-section-number">24.6.6</span> Beyond asymptotic dynamics: transient behavior<a href="population-sensation.html#beyond-asymptotic-dynamics-transient-behavior" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>While <span class="math inline">\(\lambda\)</span>, stable stage distributions, and elasticities describe long-term behavior, populations often experience important short-term dynamics before equilibrium is reached. These <strong>transient dynamics</strong> capture temporary amplification, decline, or oscillations driven by initial population structure or disturbance. Let’s go over some common metrics to describe transient dynamics!</p>
+<p>Let:</p>
+<ul>
+<li><span class="math inline">\(\mathbf{n}_0\)</span> be an initial population vector</li>
+<li><span class="math inline">\(\mathbf{A}\)</span> be the projection matrix</li>
+<li><span class="math inline">\(\lambda\)</span> be the dominant eigenvalue</li>
+</ul>
+<div id="reactivity-short-term-amplification" class="section level4 hasAnchor" number="24.6.6.1">
+<h4><span class="header-section-number">24.6.6.1</span> Reactivity (short-term amplification)<a href="population-sensation.html#reactivity-short-term-amplification" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><strong>Reactivity</strong> measures the maximum possible proportional population growth over
+one time step, relative to long-term growth:</p>
+<p><span class="math display">\[
+\rho_1 = \max_{\mathbf{n}_0}
+\frac{\|\mathbf{A}\mathbf{n}_0\|}{\|\mathbf{n}_0\|}
+\]</span>
+<strong>Interpretation:</strong></p>
+<ul>
+<li><span class="math inline">\(\rho_1 &gt; \lambda\)</span> indicates transient amplification</li>
+<li><span class="math inline">\(\rho_1 &lt; \lambda\)</span> indicates immediate decline</li>
+</ul>
+</div>
+<div id="maximum-amplification-over-time" class="section level4 hasAnchor" number="24.6.6.2">
+<h4><span class="header-section-number">24.6.6.2</span> Maximum amplification over time<a href="population-sensation.html#maximum-amplification-over-time" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <strong>maximum amplification</strong> over all time steps is:</p>
+<p><span class="math display">\[
+\rho_{\max} = \max_{t \ge 1}
+\frac{\|\mathbf{A}^t \mathbf{n}_0\|}{\|\mathbf{n}_0\|}
+\]</span>
+This quantity captures the largest possible transient increase in population size that can occur before long-term (asymptotic) behavior dominates.</p>
+<p><strong>Interpretation:</strong></p>
+<p>Maximum amplification describes the strongest short-term population response that can arise purely from population structure, even when long-term growth is stable or declining. A population with <span class="math inline">\(\lambda \le 1\)</span> may still experience substantial temporary growth if its initial stage structure aligns with highly productive or resilient stages. In applied contexts, high values of <span class="math inline">\(\rho_{\max}\)</span> indicate the potential for short-term booms following disturbance, management action, or unusual recruitment events, even if long-term persistence is not guaranteed.</p>
+</div>
+<div id="inertia" class="section level4 hasAnchor" number="24.6.6.3">
+<h4><span class="header-section-number">24.6.6.3</span> Inertia<a href="population-sensation.html#inertia" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><strong>Inertia</strong> describes how long the influence of initial population structure persists
+before convergence to stable growth:</p>
+<p><span class="math display">\[
+\text{Inertia} =
+\frac{\|\mathbf{A}^t \mathbf{n}_0\|}{\lambda^t \|\mathbf{n}_0\|}
+\quad \text{as } t \to \infty
+\]</span>
+<strong>Interpretation:</strong></p>
+<ul>
+<li>Values greater than 1 indicate persistent amplification</li>
+<li>Values less than 1 indicate persistent suppression</li>
+</ul>
+</div>
+<div id="damping-ratio-rate-of-convergence" class="section level4 hasAnchor" number="24.6.6.4">
+<h4><span class="header-section-number">24.6.6.4</span> Damping ratio (rate of convergence)<a href="population-sensation.html#damping-ratio-rate-of-convergence" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <strong>damping ratio</strong> quantifies how quickly transient dynamics decay and is defined as:</p>
+<p><span class="math display">\[
+\text{Damping ratio} =
+\frac{|\lambda_1|}{|\lambda_2|}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(\lambda_1\)</span> is the dominant eigenvalue</li>
+<li><span class="math inline">\(\lambda_2\)</span> is the subdominant eigenvalue (second largest magnitude)</li>
+</ul>
+<p>Interpretation:</p>
+<ul>
+<li>Larger values indicate faster convergence to the stable stage distribution</li>
+<li>Values close to 1 indicate long-lasting transient dynamics</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="chapter-summary" class="section level2 hasAnchor" number="24.7">
+<h2><span class="header-section-number">24.7</span> Chapter summary<a href="population-sensation.html#chapter-summary" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In this chapter, we explored a progression of demographic models used to describe and analyze population dynamics. We began with simple, unstructured models of exponential and logistic growth, which capture fundamental principles of population increase and resource limitation. While these models provide important conceptual foundations, they assume that all individuals in a population are demographically identical.</p>
+<p>We then introduced structured population models, which explicitly account for differences among individuals based on age, stage, or size. Age-structured (Leslie) and stage-structured (Lefkovitch) matrix models describe how individuals transition among life stages and how these transitions determine population growth. From these models, we can calculate key quantities such as the population growth rate (<span class="math inline">\(\lambda\)</span>), stable stage distribution, and reproductive value.</p>
+<p>Building on this framework, we examined how sensitivities and elasticities identify which vital rates have the greatest influence on population growth, and how transient dynamics describe short-term population responses before long-term equilibrium is reached. Metrics such as reactivity, maximum amplification, inertia, and the damping ratio reveal how populations can temporarily grow, decline, or overshoot even when long-term growth is stable or negative.</p>
+<p>Finally, we introduced Integral Projection Models (IPMs), which extend matrix models by treating size as a continuous variable rather than dividing individuals into discrete stages. IPMs preserve the logic of matrix models while avoiding arbitrary stage boundaries, making them particularly well suited for plant populations and other systems where vital rates vary smoothly with size.</p>
+<p>Together, these approaches provide a powerful toolkit for understanding how individual-level processes scale up to population-level dynamics, and for identifying the demographic mechanisms that drive population growth, decline, and resilience.</p>
+</div>
+<div id="test-your-knowledge-3" class="section level2 hasAnchor" number="24.8">
+<h2><span class="header-section-number">24.8</span> Test your knowledge<a href="population-sensation.html#test-your-knowledge-3" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<ol style="list-style-type: decimal">
+<li><p>What is the key difference between unstructured population models and structured population models?</p></li>
+<li><p>Why is exponential growth considered a multiplicative process rather than an additive one?</p></li>
+<li><p>In a stage-structured matrix model, what biological processes are represented by:</p>
+<ul>
+<li>diagonal matrix elements?</li>
+<li>off-diagonal matrix elements?</li>
+</ul></li>
+<li><p>What does the dominant eigenvalue (<span class="math inline">\(\lambda\)</span>) represent in a population projection matrix, and why is it useful for comparing populations?</p></li>
+<li><p>What is the stable stage distribution, and how does it differ from the population’s initial stage structure?</p></li>
+<li><p>Explain why sensitivities and elasticities can lead to different conclusions about which life stages matter most for population growth.</p></li>
+<li><p>A population has <span class="math inline">\(\lambda &lt; 1\)</span> but exhibits high maximum amplification. What does this tell you about its short-term versus long-term dynamics?</p></li>
+<li><p>Why might transient dynamics be especially important for populations experiencing disturbance, management interventions, or rapid environmental change?</p></li>
+<li><p>Give one ecological situation where a stage-structured matrix model is appropriate and one where an Integral Projection Model would be preferable.</p></li>
+<li><p>Explain why sensitivities and elasticities can lead to different conclusions about which life stages matter most for population growth.</p></li>
+<li><p>A population has <span class="math inline">\(\lambda &lt; 1\)</span> but exhibits high maximum amplification. What does this tell you about its short-term versus long-term dynamics?</p></li>
+<li><p>Why might transient dynamics be especially important for populations experiencing disturbance, management interventions, or rapid environmental change?</p></li>
+<li><p>Give one ecological situation where a stage-structured matrix model is appropriate and one where an Integral Projection Model would be preferable.</p></li>
+<li><p>Suppose a population has:</p>
+<ul>
+<li>high elasticity to adult survival</li>
+<li>low elasticity to reproduction</li>
+</ul></li>
+</ol>
+<p>What type of life-history strategy does this suggest, and how might this influence management priorities?</p>
+<ol start="15" style="list-style-type: decimal">
+<li><p>Two populations have the same <span class="math inline">\(\lambda\)</span>, but one has a much lower damping ratio than the other. What does this imply about their transient dynamics?</p></li>
+<li><p>Why might focusing only on long-term population growth (<span class="math inline">\(\lambda\)</span>) be misleading in some ecological or conservation contexts?</p></li>
+<li><p>How do matrix models and IPMs help bridge individual-level processes (survival, growth, reproduction) with population-level outcomes?</p></li>
+</ol>
+</div>
+<div id="assignment-4" class="section level2 hasAnchor" number="24.9">
+<h2><span class="header-section-number">24.9</span> Assignment<a href="population-sensation.html#assignment-4" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Create a life cycle diagram for a species that you would like to examine. This species may be a plant or animal, but you should choose a system for which life stages or size classes are biologically meaningful.</p>
+<p>Life cycle diagrams are simplified representations of population structure and demographic processes. For <strong>Integral Projection Models (IPMs)</strong> in particular, these diagrams are often highly reduced, because size is treated as a continuous variable rather than divided into discrete stages.</p>
+<p>For example, a perennial plant life cycle diagram might include:</p>
+<ul>
+<li>A single size-based individual stage (rather than multiple discrete stages)</li>
+<li>Survival and growth within that size continuum</li>
+<li>Reproduction producing new individuals (e.g., seedlings)</li>
+</ul>
+<div id="your-task" class="section level3 hasAnchor" number="24.9.1">
+<h3><span class="header-section-number">24.9.1</span> Your task<a href="population-sensation.html#your-task" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol style="list-style-type: decimal">
+<li><p>Choose a focal species and briefly describe its life history (1–2 sentences).</p></li>
+<li><p>Identify the key life stages or size classes relevant to its survival, growth, and reproduction.</p></li>
+<li><p>Draw a life cycle diagram that includes:</p>
+<ul>
+<li>All stages or size classes</li>
+<li>Arrows showing possible transitions among stages</li>
+<li>Arrows representing survival, growth, and reproduction</li>
+</ul></li>
+<li><p>Clearly label all stages and arrows.</p></li>
+</ol>
+</div>
+<div id="guidelines" class="section level3 hasAnchor" number="24.9.2">
+<h3><span class="header-section-number">24.9.2</span> Guidelines<a href="population-sensation.html#guidelines" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li>Your diagram does <strong>not</strong> need to include numerical values.</li>
+<li>Focus on biological realism rather than mathematical detail.</li>
+<li>You may draw your diagram by hand, digitally, or using software (e.g., PowerPoint, Illustrator, R).</li>
+</ul>
+</div>
+<div id="what-to-submit" class="section level3 hasAnchor" number="24.9.3">
+<h3><span class="header-section-number">24.9.3</span> What to submit<a href="population-sensation.html#what-to-submit" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li>A clear image or PDF of your life cycle diagram</li>
+<li>A figure legend (3–5 sentences) for your figure, describing how it reflects the species’ biology</li>
+</ul>
+<p>This figure can be included in a manuscript and will set you up to complete the next activity.</p>
 
+</div>
 </div>
 </div>
             </section>
@@ -812,7 +1062,7 @@ All of these relationships look good. While we will retain the same state variab
         </div>
       </div>
 <a href="bootstrapping-and-resampling.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="permuting-your-brains-out.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="integral-population-models.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

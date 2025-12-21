@@ -395,8 +395,8 @@ Potential for Overfitting: If not carefully managed, averaging over too many mod
 
 ```{r}
 
-library(MuMIn)
-options(na.action = "na.fail")
+# library(MuMIn)
+# options(na.action = "na.fail")
 #global_model <- glm(response ~ ., data = data_reduced, family = binomial)
 #dredged_models <- dredge(global_model)
 #averaged_model <- model.avg(dredged_models, subset = delta < 2)

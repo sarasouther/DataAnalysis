@@ -40,7 +40,7 @@ The equation of an event occurring (A) is: $P(A) =\frac{n_a}{N}$ where P(A) is t
 
 Because defining the sample space can be cumbersome for larger sample spaces, we can use combinatorial math, specifically the *mn* rule, to calculate sample space! The *mn* rule simply states that if one group contains *m* elements and another group contains *n* elements, you can for *m* *x* *n* pairs containing an element from each group. For instance, if we were determining the sample space for outcomes of rolling 2, 6-sided dice, we could multiply 6 x 6 (or $6^2$). 
 
-![Sample space for a single roll of 2 die.](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/dice.png)
+![GRTS sampling design](figures/Probability/dice.png)
 Using the equation for calculating the probability of an event, what is the probability of rolling double 6s?
 
 ```{r}
@@ -92,7 +92,7 @@ You might be gleaning that defining the appropriate sample space is critically i
 **Union of events**
 Union of events: What is the likelihood of both events *A* and *B* (this can be written as $A \cup B$)? contains all sampling points for A *or* B. 
 
-![Venn diagram indicating a union of events or an 'or' statement.](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/Union.png)
+![Venn diagram indicating a union of events or an 'or' statement.](figures/Probability/Union.png)
 **Example calculating probability of union event**:
 What is the likelihood of rolling an odd number (Event A) on a 6-side fair die OR that is less than 4 (Event B)? 
 Event A = 1, 3, 5

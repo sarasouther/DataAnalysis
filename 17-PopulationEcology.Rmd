@@ -10,7 +10,7 @@ In population ecology, we commonly describe populations in terms of *size* and *
 
 Censuses are the ideal method for collecting demographic data, since it allows in-depth and comprehensive examination of the population (and it's dynamics!). Let's discuss some considerations for establishing a census protocol. When conducting a census, you want to plan on capturing critical life events and ensure that you are able to capture those life events through time (for multiple years). Let's look at an example and establish a plan to census individuals within a population of this hypothetical species.
 
-![](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Population Ecology/CensusStructure.png)
+![Phenology of a perennial herb](figures/PopulationEcology/CensusStructure.png)
 The figure above shows a typical phenological pattern for an understory plant species in the eastern deciduous forest. These plants are dormant throughout the winter when temperatures are cold enough to freeze plant tissue. All plants, adults and new seedlings, emerge in the spring, and grow to their full size for the summer over a few week period in early spring. Then, they begin flowering and seed development in late summer, then disperse seeds into the fall.
 
 The first census indicated in this figure takes place after emergence in the spring once plants have reached their final size for the growing season. The census is planned to occur as early as possible post-growth in order to assess recruitment (new seedlings that enter the population), since seedlings tend to start to die-off through time. 
@@ -23,304 +23,606 @@ Note that we could capture individuals across all important classes, adult plant
 
 In the above example, the census was timed to measure the performance and fate of important classes within the population. A useful tool for developing census protocols and demographic models is called a life cycle diagram. A life cycle diagram indicates important life stages and possible transitions among those stages. Continuing with our example above, we develop the following life history diagram.
 
-![](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Population Ecology/Figure_LifeCycleDiagram.png)
+![Life cycle diagram](figures/PopulationEcology/Figure_LifeCycleDiagram.png)
 Here, you will note several important demographic characteristics of this species. First, on the right hand side of the diagram, you can see that the researchers have classified plants into several groups: new seedlings, >1 year old seedlings, juveniles, small adults and large adults. These categories were selected because individuals within the categories share similar rates of reproduction and survival (vital rates). On the left hand side of the diagram, you will see that this species forms a seedbank and that seeds within this seed back persist around 45 months. 
 
 ## Population demographic models
 
+Population demographic models allow us to predict population trajectories, evaluate management strategies, understand extinction risk, and identify key life stages for conservation. Population demographic models come in several forms. We will take a deep dive into Integral Projection Models (IPMs), but understanding the various forms of population models will help you understand IPMs better!
+
+### Unstructured Models
+
+Unstructured models refer to population growth models that do not distinguish among individuals within a population. In these models, all individuals are treated as equivalent, meaning they are assumed to have the same probabilities of survival and reproduction, regardless of differences in age, size, or life stage. Because unstructured models treat all individuals as identical, they are best suited for simple or theoretical questions and often serve as a foundation for more complex, structured population models that account for age, size, or stage.
+
+The most basic population model describes a population experiencing exponential growth. Exponential growth—the idea that populations increase multiplicatively rather than additively — is foundational to Darwin’s development of the Theory of Evolution by Natural Selection. Darwin recognized that organisms have the capacity to produce far more offspring than are needed to replace themselves, and yet the world is not overrun by offspring (for example, ladybugs). From this insight, he reasoned that not all individuals can survive and reproduce, and that selection must therefore operate strongly and continuously. This differential survival and reproduction provides the mechanism by which natural selection can drive evolutionary change over time.
+
+Since the concept of multiplicative growth is central to the equation for exponential growth rate, let's compare additive versus exponential growth.
+
+**Additive growth** means a population increases by a fixed number of individuals each time step, regardless of how large the population already is.
+
+You can think of it as: “The population gains the same number each year.”
+
+Example:
+
+- Start with 100 individuals
+- Add 10 individuals each year
+- Population over time: Year 0: 100; Year 1: 110; Year 2: 120; Year 3: 130
+
+Mathematically, this looks like:
+
+$$
+N_{t+1} = N_t + b
+$$
+where b is a constant number added each time step.
+
+**Multiplicative growth** means the population increases by a proportion of its current size each time step.
+
+You can think of it as: “The population grows by a percentage.”
+
+Example:
+
+- Start with 100 individuals
+- Grow by 10% per year
+- Population over time: Year 0: 100; Year 1: 110; Year 2: 121; Year 3: 133
+
+Additive growth increases a population by a fixed number, while multiplicative growth increases a population by a proportion of its current size—making growth faster as populations get larger. 
+
+Mathematically, this looks like:
+
+$$
+N_{t+1} = \lambda N_t
+$$
+or in continuous time:
+$$
+\frac{dN}{dt} = rN
+$$
+This form of growth is biologically realistic over short time scales and is the foundation of population ecology and evolutionary theory.
+
+#### Exponential Growth: Unlimited resources, constant per capita growth
+
+**When to use**: Short-term projections, invasive species establishment
+**Key assumption**: No limits to growth
+**Equations**:
+
+The continuous-time exponential growth model describes how a population grows when 
+resources are unlimited and the per-capita growth rate remains constant.
+
+$$
+N(t) = N_0 e^{rt}
+$$
+where:
+
+- $N(t)$ is the population size at time $t$
+- $N_0$ is the initial population size (at $t = 0$)
+- $r$ is the intrinsic rate of increase
+- $e$ is the base of the natural logarithm
+- $t$ is time
+
+or more simply:
+$$
+N_{t+1} = \lambda N_t
+$$
+Given that it is exceedingly rare that there are no limits to population growth, population ecologist rarely use exponential growth models (I've never used this model for research). 
+
+#### Logistic Growth: Density-dependent regulation
+
+In real ecosystems, resources are finite, so populations cannot grow exponentially forever. The logistic growth model captures this reality by slowing population growth as population size approaches carrying capacity—the maximum number of individuals an environment can support over time.
+
+**When to use**: Populations approaching carrying capacity
+**Key assumption**: Negative density dependence, as populations get larger, per capita (per individual) growth decreases.
+
+The logistic growth model is written as:
+
+$$
+\frac{dN}{dt} = rN\left(1 - \frac{N}{K}\right)
+$$
+where:
+
+- $N$ is population size
+- $r$ is the intrinsic rate of increase
+- $K$ is the carrying capacity
+
+When population size ($N$) is small relative to carrying capacity ($K$), the term 
+$\left(1 - \frac{N}{K}\right)$ is close to 1 and population growth is approximately exponential. As $N$ approaches $K$, this term approaches 0, slowing growth until the population stabilizes. Note that the logistic growth equation is essentially the continuous exponential growth equation with a penalty for large populations!
+
+### Structured Models
+
+For most macroecological applications—such as modeling population growth in plants, tigers, or mice—unstructured models are inappropriate because individuals differ substantially in their probabilities of survival and reproduction depending on their age, size, or life stage. To address this, age-structured population models were developed in the mid-20th century.
+
+In 1945, Patrick Leslie introduced the Leslie matrix, a discrete-time, age-structured model designed to track populations divided into age classes. Leslie’s work was motivated largely by human demography and vertebrate populations, where age is relatively easy to determine and closely tied to survival and reproduction. The Leslie matrix provided a powerful framework for predicting population growth rates, stable age distributions, and sensitivity to changes in survival or fecundity.
+
+However, for many organisms—particularly plants and invertebrates—age is difficult or impossible to measure, and demographic rates are often more strongly associated with developmental stage or size than chronological age. In response, Lefkovitch (1965) extended Leslie’s framework to create the stage-structured matrix model, which allows individuals to transition among life stages rather than progress strictly by age. This innovation made structured population modeling broadly applicable across ecological systems, especially for organisms with complex life cycles or variable growth rates.
+
+Hal Caswell formalized, unified, and generalized structured population models into a coherent mathematical and ecological framework. His book is the cornerstone reference for population modeling, especially for ecology: Caswell, H. (2001; updated 2019). Matrix Population Models: Construction, Analysis, and Interpretation.
+
+William F. Morris and Daniel F. Doak further tuned population analysis for conservation, focusing on viability analyses, in their seminal book: Morris, W. F., & Doak, D. F. (2002). Quantitative Conservation Biology. 
+
+These are great references and citations to use in your research!
+
+#### Age-structured models (Leslie matrix)
+
+Structure: Discrete age classes
+
+**When to use**:
+
+- Species with clearly defined age classes
+- Long-lived organisms where age strongly predicts survival and reproduction
+
+**Examples**:
+
+- Mammals
+
+Because demographic rates in many ecological systems depend more on size or stage than on age, we will walk through a matrix model example below using a stage-structured (Lefkovitch) matrix. The mathematics underlying this approach is essentially identical to that of age-structured models.
+
+#### Stage-structured models (Lefkovitch matrix)
+
+Structure: Discrete life stages (e.g., juvenile, subadult, adult)
+
+**When to use**:
+
+- Age is difficult or impossible to determine
+- Demographic rates depend more on stage or size than age
+
+**Examples**:
+
+- Plants (seedling, sapling, adult)
+- Insects with metamorphosis
+- Amphibians
+
+Using matrices to model population dynamics allows us to track the fate of individuals 
+in a population within a single, unified framework. To build a demographic model, 
+population ecologists first describe the species’ life cycle, identifying groups of 
+individuals that share similar vital rates, such as survival, growth, and reproduction.
+
+These groups—often called *stages*—form the structure of the matrix. Each column 
+represents individuals currently in a given stage, and each row represents the stage 
+they may transition into during the next time step. The values in the matrix describe 
+the probabilities of survival, transitions among stages, and reproduction.
+
+##### Example: A stage-structured (Lefkovitch) matrix
+
+Let's look at a matrix for a hypothetical plant population. We've broken the population into three stages Juveniles, Subadults, and Adults. The adults are the only stage able to reproduce. We start with a population consisting of 100 juveniles, 50 subadults, 20 adults.
+
+Let's transform this life cycle diagram into a matrix! To do this, you would have marked the plants in this population and conducted a census. You would then be able to quantify all the possible transitions, marked by arrows connecting stages in the life cycle diagram.
+
+Load programs:
+```{r setup-lifecycle, include=FALSE}
+library(DiagrammeR)
+library(popbio)
+library(ggplot2)
+```
+
+Create a life cycle diagram:
+```{r}
+# Create life cycle diagram for the plant example
+grViz("
+digraph plant_lifecycle {
+  
+  # Graph attributes
+  graph [rankdir = LR, fontsize = 12]
+  
+  # Node definitions with labels
+  node [shape = circle, style = filled, fillcolor = lightblue, 
+        fontname = Helvetica, fontsize = 14]
+  
+  Seeds [label = 'Seeds\n(S)']
+  Juveniles [label = 'Juveniles\n(J)']
+  Adults [label = 'Adults\n(A)']
+  
+  # Edge definitions with labels showing transition probabilities
+  Seeds -> Seeds [label = '0.05\n(stay seed)', fontsize = 10]
+  Seeds -> Juveniles [label = '0.10\n(germinate)', fontsize = 10]
+  
+  Juveniles -> Juveniles [label = '0.30\n(stay juv)', fontsize = 10]
+  Juveniles -> Adults [label = '0.50\n(mature)', fontsize = 10]
+  
+  Adults -> Adults [label = '0.90\n(survive)', fontsize = 10]
+  Adults -> Seeds [label = '15.0\n(fecundity)', fontsize = 10, 
+                   color = red, penwidth = 2]
+}
+")
+```
+ 
+Let's transform this into a matrix!
+ 
+```{r}
+A <- matrix(c(0.1, 0.3, 0,    # Juveniles column
+              0, 0.5, 0.2,    # Subadults column
+              0, 0, 0.8),     # Adults column (with fecundity)
+            nrow = 3, ncol = 3, byrow = FALSE)
+
+# Let's look at the matrix
+library(tibble)
+library(knitr)
+
+# Name stages
+stages <- c("Juvenile", "Subadult", "Adult")
+
+# Convert matrix to a tidy table
+A_df <- as.data.frame(A)
+colnames(A_df) <- stages
+rownames(A_df) <- stages
+
+# Display nicely
+kable(A_df, digits = 2,
+      caption = "Stage-structured (Lefkovitch) projection matrix")
+
+# Starting population vector
+n0 <- c(100, 50, 20)  # 100 juveniles, 50 subadults, 20 adults
+
+# Project one time step
+n1 <- A %*% n0
+```
+
+Here, the population vector lists the number of individuals in each stage at time $t$,
+and matrix multiplication projects the population forward one time step to $t + 1$.
+To see what is happening biologically, we can write out the matrix multiplication 
+explicitly for one time step:
+
+The number of juveniles at the next time step is calculated as:
+
+$$
+n(J, t+1) = 0.1(100) = 10
+$$
+
+This means that 10% of the 100 juveniles present at time $t$ survive and remain in the juvenile stage.
+
+The number of subadults at the next time step is calculated as:
+
+$$
+n(S, t+1) = 0.3(100) + 0.5(50) = 55
+$$
+
+This includes contributions from two processes:
+
+- 30% of juveniles grow into subadults
+- 50% of subadults survive and remain subadults
+
+The number of adults at the next time step is calculated as:
+
+$$
+n(A, t+1) = 0.2(50) + 0.8(20) = 26
+$$
+
+This reflects:
+
+- Maturation of subadults into adults
+- Survival of existing adults
+
+###### Total population size and growth
+
+The total population size at time $t$ is the sum of individuals across all stages:
+
+$$
+N_t = 100 + 50 + 20 = 170
+$$
+
+The total population size at time $t+1$ is:
+
+$$
+N_{t+1} = 10 + 55 + 26 = 91
+$$
+
+The absolute change in population size is:
+
+$$
+\Delta N = N_{t+1} - N_t = 91 - 170 = -79
+$$
+
+This indicates that the population declined by 79 individuals over one time step.
+
+The proportional population growth rate over one time step is:
+
+$$
+\lambda = \frac{N_{t+1}}{N_t} = \frac{91}{170} \approx 0.54
+$$
+
+A value of $\lambda < 1$ indicates that, under these demographic rates, the population is declining. Et viola! That is basic matrix math! 
+
+Want to learn how to multiply matrices? [Leslie matrix population projection example (YouTube)](https://youtu.be/rxpFy5wyOrE?si=DYFjVdMCSNbU8vhy)
+
+These short-term, time-dependent dynamics are summarized using a suite of metrics collectively referred to as **transient dynamics**. These measures capture how populations behave before reaching long-term equilibrium, and we will explore them in more detail shortly.
+
+###### Population growth rate (λ): the dominant eigenvalue
+
+After many time steps (repeat the process above), a structured population tends to settle into a stable pattern in which the relative proportions of individuals in each stage remain constant, even though the total population size may be changing. The rate at which the population grows or declines at this stable structure is denoted by $\lambda$ (lambda).
+
+Transient dynamics capture how populations behave over short time scales and can be strongly influenced by the initial mix of life stages. While these short-term responses are often ecologically important, they can be difficult to compare across populations because they depend on where the population starts. By contrast, \lambda describes the long-term growth or decline of a population once it has settled into a stable stage distribution. Because \lambda is determined by the underlying life cycle rather than initial conditions, it provides a consistent and interpretable measure of population viability and long-term persistence.
+
+**Conceptual definition**: λ is the long-term, proportional population growth rate implied by the matrix.
+
+	•	$\lambda > 1$: population grows
+	•	$\lambda = 1$: population is stable
+	•	$\lambda < 1$: population declines
+	
+Mathematically, $\lambda$ is the **dominant eigenvalue** of the projection matrix:
+
+$$
+\mathbf{A}\mathbf{n} = \lambda \mathbf{n}
+$$
+In practice, $\lambda$ can be interpreted as the ratio of population size between 
+successive time steps once the population has reached its stable stage distribution:
+
+$$
+\lambda = \frac{N_{t+1}}{N_t}
+$$
+Mathematically, \lambda is the dominant eigenvalue of the projection matrix. When the matrix is repeatedly multiplied by a population vector, the population eventually grows or declines at a constant proportional rate, and that rate is given by \lambda.
+
+**What is an eigenvalue?**
+Think of a matrix as a machine that reshuffles individuals among life stages. Most starting populations change shape as they pass through this machine. Eventually, the population settles into a stable mix of juveniles, subadults, and adults. After that point, the matrix redistributes individuals in the same proportions each time step, so the population simply grows or shrinks without changing its stage structure. The number that tells us how much larger or smaller the population gets each step is called the dominant eigenvalue, \lambda. Let me show you in terms of matrix structure:
+
+####### The projection matrix (structure)
+
+The A or transition matrix (as we call the matrix the summarizes transitions / dynamics), consists of these parts:
+
+- Rows = stage at t+1
+- Columns = stage at t
+- Entries = survival, growth, reproduction
+
+####### Eigenvectors = stage structure
+
+An eigenvector describes a pattern of stage abundances:
+
+- Dominant eigenvector → stable stage distribution
+- Subdominant eigenvectors → transient dynamics (oscillations, overshoot, lag)
+
+####### Eigenvalues = scaling rates
+
+Eigenvalues tell us how fast those patterns grow or decay.
+
+- Dominant eigenvalue (\lambda_1) → long-term growth rate
+- Subdominant eigenvalues (\lambda_2, \lambda_3) → how fast transients fade
+
+####### Why “dominant” matters
+
+The dominant eigenvalue is called “dominant” because it eventually overwhelms all other dynamics. No matter how a population starts, its long-term behavior is governed by this single value.
+
+This matrix-based framework provides the foundation for sensitivity analyses, elasticities, and more advanced models such as Integral Projection Models (IPMs), which extend the same logic to continuous size variables.
 
 ## Integral projection models
 
-Instead of binning individuals into stages, Integral Projection Models (IPMs) are built upon linear models that relate a *state variable* (usually a metric of size in plants) to important vital rates. 
+When building standard matrix population models, stages are defined based on our understanding of which groups within a population exhibit similar vital rates. In reality, however, vital rates often vary continuously among individuals rather than falling into discrete categories. As a result, stage boundaries are frequently imposed by binning individuals into classes that may be somewhat arbitrary. In some cases this binning is practical or biologically justified—for example, when land managers conduct rapid censuses by counting only large, reproductively mature individuals. In many systems, however, discrete stages are approximations rather than natural divisions of demographic variation.
 
-## An example: Population ecology of an endangered plant
+Instead of binning individuals into discrete stages, **Integral Projection Models (IPMs)** describe population dynamics using a *continuous state variable*, most commonly a measure of individual size (such as height, diameter, or biomass in plants). In IPMs, vital rates—such as survival, growth, and reproduction—are modeled as functions of this state variable using statistical models fit to data.
 
-*Pectis imberbis* is an endangered plant species endemic to southern Arizona. In 2019, several researchers from NAU traveled to the largest population of *P. imberbis* in the state located on the Coronado National Memorial. They tagged, mapped and measured a sub-sample of this population in order to identify an appropriate state variable for *P. imberbis*. Using model selection tools (i.e., Aikaike Information Criterion (AIC)), the size metric that best explained variation in growth, survival and reproduction was selected. For *P. imberbis*, researchers explored a variety of state variables, including number of leaves, length of the longest leaf, stem number, height, and composite variables based on this metrics (like leaf number*number of leaves to estimate total plant foliage). In this case, height was the best predictor of performance and will serve as the state variable for demographic analyses.
+Conceptually, IPMs extend stage-structured matrix models by replacing discrete stage classes with a continuous size axis. This allows IPMs to capture fine-scale demographic variation without requiring arbitrary size bins. One useful way to think about an IPM is as an extremely fine-grained matrix model. Instead of a small matrix with a handful of discrete stages, an IPM can be viewed as a very large matrix in which individuals are divided into many tiny size classes, each with correspondingly small transition probabilities. In practice, this “infinite matrix” is represented mathematically by a kernel that combines survival, growth, and reproduction processes.
 
-First, let's load a few important packages and set our working directory. 
+This kernel plays the same conceptual role as a projection matrix in a matrix population model: it maps the population’s size distribution at time t to the distribution at time t+1. As in matrix models, repeated application of the kernel leads to a stable size distribution and a long-term population growth rate, \lambda.
 
-```{r}
-#Note that you have to go to the CRAN website to install IPMpack for the first time:
-#install.packages("IPMpack", repos = "http://R-Forge.R-project.org", type = "source")
-#devtools::install_github("CRAN/IPMpack")
+Mathematically, IPMs are built from a *kernel* that combines survival, growth, and reproduction processes. This kernel plays the same role as a projection matrix in a matrix population model: it maps the population’s size distribution at time $t$ to the distribution at time $t+1$. As in matrix models, repeated application of the kernel leads to a stable size distribution and a long-term population growth rate, $\lambda$.
 
-#Load packages
-#library(IPMpack)
-library(fields)
-library(car)
-library(tidyverse)
-library(grid)
-library(gridExtra)
-library(ggthemes) 
+Because IPMs preserve the biological logic of matrix models while allowing demographic rates to vary smoothly with size, they are particularly well suited for plant populations and other organisms in which size, rather than age or stage, best predicts survival and reproduction.
 
-#remember in your own work that is it really convenient to set up a working directory! Here is an example:
-#setwd("/Users/sks379/Desktop/pectisanalyses/FinalPectisAnalyses") #laptop 
+Since my lab uses IPMs for most demographic analyses, we will explore these models in detail in the next chapter! 
 
-```
+## Population dynamics
 
-Once a state variable was identified, the team went back the next several years and collected demographic data on all plants. Let's build our model for the first pair of transition years.
+Once a demographic model has been constructed—whether as a stage-structured matrix or an Integral Projection Model—it can be used to quantify a wide range of population-level properties. These quantities describe not only whether a population is growing or declining, but also *why* it behaves the way it does and which demographic processes matter most.
 
-```{r}
+Together, these quantities are referred to as **population dynamics**, and they provide insight into long-term growth, short-term responses to disturbance, and the sensitivity of populations to changes in survival, growth, or reproduction.
 
-#read in data (it needs to be imported as a dataframe names pectisdata)
-#pectisdata <- read.csv("/Users/sks379/Desktop/pectisanalyses/FinalPectisAnalyses/FinalTransitionMatrices/exampleIPMendangeredplant.csv", header=TRUE)
-url <- "https://drive.google.com/uc?export=download&id=10vtDeB4yXtic7lLa8oTpCDQft10vtYDM"
-pectisdata <- read.csv(url)
+### Population growth rate
 
-#exclude poor quality data
-#pectisipm <- dplyr::filter(pectisdata, Exclude == "0")
+The most fundamental quantity derived from a projection matrix is the long-term population growth rate, \(\lambda\). As discussed above, \(\lambda\) is the dominant eigenvalue of the matrix and describes whether a population is expected to grow (\(\lambda > 1\)), decline (\(\lambda < 1\)), or remain stable (\(\lambda = 1\)) once it reaches a stable structure. We calculated this above!
 
-#prepare the dataset
-pectis <- as.data.frame(pectisdata)
-pectis$size <- as.numeric(as.character(pectis$size))
-pectis$sizeNext <- as.numeric(as.character(pectis$sizeNext))
+### Stable stage distribution
 
-head(pectis)
-```
+Associated with \(\lambda\) is the **stable stage distribution**, given by the dominant right eigenvector of the projection matrix. This distribution describes the long-term proportion of individuals in each stage, independent of initial population structure.
 
-Notice the structure of the dataset! This dataframe tracks the fate of all individuals in the population from time 1 to time 2. The 'id' column corresponds with the tag number for each plant. The 'size' column contains sizes (in this case heights) of individuals in time 1, while 'sizeNext' indicates the size at time 2. In the 'surv' column, the fate of the individual at time 2 is indicated by either a 0 (died) or 1 (survived). For individuals that died, we place an 'NA' in the sizeNext column, since that individual didn't exist that year! 
+### Reproductive value
 
-Reproduction is always the most complex part of demographic modeling for plant species. Often, a reproductive cycle includes cryptic stages (seeds!) that are hard to track, may include vegetative and sexual reproductive components, and may involve several processes (like flower production and seed production) that may be important to examine to understand *why* population growth rates vary!
+The **reproductive value** of each stage, given by the dominant left eigenvector, describes the relative contribution of individuals in different stages to future population growth. Stages with high reproductive value have a disproportionate influence on population dynamics.
 
-*Pectis imberbis* forms a seed bank with seeds remaining viable for at least 3 years (this was determined through a seed cage experiment). We do not include seed bank dynamics in this model, since seed dynamics are difficult to track across multiple sites and years, and manipulating seeds seems to affect their fate (germination, viability). For this reason, we have built the models such that seeds produced in year 1 has the potential to germinate in year 2 or perish. Luckily, ignoring the seed bank for species with high rates of seed production has negligible affects on population growth, and this pattern (higher rates of viability in the year following seed production) reflects the biology of this species. The 'IPM package' recognizes seedlings as seedlings based on the data structure. A new seedling won't have a size, survival or reproductive values in year 1 (NAs are added to this column), but will have a measurement in the 'sizeNext' column.
+### Sensitivities: absolute effects
 
-We've broken reproduction into two components, fec1 and fec2. If an individual reproduced, we mark a '1' in fec1, if the individual didn't reproduce, then we add a '0' to the fec1 column. For those individuals that did reproduce, the fec2 column contains the number of seeds produced. Again notice that if an individual didn't reproduce, we place an 'NA' in the fec2 column. Finally, we've documented other observations for each individual that we think might explain population growth rates, like whether a plant has been browsed by deer or is in competition with other vegetation.
+**Sensitivity analysis** quantifies how much \(\lambda\) would change in response to a small absolute change in a given matrix element. Sensitivities answer the question: *If this vital rate increased slightly, how much would population growth change?*
 
-IPMs are only as good as the linear models that comprise them! As a critical first step in analyses, we have to take a look at the relationship between our state variable and growth, reproduction and survival. We want to be sure to address any issues with normality and unequal variance. First, examine variance; if variation depends on the state variable, include this in the model (we'll do this in a minute). It is fairly common in plants to see, for instance, that growth rates are more variable in larger individuals.
+Let $\mathbf{A}$ be a population projection matrix with dominant eigenvalue 
+$\lambda$, right eigenvector $\mathbf{w}$ (stable stage distribution), and left 
+eigenvector $\mathbf{v}$ (reproductive value), scaled such that:
 
-```{r}
+$$
+\mathbf{v}^\top \mathbf{w} = 1
+$$
+The **sensitivity** of population growth rate $\lambda$ to a matrix element $a_{ij}$
+is defined as:
 
-#evaluating data for IPM construction
-growth <- lm(sizeNext ~ size, na.action = na.omit, data=pectis)
-resid <- residuals(growth)
-shapiro.test(resid)
-plot(fitted(growth), residuals(growth))
-abline(lm(residuals(growth)~fitted(growth)))
+$$
+s_{ij} = \frac{\partial \lambda}{\partial a_{ij}}
+$$
 
-```
-This figure is showing a scatter plot of residuals on the y axis and fitted values (estimated responses) on the x axis. We use these scatterplots to detect non-linearity, unequal error variances, and outliers. The residuals should "bounce randomly" around the 0 line, indicating that the assumption that the relationship is linear is reasonable. You also show see that the residuals roughly form a "horizontal band" around the 0 line, indicating that the variances of the error terms are equal. Finally, we looking for a dataset in which no one residual "stands out" from the basic random pattern of residuals. Let's look at these residuals another way and use label the outliers so that we can remove them if necessary! 
+For matrix population models, sensitivities can be calculated as:
 
-```{r}
-id.n = length(pectis$id)
-qqPlot(growth, distribution = "norm", id.method="y", id.cex = 0.6, id.n=id.n, id.col = "blue", id.location = "ab")
+$$
+s_{ij} = v_i w_j
+$$
+Sensitivity measures how much $\lambda$ changes in response to a small absolute change in a vital rate.
 
-```
-A quantile-quantile plot, often abbreviated as Q-Q plot, is a graphical tool used to assess whether a dataset follows a particular theoretical distribution, such as the normal distribution. It compares the quantiles of the observed data against the quantiles of the expected theoretical distribution.
+### Elasticities: proportional effects
 
-Here's how to interpret a Q-Q plot: The *x-axis* of the Q-Q plot represents the theoretical quantiles from a specified distribution (e.g., the normal distribution). The *y-axis* represents the quantiles of the observed data. If the points on the Q-Q plot fall approximately along a straight line, it suggests that the data follows the theoretical distribution. Deviations from the straight line indicate departures from the assumed distribution. If points are above the line, it suggests that the observed values are higher than expected for that quantile. If points are below the line, it suggests that the observed values are lower than expected for that quantile. The ends of the Q-Q plot are often of particular interest. Deviations in the tails can indicate differences in tail behavior.
+Because vital rates are measured on different scales, sensitivities can be difficult to compare directly. **Elasticity analysis** rescales sensitivities to measure the proportional change in \(\lambda\) resulting from a proportional change in a matrix element.
 
-Note to self: (In this example, there is no pattern to the residuals, so we don't need to include size based variance models, but in final tutorial, maybe add a picture of size based variation (can grab pic from mee312146)).
+Elasticities answer the question: *Which life-history processes does population growth depend on most, relative to their current values?* Since elasticities allow us to compare across species, reveal life-history strategies, and can be useful for management prioritization, we use and report elasticities more frequently than sensitivities.
 
-Uh oh. Our slope is wonky and there are those darn outliers. From a brief once-over, the outliers maybe driving the slope issue that we are observing. It is good practice to try to determine whether it is legitimate to remove outliers from any statistical analysis. In demographic studies, there are so many plants and many reasonable possibilities for why we may observe a strange transition from one year to the next. 
+Because matrix elements are measured on different scales, sensitivities are often
+rescaled to obtain **elasticities**, which measure proportional effects.
 
-For example:
-1) In the first year, someone measured the plant, but it had already been browsed by a deer and so was extra short, and then appears to grow like wild in the following year
-2) Someone took data on the wrong space on the datasheet
-3) Someone couldn't find a mama plant, who actually died, so accidentally measured a baby that had germinated in a nearby spot
+The elasticity of $\lambda$ with respect to matrix element $a_{ij}$ is:
 
-Given this, unlike with standard statistical analyses, we tend to be less stringent about when we remove outliers. Let's take a look at those residuals.
+$$
+e_{ij} = \frac{a_{ij}}{\lambda} \frac{\partial \lambda}{\partial a_{ij}}
+$$
 
-```{r}
-row_index <- 161
-value <- pectis[row_index,]
-print(value)
+Substituting the sensitivity expression gives:
 
-#or you can generate the id and use that to subset (just looking at the id number from above)
-target_id <- 68
-row_data_index <- pectis[pectis$ID == target_id, ]
-print(row_data_index)
+$$
+e_{ij} = \frac{a_{ij}}{\lambda} v_i w_j
+$$
+The sum of all elasticities equals 1:
 
-#check out the other outlier
-row_index <- 84
-value <- pectis[row_index,]
-print(value) #note id number is 627
-``` 
+$$
+\sum_{i,j} e_{ij} = 1
+$$
+Together, sensitivities and elasticities reveal how population growth is partitioned among survival, growth, and reproduction. For example, long-lived species often show high elasticity to adult survival, whereas short-lived or fast-growing species tend to show higher elasticity to reproduction.
 
-Unsurprisingly, there is no ready reason why individuals 161 and 84 would be acting strangely BUT they do behave in weird ways!!! (Did someone miss a decimal point?) AND I want to favor the the numerous individuals that conform to the model. Let's remove those one or more outliers! I take a gentle hand with this removal of outliers and will start with just removing 161.
+### Beyond asymptotic dynamics: transient behavior
 
-```{r}
-pectis <- pectis[-c(161),] 
+While \(\lambda\), stable stage distributions, and elasticities describe long-term behavior, populations often experience important short-term dynamics before equilibrium is reached. These **transient dynamics** capture temporary amplification, decline, or oscillations driven by initial population structure or disturbance. Let's go over some common metrics to describe transient dynamics!
 
-growth <- lm(sizeNext ~ size, na.action = na.omit, data=pectis)
+Let:
 
-par(mfrow=c(1,2),mar=c(4,4,2,1))
+- $\mathbf{n}_0$ be an initial population vector
+- $\mathbf{A}$ be the projection matrix
+- $\lambda$ be the dominant eigenvalue
 
-id.n = length(pectis$id)
-plot(sizeNext ~ size, xlab="Height (cm) year 1", ylab="Height (cm) year 2", data=pectis)
-qqPlot(growth, distribution = "norm", id.method="y", id.cex = 0.6, id.n=id.n, id.col = "blue", id.location = "ab")
-abline(lm(residuals(growth)~fitted(growth)))
+#### Reactivity (short-term amplification)
 
-```
-Uh oh. Still not normal. Let's remove additional outliers.
+**Reactivity** measures the maximum possible proportional population growth over
+one time step, relative to long-term growth:
 
-```{r}
+$$
+\rho_1 = \max_{\mathbf{n}_0}
+\frac{\|\mathbf{A}\mathbf{n}_0\|}{\|\mathbf{n}_0\|}
+$$
+**Interpretation:**  
 
-pectis <- pectis[-c(82, 84),] 
+- $\rho_1 > \lambda$ indicates transient amplification
+- $\rho_1 < \lambda$ indicates immediate decline
 
-growth <- lm(sizeNext ~ size, na.action = na.omit, data=pectis)
-resid <- residuals(growth)
-shapiro.test(resid)
+#### Maximum amplification over time
 
-par(mfrow=c(1,2),mar=c(4,4,2,1))
+The **maximum amplification** over all time steps is:
 
-id.n = length(pectis$id)
-plot(sizeNext ~ size, xlab="Height (cm) year 1", ylab="Height (cm) year 2", data=pectis)
-qqPlot(growth, distribution = "norm", id.method="y", id.cex = 0.6, id.n=id.n, id.col = "blue", id.location = "ab")
-abline(lm(residuals(growth)~fitted(growth)))
+$$
+\rho_{\max} = \max_{t \ge 1}
+\frac{\|\mathbf{A}^t \mathbf{n}_0\|}{\|\mathbf{n}_0\|}
+$$
+This quantity captures the largest possible transient increase in population size that can occur before long-term (asymptotic) behavior dominates.
 
-```
+**Interpretation:**  
 
-Yay! This is looking better now. While we are looking at size data, let's take a look set a couple of parameters that we will need to build an IPM. 
+Maximum amplification describes the strongest short-term population response that can arise purely from population structure, even when long-term growth is stable or declining. A population with $\lambda \le 1$ may still experience substantial temporary growth if its initial stage structure aligns with highly productive or resilient stages. In applied contexts, high values of $\rho_{\max}$ indicate the potential for short-term booms following disturbance, management action, or unusual recruitment events, even if long-term persistence is not guaranteed.
 
-Set bounds for IPM============================
-To integrate the kernel, we will need: 
-1) boundary points (the edges of the cells defining the matrix)
-2) mesh points (the centers of the cells defining the matrix and the points at which the matrix is evaluated for the midpoint rule of numerical integration)
-3) step size (the widths of the cells)
+#### Inertia
 
-Boundary points====
-Because size based predictions are generated from regressions, you can sometimes get projected sizes that are biologically dubious. 
-For this reason, we create bounds on how big or small plants can become.
-To do this, I use the size based data from the population, and create a max and min limits that coorespond to the min/max +/- 1 standard deviation
+**Inertia** describes how long the influence of initial population structure persists
+before convergence to stable growth:
 
-```{r}
-minimumsize1 <- min(pectis$size, na.rm=T); minimumsize1
-minimumsize2 <- min(pectis$sizeNext, na.rm=T); minimumsize2
-maximumsize1 <- max(pectis$size, na.rm=T); maximumsize1
-maximumsize2 <- max(pectis$sizeNext, na.rm=T); maximumsize2
-standarddev <- sd(pectis$size, na.rm=T); standarddev
+$$
+\text{Inertia} =
+\frac{\|\mathbf{A}^t \mathbf{n}_0\|}{\lambda^t \|\mathbf{n}_0\|}
+\quad \text{as } t \to \infty
+$$
+**Interpretation:**  
 
-minSize <- minimumsize2; minSize #true minimum
-maxSize <- maximumsize2 + standarddev; maxSize #1 standard deviation all adult plants year 1
-nBigMatrix = 100 #dictates bin size
-x<-seq(from=0,to=135,length=1001) #Seems fairly standard to create a matrix with these dimensions
-x0<-data.frame(size=x,size2=x*x)
-```
-Alrighty, now let's explore relationships that will form the rest of the model! Let's start with survival. We will use the DHARMa package to test for deviation from a binomial distribution and identify outliers.
+- Values greater than 1 indicate persistent amplification
+- Values less than 1 indicate persistent suppression
 
-```{r}
+#### Damping ratio (rate of convergence)
 
-#create a glm to predict survival
-survival <- glm(surv ~ size, na.action = na.omit, family = "binomial", data=pectis)
+The **damping ratio** quantifies how quickly transient dynamics decay and is defined as:
 
-# Install and load the DHARMa package
-#install.packages("DHARMa",  dependencies = TRUE)
-library(DHARMa)
+$$
+\text{Damping ratio} =
+\frac{|\lambda_1|}{|\lambda_2|}
+$$
 
-residuals <- residuals(survival, type = "response")
-test <- testResiduals(survival)
+where:
 
-#if you need to identify outliers
-object1 <- simulateResiduals(fittedModel = survival)
-outliers(object1, lowerQuantile = 0, upperQuantile = 1,
-  return = c("index", "logical"))
+- $\lambda_1$ is the dominant eigenvalue
+- $\lambda_2$ is the subdominant eigenvalue (second largest magnitude)
 
-#you can do this for flowering, but this year everything flowered so you will get an error
-flowering <- glm(fec1 ~ size, na.action = na.omit, family = "binomial", data = pectis)
-residuals <- residuals(flowering, type = "response")
-#test <- testResiduals(flowering)
+Interpretation:
 
-```
+- Larger values indicate faster convergence to the stable stage distribution
+- Values close to 1 indicate long-lasting transient dynamics
 
-Everything looks good with the survival (deviation and outlier tests are non-significant (n.s.))! Now, let's look at seed production, which is count-based and conforms to a poisson distribution. The package below isn't working - don't worry about it at this time - it is unusual to do this anyway!
+## Chapter summary
 
-```{r}
+In this chapter, we explored a progression of demographic models used to describe and analyze population dynamics. We began with simple, unstructured models of exponential and logistic growth, which capture fundamental principles of population increase and resource limitation. While these models provide important conceptual foundations, they assume that all individuals in a population are demographically identical.
 
-reproduction <- filter(pectis, fec1 == "1")
+We then introduced structured population models, which explicitly account for differences among individuals based on age, stage, or size. Age-structured (Leslie) and stage-structured (Lefkovitch) matrix models describe how individuals transition among life stages and how these transitions determine population growth. From these models, we can calculate key quantities such as the population growth rate (\(\lambda\)), stable stage distribution, and reproductive value.
 
-seeds <- glm(fec2 ~ size, na.action = na.omit, family = "poisson", data = reproduction)
-residuals <- residuals(seeds, type = "response")
-qqnorm(residuals)
-qqline(residuals)
+Building on this framework, we examined how sensitivities and elasticities identify which vital rates have the greatest influence on population growth, and how transient dynamics describe short-term population responses before long-term equilibrium is reached. Metrics such as reactivity, maximum amplification, inertia, and the damping ratio reveal how populations can temporarily grow, decline, or overshoot even when long-term growth is stable or negative.
 
-test_seeds <- testResiduals(seeds)
+Finally, we introduced Integral Projection Models (IPMs), which extend matrix models by treating size as a continuous variable rather than dividing individuals into discrete stages. IPMs preserve the logic of matrix models while avoiding arbitrary stage boundaries, making them particularly well suited for plant populations and other systems where vital rates vary smoothly with size.
 
-object2 <- simulateResiduals(fittedModel = seeds)
-outliers(object2, lowerQuantile = 0, upperQuantile = 1,
-  return = c("index", "logical"))
+Together, these approaches provide a powerful toolkit for understanding how individual-level processes scale up to population-level dynamics, and for identifying the demographic mechanisms that drive population growth, decline, and resilience.
 
-```
-Let's take a comprehensive look at our different regressions that will be used to build the IPM.
+## Test your knowledge
 
-```{r}
-#explore different regression models for relating growth, survival and reproduction to state variable
-#=============================================
-#explore vital rate data
-par(mfrow=c(3,2),mar=c(4,4,2,1))
-plot(pectis$size,jitter(pectis$surv),xlab="Size (t)", ylab="Survival to t+1")
-plot(pectis$size,pectis$sizeNext,xlab="Size (t)",ylab="Size (t+1)") 
-plot(pectis$size,jitter(pectis$fec1),xlab="Size (t)", ylab="Flowering probability")
-plot(pectis$size,pectis$fec2,xlab="Size (t)",ylab="Flower Head Number") 
-hist(pectis$sizeNext[is.na(pectis$size)], xlab="Recruit Size", main="")
-```
-All of these relationships look good. While we will retain the same state variable across all years, the nature of the relationship may change annually. For this reason, each year that we build a model, we will need to run model comparisons and select the most appropriate model. Let's start with growth!
+1. What is the key difference between unstructured population models and structured population models?
 
-```{r}
+2. Why is exponential growth considered a multiplicative process rather than an additive one?
 
-#install.packages("IPMpack", repos = "http://R-Forge.R-project.org", type = "source")
-#devtools::install_github("CRAN/IPMpack")
-#see https://levisc8.github.io/ipmr/articles/ipmr-introduction.html
+3. In a stage-structured matrix model, what biological processes are represented by:
+   - diagonal matrix elements?
+   - off-diagonal matrix elements?
 
-#Load packages
-library(IPMpack)
+4. What does the dominant eigenvalue (\(\lambda\)) represent in a population projection matrix, and why is it useful for comparing populations?
 
-#growth model constuction
-growthModelComp(dataf = pectis, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Growth")
-```
-This handy piece of code quickly compares different model fits, the slope, a linear fit, and a polynomial fit. Since the lowest AIC value indicates the model-of-best-fit, then we will choose the 2nd order polynomial model. Now, let's build our growth model! We also know from our previous analyses that the variation was equal, so we select 'constantVar'. Finally size is continuous, so we select 'gaussian'.
+5. What is the stable stage distribution, and how does it differ from the population’s initial stage structure?
 
-```{r}
-#select best model - model with lowest values
-#go <-makeGrowthObj(dataf = pectis, Formula = sizeNext~size + size2, regType = "constantVar", Family="gaussian")
-```
+6. Explain why sensitivities and elasticities can lead to different conclusions about which life stages matter most for population growth.
 
-Let's compare survival models now!
+7. A population has \(\lambda < 1\) but exhibits high maximum amplification. What does this tell you about its short-term versus long-term dynamics?
 
-```{r}
-#pectis_clean <- na.omit(pectis_surv)
+8. Why might transient dynamics be especially important for populations experiencing disturbance, management interventions, or rapid environmental change?
 
-#survModelComp(dataf = pectis_clean, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Survival")
-#survModelComp(dataf = pectis, makePlot = TRUE, legendPos = "bottomright", mainTitle = "Survival")
-```
-Here, the model of best fit is the first order model. Let's build the survival object.
+9. Give one ecological situation where a stage-structured matrix model is appropriate and one where an Integral Projection Model would be preferable.
 
-```{r}
-#select best model - model with lowest values
-#so <- makeSurvObj(dataf = pectis_clean, Formula = surv~size+size2)
-```
+10. Explain why sensitivities and elasticities can lead to different conclusions about which life stages matter most for population growth.
 
-The process for creating fecundity objects is not quite as streamlined, so let's develop our own code to compare fecundity models. For *P. imberbis*, we break reproduction into two components: 1) whether a plant reproduces, and 2) if a plant reproduces, how many seeds are produced as a function of size.
+11. A population has \(\lambda < 1\) but exhibits high maximum amplification. What does this tell you about its short-term versus long-term dynamics?
 
-```{r}
+12. Why might transient dynamics be especially important for populations experiencing disturbance, management interventions, or rapid environmental change?
 
-```
-We will select the linear model. Now let's look at seed production.
+13. Give one ecological situation where a stage-structured matrix model is appropriate and one where an Integral Projection Model would be preferable.
 
-```{r}
-#Test various fertility models to select best model 
-#Seed production of reproductive plants
+14. Suppose a population has:
 
-```
-Now let's build the fecundity kernel. I will explain all of this later - all you need to do is change the formula structure following the 'fo <- ' code to reflect the models of best fit.
+    - high elasticity to adult survival
+    - low elasticity to reproduction  
 
-```{r}
-```
+What type of life-history strategy does this suggest, and how might this influence management priorities?
 
-## Putting it all together
+15. Two populations have the same \(\lambda\), but one has a much lower damping ratio than the other. What does this imply about their transient dynamics?
 
-```{r}
+16. Why might focusing only on long-term population growth (\(\lambda\)) be misleading in some ecological or conservation contexts?
 
-```
+17. How do matrix models and IPMs help bridge individual-level processes (survival, growth, reproduction) with population-level outcomes?
 
-## Generating confidence intervals
+## Assignment
 
-We will rerun it all over again - remember to update your models!
+Create a life cycle diagram for a species that you would like to examine. This species may be a plant or animal, but you should choose a system for which life stages or size classes are biologically meaningful.
 
-```{r}
-#create dataframe to store results
+Life cycle diagrams are simplified representations of population structure and demographic processes. For **Integral Projection Models (IPMs)** in particular, these diagrams are often highly reduced, because size is treated as a continuous variable rather than divided into discrete stages.
 
-```
+For example, a perennial plant life cycle diagram might include:
 
-## Different life histories
+- A single size-based individual stage (rather than multiple discrete stages)
+- Survival and growth within that size continuum
+- Reproduction producing new individuals (e.g., seedlings)
 
-Let's develop an IPM that includes both vegetative and sexual reproduction. We will use the endangered species, Stenogyne angustifolia, a species of mint endemic to Hawai'i, as an example. 
+### Your task
+
+1. Choose a focal species and briefly describe its life history (1–2 sentences).
+2. Identify the key life stages or size classes relevant to its survival, growth, and reproduction.
+3. Draw a life cycle diagram that includes:
+
+   - All stages or size classes
+   - Arrows showing possible transitions among stages
+   - Arrows representing survival, growth, and reproduction
+4. Clearly label all stages and arrows.
+
+### Guidelines
+
+- Your diagram does **not** need to include numerical values.
+- Focus on biological realism rather than mathematical detail.
+- You may draw your diagram by hand, digitally, or using software (e.g., PowerPoint, Illustrator, R).
+
+### What to submit
+- A clear image or PDF of your life cycle diagram
+- A figure legend (3–5 sentences) for your figure, describing how it reflects the species’ biology
+
+This figure can be included in a manuscript and will set you up to complete the next activity.

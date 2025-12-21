@@ -39,13 +39,9 @@ Let’s get one thing out of the way early: we are not statisticians—whew! We 
 
 By the end of this course, you will be able to:
 
-	•	Select appropriate statistical tests based on the type of data (categorical, continuous, ordinal),       the structure of your study design, and the research question being asked (e.g., comparing groups,       testing relationships, evaluating change over time).
-	•	Properly run statistical analyses using R, including data cleaning, assumption checking, and the         implementation of common tests such as t-tests, ANOVA, chi-squared tests, correlation, linear            regression, and basic non-parametric alternatives.
-	•	Report and interpret statistical results in clear, publication-ready language. This includes   
-	  summarizing findings with appropriate measures of central tendency and variation (mean, median,   
-	  standard error), reporting test statistics and p-values, and interpreting both statistical and 
-	  biological/social significance.
-	•	Visualize data effectively using plots and figures that aid interpretation and communicate key 
-	  findings to scientific and non-scientific audiences.
-	•	Understand the assumptions behind common statistical methods and recognize when those assumptions are     violated, along with strategies for addressing or adjusting for these issues.
-	•	Develop confidence and critical thinking in applying statistical tools to real-world ecological and      social science data, with a focus on transparency, reproducibility, and responsible data use.
+- Select appropriate statistical tests based on the type of data (categorical, continuous, ordinal), the structure of your study design, and the research question being asked (e.g., comparing groups, testing relationships, evaluating change over time).
+- Properly run statistical analyses using R, including data cleaning, assumption checking, and the implementation of common tests such as t-tests, ANOVA, chi-squared tests, correlation, linear regression, and basic non-parametric alternatives.
+- Report and interpret statistical results in clear, publication-ready language. This includes summarizing findings with appropriate measures of central tendency and variation (mean, median, standard error), reporting test statistics and p-values, and interpreting both statistical and biological/social significance.
+- Visualize data effectively using plots and figures that aid interpretation and communicate key findings to scientific and non-scientific audiences.
+- Understand the assumptions behind common statistical methods and recognize when those assumptions are violated, along with strategies for addressing or adjusting for these issues.
+- Develop confidence and critical thinking in applying statistical tools to real-world ecological and social science data, with a focus on transparency, reproducibility, and responsible data use.
