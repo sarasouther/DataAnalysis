@@ -316,7 +316,7 @@ Definition: long-run average outcome
 Calculation for discrete variables: E(X) = Σ xᵢP(xᵢ)
 Intuition: weighted average by probability
 
-# Expected value of a fair die roll
+## Expected value of a fair die roll
 outcomes <- 1:6
 probabilities <- rep(1/6, 6)
 expected_value <- sum(outcomes * probabilities)
@@ -327,7 +327,7 @@ Definition: expected squared deviation from mean
 Var(X) = E[(X - μ)²]
 Standard deviation = √Variance
 
-# Variance of a fair die roll
+## Variance of a fair die roll
 variance <- sum((outcomes - expected_value)^2 * probabilities)
 variance
 sqrt(variance)  # standard deviation
@@ -339,7 +339,7 @@ Why larger samples give more reliable estimates
 Simulation demonstration
 
 set.seed(123)
-# Simulate rolling a die many times
+## Simulate rolling a die many times
 n_rolls <- c(10, 100, 1000, 10000)
 results <- sapply(n_rolls, function(n) mean(sample(1:6, n, replace = TRUE)))
 data.frame(n = n_rolls, sample_mean = results, true_mean = 3.5)
@@ -361,7 +361,7 @@ set.seed(123)
 population <- rgamma(10000, shape = 2, rate = 0.5)  # Right-skewed population
 hist(population, main = "Population Distribution (Skewed)", breaks = 30)
 
-# Take many samples and calculate means
+## Take many samples and calculate means
 sample_means <- replicate(1000, mean(sample(population, size = 30)))
 hist(sample_means, main = "Sampling Distribution of Means (n=30)", breaks = 30)
 Standard error
@@ -384,7 +384,7 @@ Visual demonstration
 set.seed(123)
 par(mfrow = c(2, 3))
 
-# Uniform population
+## Uniform population
 pop_uniform <- runif(10000, 0, 1)
 hist(pop_uniform, main = "Uniform Population", breaks = 20)
 
@@ -394,7 +394,7 @@ means_n30 <- replicate(1000, mean(sample(pop_uniform, 30)))
 hist(means_n5, main = "Sample Means (n=5)", breaks = 20)
 hist(means_n30, main = "Sample Means (n=30)", breaks = 20)
 
-# Exponential population (highly skewed)
+## Exponential population (highly skewed)
 pop_exp <- rexp(10000, rate = 1)
 hist(pop_exp, main = "Exponential Population", breaks = 30)
 
@@ -432,10 +432,10 @@ prevalence <- 0.01
 sensitivity <- 0.95
 specificity <- 0.90
 
-# P(positive) = P(pos|disease)*P(disease) + P(pos|no disease)*P(no disease)
+## P(positive) = P(pos|disease)*P(disease) + P(pos|no disease)*P(no disease)
 p_positive <- sensitivity * prevalence + (1 - specificity) * (1 - prevalence)
 
-# P(disease | positive) = P(pos|disease) * P(disease) / P(positive)
+## P(disease | positive) = P(pos|disease) * P(disease) / P(positive)
 p_disease_given_positive <- (sensitivity * prevalence) / p_positive
 p_disease_given_positive  # Only about 8.8%!
 Ecological example: Species detection
@@ -462,7 +462,7 @@ I claim a coin is fair
 You flip it 10 times, get 9 heads
 If the coin is fair, P(9 or 10 heads) = ?
 
-# Probability of 9 or 10 heads in 10 flips of fair coin
+## Probability of 9 or 10 heads in 10 flips of fair coin
 p_extreme <- pbinom(8, size = 10, prob = 0.5, lower.tail = FALSE)
 p_extreme  # About 1.1%
 

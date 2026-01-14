@@ -9,16 +9,7 @@ Almost all statistical analysis boils down to answering one of two questions:
 	
 These seem like simple questions — in theory you might just “look at the data” to answer the questions — so **why do we need statistics**?
 
-The short answer is: **error** and **sampling**.
-
-Whenever we collect data, we introduce **error**:
-
-– our instruments have limits
-– humans make mistakes
-– environmental conditions vary
-– biological systems are inherently noisy
-
-And we are always measuring a subset of the **true population**. Even when we try to measure every individual (e.g., rare plant censuses), some individuals may be dormant, hidden, or unreachable.
+The short answer is: **sampling**. We are always measuring a subset of the **true population**. Even when we try to measure every individual (e.g., rare plant censuses), some individuals may be dormant, hidden, or unreachable.
 
 If we were omniscient, we would simply compute the true population parameters (mean, variance, etc.), compare them directly, and skip statistics entirely. But in the real world, we estimate these values from samples and quantify the uncertainty around them.
 
@@ -38,10 +29,8 @@ If you collected data again under the same conditions, you’d get a different s
 The parameter does not vary — you vary because you sampled imperfectly.
 Uncertainty is therefore in the estimator, not the parameter.
 **4.	Probability statements describe long-run frequencies of repeated sampling**
-For example:
 
-A 95% confidence interval contains the true parameter in 95% of hypothetical repeated samples.
-It does not mean “there is a 95% chance the true mean is in this interval.”
+In other words, frequentist statistics asks: “If we repeated this experiment many times, how often would our method work?” A 95% confidence interval means that 95% of intervals generated this way would contain the true parameter. Once an interval is calculated, the true value is either inside it or not—there is no probability attached to that specific interval.
 
 **What does “parametric” mean?**
 
@@ -53,6 +42,17 @@ These assumptions influence:
 - what kinds of inferences we can make
 
 If you understand **distributions**, you understand **why models behave the way they do**.
+
+### Statistical error
+
+Whenever we collect data, we introduce **error**:
+
+– our instruments have limits
+– humans make mistakes
+– environmental conditions vary
+– biological systems are inherently noisy
+
+
 
 ## Bayesian statistics
 

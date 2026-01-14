@@ -1,5 +1,5 @@
 ---
-title: "Statistics for Ecology"
+title: "Applied Statistics for the Natural Sciences"
 author: "Dr. Sara Souther"
 site: bookdown::bookdown_site
 output_dir: "docs"
@@ -45,3 +45,9 @@ By the end of this course, you will be able to:
 - Visualize data effectively using plots and figures that aid interpretation and communicate key findings to scientific and non-scientific audiences.
 - Understand the assumptions behind common statistical methods and recognize when those assumptions are violated, along with strategies for addressing or adjusting for these issues.
 - Develop confidence and critical thinking in applying statistical tools to real-world ecological and social science data, with a focus on transparency, reproducibility, and responsible data use.
+
+## Using R in This Course
+
+In this course, we use R as a practical tool for ecological and social science data analysis. The focus is not on mathematical theory, but on learning how to choose appropriate statistical tests, check assumptions, visualize data, and interpret results clearly and responsibly. By working with real datasets in R, you will build confidence in reproducible, transparent analysis and develop the skills needed to tackle the kinds of statistical questions you will encounter in research and professional practice.
+
+To get started, we will go over a few R-best practices for organizing and running code in our first class lecture!
