@@ -51,3 +51,90 @@ By the end of this course, you will be able to:
 In this course, we use R as a practical tool for ecological and social science data analysis. The focus is not on mathematical theory, but on learning how to choose appropriate statistical tests, check assumptions, visualize data, and interpret results clearly and responsibly. By working with real datasets in R, you will build confidence in reproducible, transparent analysis and develop the skills needed to tackle the kinds of statistical questions you will encounter in research and professional practice.
 
 To get started, we will go over a few R-best practices for organizing and running code in our first class lecture!
+
+### What you need to use R
+
+You need two programs:
+
+- R (does the calculations)
+- RStudio (helps you write and organize code)
+
+Think of R as the engine, and RStudio as the dashboard.
+
+Install R:
+
+- Go to: https://www.r-project.org
+- Click Download R from CRAN
+- Choose any mirror (it truly does not matter)
+- Download the version for your operating system (Mac, Windows, or Linux)
+- Install using the default options
+
+Install RStudio:
+
+- Go to: https://posit.co/download/rstudio-desktop/
+- Download RStudio Desktop (Free)
+- Install using the default options
+- RStudio will automatically find R once both are installed
+
+When you open RStudio, you’ll see four panes:
+
+- Console is where R runs code
+- Source is where you write and save code
+- Environment shows what data you have loaded
+- Plots/Files/Help is where figures and help appear
+
+You can move the order in which these panes appear.
+
+### Create an R file
+
+**What is an R file?** An R file is a script or a plain text file that contains R code.
+R files allow you to write, save, and rerun analyses step by step, which is essential for reproducible science.
+
+Instead of typing commands one-by-one into the Console (where they disappear), an R file lets you:
+
+- Keep a permanent record of your work
+- Add comments explaining what you’re doing
+- Edit and rerun code easily
+- Share your analysis with others
+
+Think of an R file as your lab notebook, written in code.
+
+How to open (create) an R file in RStudio:
+
+1.	Open RStudio
+2.	Go to File → New File
+3.	Choose R Script
+
+A new tab will open with a blank file. This is a standard R script, usually saved with the extension .R. 
+
+Save it right away:
+
+- File → Save As
+- Give it a clear, descriptive name (e.g., data_exploration.R)
+
+**Hint**: Create a folder for this course (you could organize by subfolders for each chapter) and store all of your data and R files in this folder.
+
+### Using working directories and opening files
+
+RStudio allows you to open files and perform other actions using drop down menus. However, it is far more efficient to set working directories and import files using script within your R file. When you are asked to revisit work for a big project, using working directories allows you to jump right back into the project, because the pertinent data files are linked (this is super great when you have to do revisions, for instance). 
+
+### R Packages
+
+R comes with built-in functions, but most ecological work uses packages—collections of tools made by other scientists. Using libraries takes two steps. The first time you use a new package, you will install that package, and then load the package. You will need to load packages every time that you use R.
+
+### Other information about R code
+
+Anything after a # is ignored by R. It is good practice to use hashtags to add information to your code.
+
+Use comments to explain:
+
+- what the code does
+- why you wrote it
+- anything future-you will forget
+
+You will encounter issues with your R code. When you do this, your best friends are AI language models, like ChatGPT and Claude. Explain the error, providing the error code, and your code, and the AI assistant will help you. I cannot overstate how jealous I am of all young scientists - debugging used to take hours as you combed over the R documentation looking for hints as to why your code is breaking. 
+
+## Getting started
+
+Some of you may be R experts, but for those who are new or need a refresher, check out this nicely formatted R code and watch this video if you need help! 
+

@@ -26,10 +26,9 @@ The population mean, variance, slope, etc. are fixed constants — but we don’
 **2.	Your sample is one of many possible samples you could have taken**
 If you collected data again under the same conditions, you’d get a different sample and different estimates.
 **3.	Variation in your estimates comes from sampling error**
-The parameter does not vary — you vary because you sampled imperfectly.
+The parameter does not vary — it varies because you sampled imperfectly.
 Uncertainty is therefore in the estimator, not the parameter.
 **4.	Probability statements describe long-run frequencies of repeated sampling**
-
 In other words, frequentist statistics asks: “If we repeated this experiment many times, how often would our method work?” A 95% confidence interval means that 95% of intervals generated this way would contain the true parameter. Once an interval is calculated, the true value is either inside it or not—there is no probability attached to that specific interval.
 
 **What does “parametric” mean?**
@@ -40,19 +39,6 @@ These assumptions influence:
 - which model we choose
 - how we estimate uncertainty
 - what kinds of inferences we can make
-
-If you understand **distributions**, you understand **why models behave the way they do**.
-
-### Statistical error
-
-Whenever we collect data, we introduce **error**:
-
-– our instruments have limits
-– humans make mistakes
-– environmental conditions vary
-– biological systems are inherently noisy
-
-
 
 ## Bayesian statistics
 
@@ -79,6 +65,17 @@ This is often more interpretable than a traditional p-value.
 - You need robust propagation of uncertainty. Bayesian methods naturally propagate uncertainty across multiple model components, which is critical for forecasting, resilience modeling, and structured decision making.
 
 In short, Bayesian statistics shines when ecological questions involve complex models, low sample sizes, hierarchical structure, prior knowledge, or full uncertainty estimation.
+
+## Fundaments of frequentist statistics
+
+### Statistical error
+
+Whenever we collect data, we introduce **error**:
+
+– our instruments have limits
+– humans make mistakes
+– environmental conditions vary
+– biological systems are inherently noisy
 
 ## What is a model?
 

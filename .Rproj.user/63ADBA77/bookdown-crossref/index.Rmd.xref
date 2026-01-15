@@ -1,4 +1,10 @@
 h1:introduction Introduction
 h2:learning-objectives Learning Objectives
 h2:using-r-in-this-course Using R in This Course
+h3:what-you-need-to-use-r What you need to use R
+h3:create-an-r-file Create an R file
+h3:using-working-directories-and-opening-files Using working directories and opening files
+h3:r-packages R Packages
+h3:other-information-about-r-code Other information about R code
+h2:getting-started Getting started
 
