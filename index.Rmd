@@ -118,6 +118,8 @@ Save it right away:
 
 RStudio allows you to open files and perform other actions using drop down menus. However, it is far more efficient to set working directories and import files using script within your R file. When you are asked to revisit work for a big project, using working directories allows you to jump right back into the project, because the pertinent data files are linked (this is super great when you have to do revisions, for instance). 
 
+Datasets are created in **Excel** and saved as **.csv files** that are readable by R.
+
 ### R Packages
 
 R comes with built-in functions, but most ecological work uses packages—collections of tools made by other scientists. Using libraries takes two steps. The first time you use a new package, you will install that package, and then load the package. You will need to load packages every time that you use R.

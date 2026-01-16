@@ -13,7 +13,7 @@ The short answer is: **sampling**. We are always measuring a subset of the **tru
 
 If we were omniscient, we would simply compute the true population parameters (mean, variance, etc.), compare them directly, and skip statistics entirely. But in the real world, we estimate these values from samples and quantify the uncertainty around them.
 
-Statistics is practical: it asks, **what can we say given imperfect measurements, small samples, and noisy biological systems?**
+Statistics is practical: it asks, **what can we say given imperfect measurements, "small" samples (relative to the true population), and noisy biological systems?**
 
 ## The Frequentist Framework
 
@@ -33,8 +33,7 @@ In other words, frequentist statistics asks: “If we repeated this experiment m
 
 **What does “parametric” mean?**
 
-Parametric tests assume the data follow a particular **probability distribution** (e.g., normal, Poisson, binomial).
-These assumptions influence:
+Parametric tests assume the data follow a particular **probability distribution** (e.g., normal, Poisson, binomial). These assumptions influence:
 
 - which model we choose
 - how we estimate uncertainty
@@ -70,12 +69,85 @@ In short, Bayesian statistics shines when ecological questions involve complex m
 
 ### Statistical error
 
+Statistical error is the discrepancy between what we observe and the true value we seek to estimate. In statistics, error does not necessilarly mean a mistake—it refers to unavoidable variation introduced by sampling, measurement, and natural processes.
+
 Whenever we collect data, we introduce **error**:
 
 – our instruments have limits
 – humans make mistakes
 – environmental conditions vary
 – biological systems are inherently noisy
+
+Frequentist statistical approaches classify and handle error in different ways. 
+
+#### Sampling error 
+
+Sampling error (variation in estimates) arises because different random samples from the same population produce different estimates, even when the underlying population does not change.
+
+Imagine:
+
+- There is a true population mean (fixed but unknown).
+- You take a random sample and calculate the sample mean.
+- You repeat this process many times.
+
+What happens?
+
+Each sample produces a slightly different sample mean. That variability among sample means is sampling error.
+
+#### Process error 
+
+Process variability reflects true heterogeneity in the system itself:
+
+- Individuals differ
+- Environments differ
+- Years differ
+
+This variability exists even if you observed the entire population.
+
+Key characteristics:
+
+- Does not disappear with larger sample size
+- Reflects ecological mechanisms
+
+**Example**: Some trees grow faster than others because of microsite conditions. 
+
+We are sometimes about to reduce process error by accounting for and measuring variables that drive process error, but often we can't, because the driver of this error is unknown, too complext, or difficult to measure.
+
+#### Measurement error
+
+Measurement error arises anytime imperfect humans with imperfect instruments (the situation all the time) measure a sample and can include error introduced by:
+
+- Imprecise instruments
+- Observer differences
+
+#### Model misspecification
+
+Model misspecification occurs when the statistical model does not correctly represent the true data-generating process, arising from: 
+
+- Missing predictors: A relevant variable that influences the response is omitted from the model.
+**Ecological example**: Modeling plant growth without including soil moisture.
+- Wrong functional form (linear vs non-linear): The relationship between predictor and response is modeled incorrectly (e.g., linear when nonlinear).
+**Ecological example**: Assuming linear temperature effects when responses are unimodal.
+- Ignored interactions: The effect of one predictor depends on another, but this dependency is not modeled.
+**Ecological example**: Fire effects differing by precipitation regime.
+
+In theory, these are avoidable forms of error, but, particularly in the case of missing predictors, it is often extremely challenging to collect all the relevant predictors in a complex system. When planning an experiment, however, it is really important to think about the underlying processes in your system in order to capture the most important predictors of performance.
+
+#### Systematic error
+
+Systematic error refers to consistent, directional error that causes estimates to be biased in the same way across observations or samples. Unlike random error, systematic error does not average out with increased sample size.
+
+Examples include:
+
+- Biased sampling (e.g., sampling only accessible sites)
+- Consistent measurement bias (e.g., miscalibrated instruments; measuring all plants in the ambient treatment with a device is calibrated such at it adds .1 cm to each measure) 
+- Observer bias
+
+**Why it matters**: Systematic error leads to biased estimates and misleading conclusions, even when statistical uncertainty appears small.
+
+Because systematic error introduces bias, it should be minimized through design (mostly through randomization and careful consideration of experimental design) and modeling choices rather than absorbed into model error.
+
+Sampling error, and all unavoidable types of process error, measurement error, model misspecification, are specified in the error component of a statistical **model**.
 
 ## What is a model?
 
