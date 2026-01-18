@@ -41,9 +41,9 @@ Parametric tests assume the data follow a particular **probability distribution*
 
 ## Bayesian statistics
 
-The main alternative statistical framework to frequentist or parameteric statistics is *Bayesian* statistics. Bayesian statistics is based on Bayes’ Theorem, which provides a mathematical way to update our beliefs in light of new data. In this framework, we start with a prior distribution representing what we believe about a parameter before collecting data. We then combine this prior with the likelihood (the information contained in the data) to obtain a posterior distribution, which reflects our updated beliefs after seeing the evidence. This allows us to make intuitive probability statements about parameters—such as the probability that a parameter lies within a certain range—and provides a flexible foundation for modeling uncertainty, especially in hierarchical and ecological systems.
+The main alternative statistical framework to frequentist or parametric statistics is *Bayesian* statistics. Bayesian statistics is based on Bayes’ Theorem, which provides a mathematical way to update our beliefs in light of new data. In this framework, we start with a prior distribution representing what we believe about a parameter before collecting data. We then combine this prior with the likelihood (the information contained in the data) to obtain a posterior distribution, which reflects our updated beliefs after seeing the evidence. This allows us to make intuitive probability statements about parameters—such as the probability that a parameter lies within a certain range—and provides a flexible foundation for modeling uncertainty, especially in hierarchical and ecological systems.
 
-We (and most other ecologist) will learn frequentist methods first, because:
+We (and most other ecologists) will learn frequentist methods first, because:
 
 - Most classical ecological statistics (t-tests, ANOVA, GLMs) use the frequentist framework.
 - Frequentist thinking aligns with standard experimental design.
@@ -69,7 +69,7 @@ In short, Bayesian statistics shines when ecological questions involve complex m
 
 ### Statistical error
 
-Statistical error is the discrepancy between what we observe and the true value we seek to estimate. In statistics, error does not necessilarly mean a mistake—it refers to unavoidable variation introduced by sampling, measurement, and natural processes.
+Statistical error is the discrepancy between what we observe and the true value we seek to estimate. In statistics, error does not necessarily mean a mistake - it refers to unavoidable variation introduced by sampling, measurement, and natural processes.
 
 Whenever we collect data, we introduce **error**:
 
@@ -90,9 +90,7 @@ Imagine:
 - You take a random sample and calculate the sample mean.
 - You repeat this process many times.
 
-What happens?
-
-Each sample produces a slightly different sample mean. That variability among sample means is sampling error.
+What happens? Each sample produces a slightly different sample mean. That variability among sample means is sampling error.
 
 #### Process error 
 
@@ -111,7 +109,7 @@ Key characteristics:
 
 **Example**: Some trees grow faster than others because of microsite conditions. 
 
-We are sometimes about to reduce process error by accounting for and measuring variables that drive process error, but often we can't, because the driver of this error is unknown, too complext, or difficult to measure.
+We are sometimes able to reduce process error by accounting for and measuring variables that drive process error, but often we can't, because the driver of this error is unknown, too complex, or difficult to measure.
 
 #### Measurement error
 
@@ -131,7 +129,7 @@ Model misspecification occurs when the statistical model does not correctly repr
 - Ignored interactions: The effect of one predictor depends on another, but this dependency is not modeled.
 **Ecological example**: Fire effects differing by precipitation regime.
 
-In theory, these are avoidable forms of error, but, particularly in the case of missing predictors, it is often extremely challenging to collect all the relevant predictors in a complex system. When planning an experiment, however, it is really important to think about the underlying processes in your system in order to capture the most important predictors of performance.
+In theory, these are avoidable forms of error, but, particularly in the case of missing predictors, it is often extremely challenging to collect all the relevant predictors in a complex system. When planning an experiment, however, it is really important to think about the underlying processes in your system in order to capture the most important predictors of the variable that you are interested in.
 
 #### Systematic error
 
@@ -145,9 +143,9 @@ Examples include:
 
 **Why it matters**: Systematic error leads to biased estimates and misleading conclusions, even when statistical uncertainty appears small.
 
-Because systematic error introduces bias, it should be minimized through design (mostly through randomization and careful consideration of experimental design) and modeling choices rather than absorbed into model error.
+Because systematic error introduces bias, it should be minimized through design (mostly through randomization and careful consideration of experimental design) rather than absorbed into model error.
 
-Sampling error, and all unavoidable types of process error, measurement error, model misspecification, are specified in the error component of a statistical **model**.
+Sampling error, and all unavoidable types of error (process, measurement, model misspecification) are specified in the error component of a statistical **model**.
 
 ## What is a model?
 
@@ -157,10 +155,10 @@ Since we are taking a frequentist approach, models we will use in this course fo
 
 Response = Deterministic component + Random variation
 
-- The deterministic component represents the systematic pattern we want to explain (e.g., how plant height changes with grazing treatment or soil moisture).
-- The random variation represents the noise or uncertainty that remains after accounting for the predictors, and it follows one of the probability distributions we learned earlier.
+- The deterministic component represents the systematic pattern we want to explain. For example, if asking how plant height changes with grazing treatment, the deterministic component is the grazing treatment (and, of course, the response is plant height!).
+- The random variation component represents the noise or uncertainty that remains after accounting for the predictors, and it follows a **probability distribution** (We will talk about this in the next chapter). Recall that the other name for **frequentist statistics** is **parametric statistics**, which refers to the use of probability distributions.
 
-In later chapters, we will learn how to build these models and interpret what they tell us about ecological patterns and processes.
+In the next chapter, we will explore probability distributions — the mathematical tools that allow us to represent different types of error and uncertainty in ecological data.
 
 ## Test your knowledge!
 
