@@ -19,16 +19,16 @@ Statistics is practical: it asks, **what can we say given imperfect measurements
 
 The statistics we use most commonly in ecology — t-tests, ANOVA, linear models, GLMs, mixed models — are all built within the *frequentist* or *parametric* framework.
 
-**Frequentist statistics assumes:**
+**Frequentist statistics assumes**:
 
-**1.	There is a true but unknown parameter**
+- **There is a true but unknown parameter**
 The population mean, variance, slope, etc. are fixed constants — but we don’t know their values.
-**2.	Your sample is one of many possible samples you could have taken**
+- **Your sample is one of many possible samples you could have taken**
 If you collected data again under the same conditions, you’d get a different sample and different estimates.
-**3.	Variation in your estimates comes from sampling error**
+- **Variation in your estimates comes from sampling error**
 The parameter does not vary — it varies because you sampled imperfectly.
 Uncertainty is therefore in the estimator, not the parameter.
-**4.	Probability statements describe long-run frequencies of repeated sampling**
+- **Probability statements describe long-run frequencies of repeated sampling**
 In other words, frequentist statistics asks: “If we repeated this experiment many times, how often would our method work?” A 95% confidence interval means that 95% of intervals generated this way would contain the true parameter. Once an interval is calculated, the true value is either inside it or not—there is no probability attached to that specific interval.
 
 **What does “parametric” mean?**
@@ -71,7 +71,7 @@ In short, Bayesian statistics shines when ecological questions involve complex m
 
 Statistical error is the discrepancy between what we observe and the true value we seek to estimate. In statistics, error does not necessarily mean a mistake - it refers to unavoidable variation introduced by sampling, measurement, and natural processes.
 
-Whenever we collect data, we introduce **error**:
+Whenever we collect data, we introduce error, because:
 
 – our instruments have limits
 – humans make mistakes
@@ -159,54 +159,6 @@ Response = Deterministic component + Random variation
 - The random variation component represents the noise or uncertainty that remains after accounting for the predictors, and it follows a **probability distribution** (We will talk about this in the next chapter). Recall that the other name for **frequentist statistics** is **parametric statistics**, which refers to the use of probability distributions.
 
 In the next chapter, we will explore probability distributions — the mathematical tools that allow us to represent different types of error and uncertainty in ecological data.
-
-## Test your knowledge!
-
-Answer the following questions:
-
-**Part 1 — Why We Use Statistics**
-
-1.	In your own words, why do we need statistics in ecology?
-Name at least two sources of variation or uncertainty that make statistics necessary.
-
-2.	Explain the difference between a population and a sample.
-Why do we rarely observe entire populations in ecological studies?
-
-3.	What are the two main questions most statistical analyses attempt to answer?
-
-**Part 2 — Frequentist Thinking**
-
-4.	Fill in the blank:
-In the frequentist framework, parameters (such as the true mean height of a plant population) are considered _______ but _______.
-5.	What does a 95% confidence interval mean in frequentist statistics?
-Choose the correct statement:
-
-a) There is a 95% probability that the true mean lies in this specific interval.
-b) If we repeated our sampling many times, 95% of the intervals we calculate would contain the true mean.
-c) The data contain 95% of the true values.
-  
-6.	In frequentist statistics, uncertainty comes from:
-
-a) The parameter being uncertain
-b) Variation in the estimator due to sampling
-c) The prior distribution
-(circle all that apply)
-
-**Part 3 — Short Model Concept**
-
-7.	Fill in the blanks:
-
-A statistical model can be written as:
-Response = ______ + ______
-
-8.	In this expression, what does the “deterministic component” represent?
-
-9.	What does the “random variation” represent?
-
-**Reflection Question**
-
-10.	Write 2–3 sentences about one concept from this chapter that felt intuitive and one that felt confusing.
-What would help clarify the confusing part?
 
 ## Assignment
 

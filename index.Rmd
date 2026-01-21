@@ -138,5 +138,8 @@ You will encounter issues with your R code. When you do this, your best friends 
 
 ## Getting started
 
-Some of you may be R experts, but for those who are new or need a refresher, check out this nicely formatted R code and watch this video if you need help! 
+Some of you may be R experts, but for those who are new or need a refresher, check out this R code and import the associated csv file.
+[Formatted R script](https://drive.google.com/uc?export=download&id=1gyvW90wo6O77TZFYDcivpAwEzK0Lzvzd)
+[csv file to import](https://drive.google.com/uc?export=download&id=1jxVjCc3FV7ny-J7gEZ7w3uY9EY1-AW91)
+If you need a refresher on working directories and libraries, follow [this link](https://www.youtube.com/watch?v=3qB-88A68bM).
 

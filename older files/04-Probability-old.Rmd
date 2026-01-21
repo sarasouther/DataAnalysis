@@ -1,10 +1,13 @@
 # Randomness and probability
 
-Randomness is statistically a simple concept with incredible repercussions for understanding natural systems, human decisions, and, well, life! One of the most interesting panels that I attended as a graduate student was a debate between scientific and religious philosophers over the meaning of randomness. There were a range of viewpoints; the theologian believed that randomness was where the divine could work; at the other extreme, the science philosopher believed that there is no such thing as random, only that we haven't developed the capacity to measure what we perceive as random, and that everything we experience is a deterministic outcome of physics manifest in the world around us.
+Across philosophy, physics, ecology, and statistics, “randomness” does not mean the same thing. Sometimes it reflects true unpredictability, sometimes incomplete knowledge, and sometimes the limits of measurement. Statistics does not try to resolve why variation exists. Instead, it provides a practical framework for making inference in the presence of uncertainty, regardless of its source.
+One of the most interesting panels that I attended as a graduate student was a debate between scientific and religious philosophers over the meaning of randomness. There were a range of viewpoints; the theologian believed that randomness was where the divine could work; at the other extreme, the science philosopher believed that there is no such thing as random, only that we haven't developed the capacity to measure what we perceive as random, and that everything we experience is a deterministic outcome of physics manifest in the world around us.
 
-As I write this lesson, I'm sitting on the couch with my younger child watching Jurassic Park. Ian Malcolm has just introduced himself as a 'chaotician' (he he). Chaos theory is one way to explain what appears to us as 'randomness', because small initial differences in conditions of complex systems leads to extremely different end states, even when the same deterministic rules apply to that system. The 'butterfly effect' (a butterfly flaps its wings in Asia causes a tornado in Texas) is often used to describe this core concept of chaos (the example originally created by Edward Norton Lorenz used a seagull instead of a butterfly). Chaos theory is incorporated into modeling simulations (particularly in population biology).
+As I write this, I'm sitting on the couch with my youngest child watching Jurassic Park. Ian Malcolm has just introduced himself as a 'chaotician' (he he). Chaos theory is one way to explain what appears to us as 'randomness', because small initial differences in conditions of complex systems leads to extremely different end states, even when the same deterministic rules apply to that system. The 'butterfly effect' (a butterfly flaps its wings in Asia causes a tornado in Texas) is often used to describe this core concept of chaos (the example originally created by Edward Norton Lorenz used a seagull instead of a butterfly). 
 
-In statistics, we have specific definition of randomness: The case when each item in a set has an equal probably of being selected. Statistics also acknowledges unexplained variation in nature, but doesn't distinguish between true randomness or the inability to perfectly measure all variables explaining an observed phenomenon. Instead, all unpredictability is lumped together. The difference between the true value of an estimate (e.g., mean hieght of giraffes, slope describing the relationship between snail shell length and speed) and the observed estimate is called 'error'. We use statistical models to parse 'error' (unexplained variation in the response variable) from treatment effects (variation in the response variable explained by the explanatory variables). [Add info on random effects here or introduce later?]
+In statistics, we have specific definition of randomness: The case when each item in a set has an equal probably of being selected. Statistics also acknowledges unexplained variation in nature, but doesn't distinguish between true randomness or the inability to perfectly measure all variables explaining an observed phenomenon. Instead, all unpredictability is lumped together. The difference between the true value of an estimate (e.g., mean hieght of giraffes, slope describing the relationship between snail shell length and speed) and the observed estimate is called 'error'. We use statistical models to parse 'error' (unexplained variation in the response variable) from treatment effects (variation in the response variable explained by the explanatory variables). 
+
+In statistics, all unexplained variation — whether caused by chaos, hidden variables, biological complexity, or imperfect measurement — is grouped into a single term: error.
 
 Statistical error can arise for several reasons: random variation inherent to natural systems, mistakes during measurement or data collection, inaccuracy of measuring devices, omitted variables. As long as this error isn't 'systematic', we accept that it is there, complete statistical analysis and move-on. However, **systematic error**, whenever you are directionally biasing your sample, or biasing your sampling in the same way, is something to be avoided when designing your experiment and collecting data. An example of a systematic measure would be if you are trying to estimate the mean weight of blue morpho butterflies in southern Brazil, and you never zero your balance. The true mean weight is lower than the mean weight that you calculate.
 
@@ -94,9 +97,11 @@ Union of events: What is the likelihood of both events *A* and *B* (this can be 
 
 ![Venn diagram indicating a union of events or an 'or' statement.](figures/Probability/Union.png)
 **Example calculating probability of union event**:
+
 What is the likelihood of rolling an odd number (Event A) on a 6-side fair die OR that is less than 4 (Event B)? 
 Event A = 1, 3, 5
 Event B = 1, 2, 3
+
 ```{r}
 #The sample space is all possible rolls
 samplespace <- c(1, 2, 3, 4, 5, 6); samplespace
@@ -233,11 +238,10 @@ Summary:
 
 ## Practice problems
 
-Suggested Expanded Outline
 Randomness and Probability
 Introduction: Randomness in Nature and Statistics
 
-Philosophical perspectives on randomness (keep your nice intro!)
+Philosophical perspectives on randomness
 Chaos theory and the butterfly effect
 Statistical definition of randomness
 Why probability matters for inference

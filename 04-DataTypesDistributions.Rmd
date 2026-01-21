@@ -21,7 +21,41 @@ These are variables that can occur in any quantity. If you can have a fraction o
 
 ## Linking Data Types to Distributions
 
-In statistics, a distribution describes how likely different values are to occur. We choose a distribution, because different types of ecological data arise from different underlying processes.
+In statistics, a distribution describes how likely different values are to occur. We choose a distribution, because different types of ecological data arise from different underlying processes. Statistical models require assumptions about how error behaves. Commonly, we assume that errors are symmetrically distributed around zero, with most small deviations and fewer large ones. This assumption allows us to separate systematic patterns (treatment effects) from random noise. Imagine throwing darts at a bullseye. Each throw lands slightly off center, but the pattern of misses forms a cloud. The center of the cloud estimates the true target, while the spread of the cloud represents error. Statistics analyzes the shape of that cloud.
+
+## Residuals: observed − predicted
+
+Once we fit a statistical model, we are no longer comparing observations to an unknown “true” value. Instead, we compare each observation to the value predicted by the model. The difference between an observed value and its predicted value is called a residual.
+
+\text{Residual} = \text{Observed value} - \text{Predicted value}
+
+Residuals represent the portion of variation that the model does not explain. In other words, they are our best estimate of the remaining error after accounting for the explanatory variables included in the model. If a model captures the major patterns in the data, residuals should be small and centered around zero.
+
+## Why we care about the shape of residuals
+
+Residuals are not just leftovers — they carry critical information about whether a model is appropriate. Statistical inference relies on assumptions about how residuals behave. If those assumptions are violated, our estimates of uncertainty, confidence intervals, and p-values may be misleading.
+
+When we examine residuals, we are asking questions like:
+	•	Are residuals centered around zero?
+	•	Are positive and negative residuals roughly balanced?
+	•	Does the variability of residuals change across values of the predictors?
+
+Patterns in residuals can indicate problems such as missing predictors, nonlinear relationships, or unequal variance. Residual diagnostics are therefore a key part of responsible statistical analysis, not an optional afterthought.
+
+## Normal vs non-normal error
+
+Many statistical models assume that residuals follow a normal (Gaussian) distribution, meaning most residuals are small and extreme deviations are rare. This assumption often works well for continuous traits such as height, biomass, or growth rates.
+
+However, not all data behave this way. Counts, proportions, presence–absence data, and bounded variables frequently produce non-normal error distributions. For example:
+	•	Count data often follow Poisson or negative binomial distributions
+	•	Proportion data are bounded between 0 and 1
+	•	Binary outcomes follow binomial distributions
+
+Using a model that assumes normal error for non-normal data can lead to biased estimates and incorrect inference.
+
+## How different models assume different error structures
+
+Different statistical models are designed to handle different types of error. The key distinction among models is not the mathematical form of the equation, but the assumed distribution of the residuals.
 
 Here, is a reference table of common statistical distribution and the associated statistical test:
 
@@ -179,49 +213,6 @@ hist(uniform_vals, breaks = 20, col = "gray",
 - Those distributions determine which statistical models we use.
 - You don’t need to memorize distributions — you just need to recognize the data type.
 - Everything in this course builds on this foundation.
-
-## Test your knowledge!
-
-Answer the following questions:
-
-**Data Types and Distributions**
-
-1.	Identify the data type (categorical, continuous, discrete, ordinal) for each of the following variables:
-
-a) Number of acorns produced by a tree
-b) Grazing treatment (ungrazed, low, high)
-c) Plant height in centimeters
-d) Likert scale: “Strongly disagree” → “Strongly agree”
-
-2.	Match each variable to its likely statistical distribution (Normal, Poisson, Binomial, Negative Binomial, Beta, Ordinal logistic):
-
-a) Presence/absence of a species at a site
-b) Number of insects caught in a pitfall trap
-c) Proportion of ground covered by bare soil
-d) Flower count with many zeros
-e) Seedling height
-f) Seedling health score (poor, fair, good, excellent)
-
-3.	Which distribution assumes mean = variance?
-What does it mean if the variance is much larger than the mean?
-
-**Understanding Distributions**
-
-4.	Briefly describe why the Normal distribution is common in biological systems.
-(Hint: many small factors…)
-
-5.	What ecological process might produce Poisson-distributed data?
-Give a real example.
-
-6.	What is the key characteristic of the Binomial distribution?
-Why is it appropriate for germination data?
-
-7.	Under what ecological conditions might you expect a Negative Binomial distribution instead of a Poisson?
-
-**Reflection Question**
-
-8.	Write 2–3 sentences about one concept from this chapter that felt intuitive and one that felt confusing.
-What would help clarify the confusing part?
 
 ## Assignment
 

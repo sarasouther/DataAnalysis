@@ -8,8 +8,8 @@ language:
 rmd_files:
   - index.Rmd
   - 02-IntroductionToStatisticalThinking.Rmd
-  - 03-DataTypesDistributions.Rmd
-  - 04-Probability.Rmd
+  - 03-Probability.Rmd
+  - 04-DataTypesDistributions.Rmd
   - 05-DataExploration.Rmd
   - 06-EcologicalSampling.Rmd
   - 07-PowerAnalysis.Rmd
