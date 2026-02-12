@@ -1,0 +1,289 @@
+# Data Types and Why They Matter
+
+In the previous chapter, we built a binomial distribution by simulating seed germination 10,000 times. That distribution described the range of outcomes we would expect for a binary process (germinate or not) with a known probability. But the binomial is just one distribution for one kind of data. If we had been counting the number of seedlings per plot instead of asking whether each seed germinated, we would need a different distribution. If we had been measuring seedling height, we would need yet another.
+
+This is the core idea of this chapter: **the type of data you collect determines the probability distribution, which determines the statistical model you should use.**
+
+$$\text{Data type} \rightarrow \text{Distribution} \rightarrow \text{Model choice}$$
+
+This connection is not optional---it is the reason why different ecological questions require different statistical approaches. A t-test assumes one kind of error structure; a Poisson regression assumes another. Choosing the wrong model for your data type doesn't just give you a less precise answer---it can give you the wrong answer entirely.
+
+Before we learn any specific test, we need to understand the raw material we are working with.
+
+
+## Types of variables {#vartypes}
+
+Ecological data come in several forms, and recognizing which form your data take is the first step toward choosing an appropriate analysis.
+
+### Categorical variables
+
+Categorical variables classify observations into groups or categories. The values are labels, not numbers, and arithmetic operations on them are meaningless.
+
+**Examples:** habitat type (forest, grassland, wetland), species identity (ponderosa pine, Douglas fir, white fir), treatment group (control, fertilized, burned), presence or absence of a species.
+
+Categorical variables with only two levels---such as present/absent, alive/dead, or germinated/not---are called **binary** variables. These are among the most common response variables in ecology, and they connect directly to the binomial distribution you built in Chapter 3.
+
+### Numerical variables
+
+Numerical variables represent measured quantities and come in two forms:
+
+**Discrete (counts):** These are whole numbers representing how many of something you observed. Counts cannot be negative, and fractions don't make sense. If you are counting the number of insects in a pitfall trap, the number of flowers on a plant, or the number of seedlings in a quadrat, you are working with discrete data. Counts often follow Poisson or negative binomial distributions.
+
+**Continuous:** These are measurements that can take any value within a range, including fractions and decimals. Height, biomass, temperature, growth rate, and leaf area are all continuous variables. Continuous data often follow a normal (Gaussian) distribution, though not always---biomass, for instance, is always positive and often right-skewed.
+
+### Ordinal variables
+
+Ordinal variables have a meaningful order, but the distance between categories is not necessarily equal. A Likert scale response of "strongly disagree, disagree, neutral, agree, strongly agree" is ordinal: the categories have a clear ranking, but the difference between "agree" and "strongly agree" is not necessarily the same as between "disagree" and "neutral."
+
+**Examples:** damage severity ratings (none, light, moderate, severe), Braun-Blanquet cover classes, stream condition indices.
+
+Ordinal data require specialized methods (such as cumulative link models) because treating them as either purely categorical or purely numerical can lead to incorrect conclusions.
+
+
+## From data to residuals {#residuals}
+
+Once you know your data type, the next question is: how do we evaluate whether a statistical model is doing a good job? The answer involves **residuals**.
+
+### What is a residual?
+
+When we fit a statistical model, the model generates a predicted value for each observation. The **residual** is the difference between what we actually observed and what the model predicted:
+
+$$\text{Residual} = \text{Observed value} - \text{Predicted value}$$
+
+Residuals represent the variation that the model does not explain. If a model captures the major patterns in the data, residuals should be small and centered around zero.
+
+Think of it like throwing darts at a bullseye. Each throw lands slightly off center, but the pattern of misses forms a cloud around the target. The center of the cloud estimates the true target, while the spread of the cloud represents error. A good model puts the bullseye in the right place; residuals describe the scatter around it.
+
+### Why the shape of residuals matters
+
+Residuals are not just leftovers---they carry critical information about whether a model is appropriate. Statistical inference relies on assumptions about how residuals behave. If those assumptions are violated, our estimates of uncertainty, confidence intervals, and p-values may be misleading.
+
+When we examine residuals, we ask:
+
+- Are they centered around zero?
+- Are positive and negative residuals roughly balanced?
+- Does the variability of residuals stay consistent across the range of predicted values?
+- Do they follow the distribution we assumed?
+
+Patterns in residuals---such as systematic curvature, increasing spread, or heavy tails---signal that something about the model is wrong. Maybe a predictor is missing, maybe the relationship is nonlinear, or maybe the assumed error distribution doesn't match the data. Residual diagnostics are a key part of responsible statistical analysis, not an optional afterthought. We will practice these diagnostics extensively when we begin fitting models.
+
+
+## Normal vs. non-normal error {#errorstructure}
+
+Many statistical models assume that residuals follow a **normal (Gaussian) distribution**: most residuals are small, extreme deviations are rare, and the distribution is symmetric around zero. This assumption often works well for continuous traits like height, biomass, or growth rates, where many small, independent factors add together to produce the observed value.
+
+However, not all data behave this way. The sample space matters---and this is where Chapter 3's lessons become directly relevant:
+
+- **Count data** (0, 1, 2, 3, ...) cannot be negative and are often right-skewed, especially when the average count is small. They typically follow Poisson or negative binomial distributions.
+- **Binary data** (0 or 1) can only take two values. Normal error makes no sense here; we use the binomial distribution instead.
+- **Proportion data** are bounded between 0 and 1. Normal distributions can predict values outside these bounds, which is meaningless.
+
+Using a model that assumes normal error for non-normal data can produce biased estimates and incorrect inferences. Recognizing your data type---and choosing a model with the appropriate error structure---is one of the most consequential decisions you will make in any analysis.
+
+
+## Linking data types to distributions and models {#distribution-table}
+
+The table below is a reference that connects data types to the distributions and models commonly used in ecology. **You do not need to memorize this table.** Bookmark it. We will return to it repeatedly throughout the course, and each time we encounter a new analysis, I will point you back to the relevant row.
+
+For now, the goal is to see the pattern: different data types lead to different distributions, which lead to different models. Every row in this table represents a deliberate choice that a researcher must make based on the structure of their data.
+
+```{r distribution-table, echo=FALSE}
+dist_table <- data.frame(
+  `Data Type` = c(
+    "Continuous",
+    "Continuous (positive, skewed)",
+    "Continuous (bounded 0\u20131)",
+    "Counts (integers \u2265 0)",
+    "Counts with overdispersion",
+    "Counts with many zeros",
+    "Binary outcomes (0/1)",
+    "Proportions from counts",
+    "Categorical (unordered)",
+    "Ordinal (ordered categories)",
+    "Time-to-event",
+    "Nonlinear continuous"
+  ),
+  Distribution = c(
+    "Normal (Gaussian)",
+    "Gamma",
+    "Beta",
+    "Poisson",
+    "Negative Binomial",
+    "Zero-inflated Poisson / NB",
+    "Binomial (Bernoulli)",
+    "Binomial",
+    "Multinomial",
+    "Ordinal logistic",
+    "Exponential / Weibull",
+    "Non-normal, unknown"
+  ),
+  Link = c(
+    "Identity",
+    "Log",
+    "Logit / log\u2013log",
+    "Log",
+    "Log",
+    "Log",
+    "Logit / probit",
+    "Logit",
+    "Logit",
+    "Logit / probit",
+    "Log",
+    "Identity or specialized"
+  ),
+  `Ecological Example` = c(
+    "Do burned plots have taller seedlings?",
+    "Does fertilizer increase biomass (always > 0)?",
+    "What proportion of cover is bare soil?",
+    "Does precipitation affect pitfall-trapped insects?",
+    "Does nutrient addition affect flower counts (variance > mean)?",
+    "Do invasive grasses produce many zero seedling counts?",
+    "Does shade increase seedling survival probability?",
+    "What proportion of seeds germinate per treatment?",
+    "Do grazing treatments shift vegetation type frequencies?",
+    "Does grazing intensity affect seedling vigor ranks?",
+    "How long do seedlings survive under drought?",
+    "Is the relationship between age and growth curved?"
+  ),
+  `Typical Models` = c(
+    "t-test, ANOVA, linear regression, LMM",
+    "Gamma GLM, Gamma GLMM",
+    "Beta regression, Beta GLMM",
+    "Poisson GLM, Poisson GLMM",
+    "Negative Binomial GLM, NB GLMM",
+    "ZIP / ZINB, hurdle models",
+    "Logistic regression, Binomial GLM/GLMM",
+    "Binomial GLM, logistic regression",
+    "Multinomial logistic, Chi-square",
+    "Proportional odds (CLM/CLMM)",
+    "Survival analysis, Cox regression",
+    "GAM, GAMM"
+  ),
+  check.names = FALSE
+)
+
+if (requireNamespace("kableExtra", quietly = TRUE)) {
+  knitr::kable(dist_table,
+               caption = "Reference: Data types, distributions, and models commonly used in ecology. Bookmark this table\u2014we will return to it throughout the course.",
+               format = "html") |>
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                              full_width = TRUE, font_size = 13)
+} else {
+  knitr::kable(dist_table,
+               caption = "Reference: Data types, distributions, and models commonly used in ecology. Bookmark this table\u2014we will return to it throughout the course.")
+}
+```
+
+
+## Common statistical distributions {#distributions}
+
+Now let's look at some of the distributions from the table above. For each one, we will simulate data in R so you can see the shape of the distribution and build intuition for what each one represents.
+
+### The normal distribution
+
+The normal distribution is the classic bell curve. It arises from the **Central Limit Theorem**: when many small, independent factors add together---genetics, microclimate, measurement error, nutrient availability---their combined effect tends to be normally distributed. This is why so many continuous biological measurements are approximately normal.
+
+**Ecological examples:** seedling height, tree diameter (DBH), leaf nitrogen content, body mass, daily temperature.
+
+```{r normal-dist, fig.cap="The normal distribution is symmetric and bell-shaped. Most values cluster near the mean, with fewer observations in the tails."}
+set.seed(1)
+heights <- rnorm(1000, mean = 10, sd = 2)
+hist(heights, breaks = 20, col = "lightblue", border = "steelblue",
+     main = "Simulated Normal Distribution",
+     xlab = "Height (cm)", ylab = "Frequency")
+abline(v = 10, lty = 2, lwd = 2, col = "firebrick")
+```
+
+The normal distribution is defined by two parameters: the mean (center) and the standard deviation (spread). Many common statistical tests---t-tests, ANOVA, linear regression---assume that residuals follow this distribution.
+
+### The binomial distribution
+
+You already built this distribution in Chapter 3 when you simulated seed germination. The binomial distribution arises when there are two possible outcomes (success or failure), each trial has the same probability of success, and you repeat the trial a fixed number of times.
+
+**Ecological examples:** seed germination (germinated / not), survival (alive / dead), flowering (reproductive / not), species presence or absence at survey points.
+
+```{r binomial-dist, fig.cap="The binomial distribution describes the number of successes in a fixed number of trials. Here, we simulate germination of 10 seeds with a 60% probability of success."}
+set.seed(1)
+germination <- rbinom(1000, size = 10, prob = 0.6)
+hist(germination, breaks = seq(-0.5, 10.5, by = 1), col = "lightgreen", border = "darkgreen",
+     main = "Simulated Binomial Distribution",
+     xlab = "Number of seeds germinated (out of 10)", ylab = "Frequency")
+abline(v = 10 * 0.6, lty = 2, lwd = 2, col = "firebrick")
+```
+
+The binomial distribution is defined by two parameters: the number of trials ($n$) and the probability of success ($p$). The expected value is $n \times p$. When you use logistic regression to model binary outcomes, you are estimating $p$ as a function of predictor variables.
+
+### The Poisson distribution
+
+The Poisson distribution describes counts of events that happen independently, with a constant average rate, over a fixed period of time or area of space. It often appears in ecology because many biological events behave like random arrivals.
+
+**Ecological examples:** number of flowers per plant, number of birds detected per point count, number of insects in a pitfall trap, seedling recruitment counts per quadrat.
+
+```{r poisson-dist, fig.cap="The Poisson distribution describes the number of events occurring in a fixed interval. It is right-skewed when the mean is small and becomes more symmetric as the mean increases."}
+set.seed(1)
+flower_counts <- rpois(1000, lambda = 4)
+hist(flower_counts, breaks = seq(-0.5, max(flower_counts) + 0.5, by = 1),
+     col = "salmon", border = "brown",
+     main = "Simulated Poisson Distribution",
+     xlab = "Number of flowers", ylab = "Frequency")
+abline(v = 4, lty = 2, lwd = 2, col = "firebrick")
+```
+
+A key property of the Poisson distribution is that the mean equals the variance. When this assumption is violated---specifically, when the variance is much larger than the mean---the data are **overdispersed**, and the Poisson model is no longer appropriate.
+
+### The negative binomial distribution
+
+When count data are more variable than the Poisson allows, we say they are overdispersed. Overdispersion frequently arises in ecology because individuals vary in productivity, organisms are spatially clustered, or environmental conditions change across the study area. The negative binomial distribution adds an extra parameter that allows the variance to exceed the mean.
+
+**Ecological examples:** insect counts in patchy habitat, seed production with high individual variation, flower counts with many zeros and a few very high values.
+
+```{r negbin-dist, fig.cap="The negative binomial distribution accommodates overdispersion\u2014more variability than the Poisson allows. Notice the longer right tail compared to the Poisson."}
+set.seed(1)
+nb_counts <- rnbinom(1000, size = 2, mu = 4)
+hist(nb_counts, breaks = seq(-0.5, max(nb_counts) + 0.5, by = 1),
+     col = "tan", border = "sienna",
+     main = "Simulated Negative Binomial Distribution",
+     xlab = "Count", ylab = "Frequency")
+abline(v = 4, lty = 2, lwd = 2, col = "firebrick")
+```
+
+Compare this histogram to the Poisson above: both have a mean of 4, but the negative binomial has a much longer right tail. If you fit a Poisson model to overdispersed data, your standard errors will be too small, your p-values too optimistic, and your confidence intervals too narrow. Recognizing overdispersion---and switching to a negative binomial---is a practical skill you will use often.
+
+### The uniform distribution
+
+The uniform distribution assigns equal probability to all values within a range. It is relatively rare as a model for ecological data, but it plays an important role behind the scenes.
+
+**Uses in ecology and statistics:** simulating randomness, generating null models (as we did in Chapter 3's permutation test), creating starting conditions for stochastic population models, and serving as a "non-informative" prior in Bayesian analysis.
+
+```{r uniform-dist, fig.cap="The uniform distribution assigns equal probability to all values. It is useful for simulation and null models, but rarely describes ecological data directly."}
+set.seed(1)
+uniform_vals <- runif(1000, min = 0, max = 1)
+hist(uniform_vals, breaks = 20, col = "gray80", border = "gray50",
+     main = "Simulated Uniform Distribution",
+     xlab = "Value", ylab = "Frequency")
+```
+
+## Summary {#datatypes-summary}
+
+The type of data you collect determines everything that follows in a statistical analysis:
+
+- **Categorical**, **numerical** (discrete and continuous), and **ordinal** variables each require different treatment. Recognizing what kind of data you have is the first step toward choosing an appropriate model.
+
+- **Residuals** are the portion of variation that a model does not explain. Their shape tells you whether your model is appropriate. Residual diagnostics are an essential part of every analysis.
+
+- **Different data types produce different error structures.** Continuous data often produce normally distributed residuals; counts produce Poisson or negative binomial error; binary data produce binomial error. Using the wrong error structure gives wrong answers.
+
+- The **reference table** in this chapter maps data types to distributions and models. You do not need to memorize it now---we will refer to it throughout the course as we encounter new analyses.
+
+- **Everything in this course builds on the chain:** data type $\rightarrow$ distribution $\rightarrow$ model choice. Understanding this chain is more important than memorizing any single test.
+
+
+## Assignment {#datatypes-assignment}
+
+Make a list of the response variables you plan to measure for your research project. For each variable, identify:
+
+1. The **data type** (categorical, discrete count, continuous, ordinal, binary).
+2. The **most appropriate error distribution** (normal, binomial, Poisson, negative binomial, etc.).
+3. A brief explanation (**1--2 sentences**) of *why* you chose that distribution. What features of your data led you to this choice?
+
+*Hint: Refer to the reference table in this chapter. If you are unsure about a variable, describe what the data look like (e.g., "always positive, right-skewed, many zeros") and reason from there.*

@@ -1,432 +1,434 @@
-# Randomness and probability
+# Probability: The Language of Uncertainty
 
-Across philosophy, physics, ecology, and statistics, “randomness” does not mean the same thing. Sometimes it reflects true unpredictability, sometimes incomplete knowledge, and sometimes the limits of measurement. One of the most interesting panels that I attended as a graduate student was a debate between scientific and religious philosophers over the meaning of randomness. There were a range of viewpoints; the theologian believed that randomness was where the divine could work; at the other extreme, the science philosopher believed that there is no such thing as random, only that we haven’t developed the capacity to measure what we perceive as random, and that everything we experience is a deterministic outcome of physics manifest in the world around us. Statistics does not try to resolve why variation exists.
+## Watch the video
 
-In statistics, randomness has a specific and practical meaning: it refers to situations in which outcomes cannot be predicted with certainty, but where each possible outcome has a known probability of occurring. Importantly, statistics does not distinguish between “true” randomness and unpredictability arising from incomplete information or measurement limitations. Instead, all sources of uncertainty are treated in the same way.
+[Watch the chapter video](https://youtu.be/iKJmOoJGVMQ)
 
-The difference between the true value of a quantity (such as the mean height of giraffes or the strength of a relationship between snail shell length and movement speed) and the value we observe from a sample is called error. Error is not a mistake; it is the inevitable result of sampling and measurement in complex, variable systems. Statistical models are designed to separate systematic patterns in the data (such as treatment effects or relationships between variables) from this background uncertainty.
+Across philosophy, physics, ecology, and statistics, "randomness" does not mean the same thing. Sometimes it reflects true unpredictability, sometimes incomplete knowledge, and sometimes the limits of measurement. One of the most interesting panels that I attended as a graduate student was a debate between scientific and religious philosophers over the meaning of randomness. There were a range of viewpoints; the theologian believed that randomness was where the divine could work; at the other extreme, the science philosopher believed that there is no such thing as random, only that we haven't developed the capacity to measure what we perceive as random, and that everything we experience is a deterministic outcome of physics manifest in the world around us.
 
-Because error is unavoidable, statistics replaces certainty with probability. When conducting a statistical analysis, we use probability to evaluate how likely it is that an observed difference between groups, or an apparent relationship between variables, could arise by chance alone. Probabilities range from 0 to 1, where 0 indicates that an event cannot occur and 1 indicates certainty. Statistical inference is therefore not about proving that an effect is “real,” but about assessing how plausible the observed data are under a specified set of assumptions.
+Statistics does not try to resolve why variation exists. In statistics, randomness has a specific and practical meaning: it refers to situations in which outcomes cannot be predicted with certainty, but where each possible outcome has a known probability of occurring. Importantly, statistics does not distinguish between "true" randomness and unpredictability arising from incomplete information or measurement limitations. Instead, all sources of uncertainty are treated the same way.
 
-Because probability plays such a central role in statistical reasoning, we will begin by reviewing some basic probability concepts. We will also use probability to:
+But probability is not just an abstract statistical concept---it shapes how science communicates with the rest of the world, and misinterpreting it has real consequences.
 
-- Quantify uncertainty in observations (calculate the probability that a seed will germinate)
-- Calculate p-values
-- Model ecological processes (determine conditional probability of seed production, given flowering during population modeling)
-- Support simulation and prediction (Population Viability Analysis)
-- Update our expectations about a hypothesis after observing data, ff we decide to apply Bayesian statistics
+## Probability is everywhere, and we often get it wrong
 
-To keep ideas concrete, we will rely heavily on familiar examples such as coins and dice. Flipping a fair coin or rolling a die are classic random processes with known probabilities, and they provide a simple way to explore how predictability and uncertainty coexist in statistical thinking.
+Consider these statements:
 
-## Defining the sample space
+- *"It is extremely likely (95--100% probability) that human activities caused more than half of the observed increase in global mean surface temperature from 1951 to 2010."* --- IPCC Fifth Assessment Report
 
-What outcomes are even possible?
+- *"There is a 30% chance of rain tomorrow."*
 
-The first step in any probability calculation is to define the sample space: the complete set of all possible outcomes of an experiment, observation, or process. If the sample space is defined incorrectly, any probability calculation that follows will also be incorrect.
+- *"The probability of local extinction of this population within 50 years is 0.40."*
 
-In simple cases, the sample space is obvious. For example, when flipping a fair coin once, the sample space consists of two outcomes: heads or tails. When rolling a six-sided die, the sample space includes the integers 1 through 6. In ecological applications, defining the sample space often requires more thought. For instance, the possible outcomes might include the presence or absence of a species, the number of individuals observed in a plot, or whether a plant survives from one year to the next.
+Each of these communicates uncertainty using probability, and each is routinely misunderstood. The IPCC statement does not mean that scientists are 95% sure climate change is happening---it means that in 95--100% of the analyses, human influence exceeded natural variability. A 30% chance of rain does not mean 30% of the area gets wet, or that it will rain for 30% of the day---it means that under similar atmospheric conditions, about 30% of days produce measurable rainfall. An extinction probability of 0.40 does not mean the population *will* go extinct or *won't*---it means that if we ran the future 1,000 times under the same conditions, roughly 400 of those futures would result in extinction.
 
-Defining the sample space forces us to be explicit about what could happen, not just what did happen. This clarity is essential for translating real-world ecological questions into statistical ones.
+Getting probability right matters. Policy decisions about endangered species, climate adaptation, and public health all depend on whether decision-makers correctly interpret probabilistic statements. And as scientists, producing and interpreting those statements correctly is a core part of our job.
 
-**Ecological example**: You survey a set of plots to determine whether a focal plant species is present. For each plot, the outcome is either present or absent. The sample space therefore consists of two possible outcomes. Importantly, the sample space does not include abundance, biomass, or flowering status unless those outcomes are explicitly part of the question.
+## From uncertainty to inference
 
-Defining the sample space forces clarity about the ecological process being studied. Asking whether a species is present is fundamentally different from asking how many individuals occur, and each question leads to different probability calculations and statistical models.
+The difference between the true value of a quantity (such as the mean height of giraffes or the strength of a relationship between snail shell length and movement speed) and the value we observe from a sample is called **error**. Error is not a mistake; it is the inevitable result of sampling and measurement in complex, variable systems. Statistical models are designed to separate systematic patterns in the data (such as treatment effects or relationships between variables) from this background uncertainty.
 
-## Probability as long-run frequency
+Because error is unavoidable, statistics replaces certainty with probability. When conducting a statistical analysis, we use probability to evaluate how likely it is that an observed pattern could arise by chance alone. This single idea---**comparing what we observed to what chance alone would produce**---is the engine that drives almost all of statistical inference. It is what connects this chapter to every analysis you will do in this course.
 
-What happens if we repeat the process many times?
+To make that connection, we need to understand a few core probability concepts. We will develop them primarily through ecological examples, using coins and dice only briefly as familiar scaffolding when a new idea needs a simple illustration.
 
-In statistics, probability is commonly interpreted as a long-run frequency. That is, the probability of an event represents the proportion of times that event would occur if the same process were repeated many times under identical conditions.
 
-For example, the probability of flipping heads with a fair coin is 0.5 because, over many flips, about half of the outcomes will be heads. Importantly, this does not mean that exactly half of the flips must be heads in a small number of trials. Short-term outcomes may appear uneven or “lucky,” but long-term patterns stabilize.
+## Defining the sample space {#samplespace}
 
-This idea underlies statistical inference. When we analyze data, we are asking how likely our observed results would be if the underlying process were repeated many times. Statistics does not rely on a single outcome, but on the behavior of outcomes across repeated sampling.
+The first step in any probability calculation is to define the **sample space**: the complete set of all possible outcomes of an experiment, observation, or process. If the sample space is defined incorrectly, any probability calculation that follows will also be incorrect.
 
-To make this concrete, we'll use two familiar random processes—coin flips and die rolls—and *simulate* many repeated trials in R. The goal is to see how probabilities stabilize as the number of trials increases.
+In simple cases, the sample space is obvious. Flip a fair coin: the sample space is {heads, tails}. Roll a die: the sample space is {1, 2, 3, 4, 5, 6}. In ecological applications, defining the sample space requires more thought---and the question you ask determines the answer.
 
-### Example 1: How often do we get **two heads in three flips**?
+**Ecological example:** You survey a set of plots to determine whether a focal plant species is present. For each plot, the outcome is either *present* or *absent*. The sample space consists of two possible outcomes. Importantly, the sample space does not include abundance, biomass, or flowering status---unless those outcomes are explicitly part of your question.
 
-To calculate the probability of getting two head in three coin flips, we:
+Now suppose instead you are counting individuals in each plot. The sample space changes: it becomes {0, 1, 2, 3, ...}, in principle extending to infinity. This is a fundamentally different question, and it will lead to different probability calculations and different statistical models. Presence/absence data and count data look different, behave differently, and require different analytical tools---and that distinction starts here, with the sample space.
 
-- Define the sample space, S, by listing all possible outcomes of the 'experiment' or 'trial' you are conducting.
-- Assign probabilities to all sample points, Pi, such that the probability of all events within the experiment tally to 1.
-- Sum all sample points that constitute the outcome you are interested in to find the probability of that outcome.
+Defining the sample space forces you to be precise about what you are studying. Asking "Is the species present?" is not the same as asking "How many individuals are there?", which is not the same as asking "What proportion of plots are occupied?" Each question defines a different sample space, and each leads to a different statistical framework.
 
-The first step is to define the sample space for this experiment, by showing all possible outcomes of tossing a coin 3 times (see sample space table below). 
 
-```{r}
-library(readr)
+## Probability as long-run frequency {#longrun}
 
-url <- "https://drive.google.com/uc?export=download&id=1KDvCzj9-YzN1zDHdLutcpruYx5mpcEWH"
-example1 <- read_csv(url)
+In statistics, probability is commonly interpreted as a **long-run frequency**: the proportion of times an event would occur if the same process were repeated many times under identical conditions.
 
-knitr::kable(example1, caption="Sample Space", full_width = F, html_font = "Arial")
+Suppose you estimate seed germination by planting 100 seeds from the same species under identical greenhouse conditions. Even though the conditions are controlled, not all seeds germinate. If 30 out of 100 seeds germinate, we estimate the probability of germination as 0.30. But what does this number mean?
+
+It means that if you repeated this experiment many, many times---planting 100 seeds each time under the same conditions---the proportion of seeds that germinate would converge toward 0.30. In any *single* trial, the result might be 25, or 33, or 28. But as the number of trials increases, the average settles down.
+
+This idea---that estimates stabilize with more data---is one of the most important intuitions in statistics. Let's see it in action.
+
+### Simulation: watching probability stabilize
+
+To build intuition, let's use a simple example first: flipping a fair coin. We know the theoretical probability of heads is 0.5. But in small samples, the observed proportion can look nothing like 0.5.
+
+```{r coin-convergence, fig.cap="As the number of coin flips increases, the observed proportion of heads converges toward the true probability of 0.5. With few flips, estimates are noisy; with many flips, they stabilize."}
+set.seed(226)
+
+# Flip a coin many times and track the running proportion of heads
+n_flips <- 2000
+flips <- sample(c("H", "T"), size = n_flips, replace = TRUE)
+running_proportion <- cumsum(flips == "H") / (1:n_flips)
+
+plot(1:n_flips, running_proportion,
+     type = "l", col = "steelblue", lwd = 1.5,
+     xlab = "Number of flips",
+     ylab = "Proportion of heads",
+     main = "Probability stabilizes with more observations",
+     ylim = c(0, 1))
+abline(h = 0.5, lty = 2, col = "firebrick")
+text(n_flips * 0.8, 0.54, "True probability = 0.5", col = "firebrick", cex = 0.9)
 ```
 
-Since this is a fair or balanced coin, all of the outcomes are equally likely, so we assign them a probability of 1/8. Then, we can simply sum the runs that meet our criterion of 2 heads (HHT, HTH, THH): 1/8 + 1/8 + 1/8 = 0.375.
+Notice the pattern: early on, the observed proportion swings wildly. With only 10 flips, you might see 70% heads or 30% heads, and neither would be surprising. But as the number of flips grows, the line settles toward 0.5. This is the **law of large numbers** in action, and it is the reason that larger samples give more reliable estimates.
 
-The equation of an event occurring (A) is: $P(A) =\frac{n_a}{N}$ where P(A) is the probability of event A equals the number of points constituting event A ($n_a$) divided by the total number of sample points (N). Applying this equation to the above example, P(A) = $\frac{3}{8} = 0.375$
+This same logic applies directly to ecological sampling. If the true probability of seed germination is 0.30, then planting 10 seeds gives a noisy estimate (you might see 1 or 5 germinate), while planting 500 seeds gives a much more stable one. This is not just a theoretical nicety---it is the practical reason that sample size matters in every ecological study.
 
-Now let's simulate this experiment many times and see what happens.
+### What long-run frequency means for your research
 
-```{r}
-set.seed(226)  # for reproducibility
+In real ecological studies, we rarely get to repeat the exact same experiment thousands of times. But we still rely on long-run frequency reasoning. When we say "the survival probability of juveniles is 0.65," we mean: if we could observe the survival process for this species many times under these conditions, about 65% of juveniles would survive. Our observed data are one realization of this process, and probability describes the behavior we expect across many such realizations.
 
-# Simulate a single experiment: 3 flips
-one_trial_two_heads <- function() {
-  flips <- sample(c("H","T"), size = 3, replace = TRUE)
-  sum(flips == "H") == 2
+This interpretation connects directly to ecological rates like survival, recruitment, germination, and flowering probability---all of which are estimated from repeated observations rather than single outcomes.
+
+
+## Conditional probability and dependence {#conditional}
+
+Many ecological processes are not isolated events. Whether a plant flowers depends on whether it survived the winter. Whether you detect a species depends on whether it is actually present. Whether a seed germinates may depend on whether it experienced a fire. These are all cases where the probability of one event depends on another.
+
+### How knowing one thing changes what we expect
+
+**Conditional probability** describes situations in which the probability of one event depends on whether another event has occurred. It is written as $P(A \mid B)$, read as "the probability of A given B," and is calculated as:
+
+$$P(A \mid B) = \frac{P(A \cap B)}{P(B)}$$
+
+where $P(A \cap B)$ is the probability that both events occur simultaneously.
+
+The formula looks abstract, so let's work through an ecological example.
+
+**Example: flowering probability in a perennial plant**
+
+Consider a perennial plant population that you have monitored for two years. In year one, you tagged 200 individuals. By spring of year two, you recorded whether each plant (a) survived the winter and (b) flowered. Here are the results:
+
+```{r plant-data}
+# Simulated monitoring data
+set.seed(42)
+n_plants <- 200
+survived <- sample(c(TRUE, FALSE), n_plants, replace = TRUE, prob = c(0.7, 0.3))
+flowered <- ifelse(survived,
+                   sample(c(TRUE, FALSE), sum(survived), replace = TRUE, prob = c(0.4, 0.6)),
+                   FALSE)
+
+plant_data <- data.frame(
+  survived = survived,
+  flowered = flowered
+)
+
+# Summarize the data
+cat("Total plants tagged:", n_plants, "\n")
+cat("Survived winter:", sum(survived), "\n")
+cat("Flowered:", sum(flowered), "\n")
+cat("Died and flowered:", sum(!survived & flowered), "(should be 0)\n")
+```
+
+Now let's calculate two different probabilities:
+
+```{r conditional-example}
+# P(flowered): probability of flowering across ALL tagged plants
+p_flower <- mean(plant_data$flowered)
+cat("P(flowered) =", round(p_flower, 3), "\n")
+
+# P(flowered | survived): probability of flowering GIVEN survival
+p_flower_given_survived <- mean(plant_data$flowered[plant_data$survived])
+cat("P(flowered | survived) =", round(p_flower_given_survived, 3), "\n")
+```
+
+These are different numbers, and the difference matters. $P(\text{flowered})$ treats all 200 plants the same---including the ones that died, which had zero chance of flowering. $P(\text{flowered} \mid \text{survived})$ restricts attention to the plants that were actually "eligible" to flower. The conditional probability is higher because knowing that a plant survived *changes the sample space* we are considering.
+
+This distinction is not just mathematical bookkeeping. In population ecology, the probability of reproduction is almost always conditional on survival. If you estimate $P(\text{flowered})$ without accounting for survival, you will underestimate the reproductive capacity of surviving plants. Stage-structured population models, life tables, and matrix projection models all depend on conditional probabilities like these.
+
+### Independence: when knowing one thing changes nothing
+
+Two events are **independent** if the occurrence of one does not affect the probability of the other. Mathematically, events A and B are independent if:
+
+$$P(A \mid B) = P(A)$$
+
+In other words, learning that B happened tells you nothing new about the probability of A.
+
+**When independence is reasonable:** The survival of two plants growing far apart in similar habitat may be approximately independent. Whether it rains in Tucson today is independent of whether a coin lands heads.
+
+**When independence is unreasonable:** The survival of the same plant across consecutive years is almost certainly *not* independent---a plant that survived year one is likely healthier, larger, or in a better microsite, all of which increase its probability of surviving year two.
+
+For independent events, the probability of both occurring is the product of their individual probabilities:
+
+$$P(A \cap B) = P(A) \times P(B)$$
+
+This is the **multiplication rule for independent events**. It only works when the events truly are independent.
+
+```{r independence-example}
+# Two independent events: flipping two separate coins
+p_heads_coin1 <- 0.5
+p_heads_coin2 <- 0.5
+p_both_heads <- p_heads_coin1 * p_heads_coin2
+cat("P(heads on both coins) =", p_both_heads, "\n")
+
+# Two dependent events: survival across years
+p_survive_yr1 <- 0.70
+p_survive_yr2_given_yr1 <- 0.85  # higher because survivors are healthier
+p_survive_both <- p_survive_yr1 * p_survive_yr2_given_yr1
+cat("P(survive both years) =", p_survive_both, "\n")
+
+# Compare: if we INCORRECTLY assumed independence
+p_survive_yr2_marginal <- 0.70  # ignoring dependence
+p_survive_both_wrong <- p_survive_yr1 * p_survive_yr2_marginal
+cat("P(survive both years), assuming independence =", p_survive_both_wrong, "\n")
+cat("Error from assuming independence:",
+    round(p_survive_both - p_survive_both_wrong, 3), "\n")
+```
+
+Assuming independence when events are dependent leads to incorrect conclusions. In this example, ignoring the dependence between years underestimates two-year survival. This is why statistical analyses often account for repeated measures, spatial structure, or shared environments---these are all forms of dependence that violate the independence assumption.
+
+**Why this matters for your statistics:** Many statistical tests assume that observations are independent. Violating this assumption---for example, by treating repeated measurements on the same individual as independent data points---is one of the most common mistakes in ecological statistics. Recognizing when events are dependent is not just a probability concept; it is a practical skill that will affect every analysis you run.
+
+
+## From probability to statistical thinking {#nullmodels}
+
+So far, we have built a vocabulary: sample spaces, long-run frequency, conditional probability, independence. These concepts matter, but they serve a larger purpose: they are the building blocks of statistical inference. This section shows how they come together.
+
+The key question in most statistical analyses is deceptively simple: **Could the pattern I observed have arisen by chance alone?** Answering that question requires three things: (1) a model of what "chance alone" looks like, (2) a way to describe the range of outcomes that chance could produce, and (3) a way to measure how surprising our actual observation is. Probability provides all three.
+
+### Probability distributions: the full picture of uncertainty
+
+In the previous sections, we talked about the probability of single events: the probability of germination, the probability of survival. But in practice, we usually care about the *distribution* of outcomes---not just whether a single seed germinates, but how many out of 50 germinate.
+
+**A probability distribution describes all possible outcomes and how likely each one is.** It is a complete picture of uncertainty for a given process.
+
+Let's build one from scratch. Suppose the probability of seed germination for a particular species is 0.30. You plant 50 seeds. How many do you expect to germinate?
+
+The intuitive answer is $50 \times 0.30 = 15$. But you won't always get exactly 15. Sometimes you'll get 12, sometimes 18, occasionally 8 or 22. The question is: what is the *full range* of plausible outcomes, and how likely is each one?
+
+We can answer this with simulation:
+
+```{r build-distribution, fig.cap="If the true germination probability is 0.30 and we plant 50 seeds, this is the distribution of outcomes we would expect across many repetitions. The dashed line marks the expected value of 15."}
+set.seed(226)
+
+# Simulate planting 50 seeds, 10000 times
+n_seeds <- 50
+p_germ <- 0.30
+n_reps <- 10000
+
+germination_counts <- rbinom(n_reps, size = n_seeds, prob = p_germ)
+
+hist(germination_counts,
+     breaks = seq(-0.5, max(germination_counts) + 0.5, by = 1),
+     col = "lightgreen", border = "darkgreen",
+     xlab = "Number of seeds germinated (out of 50)",
+     ylab = "Frequency",
+     main = "Distribution of germination outcomes\n(p = 0.30, n = 50 seeds)")
+abline(v = n_seeds * p_germ, lty = 2, lwd = 2, col = "firebrick")
+text(n_seeds * p_germ + 3, n_reps * 0.12, "Expected: 15", col = "firebrick", cex = 0.9)
+```
+
+This histogram is a **binomial distribution**: it describes the number of "successes" (germinations) in a fixed number of independent trials (seeds), each with the same probability of success. You just built it by simulation; R has a built-in function that does the same thing analytically:
+
+```{r binomial-analytic}
+# Compare simulation to the theoretical binomial distribution
+theoretical_probs <- dbinom(0:n_seeds, size = n_seeds, prob = p_germ)
+
+# Most likely outcomes
+likely_range <- which(theoretical_probs > 0.01) - 1  # subtract 1 because index starts at 1
+cat("Outcomes with >1% probability:", paste(range(likely_range), collapse = " to "), "\n")
+cat("Expected value:", n_seeds * p_germ, "\n")
+cat("Standard deviation:", round(sqrt(n_seeds * p_germ * (1 - p_germ)), 2), "\n")
+```
+
+The binomial distribution is just one probability distribution. Different kinds of ecological data call for different distributions---counts of individuals in quadrats often follow a Poisson distribution, continuous measurements like body mass often follow a normal distribution. We will meet these in later chapters. For now, the important idea is that **a probability distribution gives us a way to describe what "normal variation" looks like for a given process.** And that is exactly what we need to build a null model.
+
+
+### Null models: what does chance alone look like? {#nullmodel}
+
+Here is the central move in statistical thinking: once you can describe what chance alone would produce, you can ask whether your data look like they came from that process or whether something more interesting is going on.
+
+A **null model** is a probability model that represents the hypothesis of "no effect" or "nothing interesting happening." It defines what we would expect to see if, for example, a treatment had no impact, two groups were identical, or a pattern were generated by chance.
+
+**Ecological example:** You are testing whether a restoration treatment increases seed germination. You set up an experiment with two groups:
+
+- **Treatment:** 50 seeds planted in restored soil
+- **Control:** 50 seeds planted in unrestored soil
+
+You observe that 22 out of 50 seeds germinate in the treatment group and 13 out of 50 in the control group. The difference in germination rates is $22/50 - 13/50 = 0.44 - 0.26 = 0.18$. That seems like a meaningful difference. But could it have happened by chance, even if the treatment did nothing?
+
+To answer this, we need a null model. The null hypothesis is: *the treatment has no effect on germination.* Under this hypothesis, the 35 seeds that germinated would have germinated regardless of which group they were in. The group labels are meaningless.
+
+This gives us a strategy: **shuffle the labels and see what happens.**
+
+### A permutation test: building a null distribution {#permtest}
+
+A **permutation test** (also called a randomization test) works by:
+
+1. Combining all observations into a single pool (ignoring group labels).
+2. Randomly reassigning observations to groups.
+3. Calculating the difference between groups for each random assignment.
+4. Repeating many times to build a **null distribution**---the distribution of differences we would see if group membership were random.
+
+```{r permutation-setup}
+# Our observed data
+treatment <- c(rep(1, 22), rep(0, 28))  # 22 germinated out of 50
+control   <- c(rep(1, 13), rep(0, 37))  # 13 germinated out of 50
+
+# Combine into one dataset
+germinated <- c(treatment, control)
+group <- c(rep("treatment", 50), rep("control", 50))
+
+# Observed difference in germination rates
+obs_diff <- mean(germinated[group == "treatment"]) - mean(germinated[group == "control"])
+cat("Observed difference in germination rate:", obs_diff, "\n")
+```
+
+Now we build the null distribution by shuffling group labels:
+
+```{r permutation-test, fig.cap="The null distribution shows the range of differences in germination rate we would expect if the treatment had no effect. The red dashed line marks our observed difference. Values as extreme or more extreme than our observation are rare under the null model, suggesting the treatment had a real effect."}
+set.seed(226)
+
+n_perms <- 10000
+perm_diffs <- numeric(n_perms)
+
+for (i in 1:n_perms) {
+  shuffled_group <- sample(group)  # randomly reassign labels
+  perm_diffs[i] <- mean(germinated[shuffled_group == "treatment"]) -
+                   mean(germinated[shuffled_group == "control"])
 }
 
-# Repeat the experiment many times
-n_trials <- 10000
-results <- replicate(n_trials, one_trial_two_heads())
-
-# Estimated probability from simulation
-p_hat <- mean(results)
-p_hat
+# Plot the null distribution
+hist(perm_diffs,
+     breaks = 40,
+     col = "grey80", border = "grey50",
+     xlab = "Difference in germination rate (treatment - control)",
+     ylab = "Frequency",
+     main = "Null distribution: what chance alone produces")
+abline(v = obs_diff, col = "firebrick", lwd = 2, lty = 2)
+abline(v = -obs_diff, col = "firebrick", lwd = 2, lty = 2)
+text(obs_diff + 0.02, n_perms * 0.06, "Observed\ndifference",
+     col = "firebrick", cex = 0.85, adj = 0)
 ```
 
-Compare the simulated estimate to the theoretical value:
+Most of the null distribution is clustered near zero---which makes sense, because if the treatment does nothing, the difference between groups should be small. Our observed difference of `r obs_diff` sits out in the tail of the distribution.
 
-```{r}
-p_theory <- 3/8
-c(simulated = p_hat, theoretical = p_theory)
+### The p-value: measuring surprise {#pvalue}
+
+The **p-value** is simply the proportion of the null distribution that is as extreme as, or more extreme than, what we actually observed. It answers the question: *if the treatment truly had no effect, how often would chance alone produce a difference this large?*
+
+```{r pvalue-calculation}
+# Two-sided p-value: proportion of permutations with |difference| >= |observed|
+p_value <- mean(abs(perm_diffs) >= abs(obs_diff))
+cat("p-value:", p_value, "\n")
 ```
 
-### Example 2: How does the estimate change with sample size?
+A small p-value means our observation would be unusual if nothing were going on. That's it. It does not *prove* the treatment works. It does not measure the *size* of the effect. It does not tell us whether the result is ecologically important. It quantifies **surprise under a specific assumption**---the assumption that the null model is true.
 
-If probability is a long-run frequency, then estimates should stabilize as we increase the number of trials.
+Let's put all three pieces together:
 
-```{r}
-set.seed(226)
-
-trial_sizes <- c(10, 50, 100, 500, 1000, 5000, 10000)
-
-p_estimates <- sapply(trial_sizes, function(n) {
-  mean(replicate(n, one_trial_two_heads()))
-})
-
-data.frame(
-  n_trials = trial_sizes,
-  estimated_probability = p_estimates,
-  theoretical_probability = p_theory
+```{r summary-table}
+summary_df <- data.frame(
+  Concept = c("Null model",
+              "Null distribution",
+              "p-value"),
+  Definition = c("A probability model representing 'no effect'",
+                  "The distribution of outcomes under the null model",
+                  "The probability of observing a result as extreme as ours, if the null model were true"),
+  In_our_example = c("Treatment has no effect on germination",
+                      "Histogram of differences from 10,000 random shuffles",
+                      paste0(p_value, " of shuffled differences were as extreme as ours"))
 )
+
+knitr::kable(summary_df, col.names = c("Concept", "What it means", "In our example"),
+             caption = "The three components of a statistical test")
 ```
 
-Visualize the stabilization.
-```{r}
-plot(trial_sizes, p_estimates, log = "x",
-     xlab = "Number of trials (log scale)",
-     ylab = "Estimated probability",
-     main = "Long-run frequency: simulation converges toward the true probability")
-abline(h = p_theory, lty = 2)
-```
-### Example 3: Die rolls and long-run frequency
+This logic---build a null model, generate a null distribution, ask where your data fall---is the foundation of hypothesis testing. Every statistical test you encounter in this course, from t-tests to regression to ANOVA, follows this same structure. The tests differ in the specific null model they use and how they calculate the null distribution, but the reasoning is always the same.
 
-Question: What is the probability of rolling a 6 on a fair six-sided die?
 
-![Dice rolls](figures/Probability/dice.png)
+## Where probability appears in ecology and statistics {#roadmap}
 
-Because listing every possible outcome becomes impractical as sample spaces grow larger, we often rely on simple counting rules instead. One such rule is the mn rule, which allows us to calculate the size of a sample space without enumerating every outcome. The mn rule states that if one process has m possible outcomes and a second, independent process has n possible outcomes, then the combined process has m × n possible outcomes. For example, rolling two six-sided dice produces 6 \times 6 = 36 possible outcomes.
+The concepts from this chapter are not an isolated topic. They are the foundation for virtually everything that follows in this course and in quantitative ecology more broadly. Here is a brief roadmap of where these ideas reappear:
 
-Once the sample space has been defined, calculating probability is straightforward. A fair six-sided die has six possible outcomes: 1, 2, 3, 4, 5, and 6. Because the die is fair, each outcome is equally likely. This means each outcome has a probability of 1/6.
+**Hypothesis testing** formalizes the null model logic we developed in the previous section. Every test you will learn---t-tests, ANOVA, chi-square tests, regression significance tests---asks the same question: how surprising is my result under a null model? The tests differ in what null model they assume and how they compute the null distribution, but the reasoning is identical.
 
-The event we are interested in—rolling a 6—corresponds to one outcome within the sample space of six possible outcomes. Therefore, the probability of rolling a 6 is the number of favorable outcomes divided by the total number of possible outcomes:
+**Regression and linear models** estimate relationships between variables, and every coefficient in a regression model has a probability distribution. Testing whether a coefficient "differs from zero" is a direct application of null model thinking: we ask how likely the observed coefficient would be if the true relationship were zero.
 
-Theoretical probability:
+**Population modeling and Population Viability Analysis (PVA)** rely on probability at every level. Survival probabilities, reproduction probabilities, and transition probabilities between life stages are all estimated from data and used to project population dynamics into the future. These models are often stochastic, meaning they incorporate randomness to generate distributions of possible outcomes (like the extinction probability example from the beginning of this chapter). Stage-structured population models use conditional probabilities across time steps---these are **Markov chains**, where the probability of being in a particular state next year depends on your current state, exactly as flowering probability depended on survival in our earlier example.
 
-[
-P(6) = \frac{1}{6} \approx 0.1667
-]
+**Bayesian inference** takes the conditional probability formula from this chapter and flips it. Instead of asking $P(\text{data} \mid \text{hypothesis})$---which is what a p-value gives us---Bayesian methods ask $P(\text{hypothesis} \mid \text{data})$. This "flip" is Bayes' theorem, and it is nothing more than the conditional probability formula applied in a new direction. If you choose to use Bayesian methods later, the concepts from this chapter are exactly what you need.
 
-This illustrates the general rule for equally likely outcomes: once the size of the sample space is known, the probability of an event is simply the fraction of outcomes that satisfy the condition of interest.
+**Occupancy models** separate two processes that are often conflated: whether a species is truly present at a site, and whether you detected it during your survey. The probability of detection given presence, $P(\text{detected} \mid \text{present})$, is a conditional probability. Occupancy models use this to estimate the true occurrence rate from imperfect survey data.
 
-Now simulate repeated rolls:
-```{r}
-set.seed(226)
+You do not need to understand all of these yet. The point is that probability is not a standalone topic---it is the language that connects everything we will do this semester.
 
-roll_die <- function() sample(1:6, size = 1)
 
-n_rolls <- 10000
-rolls <- replicate(n_rolls, roll_die())
+## Summary {#probsummary}
 
-p_hat_6 <- mean(rolls == 6)
-c(simulated = p_hat_6, theoretical = 1/6)
-```
-```{r}
-set.seed(226)
+Randomness and variability are unavoidable features of natural systems. In statistics, we do not attempt to explain why variation exists; instead, we develop tools to reason about uncertainty in the presence of that variation.
 
-roll_sizes <- c(10, 50, 100, 500, 1000, 5000, 10000)
+The difference between a true population value and what we observe in a sample is called error. Error is not a mistake---it is an inherent consequence of sampling complex systems. Probability provides the language for reasoning about error and uncertainty.
 
-p6_estimates <- sapply(roll_sizes, function(n) {
-  rolls <- sample(1:6, size = n, replace = TRUE)
-  mean(rolls == 6)
-})
+**Key concepts from this chapter:**
 
-data.frame(
-  n_rolls = roll_sizes,
-  estimated_probability = p6_estimates,
-  theoretical_probability = 1/6
-)
-```
+- The **sample space** defines all possible outcomes. Being explicit about what outcomes are possible---and what question you are asking---is essential for translating ecological questions into statistical ones.
 
-In real ecological studies, we rarely get to repeat the exact same experiment thousands of times. But we do rely on the same logic: probability describes what we would expect across repeated sampling, and larger samples generally give more stable estimates.
+- **Probability as long-run frequency** means that a probability represents the proportion of times an event would occur across many repetitions. Larger samples give more stable estimates.
 
-**Ecological example**: Suppose you estimate seed germination by planting seeds from the same species under identical greenhouse conditions. Even though the conditions are controlled, not all seeds germinate. If 30 out of 100 seeds germinate, we estimate the probability of germination as 0.30. This value represents the proportion of seeds that would be expected to germinate if the experiment were repeated many times.
+- **Conditional probability** formalizes how probabilities change when additional information is available. Many ecological processes are conditional: reproduction depends on survival, detection depends on presence, and future states depend on current ones.
 
-This interpretation of probability connects directly to ecological rates such as survival, recruitment, and flowering probability, all of which are estimated from repeated observations rather than single outcomes.
+- **Independence** means that knowing one event tells you nothing about another. Assuming independence when events are dependent---such as repeated measurements on the same individual---is a common source of error in statistical analyses.
 
-## AND, OR, and NOT logic
+- A **probability distribution** describes the full range of possible outcomes and their likelihoods. It is the basis for building null models.
 
-How do events relate?
+- A **null model** represents the hypothesis that nothing interesting is happening. The **null distribution** shows the range of outcomes we would expect under that hypothesis.
 
-Probability often involves relationships between events. These relationships are described using logical operators that may already be familiar from computer coding and database searches:
+- The **p-value** is the proportion of the null distribution as extreme as or more extreme than our observed result. It quantifies surprise under a specific assumption---not the probability that the hypothesis is true.
 
-- AND refers to situations where two conditions must both be true.
-- OR refers to situations where at least one of two conditions is true.
-- NOT refers to the exclusion of an outcome.
+These concepts form the foundation for hypothesis testing, regression models, population modeling, and Bayesian inference, all of which will be developed in later chapters.
 
-Understanding these relationships is essential for correctly calculating probabilities and for interpreting statistical questions. For example, asking whether a species occurs in forest plots AND at high elevation is a different question than asking whether it occurs in forest plots OR at high elevation. These logical distinctions directly affect probability calculations and statistical conclusions.
+**Key takeaway:** Probability does not remove uncertainty from ecological science---it allows us to work with it transparently and rigorously.
 
-This logic also underlies data filtering, model specification, and hypothesis formulation in ecological analyses.
 
-**Ecological example**: You are studying plant occurrence across a landscape and want to know where a species is found. Event A is that a plot is located in forest habitat. Event B is that the plot occurs above 2,000 meters elevation:
+## Assignment: Probability thinking in your research system {#probassignment}
 
-- Using AND identifies plots that are both forested and high elevation.
-- Using OR identifies plots that are forested or high elevation (including those that satisfy both).
-- Using NOT excludes plots that meet a given condition, such as non-forest sites.
+**Goal:** Apply core probability concepts from this chapter to your own research system, without requiring advanced mathematics.
 
-These logical distinctions are essential when defining ecological hypotheses, filtering data, and interpreting model results.
+**Instructions:** Answer the following questions using your thesis system (or a proposed research project if you are early-stage). Short answers are sufficient (1--3 sentences per question unless otherwise noted).
 
-### Example: Union of events (OR)
+### Part 1: Defining the sample space
 
-In probability theory, the logical relationships AND, OR, and NOT correspond to specific mathematical operations on sets of outcomes. Using this formal language allows us to move from qualitative statements (“this AND that”) to quantitative probability calculations.
+1. Identify one ecological outcome you measure or plan to measure (e.g., survival, presence/absence, flowering, infection).
 
-The union of two events describes the situation in which either event occurs. It is written as A \cup B and includes all sample points that belong to event A or event B (or both).
+2. Explicitly define the sample space for this outcome.
+   - What outcomes are possible?
+   - What outcomes are *not* included?
 
-In plain language, a union represents an OR statement.
+### Part 2: Probability as long-run frequency
 
-![Venn diagram indicating a union of events or an 'or' statement.](figures/Probability/Union.png)
-What is the likelihood of rolling an odd number (Event A) on a 6-side fair die OR that is less than 4 (Event B)? 
+3. If you repeated your study many times under the same conditions, what does the probability of your chosen outcome represent?
 
-Let event A be rolling an odd number on a six-sided die (1, 3, 5).
-Let event B be rolling a number less than 4 (1, 2, 3).
+4. What would increasing your sample size change about your probability estimate?
 
-The union A \cup B includes all outcomes that are odd or less than 4:
-1, 2, 3, and 5.
+### Part 3: Conditional probability
 
-Event A = 1, 3, 5
-Event B = 1, 2, 3
+5. Identify one outcome in your system that depends on another condition (e.g., reproduction depends on survival, detection depends on presence, germination depends on fire).
 
-```{r}
-#The sample space is all possible rolls
-samplespace <- c(1, 2, 3, 4, 5, 6); samplespace
-#We will use Boolean operators in R. They will return TRUE / FALSE statements.
-#Below we tell R to look for odd numbers OR (indicated by line) 
-#numbers less than 4.
-unionevent <- (samplespace%%2==1) | (samplespace < 4); unionevent
-#If the conditions are satisfied, TRUE will be returned.
-#If conditions are not met, FALSE will be returned.
+6. Explain the difference between $P(A)$ and $P(A \mid B)$ in the context of your research question (e.g., "P(flowering) vs. P(flowering | survived winter)").
 
-#Now, let's calculate the probability using techniques that you 
-#have already seen above.
-probunion <- 4/6; probunion
-```
+### Part 4: Independence and dependence
 
-### Intersection of events (AND)
+7. Identify two events in your system that are likely **dependent**.
 
-The intersection of two events describes the situation in which both events occur simultaneously. It is written as A \cap B and includes only the sample points shared by both events.
+8. Briefly explain why assuming independence would be inappropriate in this case. What might go wrong statistically?
 
-![Venn diagram indicating an intersection of events or an 'or' statement.](/Users/sks379/Desktop/GraduateStudents/Stats and Lit Review Lessons/Class2_Probability/Intersection.png)
+### Part 5: Null model thinking
 
-In plain language, an intersection represents an AND statement.
+9. Describe a null model for one comparison or question in your research. What would you expect to see if there were no treatment effect, no relationship, or no difference?
 
-Example: Using the same events as above:
+10. If you simulated data under this null model many times, what would the distribution of outcomes look like? (Describe in words---you do not need to run a simulation.)
 
-- Event A (odd numbers): 1, 3, 5
-- Event B (numbers less than 4): 1, 2, 3
+### Part 6: Connecting to your analyses
 
-The intersection A \cap B includes only the outcomes that are both odd and less than 4:
-1 and 3.
+11. Name one statistical analysis you plan to use (or expect to use) in your research. Which probability concept from this chapter does it rely on most heavily?
 
-What is the likelihood of rolling an odd number (Event A) on a 6-side fair die AND that is less than 4 (Event B)? 
-
-Event A = 1, 3, 5
-Event B = 1, 2, 3
-
-```{r}
-#The sample space is all possible rolls
-samplespace <- c(1, 2, 3, 4, 5, 6); samplespace
-#We will use Boolean operators in R. They will return TRUE / FALSE statements.
-#Below we tell R to look for odd numbers OR (indicated by line) 
-#numbers less than 4.
-intersectionevent <- (samplespace%%2==1) & (samplespace < 4); intersectionevent
-#If the conditions are satisfied, TRUE will be returned.
-#If conditions are not met, FALSE will be returned.
-
-#Now, let's calculate the probability using techniques that you 
-#have already seen above.
-probintersection <- 2/6; probintersection
-```
-
-Complement of an event (NOT)
-
-In probability, the complement of an event includes all outcomes in the sample space that are not part of the event. This corresponds to a NOT statement in logical terms. If event A occurs, then its complement does not occur, and together they account for all possible outcomes.
-
-For example, suppose we roll a fair six-sided die. Let event A be rolling a 2. The complement of this event is rolling any number except 2. Because there are six possible outcomes and only one of them is a 2, the complement includes the remaining five outcomes.
-
-P(\text{NOT 2}) = 1 - P(2) = 1 - \frac{1}{6} = \frac{5}{6}
-
-In R, we can represent this logic using a Boolean statement:
-
-```{r}
-# Define the sample space
-samplespace <- c(1, 2, 3, 4, 5, 6)
-
-# Identify outcomes that are NOT equal to 2
-nottwo <- samplespace != 2
-nottwo
-
-# Calculate the probability
-probNOTtwo <- 5/6
-probNOTtwo
-```
-
-Understanding complements is useful because many probability questions are easier to answer by calculating what does not happen rather than what does. This idea will appear frequently in probability rules, hypothesis testing, and statistical modeling.
-
-## Conditional probability
-
-How does knowing one thing change what we expect?
-
-Conditional probability describes situations in which the probability of one event depends on whether another event has occurred. It is written as P(A \mid B), which is read as “the probability of event A given event B.”
-
-In practice, conditional probability reflects updated information. For example, knowing that a rolled number is odd changes the probability that it is a specific value, such as 3. Similarly, knowing that a plant has survived the winter changes the probability that it will flower the following spring.
-
-Conditional probability is central to statistical reasoning. Many statistical questions ask how likely an outcome is given certain conditions, such as a treatment, an environmental state, or a previous observation. This idea forms the foundation for hypothesis testing, likelihood-based methods, and Bayesian inference.
-
-Conditional probability describes situations in which the probability of one event depends on whether another event has occurred. It is written as P(A \mid B), which is read as “the probability of event A given event B,” and is calculated as:
-
-P(A \mid B) = \frac{P(A \cap B)}{P(B)}
-
-where A \cap B represents the probability that both events occur.
-
-Suppose a fair six-sided die is rolled:
-
-- Let event A be rolling a 3.
-- Let event B be rolling an odd number.
-	
-You are told that the result of the roll is odd, and you guess that the number is 3. What is the probability that your guess is correct?
-	
-**Step 1**: Identify P(A \cap B)
-
-Event A (rolling a 3) automatically satisfies event B (rolling an odd number), because 3 is odd. The probability of rolling a 3 on a fair die is:
-
-P(A \cap B) = \frac{1}{6}
-
-**Step 2**: Identify P(B)
-
-There are three odd numbers on a six-sided die (1, 3, and 5), so the probability of rolling an odd number is:
-
-P(B) = \frac{3}{6} = \frac{1}{2}
-
-**Step 3**: Apply the conditional probability formula
-
-P(A \mid B) = \frac{P(A \cap B)}{P(B)} = \frac{1/6}{1/2} = \frac{1}{3}
-
-```{r}
-conditional <- (1/6) / (1/2)
-conditional
-```
-
-Knowing that the roll is odd reduces the possible outcomes from six to three. Within this reduced sample space (1, 3, 5), only one outcome satisfies event A. Conditional probability therefore reflects how additional information changes the sample space, and with it, the probability of the event of interest.
-
-This logic—restricting the sample space based on known information—is central to statistical inference and will reappear when we discuss hypothesis testing and likelihood-based models.
-
-**Ecological example**: Consider a perennial plant species where flowering only occurs if the plant survives the winter. The probability of flowering depends on survival. Asking “What is the probability that a plant flowers?” is different from asking “What is the probability that a plant flowers given that it survived?”
-
-Conditional probability captures this dependence explicitly. Many ecological processes are conditional: reproduction depends on survival, dispersal depends on maturity, and infection depends on exposure. Statistical models often estimate probabilities that are conditional on other biological or environmental states.
-
-## Independence vs dependence
-
-When can probabilities be multiplied?
-
-Two events are independent if the occurrence of one event does not affect the probability of the other. In such cases, the probability of both events occurring can be found by multiplying their individual probabilities.
-
-For independent events, in other words, two events in which the occurrence of one event doesn't depend on the occurrence of the other event, the probability of BOTH events occurring is the found by multiplying the probability of each event A and B happening:
-
-$P(A \cap B)= P(A) \times P(B)$ where $A \cap B$ indicates the probability of both event A and event B occurring. 
-
-**Example**: What is the probability of getting heads in two consecutive coin tosses? Consecutive coin flips are independent events: the outcome of the first flip does not influence the outcome of the second. In contrast, many ecological processes are dependent. Survival, reproduction, and movement often depend on previous states, environmental conditions, or interactions with other organisms.
-
-```{r}
-heads <- (1/2)*(1/2); heads
-```
-
-Recognizing whether events are independent or dependent is critical. Multiplying probabilities when events are not independent leads to incorrect conclusions. In statistics, independence is often an assumption rather than a fact, and assessing whether that assumption is reasonable is a key part of model evaluation and experimental design.
-
-**Ecological example**: Imagine monitoring survival of individual plants across years. Survival in year two is often dependent on whether the plant survived year one, making these events dependent. In contrast, survival of two plants growing far apart in similar conditions may be approximately independent.
-
-Assuming independence when events are actually dependent can seriously bias ecological inference. This is why statistical analyses often account for repeated measures, spatial structure, or shared environments. Recognizing whether events are independent or dependent helps determine which probability rules and statistical models are appropriate.
-
-These five ideas form the practical foundation of probability in statistics and will reappear throughout the course whenever we assess uncertainty, compare groups, or evaluate evidence.
-
-## Summary:
-
-Why probability matters in statistics:
-
-- Randomness and variability are unavoidable features of natural systems. In statistics, we do not attempt to explain why variation exists; instead, we develop tools to reason about uncertainty in the presence of that variation.
-- Statistical randomness includes both true unpredictability and uncertainty arising from incomplete information or imperfect measurement. These sources of uncertainty are treated equivalently in statistical analysis.
-- The difference between a true population value and what we observe in a sample is called error. Error is not a mistake—it is an inherent consequence of sampling complex systems.
-- Probability provides the language for reasoning about error and uncertainty. Rather than proving effects to be “real,” statistical inference evaluates how plausible observed data are under specified assumptions.
-- Defining the sample space is the first step in any probability calculation. Being explicit about what outcomes are possible is essential for translating ecological questions into statistical ones.
-- Probability is commonly interpreted as a long-run frequency: the proportion of times an event would occur if the same process were repeated many times.
-- Relationships between events—such as AND, OR, and NOT—determine how probabilities are combined and interpreted. These logical relationships underlie data filtering, hypothesis formulation, and model structure.
-- Conditional probability formalizes how probabilities change when additional information is available and is central to ecological reasoning, where many processes depend on prior states.
-- Recognizing whether events are independent or dependent is critical. Applying probability rules without checking these assumptions can lead to incorrect conclusions.
-- These core probability concepts form the foundation for hypothesis testing, regression models, population modeling, and Bayesian inference, all of which will be developed in later chapters.
-
-Key takeaway: Probability does not remove uncertainty from ecological science—it allows us to work with it transparently and rigorously.
-
-## Assignment: Probability thinking in your research system
-
-Goal:
-Apply core probability concepts from this chapter to your own research system, without requiring advanced mathematics.
-
-Instructions:
-Answer the following questions using your thesis system (or a proposed research project if you are early-stage). Short answers are sufficient (1–3 sentences per question unless otherwise noted).
-
-Part 1: Defining the sample space
-	1.	Identify one ecological outcome you measure or plan to measure (e.g., survival, presence/absence, flowering, infection).
-	2.	Explicitly define the sample space for this outcome.
-- What outcomes are possible?
-- What outcomes are not included?
-
-Part 2: Probability as long-run frequency
-	3.	If you repeated your study many times under the same conditions, what does the probability of your chosen outcome represent?
-	4.	What would increasing your sample size change about your probability estimate?
-
-Part 3: Event relationships (AND / OR / NOT)
-	5.	Define two events relevant to your system.
-	6.	Describe how the probability question changes when you use:
-	- AND
-	- OR
-	- NOT
-
-(You do not need to calculate probabilities—focus on interpretation.)
-
-Part 4: Conditional probability
-
-	7.	Identify one outcome in your system that depends on another condition.
-	8.	Explain the difference between:
-	- P(A)
-	- P(A \mid B)
-
-in the context of your research question.
-
-Part 5: Independence vs dependence
-	9.	Identify two events in your system that are likely dependent.
-	10.	Briefly explain why assuming independence would be inappropriate in this case.
-
-Optional (for students interested in modeling)
-	11.	Identify one statistical model you expect to use later in your analysis. Which probability concept from this chapter does it rely on most heavily?
+*Examples to get you started: If you plan to use logistic regression, it models conditional probability. If you plan to use a t-test, it relies on null model logic. If you plan to build a population model, it uses conditional (transition) probabilities across time steps.*

@@ -136,10 +136,55 @@ Use comments to explain:
 
 You will encounter issues with your R code. When you do this, your best friends are AI language models, like ChatGPT and Claude. Explain the error, providing the error code, and your code, and the AI assistant will help you. I cannot overstate how jealous I am of all young scientists - debugging used to take hours as you combed over the R documentation looking for hints as to why your code is breaking. 
 
-## Getting started
+### Getting started with R
 
 Some of you may be R experts, but for those who are new or need a refresher, check out this R code and import the associated csv file.
 [Formatted R script](https://drive.google.com/uc?export=download&id=1gyvW90wo6O77TZFYDcivpAwEzK0Lzvzd)
 [csv file to import](https://drive.google.com/uc?export=download&id=1jxVjCc3FV7ny-J7gEZ7w3uY9EY1-AW91)
-If you need a refresher on working directories and libraries, follow [this link](https://www.youtube.com/watch?v=3qB-88A68bM).
+If you need a refresher on working directories and libraries, follow [this link](https://youtu.be/sHvm2Hv9JPk)
+
+## How to use this online manual
+
+Within this manual, we have created chapters for key topics in the application of statistics to the natural world. Chapters contain broad explanations, R code, ecological examples, and assignments, and they are designed to be worked through with RStudio open beside your browser. So within each chapter: Copy the code. Run it. Change the numbers. Break it. Fix it. The learning is in the doing, not the reading.
+
+### How this manual fits into the course
+
+**This manual** contains the core concepts, R code, ecological examples, and detailed explanations. It is the reference you return to throughout the semester and beyond. Every chapter builds on previous chapters, so if something in a later chapter feels unfamiliar, look back---the foundation is here.
+
+**Recorded lectures** provide the narrative arc and motivation for each chapter. They hit the key ideas, walk through the reasoning, and connect concepts to the bigger picture. Watch the lecture first, then work through the corresponding chapter at your own pace.
+
+**Canvas** is where you submit assignments, take quizzes, check grades, and find course announcements. Assignment prompts appear at the end of each chapter in this book, but you will submit your work through Canvas.
+
+**GitHub** hosts the source code for this entire book. Every `.Rmd` file that produces these chapters is visible in the repository. You are welcome to explore it, clone it, or use it as a reference for your own projects. If you spot a typo or error, you can even submit a pull request---that is how open-source resources improve over time.
+
+### Tips for getting the most out of this book
+
+**Run every code chunk yourself.** Do not just read the output printed in the book. The act of running code, seeing it work (or fail), and tweaking it is where the learning happens.
+
+**Experiment freely.** Change the sample size. Swap the probability. Add noise. See what breaks. You cannot damage anything by running code in your own R session, and every "mistake" teaches you something about how R and statistics work.
+
+**Read with RStudio open.** The book and RStudio should be side by side. If you are reading on a laptop, split the screen. If you have a second monitor, even better.
+
+**Use the search function.** This book is a website, and your browser's search (Ctrl+F or Cmd+F) works on every page. If you need to find where we introduced a concept, search for it.
+
+**Come back to earlier chapters.** Statistical concepts build on each other. If something in Chapter 8 feels unclear, the answer is often in Chapter 3 or 4. The chapters are designed to be revisited, not just read once.
+
+**Use the reference tables.** Several chapters include reference tables (such as the data type → distribution → model table in Chapter 4). You do not need to memorize these. Bookmark them and return to them as needed.
+
+### A note on R code in this book
+
+All code in this book is written in R and is designed to run in a standard R or RStudio environment. We primarily use base R to keep dependencies minimal, with occasional use of common packages like `ggplot2` or `knitr` when they add clarity.
+
+If a code chunk requires a package you have not installed, R will tell you. You can install any missing package with:
+
+```{r install-example, eval=FALSE}
+install.packages("package_name")
+```
+
+If you encounter an error you cannot resolve, copy the error message and search for it---chances are good that someone else has had the same problem and the answer is on Stack Overflow or the RStudio Community forums. Learning to troubleshoot R errors is itself a valuable skill.
+
+
+## Course structure
+
+This course has been designed to be 'flipped'. Watch the lecture before you come to class. Then, treat class like a workshop to work through quizzes, assignments, and most importantly *your* work for your thesis. Whether you are developing the methods for your proposal or conducting your final analysis, this course is meant to support you as you actually perform statistics. 
 

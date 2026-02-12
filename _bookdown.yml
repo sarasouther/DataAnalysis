@@ -7,27 +7,42 @@ language:
 
 rmd_files:
   - index.Rmd
+
+  # Foundations of Statistical Thinking
   - 02-IntroductionToStatisticalThinking.Rmd
   - 03-Probability.Rmd
-  - 04-DataTypesDistributions.Rmd
-  - 05-DataExploration.Rmd
-  - 06-EcologicalSampling.Rmd
-  - 07-PowerAnalysis.Rmd
-  - 08-DescriptiveStatistics.Rmd
-  - 09-SelectingStatisticalTests.Rmd
-  - 10-BasicStatisticalTest.Rmd
-  - 11-GeneralizedLinearModels.Rmd
-  - 12-MixedEffectsModels.Rmd
-  - 13-SpecialDesigns_BACI.Rmd
-  - 14-SpecialDesigns_TimeSeriesAnalysis.Rmd
-  #- 15-ComplexSystemsModelSelection.Rmd
-  - 16-BootstrappingResampling.Rmd
-  - 17-PopulationEcology.Rmd
-  - 18-IntegralProjectionModels.Rmd
-  - 19-WorkingwSpatialData.Rmd
+  - 04-DataTypesAndDistributions.Rmd
+  - 05-DataExplorationAndVisualization.Rmd
+  - 06-DescriptiveStatistics.Rmd
+  - 07-EcologicalSampling.Rmd
+  - 08-ExperimentalDesign.Rmd
+  - 09-PowerAnalysis.Rmd
+
+  # Choosing and Running Statistical Tests
+  - 10-SelectingStatisticalTests.Rmd
+  - 11-BasicStatisticalTests.Rmd
+  - 12-GeneralizedLinearModels.Rmd
+  - 13-MixedEffectsModels.Rmd
+  - 14-ModelSelectionAndInformationCriteria.Rmd
+
+  # Special Designs and Resampling
+  - 15-SpecialDesigns_BACI.Rmd
+  - 16-SpecialDesigns_TimeSeriesAnalysis.Rmd
+  - 17-BootstrappingAndResampling.Rmd
+  - 18-PermutationBasedMethods.Rmd
+
+  # Spatial and Applied Ecological Modeling
+  - 19-WorkingWithSpatialData.Rmd
   - 20-SpeciesDistributionModeling.Rmd
-  - 21-IntroductionToDiversityStats.Rmd
+
+  # Community and Diversity
+  - 21-IntroductionToDiversityStatistics.Rmd
   - 22-OrdinationMethods.Rmd
-  - 23-StructuralEquationModelsI.Rmd
-  - 24-StructuralEquationModelsII.Rmd
-  - 25-PermutationBasedMethods.Rmd
+
+  # Population and Demographic Modeling
+  - 23-PopulationEcologyModels.Rmd
+  - 24-IntegralProjectionModels.Rmd
+
+  # Systems Thinking
+  - 25-StructuralEquationModelsI.Rmd
+  - 26-StructuralEquationModelsII.Rmd

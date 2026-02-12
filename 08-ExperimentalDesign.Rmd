@@ -1,0 +1,648 @@
+# Experimental Design: From Question to Study Structure
+
+In the previous chapter, we focused on **where and how to select sampling units**---choosing plot locations, balancing spatial coverage, and ensuring that our sample represents the population we want to study. Sampling design answers the question: *Where do I collect data?*
+
+This chapter addresses a different question: **How do I structure my study to answer a causal question?** Specifically, how do I assign treatments, arrange controls, handle sources of unwanted variation, and ensure that my design supports the statistical analysis I plan to run?
+
+The distinction matters. You can have a beautifully balanced GRTS sampling design and still draw incorrect conclusions if your experimental structure is flawed---if treatments are confounded with sites, if you mistake subsamples for true replicates, or if you ignore known sources of variation that could be controlled through blocking. Conversely, a well-designed experiment at poorly selected sites may not generalize beyond the study area.
+
+**Sampling design and experimental design work together.** Sampling tells you *where* to look; experimental design tells you *what to do once you get there*. This chapter covers the second half of that partnership.
+
+
+## Observational vs. manipulative studies {#studytypes}
+
+Before choosing a specific design, you need to be honest about what kind of study you are running. The answer determines what you can and cannot conclude.
+
+### Manipulative experiments
+
+In a **manipulative experiment**, the researcher controls and assigns the treatment. You decide which plots get burned, which seedlings get watered, which enclosures exclude herbivores. Because you assigned the treatment randomly, you can (in principle) attribute differences in the response to the treatment itself rather than to some other factor that happened to differ between groups.
+
+Manipulative experiments are the gold standard for causal inference, but they are not always possible in ecology. You cannot randomly assign drought to a watershed or fire to a national forest. You cannot retroactively assign land-use history to a landscape.
+
+### Observational studies
+
+In an **observational study**, the researcher does not control the treatment. Instead, you observe variation that already exists---comparing burned and unburned sites after a wildfire, measuring tree growth across a natural elevation gradient, or comparing species composition in grazed and ungrazed pastures where grazing was determined by the rancher, not by you.
+
+Observational studies can reveal patterns and associations, but attributing those patterns to a specific cause is harder because **confounding variables** may differ between groups. A site that burned in a wildfire may also differ from an unburned site in elevation, slope, soil type, or pre-fire vegetation. Without randomization, you cannot be certain which of these factors is responsible for the observed difference.
+
+This does not make observational studies useless---far from it. Most landscape-scale ecology is observational. But it does mean that the language you use matters: observational studies support statements like "sites that burned had lower canopy cover" rather than "fire reduced canopy cover." The difference is subtle but important, and reviewers will notice.
+
+### Natural experiments and quasi-experiments
+
+Sometimes nature provides something close to a manipulative experiment. A wildfire burns half of a watershed but not the other. A policy change protects one river but not an adjacent one. A beaver colonizes one stream reach but not the next. These are **natural experiments**: the "treatment" was not assigned by the researcher, but it was applied in a way that approximates random assignment.
+
+**Quasi-experiments** are similar but involve deliberate human actions without researcher control---a restoration project implemented by a land management agency, a logging operation that creates treated and untreated stands, or a grazing exclosure built by a rancher. The researcher takes advantage of an existing intervention rather than creating one.
+
+Natural and quasi-experiments are powerful because they operate at realistic scales and involve real ecological processes. Their weakness is the same as any observational study: without randomization, confounding factors may explain the results.
+
+### Space-for-time substitution
+
+One of the most common approaches in ecology---and one of the most commonly misunderstood---is **space-for-time substitution**. Instead of waiting decades to observe succession after disturbance, you sample sites of different ages *right now* and treat the spatial gradient as a proxy for temporal change. Instead of experimentally manipulating climate, you compare populations across a temperature gradient.
+
+This approach assumes that the sites differ only in the variable of interest (time since disturbance, temperature, elevation) and are otherwise comparable. That assumption is often violated: a site that burned 5 years ago and a site that burned 50 years ago may also differ in soil type, aspect, land-use history, and the species pool available for recolonization. These differences are confounded with time.
+
+Space-for-time substitution is not inherently wrong---it is often the only practical option. But it requires careful thought about what might be confounded with the gradient, and the conclusions should acknowledge this limitation.
+
+```{r study-type-table, echo=FALSE}
+study_types <- data.frame(
+  `Study Type` = c(
+    "Manipulative experiment",
+    "Natural experiment",
+    "Quasi-experiment",
+    "Observational (gradient)",
+    "Space-for-time substitution"
+  ),
+  `Who assigns treatment?` = c(
+    "Researcher (randomly)",
+    "Nature (approximately random)",
+    "Manager/agency (not random)",
+    "No one (pre-existing variation)",
+    "No one (spatial variation as proxy)"
+  ),
+  `Causal inference?` = c(
+    "Strong",
+    "Moderate (depends on context)",
+    "Moderate (check for confounds)",
+    "Weak (association only)",
+    "Weak (confounds likely)"
+  ),
+  `Ecological example` = c(
+    "Randomly assign fire treatments to plots",
+    "Wildfire burns half a watershed",
+    "Agency thins some stands but not others",
+    "Measure species along a natural elevation gradient",
+    "Sample sites burned 5, 20, 50 years ago"
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(study_types,
+             caption = "Study types differ in who controls the treatment and how strongly you can infer causation.")
+```
+
+**Why this matters for your statistics:** The type of study you are running should influence both the language of your results and the statistical model you choose. Manipulative experiments support strong causal language; observational studies call for more cautious interpretation. Many of the design principles in the rest of this chapter---randomization, blocking, controls---are strategies for strengthening causal inference, whether your study is manipulative or observational.
+
+
+## The logic of controls and comparison {#controls}
+
+Every study involves comparison. You compare treated plots to untreated plots, burned sites to unburned sites, or populations across an environmental gradient. The purpose of a **control** is to provide a baseline: what would have happened in the absence of the treatment or the factor of interest?
+
+### What makes a good control?
+
+A good control differs from the treatment group in **one thing only**: the treatment. Everything else---soil type, elevation, canopy cover, sampling effort, timing of measurement---should be as similar as possible. When this condition is met, any difference in the response can be attributed to the treatment rather than to some other factor.
+
+In practice, perfect controls are rare. But the closer you get, the stronger your inference.
+
+**Common control failures in ecology:**
+
+- **Spatial confounding**: All treatment plots are on one slope and all controls are on another. Differences might reflect aspect, not treatment.
+- **Temporal confounding**: Treatment plots are measured in June and controls in August. Differences might reflect phenology, not treatment.
+- **Effort confounding**: More time is spent sampling treatment plots because they are "more interesting." Detection probability differs between groups.
+- **No control at all**: Measuring a site before and after treatment without a reference site. Any change might reflect weather, succession, or other factors unrelated to treatment.
+
+### Procedural controls
+
+In some experiments, the act of applying a treatment introduces effects unrelated to the treatment itself. Walking to a plot and setting up equipment creates disturbance. Clipping vegetation to simulate herbivory involves cutting. In these cases, a **procedural control** mimics the disturbance of treatment application without applying the treatment itself. For example, if your treatment involves spraying herbicide, a procedural control might involve spraying water.
+
+
+## Randomization: why and how {#randomization}
+
+**Randomization** is the single most powerful tool for causal inference. When you randomly assign treatments to experimental units, you eliminate systematic bias---any factor that might confound the treatment effect is equally likely to occur in both groups.
+
+Note the difference from the previous chapter: in sampling design, randomization ensures that your **sample is representative** of the population. In experimental design, randomization ensures that your **treatment groups are comparable** to each other. Same tool, different purpose.
+
+### What randomization does
+
+Imagine you have 20 plots and want to assign 10 to a burning treatment and 10 to a control. If you let the land manager choose which plots to burn, they might avoid steep slopes, rocky areas, or plots near roads. The burned plots would then differ from unburned plots in ways that have nothing to do with fire.
+
+Random assignment eliminates this problem. With randomization, steep slopes and gentle slopes, rocky and sandy soils, near-road and remote plots are all equally likely to end up in either group. On average, the two groups will be balanced on every variable---including variables you did not measure or did not think to control.
+
+```{r randomization-demo, fig.cap="Random assignment balances both measured and unmeasured variables across treatment groups. Each run of the randomization produces different group assignments, but on average the groups are comparable."}
+set.seed(42)
+
+# Imagine 20 plots with varying elevation (a potential confound)
+n_plots <- 20
+elevations <- round(runif(n_plots, min = 1500, max = 2500))
+
+# Randomly assign treatments
+treatment <- sample(rep(c("Burn", "Control"), each = n_plots / 2))
+
+plot_data <- data.frame(
+  plot = 1:n_plots,
+  elevation = elevations,
+  treatment = treatment
+)
+
+# Compare group means --- randomization approximately balances elevation
+tapply(plot_data$elevation, plot_data$treatment, mean)
+tapply(plot_data$elevation, plot_data$treatment, sd)
+```
+
+The group means for elevation will not be exactly equal, but they will be close. With enough replicates, randomization balances all potential confounds---even ones you did not measure.
+
+### How to randomize
+
+In R, randomization is straightforward:
+
+```{r randomize-example}
+# Completely randomized assignment of 3 treatments to 30 plots
+set.seed(123)
+n <- 30
+treatments <- rep(c("Control", "Low fertilizer", "High fertilizer"), each = n / 3)
+assignment <- sample(treatments)  # shuffle randomly
+
+table(assignment)
+```
+
+In the field, randomization should happen **before** you visit the sites. Generate your random assignments in R, print a field sheet with plot-treatment pairings, and follow the sheet regardless of what the plots look like when you arrive. Changing assignments in the field because a plot "doesn't look right" defeats the purpose of randomization.
+
+
+## Common experimental designs {#designs}
+
+The following designs represent the most common ways ecologists structure manipulative experiments and observational studies. Each design addresses a specific problem---controlling for known variation, accommodating logistical constraints, or isolating treatment effects in complex systems. 
+
+Understanding these designs matters because **your design determines your statistical model**. A completely randomized design leads to a simple ANOVA or regression. A blocked design requires a term for blocks. A split-plot design requires a mixed model with nested error terms. If you do not understand your design, you cannot write the correct model---and the wrong model gives wrong answers.
+
+### Completely Randomized Design (CRD)
+
+The simplest experimental design: treatments are assigned entirely at random to experimental units with no additional structure.
+
+**When it works:** Experimental units are reasonably homogeneous. There are no strong spatial, temporal, or other gradients that might confound treatment effects.
+
+**When it fails:** If there is a major source of variation across experimental units (such as a moisture gradient across a greenhouse bench, or elevation differences among field plots), a CRD wastes statistical power by treating that variation as unexplained noise.
+
+```{r crd-example, fig.cap="A completely randomized design assigns treatments without regard to spatial or environmental structure. This works well when experimental units are homogeneous."}
+set.seed(226)
+
+# 4 treatments, 5 replicates each = 20 plots
+treatments <- rep(c("Control", "Low N", "High N", "N + P"), each = 5)
+plots <- data.frame(
+  plot_id = 1:20,
+  treatment = sample(treatments),  # randomize
+  row = rep(1:4, each = 5),
+  col = rep(1:5, times = 4)
+)
+
+# Visualize the layout
+plot(plots$col, plots$row,
+     pch = 19, cex = 3,
+     col = as.numeric(as.factor(plots$treatment)),
+     xlab = "Column", ylab = "Row",
+     main = "Completely Randomized Design",
+     xlim = c(0.5, 5.5), ylim = c(0.5, 4.5))
+legend("topright", legend = levels(as.factor(plots$treatment)),
+       col = 1:4, pch = 19, cex = 0.8)
+```
+
+**Statistical model:** One-way ANOVA or linear model with treatment as the sole explanatory variable.
+
+```{r crd-model, eval=FALSE}
+# Analysis for a CRD
+model <- lm(response ~ treatment, data = my_data)
+anova(model)
+```
+
+### Randomized Complete Block Design (RCBD) {#blocking}
+
+Blocking is one of the most important concepts in experimental design, and one of the most underused by beginning researchers.
+
+A **block** is a group of experimental units that are similar to each other in some important way. Within each block, every treatment appears exactly once. This ensures that treatment comparisons are made within relatively homogeneous groups, removing the block-to-block variation from the comparison.
+
+**The key insight:** Blocking controls for a known source of variation by removing it from the error term. This increases statistical power---the ability to detect a real treatment effect---without requiring more replicates.
+
+**When to block:**
+
+- Greenhouse benches differ in light or temperature → block by bench
+- Field plots span an elevation gradient → block by elevation zone  
+- Experimental runs happen on different days → block by day
+- Sites have different soil types → block by soil type
+- Individual animals or plants vary in size → block by initial size class
+
+**The rule of thumb:** If you can identify a source of variation that is not your treatment but might affect the response, block on it.
+
+```{r rcbd-diagram, fig.cap="In a Randomized Complete Block Design, each block contains all treatments. Treatments are randomized within each block. This removes block-to-block variation from the treatment comparison."}
+set.seed(42)
+
+# 3 treatments, 4 blocks
+n_blocks <- 4
+treatments <- c("Control", "Thinned", "Burned")
+n_treats <- length(treatments)
+
+# Within each block, randomize treatment order
+rcbd <- data.frame(
+  block = rep(paste("Block", 1:n_blocks), each = n_treats),
+  treatment = unlist(lapply(1:n_blocks, function(b) sample(treatments)))
+)
+
+rcbd$plot_num <- 1:nrow(rcbd)
+rcbd$x <- rep(1:n_treats, times = n_blocks)
+rcbd$y <- rep(n_blocks:1, each = n_treats)
+
+# Visualize
+cols <- c("Control" = "gray70", "Thinned" = "goldenrod", "Burned" = "firebrick")
+plot(rcbd$x, rcbd$y,
+     pch = 22, cex = 5, bg = cols[rcbd$treatment],
+     xlab = "", ylab = "", axes = FALSE,
+     main = "Randomized Complete Block Design",
+     xlim = c(0.5, n_treats + 0.5), ylim = c(0.3, n_blocks + 0.7))
+text(rcbd$x, rcbd$y, rcbd$treatment, cex = 0.6)
+axis(2, at = n_blocks:1, labels = paste("Block", 1:n_blocks), las = 1, tick = FALSE)
+```
+
+**Statistical model:** The block is included as an additive term but is not the focus of inference. We are not interested in *whether* blocks differ; we know they do. We include blocks to remove that variation from the error term.
+
+```{r rcbd-model, eval=FALSE}
+# RCBD analysis: treatment is the focus, block removes known variation
+model <- lm(response ~ treatment + block, data = my_data)
+anova(model)
+```
+
+**Ecological example:** You want to test whether prescribed fire increases native grass cover. Your study area spans a 500 m elevation gradient. Without blocking, elevation differences add noise to the treatment comparison. With blocking by elevation zone, each treatment is compared to its control *at the same elevation*, and the analysis is more powerful.
+
+**A common mistake:** Some researchers put "block" as a random effect in a mixed model. This is appropriate when you have many blocks sampled from a larger population of possible blocks (e.g., sites randomly selected from a region). When blocks are few and fixed (e.g., 3 greenhouse benches), treating block as a fixed additive term is simpler and often more appropriate. We will revisit this distinction in the Mixed Effects Models chapter.
+
+
+### Factorial designs {#factorial}
+
+A **factorial design** includes two or more treatment factors, with every combination of factor levels represented. This is extremely common in ecology, where organisms respond to multiple interacting environmental drivers simultaneously.
+
+**Example:** You want to test the effects of fire and grazing on plant community composition. You have two factors:
+
+- Fire: burned vs. unburned (2 levels)
+- Grazing: grazed vs. ungrazed (2 levels)
+
+A full factorial design includes all 4 combinations: burned + grazed, burned + ungrazed, unburned + grazed, unburned + ungrazed.
+
+**Why factorial designs are powerful:** They allow you to test for **interactions**---situations where the effect of one factor depends on the level of another. Fire might reduce shrub cover in ungrazed areas but have no effect in grazed areas (because grazing already reduced shrubs). Without the factorial design, you would miss this interaction entirely.
+
+```{r factorial-example}
+# 2 x 2 factorial: fire and grazing
+fire <- rep(c("Burned", "Unburned"), each = 2)
+grazing <- rep(c("Grazed", "Ungrazed"), times = 2)
+combinations <- data.frame(fire, grazing)
+combinations$treatment <- paste(fire, grazing, sep = " + ")
+knitr::kable(combinations, caption = "All treatment combinations in a 2 x 2 factorial design")
+```
+
+**Statistical model:** A factorial design is analyzed with main effects and their interaction.
+
+```{r factorial-model, eval=FALSE}
+# Factorial ANOVA
+model <- lm(response ~ fire * grazing, data = my_data)
+# Equivalent to: response ~ fire + grazing + fire:grazing
+anova(model)
+```
+
+The interaction term (`fire:grazing`) tests whether the effect of fire depends on grazing status. If the interaction is significant, interpret the interaction rather than the main effects alone---because the main effects are misleading when the factors interact.
+
+**Design consideration:** Factorial designs grow quickly. A 2 × 2 design has 4 combinations; a 3 × 3 has 9; a 2 × 3 × 4 has 24. Each combination needs replication, so the total number of experimental units can become large. If resources are limited, consider dropping factor levels or using a fractional factorial design.
+
+
+### Nested designs {#nested}
+
+In a **nested design**, the levels of one factor are unique to each level of another factor. This is different from a factorial design, where every level of each factor appears with every level of every other factor.
+
+**The classic ecological example:** You study plant growth across 3 sites. Within each site, you establish 4 plots. Within each plot, you measure 5 individual plants. The structure is:
+
+- Plants are nested within plots
+- Plots are nested within sites
+
+The 4 plots at Site A are *different physical locations* from the 4 plots at Site B. Plot 1 at Site A is not the same as Plot 1 at Site B---they just share a label. This is nesting, not crossing.
+
+```{r nested-diagram, echo=FALSE}
+nested_data <- data.frame(
+  level = c(rep("Site", 3), rep("Plot", 12), rep("Plant", 60)),
+  label = c(
+    paste("Site", 1:3),
+    paste0("Plot ", rep(1:4, 3), " (Site ", rep(1:3, each = 4), ")"),
+    paste0("Plant ", 1:60)
+  )
+)
+
+cat("Nested structure:\n")
+cat("  3 Sites\n")
+cat("    └── 4 Plots per site (12 plots total)\n")
+cat("        └── 5 Plants per plot (60 plants total)\n")
+cat("\nTrue replicates for site-level effects: 3 sites\n")
+cat("NOT 60 plants.\n")
+```
+
+**Why nesting matters:** The 60 plants are not independent observations for testing site effects. Plants within the same plot share microsite conditions; plots within the same site share climate and soils. If you analyze this as `lm(growth ~ site)` with 60 observations, you are pretending that you have 60 independent replicates when you actually have 3 (the sites). This is **pseudoreplication** (see Chapter 6), and it dramatically inflates your Type I error rate.
+
+**Statistical model:** Nested designs are analyzed with mixed effects models, which we will cover in detail later. The key is recognizing the nesting in your design *before* you analyze the data.
+
+```{r nested-model, eval=FALSE}
+# Nested design analyzed with mixed model
+library(lme4)
+model <- lmer(growth ~ site + (1 | site:plot), data = my_data)
+```
+
+
+### Split-plot designs {#splitplot}
+
+A **split-plot design** arises when one treatment factor is applied to large experimental units (whole plots) and a second treatment factor is applied to smaller units within them (subplots). This often occurs when one treatment is logistically difficult to apply at a small scale.
+
+**Ecological example:** You are testing the effects of prescribed fire (hard to apply to small areas) and nitrogen addition (easy to apply to small areas). Each large plot (1 hectare) is randomly assigned to either burned or unburned. Within each large plot, small subplots (5 × 5 m) are randomly assigned to nitrogen addition or control.
+
+```{r splitplot-structure, echo=FALSE}
+cat("Split-plot structure:\n")
+cat("  Whole plot factor: Fire (burned vs. unburned)\n")
+cat("    Applied to: 1-hectare plots\n")
+cat("  Subplot factor: Nitrogen (added vs. control)\n")
+cat("    Applied to: 5 x 5 m subplots within each whole plot\n\n")
+cat("Key consequence: the error term for testing the whole-plot factor (fire)\n")
+cat("is different from the error term for testing the subplot factor (nitrogen).\n")
+cat("This requires a mixed model or split-plot ANOVA.\n")
+```
+
+**Why it matters:** In a split-plot design, the whole-plot treatment (fire) has fewer true replicates than the subplot treatment (nitrogen), because fire was only applied to whole plots. A standard factorial ANOVA would incorrectly pool the error terms, leading to inflated significance for the whole-plot factor. A mixed model with whole-plot as a random effect handles this correctly.
+
+```{r splitplot-model, eval=FALSE}
+# Split-plot analysis with mixed model
+library(lme4)
+model <- lmer(response ~ fire * nitrogen + (1 | whole_plot), data = my_data)
+```
+
+**How to recognize a split-plot:** Ask yourself: "Is one treatment applied at a larger scale than the other?" If yes, you likely have a split-plot design, even if you did not plan it that way.
+
+
+### Repeated measures and longitudinal designs {#repeatedmeasures}
+
+When you measure the same experimental units over time, observations within each unit are not independent. A plant measured in June and again in August is likely to have correlated growth measurements---a large plant in June is probably still relatively large in August.
+
+**Repeated measures** designs are the temporal equivalent of nesting: observations are nested within time points within subjects. Ignoring this non-independence (analyzing each time point as an independent observation) is a form of pseudoreplication.
+
+**Common ecological examples:**
+
+- Measuring tree diameter annually for 10 years
+- Sampling species composition at permanent plots across seasons
+- Tracking individual survival through monthly surveys
+- Monitoring water quality at fixed stations over time
+
+**Statistical approaches:**
+
+```{r repeated-model, eval=FALSE}
+# Option 1: Mixed model with random intercept for subject
+library(lme4)
+model <- lmer(response ~ treatment * time + (1 | subject), data = my_data)
+
+# Option 2: If trajectories differ, allow random slopes
+model <- lmer(response ~ treatment * time + (1 + time | subject), data = my_data)
+```
+
+We will cover these models in detail in the Mixed Effects Models chapter. For now, the design principle is: **if you measure the same unit more than once, you need a model that accounts for that.**
+
+
+## Before-After-Control-Impact (BACI) designs {#baci}
+
+BACI designs deserve special attention because they are among the most common designs in applied ecology---restoration monitoring, impact assessment, and adaptive management all rely on some form of BACI logic.
+
+### The problem BACI solves
+
+Suppose a mining company plans to discharge treated wastewater into a stream, and you are asked to assess the impact on aquatic invertebrate communities. You have two options:
+
+1. **Before-After only:** Sample the stream before and after the discharge begins. Problem: any change you observe might be caused by the discharge, or by a drought, a flood, natural seasonal variation, or anything else that changed between your two sampling periods.
+
+2. **Control-Impact only:** Sample the affected stream and an unaffected reference stream at the same time, after the discharge begins. Problem: any difference between streams might be caused by the discharge, or by pre-existing differences between the two streams.
+
+BACI combines both comparisons. By measuring both sites at both times, you can test whether the **change over time differs between sites**. This is the interaction term in your statistical model, and it is the key test in a BACI design.
+
+### The four standard BACI designs
+
+BACI designs vary in complexity depending on replication in space and time:
+
+```{r baci-table, echo=FALSE}
+baci_types <- data.frame(
+  Design = c(
+    "Basic BACI",
+    "BACI with multiple controls",
+    "BACI with multiple time periods",
+    "Full BACI (Beyond BACI)"
+  ),
+  `Impact sites` = c("1", "1+", "1", "1+"),
+  `Control sites` = c("1", "Multiple", "1", "Multiple"),
+  `Before periods` = c("1", "1", "Multiple", "Multiple"),
+  `After periods` = c("1", "1", "Multiple", "Multiple"),
+  `Strength` = c(
+    "Weak: no replication in space or time",
+    "Moderate: spatial replication of controls",
+    "Moderate: temporal replication",
+    "Strong: replication in both space and time"
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(baci_types,
+             caption = "BACI designs vary in replication. The full 'Beyond BACI' design with multiple control sites and multiple time periods before and after provides the strongest inference.")
+```
+
+### The BACI interaction
+
+The core of a BACI analysis is a two-way interaction between **period** (before vs. after) and **site type** (impact vs. control). If the discharge has no effect, both sites should change by roughly the same amount over time. If the discharge has an effect, the change at the impact site will differ from the change at the control site.
+
+```{r baci-concept, fig.cap="The BACI design tests whether the change from before to after differs between impact and control sites. If both sites change in parallel (left), there is no impact. If the impact site diverges (right), the discharge likely had an effect."}
+par(mfrow = c(1, 2), mar = c(4, 4, 3, 1))
+
+# No impact scenario
+plot(c(1, 2), c(50, 45), type = "b", pch = 19, col = "steelblue",
+     xlim = c(0.5, 2.5), ylim = c(30, 60),
+     xlab = "", ylab = "Invertebrate abundance",
+     main = "No impact (parallel change)", xaxt = "n")
+lines(c(1, 2), c(40, 35), type = "b", pch = 17, col = "firebrick")
+axis(1, at = 1:2, labels = c("Before", "After"))
+legend("topright", legend = c("Control", "Impact"),
+       col = c("steelblue", "firebrick"), pch = c(19, 17), cex = 0.8)
+
+# Impact scenario
+plot(c(1, 2), c(50, 45), type = "b", pch = 19, col = "steelblue",
+     xlim = c(0.5, 2.5), ylim = c(30, 60),
+     xlab = "", ylab = "Invertebrate abundance",
+     main = "Impact detected (divergence)", xaxt = "n")
+lines(c(1, 2), c(40, 25), type = "b", pch = 17, col = "firebrick")
+axis(1, at = 1:2, labels = c("Before", "After"))
+legend("topright", legend = c("Control", "Impact"),
+       col = c("steelblue", "firebrick"), pch = c(19, 17), cex = 0.8)
+```
+
+### Statistical model for BACI
+
+```{r baci-model, eval=FALSE}
+# Basic BACI: the interaction is the test of impact
+model <- lm(response ~ period * site_type, data = my_data)
+
+# With multiple time periods and sites: use mixed model
+library(lme4)
+model <- lmer(response ~ period * site_type + (1 | site) + (1 | year),
+              data = my_data)
+```
+
+The coefficient for `period:site_type` is the BACI interaction---it estimates the difference in the before-to-after change between impact and control sites. This is the quantity of interest.
+
+### BACI pitfalls
+
+- **Too few control sites:** A single control site might be unusual for reasons unrelated to the impact. Multiple control sites strengthen inference.
+- **Too few time periods:** A single before and single after measurement cannot distinguish an impact from natural year-to-year variation. Multiple before and after periods are strongly preferred.
+- **Spatial confounding:** If the impact and control sites were already different before the impact, the BACI interaction might reflect pre-existing divergence.
+- **Delayed or gradual effects:** If the impact takes years to manifest, a simple before/after comparison might miss it. Consider staggered after-periods.
+
+We will work through a complete BACI analysis with real data in a later chapter when we cover mixed effects models and time series approaches.
+
+
+## Identifying your unit of replication {#replication}
+
+This is arguably the most important practical skill in experimental design. Getting it wrong---treating subsamples as independent replicates---is **pseudoreplication**, which was introduced in Chapter 6 but deserves deeper treatment here because it is the single most common statistical error in ecology (Hurlbert, 1984).
+
+### The rule
+
+The **unit of replication** is the smallest unit to which a treatment is independently applied. Everything measured within that unit is a subsample, not a replicate.
+
+```{r replication-examples, echo=FALSE}
+rep_table <- data.frame(
+  Scenario = c(
+    "3 fire treatments applied to 3 watersheds; 10 plots per watershed",
+    "Herbicide sprayed on 6 garden beds (3 treated, 3 control); 20 plants per bed",
+    "4 grazing exclosures and 4 grazed areas; species counted in 5 quadrats per area",
+    "Fertilizer applied to individual pots; 1 plant per pot; 15 pots per treatment",
+    "2 greenhouses set to different temperatures; 50 plants per greenhouse"
+  ),
+  `Unit of replication` = c(
+    "Watershed (n = 1 per treatment!)",
+    "Garden bed (n = 3 per treatment)",
+    "Exclosure/area (n = 4 per treatment)",
+    "Pot (n = 15 per treatment)",
+    "Greenhouse (n = 1 per treatment!)"
+  ),
+  Subsamples = c(
+    "Plots within watersheds",
+    "Plants within beds",
+    "Quadrats within areas",
+    "None (1 plant per pot)",
+    "Plants within greenhouses"
+  ),
+  `Problem?` = c(
+    "Yes: n = 1 per treatment, no replication",
+    "No: adequate replication",
+    "No: adequate replication",
+    "No: adequate replication",
+    "Yes: n = 1 per treatment, no replication"
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(rep_table,
+             caption = "Identifying the unit of replication. The treatment is applied at the level of the replicate, not the subsample.")
+```
+
+Notice the first and last examples: even with many individual measurements (10 plots, 50 plants), you have **no replication** of the treatment if the treatment was applied to only one unit per level. Two greenhouses set to different temperatures gives you n = 1 for each temperature, regardless of how many plants are inside. This is a design problem that no statistical model can fix.
+
+### What to do with subsamples
+
+Subsamples are not useless---they help you better estimate the condition at each replicate. But they must be handled correctly in analysis:
+
+```{r subsample-options, eval=FALSE}
+# Option 1: Average subsamples to the replicate level first
+plot_means <- my_data %>%
+  group_by(plot, treatment) %>%
+  summarize(mean_response = mean(response), .groups = "drop")
+
+model <- lm(mean_response ~ treatment, data = plot_means)
+
+# Option 2: Use a mixed model that accounts for nesting
+library(lme4)
+model <- lmer(response ~ treatment + (1 | plot), data = my_data)
+```
+
+Both approaches are valid. Option 1 (averaging) is simpler and makes the sample size transparent. Option 2 (mixed model) preserves all the data and can estimate within-plot variation, but requires correctly specifying the random effects.
+
+
+## Connecting design to analysis {#design-to-analysis}
+
+Every design decision you make has a direct consequence for your statistical model. The table below summarizes the connections we have built in this chapter:
+
+```{r design-analysis-table, echo=FALSE}
+design_model <- data.frame(
+  Design = c(
+    "Completely Randomized (CRD)",
+    "Randomized Complete Block (RCBD)",
+    "Factorial",
+    "Nested",
+    "Split-plot",
+    "Repeated measures",
+    "BACI"
+  ),
+  `Statistical model` = c(
+    "One-way ANOVA / lm(y ~ treatment)",
+    "lm(y ~ treatment + block)",
+    "lm(y ~ A * B)  [two-way ANOVA]",
+    "lmer(y ~ treatment + (1 | group))",
+    "lmer(y ~ whole_plot_trt * subplot_trt + (1 | whole_plot))",
+    "lmer(y ~ treatment * time + (1 | subject))",
+    "lmer(y ~ period * site_type + (1 | site))"
+  ),
+  `Key feature` = c(
+    "Treatment as only predictor",
+    "Block removes known variation (not tested)",
+    "Interaction tests whether effects depend on each other",
+    "Random effect accounts for non-independence",
+    "Different error terms for whole-plot and subplot",
+    "Random effect for repeated observations on same unit",
+    "Interaction is the test of impact"
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(design_model,
+             caption = "Each experimental design maps to a specific statistical model. Understanding your design is a prerequisite for writing the correct model.")
+```
+
+If you cannot write down the correct statistical model for your design before you collect data, that is a signal that the design needs more thought.
+
+
+## Summary {#designsummary}
+
+Experimental design is about structuring your study to support the conclusions you want to draw. The core principles are:
+
+- **Identify your study type.** Are you running a manipulative experiment, observing natural variation, or exploiting a natural experiment? This determines how strongly you can infer causation.
+
+- **Use controls.** Every comparison needs a baseline. Good controls differ from the treatment group in one thing only: the treatment.
+
+- **Randomize.** Random assignment of treatments eliminates systematic bias and balances confounding variables across groups.
+
+- **Block when you can.** If you know of a source of variation (elevation, bench, day, site), block on it. Blocking removes that variation from your error term and increases power.
+
+- **Identify your unit of replication.** The treatment is applied at the replicate level. Everything measured within a replicate is a subsample. Getting this wrong is pseudoreplication.
+
+- **Know your design before you analyze.** Your design dictates your statistical model. A blocked design needs a block term. A nested design needs a random effect. A factorial design needs an interaction term. Plan the analysis at the design stage, not after data collection.
+
+
+## Assignment {#designassignment}
+
+**Goal:** Develop and justify the experimental or observational design for your research project.
+
+### Part 1: Study type
+
+1. Is your study manipulative, observational, a natural experiment, or a quasi-experiment? Explain why.
+
+2. What are the implications for causal inference? What can and cannot you conclude from your design?
+
+### Part 2: Design structure
+
+3. Draw or describe your design structure. Include:
+   - Treatment factors and their levels (if applicable)
+   - How treatments are assigned (randomly? by nature? by a manager?)
+   - Whether you are using blocking, and if so, what the blocks are
+   - Whether your design has nesting, and if so, what is nested within what
+
+4. Identify your **unit of replication** and your **subsamples** (if any). How many true replicates do you have per treatment level?
+
+### Part 3: Controls and confounds
+
+5. What serves as your control or baseline for comparison?
+
+6. Identify at least two potential **confounding variables** in your study. For each, explain whether your design controls for it (and how) or whether it remains a limitation.
+
+### Part 4: Design-to-model connection
+
+7. Based on your design, write the R formula for the statistical model you expect to use. If you have a blocked design, include the block term. If you have nesting, indicate which effects are random.
+
+*Example: If your design is a randomized complete block with 2 treatments and 4 blocks, your model might be: `lm(biomass ~ treatment + block, data = my_data)`*

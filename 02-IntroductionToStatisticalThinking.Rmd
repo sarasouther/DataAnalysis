@@ -1,5 +1,9 @@
 # Back to the basics
 
+## Watch the video
+
+[Watch the chapter video](https://youtu.be/N6GUKdYxWas)
+
 ## What can statistics tell us?
 
 Almost all statistical analysis boils down to answering one of two questions:

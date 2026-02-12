@@ -4,20 +4,70 @@
 
 Ecology is the study of organisms and their relationship to the environment. With infinite time and capacity, we could measure every organism, every characteristic of the environment, every physiological function that affects the way an organism responds to the environment, and every gene that underlies those physiological functions in order to understand ecological systems. In practice, such detailed measurements are time-consuming and impractical. For that reason, we use statistics to account for the fact we are always missing information when we conduct ecological studies. 
 
-In statistics, a **population** refers to all units of the thing that you are interested in (i.e., all Suriname frogs, all species in a marshland, all grains of sand, all aspen leaves from a genotype found in southern Arizona). Note that the term ‘population’ in statistics differs from the term population in population ecology, where a population refers to a group of individuals in a particular area that interbreed. Statistics accounts for the fact that we never perfectly measure the ‘true population’ or the all units of interest. Luckily, by properly applying statistics, we can learn practically anything about almost any population using **samples**! 
+In statistics, a **population** refers to all units of the thing that you are interested in (i.e., all Suriname frogs, all species in a marshland, all grains of sand, all aspen leaves from a genotype found in southern Arizona). Note that the term â€˜populationâ€™ in statistics differs from the term population in population ecology, where a population refers to a group of individuals in a particular area that interbreed. Statistics accounts for the fact that we never perfectly measure the â€˜true populationâ€™ or the all units of interest. Luckily, by properly applying statistics, we can learn practically anything about almost any population using **samples**! 
 
 A **sample** is a subset of the population that we measure to infer something about the true population. In order to avoid erroneous conclusions about the population, our sample must be **representative** of the population of interest and **unbiased**. As an example, imagine that you were interested in whether coat color in cats differed between house cats and feral cats. To select the house cat sample, you randomly select house numbers, visit the house and record coat color, thus collecting a random sample. However, to survey feral cats, you go to several cat colonies at night and record the first cat that you see, which are always white or tan. The sampling strategy for feral cats introduces bias, because darker cats are harder to see at night. This causes you to overestimate the number of light-coated feral cats, and underestimate dark-coated feral cats, resulting in the erroneous conclusion that a greater proportion of feral cats are light-colored compared to house cats. Experiments must be carefully planned to reduce bias. 
 
 ![](images/05-ecologicalsampling/cat.jpeg)
-We can conduct statistical analysis until the cats come home (ha!), but if your sample is biased, our results will always be meaningless. In the cat example, it was pretty obvious that the researcher was introducing bias, BUT it is REALLY easy to introduce bias in ecological and social research on accident! Imagine that you looking at fire effects on vegetative communities in the Sonoran. In high severity burn areas, there are thickets of cat's claw (a pokey plant). Without proper field sampling protocols, it is very tempting to avoid establishing plots in the cat claw thickets, thus not capturing true differences in vegetation along burn severity gradients. Let's talk about several types of appropriate sampling strategies. 
+We can conduct statistical analysis until the cats come home (ha!), but if your sample is biased, our results will always be meaningless. In the cat example, it was pretty obvious that the researcher was introducing bias, BUT it is REALLY easy to introduce bias in ecological and social research on accident! Imagine that you looking at fire effects on vegetative communities in the Sonoran. In high severity burn areas, there are thickets of cat's claw (a pokey plant). Without proper field sampling protocols, it is very tempting to avoid establishing plots in the cat claw thickets, thus not capturing true differences in vegetation along burn severity gradients.
+
+## What kind of study are you designing?
+
+Before choosing a sampling method, you need to ask a more fundamental question: **What kind of study are you running?** The answer shapes every sampling decision that follows---where you put plots, how many you need, and what you can conclude from the data.
+
+Ecological studies generally fall into two broad categories:
+
+**Manipulative experiments** are studies in which the researcher controls and assigns the treatment. You decide which plots get burned, which seedlings get watered, which enclosures exclude herbivores. Sampling in manipulative experiments focuses on ensuring that treatment groups are comparable and that replication is adequate for the treatments being tested. The sampling methods in this chapter (random, stratified, blocked) are used to *place* experimental units and *assign* treatments within them.
+
+**Observational studies** are studies in which the researcher does not control the treatment. Instead, you observe variation that already exists---comparing burned and unburned sites after a wildfire, measuring tree growth across a natural elevation gradient, or comparing species composition in grazed and ungrazed pastures where grazing was determined by the rancher, not by you. Sampling in observational studies focuses on capturing the natural range of variation in the system and ensuring representative spatial coverage. Methods like GRTS, stratified random sampling, and gradient-based designs are particularly important here.
+
+This distinction matters for two reasons. First, it determines **which sampling methods are most appropriate**. In a manipulative experiment, you might use a completely randomized or blocked design to assign treatments to plots (covered in the next chapter, Experimental Design). In an observational study, you are more likely to use GRTS, stratified random sampling, or systematic sampling along a gradient to capture existing variation. Second, it determines **what you can conclude**. Manipulative experiments support causal language ("fire reduced canopy cover"); observational studies support associative language ("sites that burned had lower canopy cover"). The sampling design cannot fix this distinction---it is baked into the study type.
+
+Many ecological studies fall somewhere in between. **Natural experiments** exploit unplanned events---a wildfire that burns half a watershed, a policy change that protects one river but not another, a beaver that colonizes one stream reach. The "treatment" was not assigned by the researcher, but nature applied it in a way that approximates an experiment. **Quasi-experiments** involve deliberate human actions without researcher control---a restoration project implemented by a land management agency, a logging operation that creates treated and untreated stands. In both cases, careful sampling of treatment and reference areas is critical for drawing defensible conclusions.
+
+One of the most common observational approaches in ecology is **space-for-time substitution**: instead of waiting decades to observe succession after disturbance, you sample sites of different ages *right now* and treat the spatial gradient as a proxy for temporal change. Instead of experimentally manipulating climate, you compare populations across a temperature gradient. This approach assumes that the sites differ primarily in the variable of interest (time since disturbance, temperature, elevation) and are otherwise comparable. That assumption is often violated---a site that burned 5 years ago and a site that burned 50 years ago may also differ in soil type, aspect, land-use history, and the species pool available for recolonization. Space-for-time substitution is not inherently wrong, but it requires careful thought about what might be confounded with the gradient, and the conclusions should acknowledge this limitation.
+
+The table below summarizes how study type connects to sampling priorities:
+
+```{r study-sampling-table, echo=FALSE}
+study_sampling <- data.frame(
+  `Study type` = c(
+    "Manipulative experiment",
+    "Natural experiment",
+    "Observational (gradient)",
+    "Space-for-time substitution",
+    "Long-term monitoring"
+  ),
+  `Sampling priority` = c(
+    "Balance and replication across treatment groups",
+    "Representative coverage of impact and reference areas",
+    "Even coverage along the gradient; avoid spatial confounds",
+    "Sites comparable except for the variable of interest",
+    "Spatial balance and temporal consistency (panels)"
+  ),
+  `Common methods` = c(
+    "Randomized, blocked, or stratified within treatments",
+    "Stratified random or GRTS across impact/control areas",
+    "Systematic or stratified along the gradient",
+    "Stratified by confounds (soil, aspect); systematic along gradient",
+    "GRTS with rotating or permanent panels"
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(study_sampling,
+             caption = "Different study types call for different sampling priorities and methods. Knowing your study type before choosing a sampling method prevents mismatches between design and inference.")
+```
+
+With this framing in mind, let's look at the specific sampling methods available. The Experimental Design chapter that follows covers the complementary question: once you know *where* to sample, how do you structure treatments, controls, and replication to support valid inference?
 
 ## Sampling approaches
 
-Sampling approaches in how they balance randomness, spatial coverage, logistical constraints, and inference goals.
+Sampling approaches differ in how they balance randomness, spatial coverage, logistical constraints, and inference goals.
 
 Here is a brief overview, before we take a look at the most common sampling methods used in ecology.
 
-| Sampling design | What it does | When you’d use it |
+| Sampling design | What it does | When youâ€™d use it |
 |-----------------|-------------|------------------|
 | Simple random | Completely random points | Small, homogeneous areas |
 | Systematic | Regular grid or transects | Mapping gradients, efficiency |
@@ -26,12 +76,13 @@ Here is a brief overview, before we take a look at the most common sampling meth
 | GRTS | Spatially balanced random | Large-scale monitoring |
 | Adaptive | Adds points where signal is high | Rare or patchy species |
 | Model-based | Guided by covariates | Targeting ecological processes |
+| Gradient-based | Points along environmental gradient | Elevation, moisture, disturbance gradients |
 
 ### Random sampling 
 
-In order to reduce bias, researchers **randomize** sampling. **Random sampling** is when every item within the focal population has an equal chance of being selected. In research, random sampling can be applied to selecting experimental subjects, assigning individuals to treatments, or identifying plot locations. It is **REALLY** easy to introduce bias in ecological and social research on accident if you do not use a random sampling technique! Imagine that you are looking at fire effects on vegetative communities in the Sonoran. In high severity burn areas, there are thickets of cat's claw (a pokey plant). Without proper field sampling protocols, it is very tempting to avoid establishing plots in the cat claw thickets, thus not capturing true differences in vegetation along burn severity gradients. In practice, researchers use number generators, like those on your phone, or within computer programs, like ArcGIS, to randomly place sampling points. Here, we’ve included a random number sheet to use to randomly array plots. A random number sheet contains random numbers that someone generated in advance to assist in the field. 
+In order to reduce bias, researchers **randomize** sampling. **Random sampling** is when every item within the focal population has an equal chance of being selected. In research, random sampling can be applied to selecting experimental subjects, assigning individuals to treatments, or identifying plot locations. It is **REALLY** easy to introduce bias in ecological and social research on accident if you do not use a random sampling technique! Imagine that you are looking at fire effects on vegetative communities in the Sonoran. In high severity burn areas, there are thickets of cat's claw (a pokey plant). Without proper field sampling protocols, it is very tempting to avoid establishing plots in the cat claw thickets, thus not capturing true differences in vegetation along burn severity gradients. In practice, researchers use number generators, like those on your phone, or within computer programs, like ArcGIS, to randomly place sampling points. Here, we've included a random number sheet to use to randomly array plots. A random number sheet contains random numbers that someone generated in advance to assist in the field. 
 
-**Important note**: “Random” is not the same as “wandering around and picking what looks good.” Random sampling = using a rule or tool (random number generator, coordinates, random bearings and distances) so every location has a known chance of being selected. Haphazard sampling = picking what feels convenient or “typical” – this almost always introduces bias.
+**Important note**: Random is not the same as wandering around and picking what looks good. Random sampling = using a rule or tool (random number generator, coordinates, random bearings and distances) so every location has a known chance of being selected. Haphazard sampling = picking what feels convenient or typical - this almost always introduces bias.
 
 We can quickly and easily generate such a sample in R, using the sample function. 
 
@@ -62,15 +113,15 @@ In complex, multi-species systems, another approach to improve coverage of rando
 
 #### Pseudoreplication
 
-When we treat non-independent measurements as if they were independent replicates, we call this pseudoreplication. For example, if we measure 20 trees inside 1 plot and then pretend we have 20 independent “samples,” we are ignoring the fact that those trees share the same microsite, history, and environment. In most ecological studies, the plot is the true replicate, and the trees within the plot are subsamples that help us better estimate conditions at that plot.
+When we treat non-independent measurements as if they were independent replicates, we call this pseudoreplication. For example, if we measure 20 trees inside 1 plot and then pretend we have 20 independent samples - we are ignoring the fact that those trees share the same microsite, history, and environment. In most ecological studies, the plot is the true replicate, and the trees within the plot are subsamples that help us better estimate conditions at that plot.
 
 ### GRTS Sampling (Generalized Random-Tessellation Stratified Sampling)
 
-As ecological questions increasingly span large, heterogeneous landscapes, researchers need sampling approaches that are both statistically rigorous and spatially balanced. One method that has become foundational in long-term ecological monitoring—used by the U.S. EPA, USGS, USFS (e.g., FIA intensification), and many watershed and biodiversity programs—is GRTS, which stands for Generalized Random-Tessellation Stratified sampling.
+As ecological questions increasingly span large, heterogeneous landscapes, researchers need sampling approaches that are both statistically rigorous and spatially balanced. One method that has become foundational in long-term ecological monitoringâ€”used by the U.S. EPA, USGS, USFS (e.g., FIA intensification), and many watershed and biodiversity programsâ€”is GRTS, which stands for Generalized Random-Tessellation Stratified sampling.
 
 #### What problem does GRTS solve?
 
-Imagine trying to monitor a species or habitat across a large region using simple random sampling. Although “random,” this approach can still place many points close together and leave other parts of the landscape unrepresented (spatial clumping). Stratified random sampling improves representation across broad habitat types, but still may not ensure even spatial coverage within each stratum.
+Imagine trying to monitor a species or habitat across a large region using simple random sampling. Although random - this approach can still place many points close together and leave other parts of the landscape unrepresented (spatial clumping). Stratified random sampling improves representation across broad habitat types, but still may not ensure even spatial coverage within each stratum.
 
 GRTS was developed to solve two key issues:
 
@@ -88,7 +139,7 @@ GRTS uses a special type of spatial ordering, similar to a space-filling curve, 
 - allows consistent sampling over time (e.g., rotating panels), and
 - accommodates stratification, unequal selection probabilities, or oversampling in rare habitats.
 
-While the algorithm is mathematically complex, researchers rarely need to understand the internals—the spsurvey package in R implements GRTS with a single function.
+While the algorithm is mathematically complex, researchers rarely need to understand the internalsâ€”the spsurvey package in R implements GRTS with a single function.
 
 #### When to Use GRTS in Ecological Sampling
 
@@ -98,7 +149,7 @@ Researchers choose GRTS when:
 - Habitat types are patchy or unevenly distributed
 - Long-term monitoring requires consistency through time
 - Detecting spatial trends or hotspots is important
-- A mixture of old (“legacy”) and new plots must be integrated without bias
+- A mixture of old (legacy) and new plots must be integrated without bias
 
 GRTS is used in applications such as:
 
@@ -269,7 +320,7 @@ ggplot() +
   theme(legend.position = "bottom") +
   labs(
     title = "GRTS Sampling Design: Madrean Encinal Woodland",
-    subtitle = paste0("Study area: ", study_area_km2, " km²")
+    subtitle = paste0("Study area: ", study_area_km2, " kmÂ²")
   )
 ```
 
@@ -370,7 +421,7 @@ write.csv(field_sheet, "grts_outputs/field_data_sheet.csv",
 
 summary_table <- data.frame(
   Category = c("Total Sites", "Base Sites", "Oversample Sites", 
-               "Study Area (km²)", "Average Site Weight (km²)"),
+               "Study Area (kmÂ²)", "Average Site Weight (kmÂ²)"),
   Value = c(
     nrow(all_sites),
     nrow(base_sites),
@@ -433,7 +484,7 @@ Despite this, systematic sampling performs extremely well in many ecological sys
 
 ## Adaptive Sampling (Sampling Rare or Patchy Species)
 
-Some species of interest—threatened plants, cryptic mammals, rare insects—occur in patchy, clustered distributions. When organisms are rare, simple random sampling may completely miss them.
+Some species of interestâ€”threatened plants, cryptic mammals, rare insectsâ€”occur in patchy, clustered distributions. When organisms are rare, simple random sampling may completely miss them.
 
 Adaptive sampling increases sampling intensity only where the organism is found. For example:
 
@@ -450,6 +501,72 @@ This approach is efficient for:
 
 Adaptive sampling improves our ability to detect and map rare organisms, but it also introduces statistical challenges, since sampling intensity is no longer uniform. These can be addressed using specialized estimators or model-based inference.
 
+## Sampling Along Gradients
+
+Many ecological questions involve continuous environmental variation rather than discrete treatments. How does species composition change with elevation? How does tree growth respond to a moisture gradient? How does vegetation recover as you move away from a disturbance boundary? These are **gradient studies**, and they require a different sampling logic than randomized experiments.
+
+### What is a gradient study?
+
+In a gradient study, the researcher samples across a continuous range of an environmental variable---elevation, distance from a river, time since fire, soil moisture, latitude---and asks how ecological responses change along that gradient. There is no treatment assignment; the gradient already exists in the landscape, and the goal is to characterize the relationship between the environmental variable and the ecological response.
+
+Gradient studies are observational by nature, which means they reveal associations rather than causal effects. A pattern of decreasing species richness with elevation does not prove that elevation *causes* lower richness---temperature, precipitation, growing season length, and soil depth all change with elevation, and any of them could be responsible. This is where thoughtful sampling design helps: by measuring potential confounds at each sampling point, you provide the data needed to disentangle these effects during analysis.
+
+### Designing a gradient study
+
+Sampling along a gradient requires decisions about three things:
+
+**1. How to distribute points along the gradient.** Two common strategies are:
+
+- **Even spacing:** Place sample points at regular intervals along the gradient (e.g., every 100 m of elevation). This ensures equal representation of the full gradient range and works well when you expect the response to change gradually. Systematic or stratified approaches work well here.
+
+- **Stratified or targeted placement:** Concentrate sampling in transition zones where ecological change is expected to be fastest (e.g., ecotones, treeline, the boundary of a burn). This is more efficient for detecting thresholds or nonlinear responses but risks under-sampling the stable portions of the gradient.
+
+In practice, a combination often works best: even spacing across the full gradient with additional sampling at ecologically important transitions.
+
+**2. How to handle lateral variation.** Gradients are rarely one-dimensional. An elevation transect crosses different aspects, soil types, and land-use histories. If you place a single transect straight up a mountain, you cannot separate the effect of elevation from the effect of whatever else changes along that particular path.
+
+The solution is **replication across the gradient**: multiple transects on different slopes, or stratified random sampling that captures the gradient while varying other site characteristics. For example, if studying elevation effects on tree growth, you might sample at 3--5 locations per elevation band, spread across different aspects and drainages.
+
+**3. How far apart to sample.** The appropriate spacing depends on the spatial scale of variation in both the gradient variable and the ecological response. If tree species composition changes dramatically over 200 m of elevation, sampling every 500 m will miss important transitions. Pilot data or prior ecological knowledge can inform spacing decisions.
+
+### Gradient sampling in R
+
+A gradient study can be implemented using many of the sampling methods already described in this chapter. Here is an example using stratified random sampling along an elevation gradient:
+
+```{r gradient-example, eval=FALSE}
+# Stratified random sampling along an elevation gradient
+# Goal: 5 plots per 200 m elevation band from 1500 to 2500 m
+
+library(sf)
+library(tidyverse)
+
+# Assume you have a DEM (digital elevation model) and a study area boundary
+# Classify the study area into elevation bands
+elevation_bands <- study_area %>%
+  mutate(elev_band = cut(elevation,
+                         breaks = seq(1500, 2500, by = 200),
+                         labels = paste0(seq(1500, 2300, by = 200), "-",
+                                        seq(1700, 2500, by = 200), " m")))
+
+# Generate random points within each band
+set.seed(42)
+gradient_points <- elevation_bands %>%
+  group_by(elev_band) %>%
+  slice_sample(n = 5)  # 5 random locations per band
+
+# Check distribution across the gradient
+table(gradient_points$elev_band)
+```
+
+GRTS can also be applied within each stratum (elevation band) to ensure spatial balance within each portion of the gradient, combining the advantages of gradient coverage and spatial balance.
+
+### Common pitfalls in gradient studies
+
+- **Confounding the gradient with geography.** A single transect confounds the gradient variable with everything else that varies along that specific path. Replicate across the gradient, not just along it.
+- **Assuming linearity.** Many ecological responses to gradients are nonlinear---species richness may peak at mid-elevations, growth may plateau above a moisture threshold. Sample densely enough to detect curvature, especially near expected transitions.
+- **Ignoring spatial autocorrelation.** Points close together along a gradient are likely to have similar ecological conditions regardless of the gradient variable. If your points are too close, they provide less independent information than widely spaced points. We will address spatial autocorrelation in a later chapter.
+- **Space-for-time traps.** When a gradient represents time (e.g., distance from a disturbance boundary as a proxy for time since disturbance), remember that the sites may differ in ways beyond the variable of interest. Measure and report potential confounds.
+
 ## Imperfect Detection in Ecological Sampling
 
 Ecologists rarely observe organisms perfectly. Whether estimating abundance, occupancy, or survival, detection probability can influence sampling accuracy.
@@ -464,18 +581,18 @@ Common sources of imperfect detection include:
 
 Even when sampling is random and unbiased, ignoring detection probability can lead to biased estimates.
 
-For example, frogs in dense vegetation may appear “absent” when they are simply undetected. This is especially important when comparing habitats, because detection typically differs among environments.
+For example, frogs in dense vegetation may appear â€œabsentâ€ when they are simply undetected. This is especially important when comparing habitats, because detection typically differs among environments.
 
 Common study designs that account for detection include:
 
 - Repeated surveys (occupancy modeling)
 - Point counts with distance sampling
 - Removal sampling
-- Mark–recapture
+- Mark-recapture
 - N-mixture models
 
 A simple conceptual model:
-Observed count = True abundance × Detection probability
+Observed count = True abundance Ã— Detection probability
 
 Accounting for detection sets the foundation for later modeling approaches in wildlife ecology and plant demography.
 
@@ -483,7 +600,7 @@ Accounting for detection sets the foundation for later modeling approaches in wi
 
 Sampling is not only about where you measure, but also when.
 
-Many ecological processes—recovery after disturbance, climate-driven changes, successional dynamics—require data collected over time.
+Many ecological processesâ€”recovery after disturbance, climate-driven changes, successional dynamics require data collected over time.
 
 ### Sampling Panels
 
@@ -506,20 +623,13 @@ Sampling too infrequently risks missing important dynamics; too frequently waste
 
 Temporal sampling decisions strongly influence the ability to detect ecological change.
 
-### BACI Designs (Before–After–Control–Impact)
+### BACI and Other Experimental Designs
 
-When evaluating the effect of a treatment—like a fire, restoration project, or invasive removal—ecologists often use a BACI design:
-
-- Before: Measure the system prior to disturbance or treatment
-- After: Measure again post-treatment
-- Control: A comparable, untreated reference area
-- Impact: The treated area
-
-BACI isolates treatment effects from natural variation through time and space.
+When evaluating the effect of a treatment---like a fire, restoration project, or invasive removal---ecologists often use a Before-After-Control-Impact (BACI) design, which combines temporal and spatial comparisons to isolate treatment effects from natural variation. BACI designs, along with other experimental design concepts such as blocking, factorial designs, and split-plot designs, are covered in detail in the Experimental Design chapter.
 
 ## Plot shapes, sizes, and transects
 
-Deciding on the shape and size of your sampling unit depends on the species or feature that you are trying to measure. **Plots** can be *ANY* shape, but usually the shape of the plot is either a square or circle for simplicity – why would you sample using a hexagon? Often in forestry, plots are circular, marked with a central post, which foresters attach logging tape and rapidly measure trees that fall within a certain radius from the central post (**Fig. 3**). Since trees are large, this helps foresters quickly collect data on the species composition and structure of forests. For smaller organisms, like understory species, **quadrats** (small plots, often square and 1 m2 in size) are often used, since many smaller organisms occur in this area – if plots were too large, then data collection would be too time-consuming. In some cases, researchers are interested in how certain ecological variables differ as a function of distance from a feature. In these cases, researchers will often use a **transect** – a linear feature – and collect variables of interest along it. Any of these sampling shapes and sizes can be combined or adapted to measure ecological features to answer the question of interest. 
+Deciding on the shape and size of your sampling unit depends on the species or feature that you are trying to measure. **Plots** can be *ANY* shape, but usually the shape of the plot is either a square or circle for simplicity â€“ why would you sample using a hexagon? Often in forestry, plots are circular, marked with a central post, which foresters attach logging tape and rapidly measure trees that fall within a certain radius from the central post (**Fig. 3**). Since trees are large, this helps foresters quickly collect data on the species composition and structure of forests. For smaller organisms, like understory species, **quadrats** (small plots, often square and 1 m2 in size) are often used, since many smaller organisms occur in this area â€“ if plots were too large, then data collection would be too time-consuming. In some cases, researchers are interested in how certain ecological variables differ as a function of distance from a feature. In these cases, researchers will often use a **transect** â€“ a linear feature â€“ and collect variables of interest along it. Any of these sampling shapes and sizes can be combined or adapted to measure ecological features to answer the question of interest. 
 
 ![](images/05-ecologicalsampling/ForestryPlots.png) 
 **Figure 3.** A) The standard plot configuration for the Forest Inventory and Analysis dataset, which includes data on all of our forested lands in the US. Forestry plots are often circular (A), allowing foresters to attach loggers tape to a central plot marker (B) and quickly measure trees within 
@@ -545,7 +655,7 @@ Distance sampling allows estimation of true density without needing to census ev
 
 ## Reducing sampling error
 
-What is **sampling error**? Sampling error is the difference between the true estimate of a population and the measurements that researchers collect on a sample. Error happens by chance and is unavoidable – it can be thought of as noise within the data. Error is different from bias, because it is non-systematic. For instance, imagine two people are measuring cactus heights for a demographic study. Error in height measurement is introduced by many things – the shakiness of each person’s hands, the amount of degradation and stretch in various measuring tapes. **Bias**, on the other hand, would be introduced if person 1 only measures the small cacti, or always mis-reading the measuring tape and measuring heights 5 cm less than their actual height. Bias should always be avoided, and error reduced as much as possible. Larger samples are less affected by chance and so will have lower sampling error. In ecology, we refer to the number of independent units being measured as **replicates**. The more replicates, the less sampling error! 
+What is **sampling error**? Sampling error is the difference between the true estimate of a population and the measurements that researchers collect on a sample. Error happens by chance and is unavoidable â€“ it can be thought of as noise within the data. Error is different from bias, because it is non-systematic. For instance, imagine two people are measuring cactus heights for a demographic study. Error in height measurement is introduced by many things - the shakiness of each person's hands, the amount of degradation and stretch in various measuring tapes. **Bias**, on the other hand, would be introduced if person 1 only measures the small cacti, or always mis-reading the measuring tape and measuring heights 5 cm less than their actual height. Bias should always be avoided, and error reduced as much as possible. Larger samples are less affected by chance and so will have lower sampling error. In ecology, we refer to the number of independent units being measured as **replicates**. The more replicates, the less sampling error! 
 
 ![](images/05-ecologicalsampling/Replication.png) 
 **Figure 4.** As the number of replicate plots increases so does the accuracy at which we can estimate parameters for this forest stand. 
@@ -563,8 +673,8 @@ Small effects (e.g., a 2% change in cover) require more replication than large e
 Systems with high natural variability (e.g., deserts, wetlands) require more replicates to estimate population parameters precisely.
 
 3. Plot Size vs. Plot Number Trade-off
-	•	Larger plots reduce variance but are more time-consuming
-	•	More small plots increase representation and reduce sampling error
+	â€¢	Larger plots reduce variance but are more time-consuming
+	â€¢	More small plots increase representation and reduce sampling error
 
 4. Pilot Studies
 
@@ -577,10 +687,10 @@ Although formal power analyses in ecology can be complex, the principles above p
 Finally, depending on the research question, there are a number of different variables that you might want to measure. In ecology, you may want to measure the number of different species in an area to look at diversity patterns, or collect data on size or growth to look at performance, or monitor individuals after a disturbance to look at mortality. We will collect different forms of data throughout the semester, but the following principles will always apply: 
 
 1. Samples should be random and representative 
-2. Sampling methodology – plot shape and size – should reflect the organism or ecological feature that you are measuring 
+2. Sampling methodology â€“ plot shape and size â€“ should reflect the organism or ecological feature that you are measuring 
 3. More replication is better, since it reduces sampling error 
 
-In the rest of this course, we’ll use these samples (collected with careful designs like the ones above) to estimate population parameters such as mean height, survival probability, or species richness. Good sampling design is what makes our later statistical inferences valid and trustworthy.
+In the rest of this course, weâ€™ll use these samples (collected with careful designs like the ones above) to estimate population parameters such as mean height, survival probability, or species richness. Good sampling design is what makes our later statistical inferences valid and trustworthy.
 
 ## Test your knowledge
 
@@ -603,4 +713,3 @@ This study was conducted across oak woodland habitat across Arizona and New Mexi
 Monitoring locations were selected using a Generalized Random-Tessellation Stratified (GRTS) sampling design. GRTS generates a spatially balanced random sample, ensuring that sites are well distributed across the landscape while retaining the probabilistic properties required for unbiased inference. This approach is particularly appropriate for large, heterogeneous landscapes such as oak woodlands, where environmental conditions vary across elevation, aspect, and disturbance history, and where simple random sampling may result in clustered or uneven spatial coverage.
 
 Each sampling unit consisting of a circular, 16 m radius vegetation plot. A total of 100 plots were selected across the study area. To ensure adequate representation of ecologically meaningful gradients, the sampling frame was stratified by elevation zone and management status (e.g., burned vs. unburned areas). Stratification allowed us to explicitly capture variation associated with these factors while maintaining random, spatially balanced site selection within each stratum through the GRTS algorithm.
-
