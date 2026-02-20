@@ -1,0 +1,925 @@
+# Spatial Autocorrelation and Spatial Models
+
+"Everything is related to everything else, but near things are more related than distant things."
+— Waldo Tobler's First Law of Geography
+
+This fundamental principle shapes ecological data. Trees near each other share similar soil. Neighboring populations exchange migrants. Adjacent plots experience the same microclimate. **Spatial autocorrelation**—the tendency for nearby observations to be more similar than distant ones—is the rule, not the exception, in ecological data.
+
+Why does this matter statistically? Standard methods assume **independence**. When observations are spatially autocorrelated, this assumption is violated, leading to:
+
+- Underestimated standard errors
+- Inflated Type I error rates (false positives)
+- Biased parameter estimates
+- Overconfident predictions
+
+This chapter teaches you to detect, visualize, and model spatial structure in ecological data.
+
+## Examples of spatial data in ecology
+
+| Data type | Spatial pattern | Why it matters |
+|-----------|-----------------|----------------|
+| Species distributions | Clustered occurrences | Range limits, habitat association |
+| Environmental gradients | Smooth spatial variation | Temperature, precipitation mapping |
+| Disease spread | Spatial clustering | Transmission dynamics |
+| Population density | Hotspots and coldspots | Conservation prioritization |
+| Soil properties | Patchy variation | Nutrient cycling, plant growth |
+
+## Setup
+
+```{r setup-spatial, message=FALSE, warning=FALSE}
+library(sf)
+library(terra)
+
+# Try tmap; if it fails, continue without it
+has_tmap <- requireNamespace("tmap", quietly = TRUE)
+
+if (has_tmap) {
+  ok <- try({
+    library(tmap)
+  }, silent = TRUE)
+
+  if (inherits(ok, "try-error")) {
+    message("tmap failed to load; using ggplot2 alternatives in this chapter.")
+    has_tmap <- FALSE
+  }
+} else {
+  message("tmap not installed; using ggplot2 alternatives in this chapter.")
+}
+
+library(tidyverse)
+library(sf)            # Spatial data handling
+library(spdep)         # Spatial dependence (neighbors, weights, tests)
+library(spatialreg)    # Spatial regression models
+library(viridis)       # Color scales
+
+if (has_gstat) { # Geostaticis 
+  ok <- try(library(gstat), silent = TRUE)
+  if (inherits(ok, "try-error")) {
+    message("gstat failed to load on this system; skipping gstat-based chunks.")
+    has_gstat <- FALSE
+  }
+} else {
+  message("gstat not installed; skipping gstat-based chunks.")
+}
+
+set.seed(42)
+```
+
+---
+
+# Part 1: What Is Spatial Autocorrelation?
+
+## The intuition
+
+Imagine measuring tree height across a forest. If you know a tree is 20 meters tall, what's your best guess for the tree 5 meters away? Probably close to 20 meters. What about a tree 5 kilometers away? You have much less information.
+
+This **decay of similarity with distance** is spatial autocorrelation.
+
+```{r autocorr-concept, echo=FALSE}
+cat("
+SPATIAL AUTOCORRELATION
+═══════════════════════════════════════════════════════════════
+
+POSITIVE AUTOCORRELATION (most common):
+  Similar values cluster together
+  High values near high, low near low
+  Example: Temperature (warm areas cluster)
+
+NEGATIVE AUTOCORRELATION (rare):
+  Dissimilar values cluster
+  High values surrounded by low values
+  Example: Territorial spacing (each territory surrounded by others)
+
+NO AUTOCORRELATION:
+  Random spatial pattern
+  Location provides no information about neighbors
+")
+```
+
+## Simulating spatial data
+
+```{r simulate-spatial, fig.cap="Comparison of random (left) and spatially autocorrelated (right) data. In autocorrelated data, similar values cluster together."}
+# Create a grid of points
+n <- 20
+coords <- expand.grid(x = 1:n, y = 1:n)
+n_points <- nrow(coords)
+
+# Random data (no autocorrelation)
+random_values <- rnorm(n_points)
+
+# Spatially autocorrelated data (distance-decay)
+# Using a simple spatial process
+dist_matrix <- as.matrix(dist(coords))
+cov_matrix <- exp(-dist_matrix / 5)  # Exponential decay
+L <- chol(cov_matrix)
+autocorr_values <- t(L) %*% rnorm(n_points)
+
+# Create data frames
+spatial_data <- data.frame(
+  coords,
+  random = random_values,
+  autocorr = as.numeric(autocorr_values)
+)
+
+# Plot comparison
+par(mfrow = c(1, 2))
+
+# Random
+with(spatial_data, {
+  plot(x, y, pch = 19, cex = 1.5,
+       col = colorRampPalette(c("blue", "white", "red"))(100)[
+         cut(random, 100, labels = FALSE)],
+       main = "Random (No Autocorrelation)",
+       asp = 1)
+})
+
+# Autocorrelated
+with(spatial_data, {
+  plot(x, y, pch = 19, cex = 1.5,
+       col = colorRampPalette(c("blue", "white", "red"))(100)[
+         cut(autocorr, 100, labels = FALSE)],
+       main = "Spatially Autocorrelated",
+       asp = 1)
+})
+
+par(mfrow = c(1, 1))
+```
+
+---
+
+# Part 2: Quantifying Spatial Autocorrelation
+
+## Moran's I
+
+**Moran's I** is the most common measure of global spatial autocorrelation:
+
+$$I = \frac{n}{\sum_i \sum_j w_{ij}} \frac{\sum_i \sum_j w_{ij}(x_i - \bar{x})(x_j - \bar{x})}{\sum_i (x_i - \bar{x})^2}$$
+
+where:
+- $n$ = number of observations
+- $w_{ij}$ = spatial weight between locations i and j
+- $x_i$ = value at location i
+- $\bar{x}$ = mean value
+
+**Interpretation:**
+- I ≈ +1: Strong positive autocorrelation (clustering)
+- I ≈ 0: Random pattern
+- I ≈ -1: Strong negative autocorrelation (dispersion)
+
+## Calculating Moran's I
+
+```{r morans-i}
+# Convert to sf object
+spatial_sf <- st_as_sf(spatial_data, coords = c("x", "y"))
+
+# Create neighbor list (k-nearest neighbors)
+coords_matrix <- st_coordinates(spatial_sf)
+knn <- knearneigh(coords_matrix, k = 8)
+nb <- knn2nb(knn)
+
+# Create spatial weights
+weights <- nb2listw(nb, style = "W")  # Row-standardized
+
+# Moran's I test for random data
+moran_random <- moran.test(spatial_data$random, weights)
+print(moran_random)
+
+# Moran's I test for autocorrelated data
+moran_autocorr <- moran.test(spatial_data$autocorr, weights)
+print(moran_autocorr)
+```
+
+## Moran's I scatter plot
+
+```{r moran-scatter, fig.cap="Moran scatter plot. The slope of the regression line equals Moran's I. Points in upper-right and lower-left indicate positive autocorrelation."}
+# Moran scatter plot
+moran.plot(spatial_data$autocorr, weights,
+           main = "Moran Scatter Plot",
+           xlab = "Value", ylab = "Spatially Lagged Value")
+```
+
+**Reading the Moran scatter plot:**
+- **Upper-right quadrant:** High values with high neighbors (HH)
+- **Lower-left quadrant:** Low values with low neighbors (LL)
+- **Upper-left:** Low values with high neighbors (LH)
+- **Lower-right:** High values with low neighbors (HL)
+
+Most points in HH and LL = positive autocorrelation
+
+## Geary's C
+
+**Geary's C** is an alternative that's more sensitive to local differences:
+
+$$C = \frac{(n-1)}{2 \sum_i \sum_j w_{ij}} \frac{\sum_i \sum_j w_{ij}(x_i - x_j)^2}{\sum_i (x_i - \bar{x})^2}$$
+
+**Interpretation:**
+- C < 1: Positive autocorrelation
+- C ≈ 1: Random
+- C > 1: Negative autocorrelation
+
+```{r gearys-c}
+# Geary's C test
+geary_test <- geary.test(spatial_data$autocorr, weights)
+print(geary_test)
+```
+
+---
+
+# Part 3: Spatial Neighbors and Weights
+
+## Why define neighbors?
+
+Spatial autocorrelation is calculated relative to "neighbors." But what counts as a neighbor?
+
+```{r neighbor-types, echo=FALSE}
+cat("
+TYPES OF SPATIAL NEIGHBORS
+═══════════════════════════════════════════════════════════════
+
+CONTIGUITY (for polygons):
+  ┌───┬───┬───┐
+  │   │ R │   │     Rook: shares edge (4 neighbors)
+  ├───┼───┼───┤
+  │ R │ X │ R │     Queen: shares edge OR corner (8 neighbors)
+  ├───┼───┼───┤
+  │   │ R │   │
+  └───┴───┴───┘
+
+DISTANCE-BASED (for points):
+  ○       ○           Distance band: all points within d km
+    ╲   ╱              
+      ● ─ ─ ○         K-nearest: the k closest points
+    ╱   ╲
+  ○       ○
+
+CHOOSING NEIGHBORS:
+  - Contiguity for administrative units (counties, states)
+  - Distance for point data
+  - K-nearest when density varies
+")
+```
+
+## Creating neighbor lists
+
+```{r neighbor-lists}
+# K-nearest neighbors (good for irregular point patterns)
+knn_5 <- knn2nb(knearneigh(coords_matrix, k = 5))
+knn_8 <- knn2nb(knearneigh(coords_matrix, k = 8))
+
+# Distance-based neighbors (all points within distance d)
+dist_nb <- dnearneigh(coords_matrix, d1 = 0, d2 = 3)
+
+# Compare number of neighbors
+cat("K=5 neighbors - mean:", mean(card(knn_5)), "\n")
+cat("K=8 neighbors - mean:", mean(card(knn_8)), "\n")
+cat("Distance (d=3) neighbors - mean:", mean(card(dist_nb)), "\n")
+```
+
+## Spatial weights matrices
+
+```{r weights-matrix}
+# Convert neighbor list to weights
+# Style options:
+#   "W" = row-standardized (each row sums to 1)
+#   "B" = binary (1 if neighbor, 0 if not)
+#   "C" = globally standardized
+
+weights_W <- nb2listw(knn_8, style = "W")
+weights_B <- nb2listw(knn_8, style = "B")
+
+# Examine weights for one point
+cat("Row-standardized weights for point 1:\n")
+print(weights_W$weights[[1]])
+```
+
+## Visualizing neighbors
+
+```{r neighbor-viz, fig.cap="Neighbor connections for k=8 nearest neighbors. Each point is connected to its 8 closest neighbors."}
+# Plot neighbor connections
+plot(spatial_sf$geometry, pch = 19, col = "steelblue",
+     main = "K=8 Nearest Neighbors")
+plot(knn_8, coords_matrix, add = TRUE, col = "gray50")
+```
+
+---
+
+# Part 4: Local Spatial Autocorrelation
+
+## Global vs Local
+
+**Global Moran's I** gives one number for the entire study area. But autocorrelation often varies spatially—some areas may be clustered while others are random.
+
+**Local Indicators of Spatial Association (LISA)** identify *where* clustering occurs.
+
+## Local Moran's I
+
+```{r local-moran}
+# Calculate local Moran's I
+local_moran <- localmoran(spatial_data$autocorr, weights)
+
+# Results for each location
+head(local_moran)
+
+# Add to data
+spatial_data$local_I <- local_moran[, "Ii"]
+spatial_data$local_p <- local_moran[, "Pr(z != E(Ii))"]
+```
+
+## Identifying clusters and outliers
+
+```{r lisa-clusters, fig.cap="LISA cluster map showing High-High clusters (hotspots), Low-Low clusters (coldspots), and spatial outliers.", message=FALSE, warning=FALSE}
+# --- sanity checks (fail early, fail clearly) ---
+stopifnot(exists("spatial_data"))
+stopifnot(nrow(spatial_data) > 0)
+
+need_cols <- c("x", "y", "autocorr", "local_p")
+missing_cols <- setdiff(need_cols, names(spatial_data))
+if (length(missing_cols) > 0) {
+  stop("spatial_data is missing: ", paste(missing_cols, collapse = ", "))
+}
+
+stopifnot(exists("weights"))  # should be a spdep listw object
+
+# --- lag + z-scores (force plain numeric vectors) ---
+spatial_data$lag_autocorr <- spdep::lag.listw(weights, spatial_data$autocorr, zero.policy = TRUE)
+
+spatial_data$z_value <- as.numeric(scale(spatial_data$autocorr))
+spatial_data$z_lag   <- as.numeric(scale(spatial_data$lag_autocorr))
+
+# local_p should be numeric
+spatial_data$local_p <- as.numeric(spatial_data$local_p)
+
+# --- cluster classification ---
+spatial_data$cluster <- dplyr::case_when(
+  spatial_data$z_value > 0 & spatial_data$z_lag > 0 & spatial_data$local_p < 0.05 ~ "High-High",
+  spatial_data$z_value < 0 & spatial_data$z_lag < 0 & spatial_data$local_p < 0.05 ~ "Low-Low",
+  spatial_data$z_value > 0 & spatial_data$z_lag < 0 & spatial_data$local_p < 0.05 ~ "High-Low",
+  spatial_data$z_value < 0 & spatial_data$z_lag > 0 & spatial_data$local_p < 0.05 ~ "Low-High",
+  TRUE ~ "Not Significant"
+)
+
+# --- plot ---
+ggplot2::ggplot(spatial_data, ggplot2::aes(x = x, y = y, color = cluster)) +
+  ggplot2::geom_point(size = 3) +
+  ggplot2::scale_color_manual(values = c(
+    "High-High" = "red",
+    "Low-Low" = "blue",
+    "High-Low" = "pink",
+    "Low-High" = "lightblue",
+    "Not Significant" = "gray80"
+  )) +
+  ggplot2::labs(title = "LISA Cluster Map", color = "Cluster Type") +
+  ggplot2::coord_equal() +
+  ggplot2::theme_minimal()
+```
+
+**Cluster interpretation:**
+- **High-High (hotspots):** High values surrounded by high values
+- **Low-Low (coldspots):** Low values surrounded by low values
+- **High-Low:** High values surrounded by low values (spatial outliers)
+- **Low-High:** Low values surrounded by high values (spatial outliers)
+
+---
+
+# Part 5: Spatial Correlograms
+
+## Autocorrelation across distances
+
+A **spatial correlogram** shows how autocorrelation changes with distance.
+
+```{r correlogram, fig.cap="Spatial correlogram showing Moran's I at different distance lags. Autocorrelation typically decays with distance."}
+# Calculate correlogram
+correlogram <- sp.correlogram(knn_8, spatial_data$autocorr, 
+                               order = 10, method = "I")
+
+# Plot
+plot(correlogram, main = "Spatial Correlogram")
+```
+
+**Reading the correlogram:**
+- **Significant positive I at short lags:** Clustering of similar values
+- **Decay toward zero:** Autocorrelation diminishes with distance
+- **Negative I at large lags:** Opposite values at large distances
+
+---
+  
+# Part 6: Spatial Regression Models
+
+## The problem with ordinary regression
+
+When residuals are spatially autocorrelated, ordinary least squares (OLS) gives:
+- **Biased standard errors** (usually too small)
+- **Invalid p-values** (too many false positives)
+- **Inefficient estimates** (not best linear unbiased)
+
+```{r ols-problem, fig.cap="Checking residuals for spatial autocorrelation. Significant Moran's I indicates OLS assumptions are violated."}
+# Simulate spatially structured response and predictor
+n <- 400
+coords2 <- expand.grid(x = 1:20, y = 1:20)
+
+# Spatially autocorrelated error
+dist_mat <- as.matrix(dist(coords2))
+cov_mat <- exp(-dist_mat / 5)
+L <- chol(cov_mat)
+spatial_error <- as.numeric(t(L) %*% rnorm(n))
+
+# Predictor (also spatially structured)
+predictor <- as.numeric(t(L) %*% rnorm(n, 5, 1))
+
+# Response with true relationship + spatial error
+response <- 2 + 0.5 * predictor + spatial_error
+
+regression_data <- data.frame(coords2, predictor, response)
+
+# Fit OLS
+ols_model <- lm(response ~ predictor, data = regression_data)
+summary(ols_model)
+
+# Check residuals for spatial autocorrelation
+regression_sf <- st_as_sf(regression_data, coords = c("x", "y"))
+coords_mat <- st_coordinates(regression_sf)
+nb_reg <- knn2nb(knearneigh(coords_mat, k = 8))
+weights_reg <- nb2listw(nb_reg, style = "W")
+
+moran.test(residuals(ols_model), weights_reg)
+```
+
+The significant Moran's I in residuals tells us OLS is inappropriate.
+
+## Types of spatial regression
+
+| Model | When to use | What it does |
+|-------|-------------|--------------|
+| **Spatial Error Model (SEM)** | Autocorrelation in errors | Models correlated residuals |
+| **Spatial Lag Model (SLM)** | Outcome depends on neighbors | Includes spatially lagged Y |
+| **Spatial Durbin Model (SDM)** | Both processes | Lagged Y and lagged X |
+
+## Spatial Error Model (SEM)
+
+The SEM assumes spatial autocorrelation is in the **error term**:
+
+$$Y = X\beta + u, \quad u = \lambda Wu + \varepsilon$$
+
+where $\lambda$ is the spatial autoregressive parameter for errors.
+
+**Use when:** Spatial pattern comes from unmeasured variables, not direct neighbor effects.
+
+```{r sem-model}
+# Fit Spatial Error Model
+sem_model <- errorsarlm(response ~ predictor, 
+                         data = regression_data,
+                         listw = weights_reg)
+
+summary(sem_model)
+```
+
+## Spatial Lag Model (SLM)
+
+The SLM assumes the **outcome depends on neighbors' outcomes**:
+
+$$Y = \rho WY + X\beta + \varepsilon$$
+
+where $\rho$ is the spatial autoregressive parameter.
+
+**Use when:** There's a direct spillover effect (e.g., disease spreads, populations migrate).
+
+```{r slm-model}
+# Fit Spatial Lag Model
+slm_model <- lagsarlm(response ~ predictor,
+                       data = regression_data,
+                       listw = weights_reg)
+
+summary(slm_model)
+```
+
+## Comparing models
+
+```{r 30 model-comparison}
+# Compare models using AIC
+models <- list(
+  OLS = ols_model,
+  SEM = sem_model,
+  SLM = slm_model
+)
+
+# AIC comparison
+aic_values <- c(
+  OLS = AIC(ols_model),
+  SEM = AIC(sem_model),
+  SLM = AIC(slm_model)
+)
+
+print(sort(aic_values))
+
+# Check residual autocorrelation for best model
+cat("\nResidual Moran's I for SEM:\n")
+moran.test(residuals(sem_model), weights_reg)
+```
+
+## Interpreting spatial regression
+
+```{r interpret-spatial}
+# Compare coefficients
+coef_comparison <- data.frame(
+  Model = c("OLS", "SEM", "SLM"),
+  Intercept = c(coef(ols_model)[1], coef(sem_model)[1], coef(slm_model)[1]),
+  Predictor = c(coef(ols_model)[2], coef(sem_model)[2], coef(slm_model)[2]),
+  Spatial_param = c(NA, sem_model$lambda, slm_model$rho)
+)
+
+print(coef_comparison, digits = 3)
+```
+
+**Key insight:** Spatial models often give different coefficient estimates because they properly account for non-independence.
+
+---
+
+# Part 7: Geostatistics and Variograms
+
+## What is geostatistics?
+
+Geostatistics focuses on **continuous spatial variation**—interpolating values between sampled locations based on spatial correlation structure.
+
+Key concept: **Variogram** (or semivariogram)
+
+## The variogram
+
+The variogram describes how dissimilarity increases with distance:
+
+$$\gamma(h) = \frac{1}{2N(h)} \sum_{i=1}^{N(h)} [z(x_i) - z(x_i + h)]^2$$
+
+where $h$ is the lag distance and $N(h)$ is the number of pairs at that distance.
+
+```{r variogram-concept, echo=FALSE}
+cat("
+VARIOGRAM COMPONENTS
+═══════════════════════════════════════════════════════════════
+
+Semivariance ↑
+             │           ┌─────────────── Sill (total variance)
+             │      ╱────┘
+             │    ╱
+             │  ╱
+   Nugget ───┼─╱
+             │╱
+             └────────────────────────────→ Distance
+                    │
+                  Range (distance where autocorrelation fades)
+
+NUGGET: Variance at distance = 0 (measurement error + micro-scale variation)
+SILL: Maximum variance (variance of the random field)
+RANGE: Distance at which autocorrelation effectively disappears
+")
+```
+
+## Computing and plotting variograms
+
+```{r variogram-calc, fig.cap="Empirical variogram showing semivariance vs distance. The fitted model (line) captures the spatial correlation structure."}
+# Create spatial object for gstat
+library(sp)
+sp::coordinates(regression_data) <- ~ x + y
+
+# Compute empirical variogram
+emp_variogram <- variogram(response ~ 1, data = regression_data)
+
+# Plot
+plot(emp_variogram, main = "Empirical Variogram")
+```
+
+## Fitting variogram models
+
+```{r variogram-fit, fig.cap="Fitted variogram model. Common models include spherical, exponential, and Gaussian."}
+# Fit variogram model
+# Common models: "Sph" (spherical), "Exp" (exponential), "Gau" (Gaussian)
+vgm_model <- fit.variogram(emp_variogram, 
+                            model = vgm(psill = 1, model = "Exp", 
+                                        range = 5, nugget = 0.1))
+
+# Plot with fitted model
+plot(emp_variogram, model = vgm_model, main = "Fitted Variogram Model")
+
+# View model parameters
+print(vgm_model)
+```
+
+---
+
+# Part 8: Spatial Interpolation (Kriging)
+
+## What is kriging?
+
+**Kriging** uses the variogram model to predict values at unsampled locations. It provides:
+- **Optimal predictions** (minimizes mean squared error)
+- **Prediction uncertainty** (kriging variance)
+
+## Ordinary kriging
+
+```{r kriging, fig.cap="Kriging predictions and uncertainty. Left: predicted values; Right: prediction standard error (uncertainty is higher far from sample points)."}
+# Create prediction grid
+pred_grid <- expand.grid(
+  x = seq(0.5, 20.5, by = 0.5),
+  y = seq(0.5, 20.5, by = 0.5)
+)
+sp::coordinates(pred_grid) <- ~ x + y
+gridded(pred_grid) <- TRUE
+
+# Perform ordinary kriging
+kriging_result <- krige(response ~ 1, 
+                         locations = regression_data,
+                         newdata = pred_grid,
+                         model = vgm_model)
+
+# Convert to data frame for plotting
+kriging_df <- as.data.frame(kriging_result)
+
+# Plot predictions
+p1 <- ggplot(kriging_df, aes(x = x, y = y, fill = var1.pred)) +
+  geom_tile() +
+  scale_fill_viridis(name = "Predicted\nValue") +
+  coord_equal() +
+  labs(title = "Kriging Predictions") +
+  theme_minimal()
+
+# Plot uncertainty (kriging variance)
+p2 <- ggplot(kriging_df, aes(x = x, y = y, fill = sqrt(var1.var))) +
+  geom_tile() +
+  scale_fill_viridis(name = "Prediction\nSE", option = "magma") +
+  coord_equal() +
+  labs(title = "Prediction Uncertainty") +
+  theme_minimal()
+
+# Combine plots
+library(gridExtra)
+grid.arrange(p1, p2, ncol = 2)
+```
+
+## Universal kriging
+
+When there's a spatial trend, use **universal kriging** (kriging with a trend model):
+
+```{r universal-kriging}
+# Kriging with external drift (covariates)
+# If we had an environmental covariate:
+# krige(response ~ predictor, ...)
+```
+
+---
+
+# Part 9: Ecological Case Studies
+
+## Case Study 1: Soil nutrients across a landscape
+
+```{r case-soil}
+# Simulate soil nitrogen data
+set.seed(456)
+n_samples <- 100
+soil_data <- data.frame(
+  x = runif(n_samples, 0, 100),
+  y = runif(n_samples, 0, 100)
+)
+
+# Spatial pattern in nitrogen (higher in lowlands)
+dist_mat <- as.matrix(dist(soil_data[, c("x", "y")]))
+cov_mat <- 2 * exp(-dist_mat / 20)
+L <- chol(cov_mat + diag(0.01, n_samples))
+spatial_component <- as.numeric(t(L) %*% rnorm(n_samples))
+
+soil_data$nitrogen <- 10 + 0.05 * (50 - soil_data$x) + spatial_component
+soil_data$nitrogen <- pmax(soil_data$nitrogen, 0)
+
+# Create sf object
+soil_sf <- st_as_sf(soil_data, coords = c("x", "y"))
+
+# Visualize
+ggplot(soil_data, aes(x = x, y = y, color = nitrogen)) +
+  geom_point(size = 3) +
+  scale_color_viridis(name = "Nitrogen\n(mg/kg)") +
+  labs(title = "Soil Nitrogen Concentrations") +
+  coord_equal() +
+  theme_minimal()
+
+# Test for spatial autocorrelation
+soil_coords <- as.matrix(soil_data[, c("x", "y")])
+soil_nb <- knn2nb(knearneigh(soil_coords, k = 8))
+soil_weights <- nb2listw(soil_nb, style = "W")
+
+cat("Global Moran's I test:\n")
+print(moran.test(soil_data$nitrogen, soil_weights))
+```
+
+## Case Study 2: Species richness hotspots
+
+```{r case-richness, fig.cap="Local Moran's I analysis identifying species richness hotspots (red) and coldspots (blue)."}
+library(spdep)
+library(dplyr)
+library(ggplot2)
+
+# Simulate species richness data
+set.seed(789)
+richness_data <- data.frame(
+  x = rep(1:15, each = 15),
+  y = rep(1:15, 15)
+)
+
+# Create hotspot in one corner
+hotspot_center <- c(12, 12)
+dist_to_hotspot <- sqrt((richness_data$x - hotspot_center[1])^2 +
+                         (richness_data$y - hotspot_center[2])^2)
+richness_data$richness <- 20 + 15 * exp(-dist_to_hotspot / 5) +
+  rpois(nrow(richness_data), 3)
+
+# Local Moran's I
+richness_coords <- as.matrix(richness_data[, c("x", "y")])
+richness_nb <- knn2nb(knearneigh(richness_coords, k = 8))
+richness_weights <- nb2listw(richness_nb, style = "W")
+
+local_i <- localmoran(richness_data$richness, richness_weights)
+richness_data$local_I <- local_i[, "Ii"]
+richness_data$local_p <- local_i[, "Pr(z != E(Ii))"]
+richness_data$lag <- lag.listw(richness_weights, richness_data$richness)
+
+# --- FIX: scale() -> numeric vector (not a matrix) ---
+z_rich <- as.numeric(scale(richness_data$richness))
+z_lag  <- as.numeric(scale(richness_data$lag))
+
+# Classify clusters
+richness_data$cluster <- case_when(
+  z_rich > 0 & z_lag > 0 & richness_data$local_p < 0.05 ~ "Hotspot",
+  z_rich < 0 & z_lag < 0 & richness_data$local_p < 0.05 ~ "Coldspot",
+  TRUE ~ "Not Significant"
+)
+
+# Plot
+ggplot(richness_data, aes(x = x, y = y)) +
+  geom_point(aes(size = richness, color = cluster)) +
+  scale_color_manual(values = c("Hotspot" = "firebrick",
+                               "Coldspot" = "steelblue",
+                               "Not Significant" = "gray70")) +
+  scale_size_continuous(range = c(2, 8)) +
+  labs(title = "Species Richness Hotspot Analysis",
+       size = "Richness", color = "Cluster") +
+  coord_equal() +
+  theme_minimal()
+```
+
+## Case Study 3: Spatial regression comparison
+
+```{r case-regression}
+# Use soil data to compare OLS vs spatial models
+# Predictor: distance to water (lower distance = higher nitrogen)
+soil_data$dist_water <- sqrt((soil_data$x - 0)^2 + (soil_data$y - 50)^2)
+
+# OLS
+ols <- lm(nitrogen ~ dist_water, data = soil_data)
+
+# Check residual autocorrelation
+cat("OLS Residual Moran's I:\n")
+print(moran.test(residuals(ols), soil_weights))
+
+# Spatial error model
+sem <- errorsarlm(nitrogen ~ dist_water, data = soil_data, listw = soil_weights)
+
+# Spatial lag model
+slm <- lagsarlm(nitrogen ~ dist_water, data = soil_data, listw = soil_weights)
+
+# Compare
+cat("\nModel Comparison (AIC):\n")
+cat("OLS:", round(AIC(ols), 1), "\n")
+cat("SEM:", round(AIC(sem), 1), "\n")
+cat("SLM:", round(AIC(slm), 1), "\n")
+
+# Compare coefficients
+cat("\nCoefficient for dist_water:\n")
+cat("OLS:", round(coef(ols)[2], 4), "\n")
+cat("SEM:", round(coef(sem)[2], 4), "\n")
+cat("SLM:", round(coef(slm)[2], 4), "\n")
+```
+
+---
+
+# Part 10: Common Pitfalls and Tips
+
+## Pitfalls to avoid
+
+| Pitfall | Problem | Solution |
+|---------|---------|----------|
+| Wrong neighbor definition | Misspecified spatial structure | Test multiple definitions, use ecological knowledge |
+| Ignoring edge effects | Border observations have fewer neighbors | Use edge correction or buffer |
+| Overfitting variogram | Poor interpolation | Use cross-validation |
+| Assuming stationarity | Spatial correlation varies | Check for non-stationarity |
+| Confounding | Spurious spatial correlation | Include relevant covariates |
+
+## Practical tips
+
+1. **Always visualize first** — Map your data before modeling
+2. **Test for autocorrelation** — Don't assume; test residuals
+3. **Try multiple neighbor definitions** — Results can be sensitive
+4. **Compare models** — Use AIC, check residuals
+5. **Report uncertainty** — Especially for interpolation
+6. **Consider scale** — Patterns may change with extent/resolution
+
+---
+
+# Part 11: Reporting
+
+## What to report
+
+1. **Spatial structure of data** — Coordinates, extent, sample size
+2. **Neighbor definition** — k-nearest, distance band, etc.
+3. **Spatial weights** — Row standardization or other
+4. **Autocorrelation test** — Moran's I with p-value
+5. **Model comparison** — OLS vs spatial models, AIC
+6. **Residual diagnostics** — Is autocorrelation resolved?
+7. **Maps** — Visualize patterns and predictions
+
+## Sample methods and results
+
+### Methods
+
+> We tested for spatial autocorrelation in soil nitrogen concentrations using Global Moran's I with k=8 nearest neighbors and row-standardized weights. Because significant autocorrelation was detected in OLS residuals (Moran's I = 0.42, p < 0.001), we fit spatial error (SEM) and spatial lag (SLM) models using the spatialreg package. Models were compared using AIC, and the best model was validated by testing residuals for remaining autocorrelation. For interpolation, we fit an exponential variogram model and performed ordinary kriging on a 100 × 100 prediction grid. All spatial analyses were conducted using sf, spdep, spatialreg, and gstat packages in R version 4.3.1.
+
+### Results
+
+> Soil nitrogen showed significant positive spatial autocorrelation (Global Moran's I = 0.58, p < 0.001), with concentrations clustered in the western portion of the study area (**Fig. X**). Local Moran's I analysis identified a significant hotspot (High-High cluster) in the northwest corner. The spatial error model (AIC = 245.3) outperformed OLS (AIC = 289.7) and the spatial lag model (AIC = 251.2). After accounting for spatial autocorrelation, nitrogen concentration decreased significantly with distance from the stream (SEM: β = -0.08, SE = 0.02, p < 0.001), compared to the OLS estimate (β = -0.12, SE = 0.01) which showed inflated significance due to autocorrelation. Residuals from the SEM showed no remaining spatial autocorrelation (Moran's I = 0.03, p = 0.31). Kriging predictions (**Fig. Y**) showed a continuous gradient with prediction uncertainty increasing in under-sampled areas.
+
+---
+
+## Key takeaways
+
+1. **Spatial autocorrelation is ubiquitous in ecology** — Always check for it
+
+2. **Moran's I quantifies global autocorrelation** — Local Moran's finds hotspots
+
+3. **Neighbors and weights must be defined** — Choose based on ecological knowledge
+
+4. **OLS fails with spatial data** — Use spatial regression models
+
+5. **SEM vs SLM depends on process** — Error model for nuisance autocorrelation, lag model for spillover
+
+6. **Variograms describe spatial structure** — Range tells you the scale of autocorrelation
+
+7. **Kriging provides optimal interpolation** — With uncertainty estimates
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Explain the difference between positive and negative spatial autocorrelation. Give an ecological example of each.
+
+2. When would you choose a Spatial Error Model over a Spatial Lag Model? Describe the ecological reasoning.
+
+3. What do the nugget, sill, and range of a variogram tell you about spatial structure?
+
+### Part 2: Detecting autocorrelation
+
+Using this simulated dataset:
+
+```{r assignment-detect}
+set.seed(111)
+n <- 150
+assignment_data <- data.frame(
+  x = runif(n, 0, 50),
+  y = runif(n, 0, 50)
+)
+# Create spatially autocorrelated values
+d <- as.matrix(dist(assignment_data))
+C <- exp(-d / 10)
+L <- chol(C + diag(0.01, n))
+assignment_data$value <- as.numeric(t(L) %*% rnorm(n))
+```
+
+1. Create a map of the data
+2. Define neighbors (k=6 nearest)
+3. Calculate and interpret Global Moran's I
+4. Create a Moran scatter plot
+5. Calculate Local Moran's I and identify clusters
+
+### Part 3: Spatial regression
+
+Using the same data, add a predictor and fit models:
+
+```{r assignment-regression}
+# Add predictor
+assignment_data$predictor <- assignment_data$x / 10 + rnorm(n, 0, 1)
+assignment_data$response <- 5 + 0.5 * assignment_data$predictor + 
+                            assignment_data$value
+```
+
+1. Fit OLS and check residual autocorrelation
+2. Fit SEM and SLM
+3. Compare models using AIC
+4. Interpret the best model's coefficients
+5. Test whether spatial autocorrelation is resolved
+
+### Part 4: Variogram and kriging
+
+1. Compute an empirical variogram
+2. Fit a variogram model (try exponential and spherical)
+3. Perform ordinary kriging on a prediction grid
+4. Map predictions and uncertainty
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why ignoring spatial autocorrelation can lead to incorrect conclusions in ecological studies.

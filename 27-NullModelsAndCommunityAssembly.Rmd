@@ -1,0 +1,794 @@
+# Null Models and Community Assembly
+
+Why do certain species live together while others never co-occur? Is the pattern we observe the result of ecological processes—competition, environmental filtering, historical contingency—or could it arise by chance?
+
+**Null models** provide the statistical framework to answer these questions. By generating random communities that preserve some features of the data while randomizing others, we can test whether observed patterns are stronger (or weaker) than expected by chance.
+
+This chapter covers:
+- The logic and philosophy of null models
+- Co-occurrence analysis (do species avoid each other?)
+- Phylogenetic community structure (are relatives clustered or overdispersed?)
+- Connecting patterns to assembly mechanisms
+
+## The fundamental question
+
+You observe that Species A and Species B never co-occur at the same site. Is this because:
+
+1. **Competition:** They exclude each other through competitive interactions
+2. **Habitat filtering:** They require different environments
+3. **Chance:** Random sampling from a species pool can produce apparent patterns
+
+Null models help distinguish signal from noise by asking: **"How often would we see this pattern in a random world?"**
+
+## The null model logic
+
+```{r null-logic, echo=FALSE}
+cat("
+THE NULL MODEL WORKFLOW
+════════════════════════════════════════════════════════════════
+
+1. OBSERVE a pattern in your data
+   └── e.g., Species A and B never co-occur
+
+2. CALCULATE a metric that quantifies the pattern
+   └── e.g., Number of checkerboard pairs, C-score
+
+3. DEFINE what 'random' means (the null model)
+   └── What constraints to preserve?
+   └── What to randomize?
+
+4. GENERATE many random communities
+   └── Typically 999 or 9999 randomizations
+
+5. CALCULATE the metric for each random community
+   └── Creates a null distribution
+
+6. COMPARE observed to null distribution
+   └── Is observed more extreme than expected?
+   └── Calculate p-value and effect size
+
+")
+```
+
+## Setup
+
+```{r setup-null, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(vegan)         # Community ecology & null models
+library(picante)       # Phylogenetic community structure
+library(ape)           # Phylogenetic trees
+set.seed(42)
+```
+
+---
+
+# Part 1: The Philosophy of Null Models
+
+## What makes a good null model?
+
+A null model should:
+1. **Preserve realistic constraints** (species richness, abundance distributions)
+2. **Randomize the pattern of interest** (co-occurrence, trait matching)
+3. **Be appropriate for your question** (different questions need different nulls)
+
+## The constraint problem
+
+The more constraints you preserve, the more conservative your test:
+
+| Null model | Preserves | Randomizes | Stringency |
+|------------|-----------|------------|------------|
+| Equiprobable | Nothing | Everything | Very liberal |
+| Row totals | Species richness per site | Species identities | Moderate |
+| Column totals | Species frequency | Site identities | Moderate |
+| Both (fixed-fixed) | Row AND column totals | Specific co-occurrences | Very conservative |
+
+```{r constraint-viz, echo=FALSE, fig.cap="Different null models preserve different constraints. More constraints = more conservative test."}
+# Simple illustration
+par(mfrow = c(2, 2), mar = c(2, 2, 3, 1))
+
+# Original matrix
+orig <- matrix(c(1,1,0,0,
+                 0,1,1,0,
+                 0,0,1,1,
+                 1,0,0,1), 4, byrow = TRUE)
+image(t(orig[4:1,]), col = c("white", "steelblue"), axes = FALSE, main = "Observed")
+box()
+
+# Equiprobable (random fill)
+set.seed(1)
+equi <- matrix(sample(c(0,1), 16, replace = TRUE, prob = c(0.5, 0.5)), 4)
+image(t(equi[4:1,]), col = c("white", "coral"), axes = FALSE, main = "Equiprobable null")
+box()
+
+# Row preserved
+row_pres <- orig[, sample(4)]
+image(t(row_pres[4:1,]), col = c("white", "forestgreen"), axes = FALSE, main = "Row sums preserved")
+box()
+
+# Fixed-fixed (swap algorithm)
+image(t(orig[4:1, c(2,1,4,3)]), col = c("white", "purple"), axes = FALSE, main = "Row + Column preserved")
+box()
+
+par(mfrow = c(1, 1))
+```
+
+## Type I and Type II errors in null models
+
+- **Too liberal** (few constraints): High Type I error (false positives)
+- **Too conservative** (many constraints): High Type II error (false negatives)
+
+The fixed-fixed null model (preserving both row and column totals) is generally recommended because it controls for:
+- Differences in species' range sizes (some species are widespread)
+- Differences in site richness (some sites have more species)
+
+---
+
+# Part 2: Co-occurrence Analysis
+
+## The classic question
+
+Diamond (1975) proposed "assembly rules" based on observing that some bird species never co-occur on islands. But Connor and Simberloff (1979) challenged: "Couldn't this pattern arise by chance?"
+
+This debate launched the field of null model analysis in ecology.
+
+## Creating a presence-absence matrix
+
+```{r pa-matrix}
+# Example: species occurrence across sites
+# Rows = sites, Columns = species
+occurrence <- matrix(
+  c(1, 1, 0, 0, 1, 0,
+    1, 0, 1, 0, 1, 0,
+    0, 1, 1, 0, 0, 1,
+    1, 1, 0, 1, 0, 0,
+    0, 0, 1, 1, 0, 1,
+    1, 0, 0, 1, 1, 0,
+    0, 1, 1, 0, 0, 1,
+    1, 1, 0, 0, 1, 0),
+  nrow = 8, byrow = TRUE,
+  dimnames = list(
+    Sites = paste0("Site", 1:8),
+    Species = paste0("Sp", 1:6)
+  )
+)
+
+occurrence
+```
+
+## Checkerboard units
+
+A **checkerboard** occurs when two species show perfect mutual exclusion in a pair of sites:
+
+```{r checkerboard-concept, echo=FALSE}
+cat("
+CHECKERBOARD UNIT
+═══════════════════════════════════════
+
+Site 1:  Species A present,  Species B absent
+Site 2:  Species A absent,   Species B present
+
+        Sp A    Sp B
+Site 1   1       0
+Site 2   0       1
+
+This creates a 'checkerboard' pattern suggesting exclusion.
+")
+```
+
+## The C-score
+
+The **C-score** (checkerboard score) measures the average number of checkerboard units across all species pairs:
+
+$$C = \frac{1}{P} \sum_{j<k} (r_j - S_{jk})(r_k - S_{jk})$$
+
+where:
+- $r_j$ = number of sites where species j occurs
+- $S_{jk}$ = number of sites where both species co-occur
+- $P$ = number of species pairs
+
+Higher C-score = more segregation (fewer co-occurrences than expected)
+
+```{r cscore-calc}
+# C-score function (Stone & Roberts 1990)
+# For a sites × species presence-absence matrix
+c_score <- function(mat) {
+  mat <- (mat > 0) * 1
+  S <- ncol(mat)
+  Ri <- colSums(mat)
+  total <- 0
+  
+  for (i in 1:(S - 1)) {
+    for (j in (i + 1):S) {
+      Sij <- sum(mat[, i] == 1 & mat[, j] == 1)
+      total <- total + (Ri[i] - Sij) * (Ri[j] - Sij)
+    }
+  }
+  total
+}
+
+# Observed C-score
+obs_c <- c_score(occurrence)
+cat("Observed C-score:", obs_c, "\n")
+
+# Null model test using vegan's oecosimu
+cooc_analysis <- oecosimu(
+  occurrence,
+  nestfun = c_score,
+  method = "quasiswap",
+  nsimul = 999
+)
+
+cooc_analysis
+```
+
+## Interpreting co-occurrence results
+
+```{r cooc-plot, fig.cap="Null distribution of C-scores. The observed value (red line) compared to random expectation indicates whether species co-occur less (or more) than expected by chance."}
+# Extract null distribution from oecosimu object
+null_c <- cooc_analysis$oecosimu$simulated
+
+# Plot null distribution
+hist(null_c, breaks = 30, col = "gray80", border = "white",
+     main = "Null Distribution of C-score",
+     xlab = "C-score")
+abline(v = obs_c, col = "firebrick", lwd = 2)
+abline(v = mean(null_c), col = "steelblue", lwd = 2, lty = 2)
+legend("topright", 
+       legend = c("Observed", "Null mean"),
+       col = c("firebrick", "steelblue"),
+       lwd = 2, lty = c(1, 2), bty = "n")
+```
+
+**Interpretation:**
+- **Observed > Null:** Species segregated (competitive exclusion?)
+- **Observed < Null:** Species aggregated (shared habitat preferences?)
+- **Observed ≈ Null:** Random co-occurrence
+
+## Effect size (SES)
+
+The **Standardized Effect Size** allows comparison across studies:
+
+$$SES = \frac{Observed - Mean_{null}}{SD_{null}}$$
+
+```{r ses-calc}
+# Extract values from oecosimu object
+null_values <- cooc_analysis$oecosimu$simulated
+
+null_mean <- mean(null_values)
+null_sd <- sd(null_values)
+ses <- (obs_c - null_mean) / null_sd
+p_upper <- mean(null_values >= obs_c)
+
+cat("Observed C-score:", round(obs_c, 2), "\n")
+cat("Null mean:", round(null_mean, 2), "\n")
+cat("SES:", round(ses, 2), "\n")
+cat("P-value:", round(p_upper, 3), "\n")
+```
+
+**SES interpretation:**
+- |SES| < 2: Not significantly different from random
+- SES > 2: Significantly segregated
+- SES < -2: Significantly aggregated
+
+---
+
+# Part 3: Null Model Algorithms
+
+## Common algorithms for presence-absence data
+
+```{r algorithms-table, echo=FALSE}
+algos <- data.frame(
+  Algorithm = c("sim1", "sim2", "sim3", "sim9", "sim10"),
+  `Row sums` = c("Variable", "Fixed", "Variable", "Fixed", "Fixed"),
+  `Column sums` = c("Variable", "Variable", "Fixed", "Fixed", "Fixed"),
+  Method = c("Random fill", "Shuffle rows", "Shuffle columns", 
+             "Sequential swap", "Independent swap"),
+  Recommendation = c("Too liberal", "Moderate", "Moderate", 
+                     "Recommended", "Recommended"),
+  check.names = FALSE
+)
+knitr::kable(algos, caption = "Common null model algorithms for co-occurrence analysis")
+```
+
+## The swap algorithm (sim9)
+
+The recommended "fixed-fixed" algorithm:
+
+1. Start with observed matrix
+2. Find a 2×2 submatrix that forms a checkerboard
+3. Swap the 1s and 0s (preserves row and column totals)
+4. Repeat many times to randomize
+
+```{r swap-demo}
+# Visual demonstration of a swap
+cat("Before swap:          After swap:\n")
+cat("  Sp1 Sp2               Sp1 Sp2\n")
+cat("A  1   0     →        A  0   1\n")
+cat("B  0   1               B  1   0\n")
+cat("\nRow and column sums unchanged!\n")
+```
+
+## Using vegan for co-occurrence
+
+```{r vegan-cooc}
+# vegan's oecosimu function
+# Calculate C-score equivalent (number of checkerboards)
+
+# Custom function to calculate checkerboards
+count_checkerboards <- function(m) {
+  # m is transposed (species × sites)
+  m <- t(m)
+  n_sp <- nrow(m)
+  total <- 0
+  for (i in 1:(n_sp-1)) {
+    for (j in (i+1):n_sp) {
+      # Checkerboard for species pair i,j
+      shared <- sum(m[i,] == 1 & m[j,] == 1)
+      only_i <- sum(m[i,] == 1 & m[j,] == 0)
+      only_j <- sum(m[i,] == 0 & m[j,] == 1)
+      # C-score component
+      total <- total + only_i * only_j
+    }
+  }
+  return(total)
+}
+
+# Observed
+obs_checker <- count_checkerboards(occurrence)
+
+# Null model using vegan
+null_result <- oecosimu(occurrence, count_checkerboards, 
+                         method = "swap", nsimul = 999,
+                         burnin = 1000, thin = 100)
+
+null_result
+```
+
+---
+
+# Part 4: Phylogenetic Community Structure
+
+## The question
+
+Are co-occurring species more (or less) related than expected by chance?
+
+- **Phylogenetic clustering:** Close relatives co-occur → environmental filtering
+- **Phylogenetic overdispersion:** Distant relatives co-occur → competitive exclusion
+
+## The data you need
+
+1. **Community matrix:** Sites × species presence/absence or abundance
+2. **Phylogeny:** Evolutionary relationships among species
+
+```{r phylo-data}
+# Simulate a phylogeny
+set.seed(123)
+n_species <- 15
+tree <- rtree(n = n_species, tip.label = paste0("Sp", 1:n_species))
+
+# Plot phylogeny
+plot(tree, main = "Simulated Phylogeny")
+
+# Simulate community data (some species at some sites)
+n_sites <- 10
+community <- matrix(
+  rbinom(n_species * n_sites, 1, 0.4),
+  nrow = n_sites,
+  dimnames = list(paste0("Site", 1:n_sites), tree$tip.label)
+)
+
+# Make sure each site has at least 2 species
+for (i in 1:n_sites) {
+  if (sum(community[i,]) < 2) {
+    community[i, sample(1:n_species, 3)] <- 1
+  }
+}
+
+head(community)
+```
+
+## Mean Pairwise Distance (MPD)
+
+**MPD** measures the average phylogenetic distance between all species pairs in a community:
+
+$$MPD = \frac{\sum_{i<j} d_{ij}}{P}$$
+
+where $d_{ij}$ is the phylogenetic distance between species i and j.
+
+```{r mpd-calc}
+# Calculate phylogenetic distances
+phylo_dist <- cophenetic(tree)
+
+# Calculate MPD for each community
+mpd_obs <- mpd(community, phylo_dist, abundance.weighted = FALSE)
+mpd_obs
+```
+
+## Mean Nearest Taxon Distance (MNTD)
+
+**MNTD** measures the average distance to the closest relative for each species:
+
+$$MNTD = \frac{\sum_i \min(d_{ij})}{S}$$
+
+MNTD is more sensitive to terminal clustering (recent divergence).
+
+```{r mntd-calc}
+# Calculate MNTD
+mntd_obs <- mntd(community, phylo_dist, abundance.weighted = FALSE)
+mntd_obs
+```
+
+## Standardized effect sizes (NRI and NTI)
+
+The **Net Relatedness Index (NRI)** and **Nearest Taxon Index (NTI)** are standardized versions:
+
+$$NRI = -\frac{MPD_{obs} - MPD_{null}}{SD_{null}}$$
+
+$$NTI = -\frac{MNTD_{obs} - MNTD_{null}}{SD_{null}}$$
+
+Note the negative sign: positive NRI/NTI indicates clustering.
+
+```{r ses-phylo}
+# Calculate SES using picante
+ses_mpd <- ses.mpd(community, phylo_dist, 
+                    null.model = "taxa.labels",
+                    abundance.weighted = FALSE,
+                    runs = 999)
+
+ses_mntd <- ses.mntd(community, phylo_dist,
+                      null.model = "taxa.labels", 
+                      abundance.weighted = FALSE,
+                      runs = 999)
+
+# View results
+cat("=== MPD Results (NRI = -SES) ===\n")
+print(ses_mpd[, c("ntaxa", "mpd.obs", "mpd.rand.mean", "mpd.obs.z", "mpd.obs.p")])
+
+cat("\n=== MNTD Results (NTI = -SES) ===\n")  
+print(ses_mntd[, c("ntaxa", "mntd.obs", "mntd.rand.mean", "mntd.obs.z", "mntd.obs.p")])
+```
+
+## Interpreting phylogenetic structure
+
+| Pattern | NRI/NTI | Possible mechanism |
+|---------|---------|-------------------|
+| Phylogenetic clustering | Positive (> 1.96) | Environmental filtering (conserved niches) |
+| Phylogenetic overdispersion | Negative (< -1.96) | Competitive exclusion (similar species compete) |
+| Random | -1.96 to 1.96 | Neutral assembly, or multiple processes |
+
+```{r phylo-viz, fig.cap="Interpretation of phylogenetic community structure depends on whether traits are phylogenetically conserved."}
+cat("
+INTERPRETATION DEPENDS ON TRAIT CONSERVATISM
+═══════════════════════════════════════════════════════════════
+
+If traits are CONSERVED (close relatives are similar):
+  ├── Clustering → Environmental filtering
+  │     (environment selects for certain trait values)
+  └── Overdispersion → Competitive exclusion
+        (similar species compete for same resources)
+
+If traits are CONVERGENT (distant relatives are similar):
+  ├── Clustering → Competitive exclusion
+  │     (unrelated species with different traits coexist)
+  └── Overdispersion → Environmental filtering
+        (environment selects from different lineages)
+
+ALWAYS examine trait evolution on your phylogeny!
+")
+```
+
+---
+
+# Part 5: Null Models for Phylogenetic Structure
+
+## Null model choices
+
+| Null model | What it does | Use when |
+|------------|--------------|----------|
+| `taxa.labels` | Shuffle species labels on tree | Testing if observed community is non-random draw |
+| `richness` | Randomize while keeping richness | Controlling for local richness |
+| `frequency` | Randomize weighted by occurrence | Controlling for species prevalence |
+| `sample.pool` | Random draw from species pool | Testing against regional pool |
+| `phylogeny.pool` | Shuffle phylogenetic relationships | Testing phylogenetic signal |
+
+```{r null-compare}
+# Compare different null models
+null_models <- c("taxa.labels", "richness", "frequency")
+
+results_list <- lapply(null_models, function(nm) {
+  ses.mpd(community, phylo_dist, 
+          null.model = nm, 
+          runs = 499,
+          abundance.weighted = FALSE)$mpd.obs.z
+})
+
+# Compare
+null_comparison <- data.frame(
+  Site = rownames(community),
+  taxa.labels = results_list[[1]],
+  richness = results_list[[2]],
+  frequency = results_list[[3]]
+)
+
+print(null_comparison, digits = 2)
+```
+
+---
+
+# Part 6: Connecting Patterns to Mechanisms
+
+## The inference problem
+
+Observing a pattern doesn't prove a mechanism. The same pattern can arise from different processes:
+
+```{r patterns-mechanisms, echo=FALSE}
+cat("
+PATTERN → MULTIPLE POSSIBLE MECHANISMS
+═══════════════════════════════════════════════════════════════
+
+Species segregation (high C-score):
+  ├── Competitive exclusion (species exclude each other)
+  ├── Habitat filtering (species prefer different habitats)
+  └── Historical/biogeographic factors (allopatric distributions)
+
+Phylogenetic clustering:
+  ├── Environmental filtering (conserved niches)
+  ├── Competitive exclusion (labile traits)
+  └── Dispersal limitation (nearby = related)
+
+Phylogenetic overdispersion:
+  ├── Competitive exclusion (conserved niches)
+  ├── Environmental filtering (convergent traits)
+  └── Facilitation among distant relatives
+
+HOW TO DISTINGUISH:
+1. Combine with trait analysis (Ch. 23)
+2. Examine spatial scale dependence
+3. Experimental manipulation
+4. Multiple independent tests
+")
+```
+
+## Combining co-occurrence and phylogeny
+
+```{r combined-analysis}
+# Sites with high vs low phylogenetic clustering
+clustering_sites <- which(ses_mpd$mpd.obs.z > 0)
+overdispersion_sites <- which(ses_mpd$mpd.obs.z < 0)
+
+cat("Sites with phylogenetic clustering:", 
+    paste(rownames(community)[clustering_sites], collapse = ", "), "\n")
+cat("Sites with phylogenetic overdispersion:", 
+    paste(rownames(community)[overdispersion_sites], collapse = ", "), "\n")
+
+# Could examine: do clustered sites differ environmentally?
+```
+
+## Scale dependence
+
+Assembly mechanisms may operate at different scales:
+
+```{r scale-concept, echo=FALSE}
+cat("
+SCALE-DEPENDENT ASSEMBLY
+═══════════════════════════════════════════════════════════════
+
+REGIONAL SCALE (among habitats):
+  └── Environmental filtering dominates
+  └── Expect phylogenetic clustering
+
+LOCAL SCALE (within habitats):
+  └── Competition dominates
+  └── Expect phylogenetic overdispersion
+
+This leads to the 'competition-relatedness' hypothesis:
+Competition is strongest among close relatives,
+driving local overdispersion within clustered habitat guilds.
+")
+```
+
+---
+
+# Part 7: Functional Trait Null Models
+
+## Connecting to Chapter 23
+
+We can apply the same null model logic to functional traits. Are communities:
+- **Functionally clustered:** Species more similar than expected
+- **Functionally overdispersed:** Species more different than expected
+
+```{r trait-null}
+# Simulate trait data
+traits <- data.frame(
+  SLA = rnorm(n_species, 20, 5),
+  Height = rnorm(n_species, 1, 0.5),
+  SeedMass = rnorm(n_species, 2, 1)
+)
+rownames(traits) <- tree$tip.label
+
+# Calculate functional distances
+trait_dist <- as.matrix(dist(scale(traits)))
+
+# Functional MPD
+fmpd <- mpd(community, trait_dist, abundance.weighted = FALSE)
+
+# SES for functional structure
+ses_fmpd <- ses.mpd(community, trait_dist,
+                     null.model = "taxa.labels",
+                     runs = 999,
+                     abundance.weighted = FALSE)
+
+cat("=== Functional MPD Results ===\n")
+print(ses_fmpd[, c("ntaxa", "mpd.obs", "mpd.obs.z", "mpd.obs.p")], digits = 2)
+```
+
+## Comparing phylogenetic and functional structure
+
+```{r phylo-func-compare, fig.cap="Comparing phylogenetic and functional structure. Points above the diagonal indicate functional is more clustered than phylogenetic; below = more overdispersed."}
+# Compare SES values
+comparison <- data.frame(
+  Site = rownames(community),
+  Phylo_SES = ses_mpd$mpd.obs.z,
+  Func_SES = ses_fmpd$mpd.obs.z
+)
+
+ggplot(comparison, aes(x = Phylo_SES, y = Func_SES)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
+  geom_point(size = 3, color = "steelblue") +
+  geom_text(aes(label = Site), vjust = -0.5, size = 3) +
+  labs(x = "Phylogenetic SES (NRI)",
+       y = "Functional SES",
+       title = "Phylogenetic vs Functional Community Structure") +
+  theme_minimal() +
+  coord_equal()
+```
+
+---
+
+# Part 8: Complete Workflow
+
+```{r complete-workflow-null}
+# === 1. Load/simulate data ===
+data(dune)
+
+# Create mock phylogenetic distances for dune species
+dune_species <- colnames(dune)
+n_sp <- length(dune_species)
+
+# Mock phylogeny (in practice, use real phylogeny)
+set.seed(42)
+mock_tree <- rtree(n_sp, tip.label = dune_species)
+dune_phylo_dist <- cophenetic(mock_tree)
+
+# === 2. Co-occurrence analysis ===
+cat("=== Co-occurrence Analysis ===\n")
+dune_pa <- (dune > 0) * 1  # Convert to presence-absence
+
+# Observed C-score
+obs_cscore <- c_score(dune_pa)
+
+# Using vegan's oecosimu
+cooc_result <- oecosimu(
+  dune_pa,
+  nestfun = c_score,
+  method = "quasiswap",
+  nsimul = 499
+)
+
+# Extract null distribution
+null_cscore <- cooc_result$oecosimu$simulated
+
+cat("C-score observed:", round(obs_cscore, 2), "\n")
+cat("C-score null mean:", round(mean(null_cscore), 2), "\n")
+cat("SES:", round((obs_cscore - mean(null_cscore)) / sd(null_cscore), 2), "\n")
+cat("P-value (upper):", round(mean(null_cscore >= obs_cscore), 3), "\n\n")
+
+# === 3. Phylogenetic structure ===
+cat("=== Phylogenetic Structure ===\n")
+phylo_ses <- ses.mpd(dune_pa, dune_phylo_dist,
+                      null.model = "taxa.labels",
+                      runs = 499)
+
+# Summarize across sites
+cat("Mean NRI:", round(-mean(phylo_ses$mpd.obs.z, na.rm = TRUE), 2), "\n")
+cat("Sites with clustering (NRI > 1.96):", 
+    sum(phylo_ses$mpd.obs.z < -1.96, na.rm = TRUE), "\n")
+cat("Sites with overdispersion (NRI < -1.96):", 
+    sum(phylo_ses$mpd.obs.z > 1.96, na.rm = TRUE), "\n")
+```
+
+---
+
+# Part 9: Reporting
+
+## What to report
+
+1. **Metric used:** C-score, NRI, NTI, etc.
+2. **Null model:** Which algorithm and why
+3. **Number of randomizations**
+4. **Effect size (SES)** and direction
+5. **P-value** and interpretation
+6. **Mechanistic interpretation** with appropriate caveats
+
+## Sample methods and results
+
+### Methods
+
+> We tested for non-random species co-occurrence using the C-score metric with a fixed-fixed null model (sim9 algorithm) that preserves both species frequencies and site richness. We generated 999 null communities using the sequential swap algorithm with 500 burn-in iterations. For phylogenetic community structure, we calculated the Net Relatedness Index (NRI) for each site using mean pairwise phylogenetic distance (MPD) compared to a "taxa.labels" null model with 999 randomizations. The phylogeny was obtained from [source] and pruned to include only species in our dataset. We interpreted NRI > 1.96 as significant phylogenetic clustering and NRI < -1.96 as significant overdispersion (α = 0.05, two-tailed). Analyses were conducted using EcoSimR and picante packages in R version 4.3.1.
+
+### Results
+
+> Species co-occurrence patterns were significantly segregated compared to null expectations (C-score SES = 2.34, p = 0.012), suggesting non-random assembly processes limit species co-occurrence. Phylogenetic community structure varied among sites: 6 of 20 sites showed significant phylogenetic clustering (NRI > 1.96, mean NRI = 2.8 ± 0.4), 3 sites showed significant overdispersion (NRI < -1.96), and 11 sites were not distinguishable from random (|NRI| < 1.96). Clustered sites tended to occur in more stressful environments (high elevation, low moisture), suggesting environmental filtering favors closely related species with similar stress tolerances. Overdispersed sites occurred in productive, competitive environments, consistent with competitive exclusion among similar species.
+
+---
+
+## Key takeaways
+
+1. **Null models test patterns against random expectation** — Essential for ecological inference
+
+2. **Constraints matter** — Fixed-fixed null models are most conservative
+
+3. **C-score measures co-occurrence structure** — High = segregation, low = aggregation
+
+4. **NRI/NTI measure phylogenetic structure** — Positive = clustering, negative = overdispersion
+
+5. **Same pattern, multiple mechanisms** — Use traits, experiments, and multiple scales to distinguish
+
+6. **Report effect sizes** — SES allows comparison across studies
+
+7. **Combine approaches** — Co-occurrence + phylogeny + traits gives strongest inference
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Why is a fixed-fixed null model more conservative than an equiprobable null model? When might this extra conservatism cause you to miss real patterns?
+
+2. You observe phylogenetic clustering at a site. Describe two different mechanisms that could produce this pattern, and how you might distinguish between them.
+
+3. Why might you observe different assembly patterns at local vs regional scales?
+
+### Part 2: Co-occurrence analysis
+
+Using the built-in `BCI` data (tree occurrences on Barro Colorado Island):
+
+```{r assignment-cooc}
+data(BCI)
+# Convert to presence-absence for first 50 species
+bci_pa <- (BCI[, 1:50] > 0) * 1
+```
+
+1. Calculate the C-score
+2. Compare to a fixed-fixed null model (999 randomizations)
+3. Calculate SES and p-value
+4. Interpret: Are species segregated, aggregated, or random?
+
+### Part 3: Phylogenetic structure
+
+Using the dune data with the mock phylogeny:
+
+```{r assignment-phylo}
+data(dune)
+# Use the mock tree created above, or create your own
+```
+
+1. Calculate NRI for each site
+2. Identify which sites show clustering vs overdispersion
+3. Test whether NRI correlates with an environmental variable
+4. Write a results paragraph
+
+### Part 4: Combining evidence
+
+Using your results from Parts 2 and 3, plus functional trait data if available:
+
+1. What assembly mechanism(s) best explain your community?
+2. What additional data would help distinguish between alternative mechanisms?
+3. Write a brief synthesis paragraph
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why it's important to compare observed patterns to null models rather than simply describing the patterns we see.

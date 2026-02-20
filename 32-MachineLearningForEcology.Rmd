@@ -1,0 +1,1134 @@
+# Machine Learning for Ecology
+
+Traditional statistics asks: *"Is this effect real?"* Machine learning asks: *"Can I predict what comes next?"*
+
+Both questions matter in ecology. We want to understand *why* species occur where they do (inference), AND we want to predict *where* they'll occur under future conditions (prediction). Machine learning excels at the second task—and increasingly helps with the first.
+
+This chapter introduces machine learning from an ecological perspective, focusing on:
+- When ML complements traditional statistics
+- Core algorithms useful for ecological questions
+- Proper validation and interpretation
+- Translating predictions into ecological insight
+
+## Why machine learning in ecology?
+
+| Traditional statistics | Machine learning |
+|------------------------|------------------|
+| Test hypotheses | Discover patterns |
+| Estimate effects with uncertainty | Optimize prediction accuracy |
+| Assumes model structure (linear, etc.) | Learns structure from data |
+| Works best with few, well-chosen predictors | Handles many predictors |
+| Inference-focused | Prediction-focused |
+
+**When is ML appropriate?**
+
+- **Many predictors:** Climate variables, soil properties, landscape metrics, remote sensing bands
+- **Complex relationships:** Nonlinear responses, interactions you can't specify in advance
+- **Prediction goals:** Species distribution models, habitat suitability, management decisions
+- **Pattern discovery:** Finding structure in high-dimensional community data
+
+**When to stick with traditional stats:**
+
+- Testing specific hypotheses about effects
+- Understanding mechanisms
+- Small sample sizes (ML needs data)
+- When you need interpretable coefficients with uncertainty
+
+## Setup
+
+```{r setup-ml, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tidymodels)    # Modern ML framework
+library(randomForest)  # Random forests
+library(xgboost)       # Gradient boosting
+library(glmnet)        # Regularized regression
+library(vip)           # Variable importance
+library(pdp)           # Partial dependence plots
+library(pROC)          # ROC curves
+
+set.seed(42)
+tidymodels_prefer()    # Resolve function conflicts
+```
+
+---
+
+# Part 1: Supervised vs Unsupervised Learning
+
+## Supervised learning
+
+You have a **response variable** you want to predict. The algorithm learns the mapping from predictors to response.
+
+```{r supervised-concept, echo=FALSE}
+cat("
+SUPERVISED LEARNING
+═══════════════════════════════════════════════════════════════
+
+Training data:    X (predictors) ──→ Y (response)
+                  Climate, soil      Species presence
+                  
+Algorithm learns: f(X) ≈ Y
+
+New data:         X_new ──→ Ŷ (prediction)
+                  Future climate    Predicted occurrence
+
+TYPES:
+  Regression:     Y is continuous (abundance, biomass)
+  Classification: Y is categorical (present/absent, habitat type)
+")
+```
+
+**Ecological examples:**
+- Predict species occurrence from environment (classification)
+- Predict abundance from habitat variables (regression)
+- Classify land cover from remote sensing (classification)
+
+## Unsupervised learning
+
+No response variable. The algorithm finds **structure** in the data.
+
+```{r unsupervised-concept, echo=FALSE}
+cat("
+UNSUPERVISED LEARNING
+═══════════════════════════════════════════════════════════════
+
+Data:             X (features only)
+                  Species composition, environmental variables
+                  
+Algorithm finds:  Clusters, gradients, patterns
+
+Output:           Group memberships, reduced dimensions
+
+TYPES:
+  Clustering:           Group similar observations
+  Dimensionality reduction: Find main axes of variation
+")
+```
+
+**Ecological examples:**
+- Cluster sites by community composition
+- Identify habitat types from environmental data
+- Reduce dimensions for visualization (like ordination!)
+
+---
+
+# Part 2: The Train/Test Paradigm
+
+## Why we split data
+
+ML models can **memorize** training data (overfitting). To assess real predictive ability, we must test on data the model hasn't seen.
+
+```{r train-test-concept, echo=FALSE}
+cat("
+THE FUNDAMENTAL ML WORKFLOW
+═══════════════════════════════════════════════════════════════
+
+Original Data
+     │
+     ├──→ Training Set (70-80%) ──→ Fit model
+     │
+     └──→ Test Set (20-30%) ──→ Evaluate predictions
+                                      │
+                                      ▼
+                               Performance metrics
+                               (on unseen data!)
+")
+```
+
+## Example: Species distribution data
+
+```{r create-sdm-data}
+# Simulate species distribution data
+n <- 500
+
+# Environmental predictors
+env_data <- data.frame(
+  temp = runif(n, 5, 25),
+  precip = runif(n, 200, 2000),
+  elevation = runif(n, 0, 3000),
+  slope = runif(n, 0, 45),
+  canopy = runif(n, 0, 100),
+  soil_ph = runif(n, 4, 8)
+)
+
+# Species occurrence (complex nonlinear response)
+# Optimal at intermediate temp, high precip, moderate elevation
+prob_occurrence <- with(env_data, {
+  plogis(-5 + 
+         0.8 * temp - 0.02 * temp^2 +  # Optimum around 20°C
+         0.002 * precip +
+         0.001 * elevation - 0.0000005 * elevation^2 +
+         0.01 * canopy +
+         -0.5 * abs(soil_ph - 6))       # Optimum pH 6
+})
+
+env_data$presence <- rbinom(n, 1, prob_occurrence)
+env_data$presence <- factor(env_data$presence, levels = c(0, 1), 
+                            labels = c("Absent", "Present"))
+
+# Check prevalence
+table(env_data$presence)
+```
+
+## Creating train/test split
+
+```{r train-test-split}
+# Using tidymodels
+set.seed(123)
+data_split <- initial_split(env_data, prop = 0.75, strata = presence)
+
+train_data <- training(data_split)
+test_data <- testing(data_split)
+
+cat("Training set:", nrow(train_data), "observations\n")
+cat("Test set:", nrow(test_data), "observations\n")
+```
+
+## Cross-validation
+
+For more robust evaluation, use **k-fold cross-validation**:
+
+```{r cv-concept, echo=FALSE}
+cat("
+K-FOLD CROSS-VALIDATION
+═══════════════════════════════════════════════════════════════
+
+Data split into k folds (e.g., k=5):
+
+Iteration 1: [Test][Train][Train][Train][Train]
+Iteration 2: [Train][Test][Train][Train][Train]
+Iteration 3: [Train][Train][Test][Train][Train]
+Iteration 4: [Train][Train][Train][Test][Train]
+Iteration 5: [Train][Train][Train][Train][Test]
+
+Each fold serves as test set once.
+Final performance = average across all folds.
+")
+```
+
+```{r cv-setup}
+# Create cross-validation folds
+cv_folds <- vfold_cv(train_data, v = 5, strata = presence)
+cv_folds
+```
+
+---
+
+# Part 3: Regularized Regression
+
+## The problem with many predictors
+
+With many predictors and limited observations, ordinary regression overfits. **Regularization** adds a penalty for model complexity.
+
+## LASSO, Ridge, and Elastic Net
+
+| Method | Penalty | Effect |
+|--------|---------|--------|
+| **Ridge** | Sum of squared coefficients | Shrinks all coefficients |
+| **LASSO** | Sum of absolute coefficients | Shrinks AND sets some to zero |
+| **Elastic Net** | Both | Compromise |
+
+```{r regularization-concept, echo=FALSE}
+cat("
+REGULARIZATION PENALTIES
+═══════════════════════════════════════════════════════════════
+
+Ordinary regression: minimize Σ(y - ŷ)²
+
+Ridge:              minimize Σ(y - ŷ)² + λ·Σβ²
+                    (shrinks coefficients toward zero)
+
+LASSO:              minimize Σ(y - ŷ)² + λ·Σ|β|
+                    (shrinks AND eliminates coefficients)
+
+Elastic Net:        minimize Σ(y - ŷ)² + λ₁·Σ|β| + λ₂·Σβ²
+                    (both penalties)
+
+λ = tuning parameter (higher = more regularization)
+")
+```
+
+## LASSO for variable selection
+
+```{r 32 lasso-example}
+# Prepare data for glmnet
+X_train <- as.matrix(train_data[, 1:6])
+y_train <- as.numeric(train_data$presence) - 1  # 0/1
+
+X_test <- as.matrix(test_data[, 1:6])
+y_test <- as.numeric(test_data$presence) - 1
+
+# Fit LASSO with cross-validation to find optimal lambda
+lasso_cv <- cv.glmnet(X_train, y_train, family = "binomial", alpha = 1)
+
+# Plot cross-validation curve
+plot(lasso_cv, main = "LASSO Cross-Validation")
+```
+
+```{r lasso-coefs, fig.cap="LASSO coefficients at optimal lambda. Variables with zero coefficients are effectively removed from the model."}
+# Coefficients at optimal lambda
+lasso_coefs <- coef(lasso_cv, s = "lambda.1se")
+print(lasso_coefs)
+
+# Predict on test set
+lasso_pred_prob <- predict(lasso_cv, X_test, s = "lambda.1se", type = "response")
+lasso_pred_class <- ifelse(lasso_pred_prob > 0.5, 1, 0)
+
+# Confusion matrix
+table(Predicted = lasso_pred_class, Actual = y_test)
+```
+
+## Comparing regularization approaches
+
+```{r compare-regularization}
+# Ridge regression (alpha = 0)
+ridge_cv <- cv.glmnet(X_train, y_train, family = "binomial", alpha = 0)
+
+# Elastic net (alpha = 0.5)
+enet_cv <- cv.glmnet(X_train, y_train, family = "binomial", alpha = 0.5)
+
+# Compare predictions
+ridge_auc <- auc(y_test, predict(ridge_cv, X_test, s = "lambda.1se", type = "response"))
+lasso_auc <- auc(y_test, predict(lasso_cv, X_test, s = "lambda.1se", type = "response"))
+enet_auc <- auc(y_test, predict(enet_cv, X_test, s = "lambda.1se", type = "response"))
+
+cat("Test Set AUC:\n")
+cat("Ridge:", round(ridge_auc, 3), "\n")
+cat("LASSO:", round(lasso_auc, 3), "\n")
+cat("Elastic Net:", round(enet_auc, 3), "\n")
+```
+
+---
+
+# Part 4: Random Forests
+
+## The workhorse of ecological ML
+
+**Random forests** are ensembles of decision trees, each trained on a bootstrap sample with a random subset of predictors.
+
+```{r rf-concept, echo=FALSE}
+cat("
+RANDOM FOREST
+═══════════════════════════════════════════════════════════════
+
+         Data
+           │
+    ┌──────┼──────┐
+    │      │      │
+    ▼      ▼      ▼
+  Tree₁  Tree₂  Tree₃  ...  Treeₙ
+    │      │      │          │
+    ▼      ▼      ▼          ▼
+  Pred₁  Pred₂  Pred₃  ...  Predₙ
+    │      │      │          │
+    └──────┴──────┴──────────┘
+                │
+                ▼
+         Final Prediction
+         (majority vote or average)
+
+Each tree sees:
+  • Bootstrap sample of observations
+  • Random subset of predictors at each split
+  
+This diversity reduces overfitting!
+")
+```
+
+## Why random forests work well for ecology
+
+1. **Handle nonlinearity** without specifying functional form
+2. **Capture interactions** automatically
+3. **Robust to outliers** and missing data
+4. **Provide variable importance** measures
+5. **Don't require scaling** of predictors
+
+## Fitting a random forest
+
+```{r rf-fit}
+# Using randomForest package
+rf_model <- randomForest(
+  presence ~ temp + precip + elevation + slope + canopy + soil_ph,
+  data = train_data,
+  ntree = 500,           # Number of trees
+  mtry = 2,              # Variables tried at each split
+  importance = TRUE      # Calculate importance
+)
+
+print(rf_model)
+```
+
+## Variable importance
+
+```{r rf-importance, fig.cap="Variable importance from random forest. Higher values indicate predictors that contribute more to prediction accuracy."}
+# Extract importance
+importance_df <- data.frame(
+  Variable = rownames(randomForest::importance(rf_model)),
+  MeanDecreaseAccuracy = randomForest::importance(rf_model)[, "MeanDecreaseAccuracy"],
+  MeanDecreaseGini = randomForest::importance(rf_model)[, "MeanDecreaseGini"]
+)
+
+# Plot
+ggplot(importance_df, aes(x = reorder(Variable, MeanDecreaseAccuracy), 
+                           y = MeanDecreaseAccuracy)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(x = "Variable", y = "Mean Decrease in Accuracy",
+       title = "Random Forest Variable Importance") +
+  theme_minimal()
+```
+
+## Partial dependence plots
+
+**Partial dependence** shows the marginal effect of a predictor, averaging over other variables:
+
+```{r pdp-plots, fig.cap="Partial dependence plots showing how predicted probability changes with each predictor, holding others constant."}
+# Partial dependence for top variables
+library(pdp)
+
+# Temperature effect
+pdp_temp <- pdp::partial(rf_model, pred.var = "temp", prob = TRUE)
+
+p1 <- autoplot(pdp_temp) +
+  labs(title = "Temperature", y = "P(Presence)") +
+  theme_minimal()
+
+# Precipitation effect
+pdp_precip <- pdp::partial(rf_model, pred.var = "precip", prob = TRUE)
+
+p2 <- autoplot(pdp_precip) +
+  labs(title = "Precipitation", y = "P(Presence)") +
+  theme_minimal()
+
+# Elevation effect
+pdp_elev <- pdp::partial(rf_model, pred.var = "elevation", prob = TRUE)
+
+p3 <- autoplot(pdp_elev) +
+  labs(title = "Elevation", y = "P(Presence)") +
+  theme_minimal()
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+
+## Evaluating the model
+
+```{r rf-evaluate}
+# Predict on test set
+rf_pred_prob <- predict(rf_model, test_data, type = "prob")[, "Present"]
+rf_pred_class <- predict(rf_model, test_data, type = "class")
+
+# Confusion matrix
+conf_mat <- table(Predicted = rf_pred_class, Actual = test_data$presence)
+print(conf_mat)
+
+# Accuracy
+accuracy <- sum(diag(conf_mat)) / sum(conf_mat)
+cat("\nAccuracy:", round(accuracy, 3), "\n")
+
+# AUC
+rf_auc <- auc(as.numeric(test_data$presence) - 1, rf_pred_prob)
+cat("AUC:", round(rf_auc, 3), "\n")
+```
+
+## ROC curve
+
+```{r roc-curve, fig.cap="ROC curve showing trade-off between sensitivity (true positive rate) and specificity. AUC measures overall discrimination ability."}
+# ROC curve
+roc_obj <- pROC::roc(test_data$presence, rf_pred_prob, levels = c("Absent", "Present"))
+
+plot(roc_obj, main = paste("ROC Curve (AUC =", round(auc(roc_obj), 3), ")"),
+     col = "steelblue", lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "gray50")
+```
+
+---
+
+# Part 5: Gradient Boosting (XGBoost)
+
+## Sequential learning
+
+Unlike random forests (parallel trees), **boosting** builds trees sequentially. Each tree corrects errors from previous trees.
+
+```{r xgb-concept, echo=FALSE}
+cat("
+GRADIENT BOOSTING
+═══════════════════════════════════════════════════════════════
+
+Round 1: Fit Tree₁ to data
+         Calculate residuals (errors)
+         
+Round 2: Fit Tree₂ to residuals
+         Update predictions
+         Calculate new residuals
+         
+Round 3: Fit Tree₃ to residuals
+         ...
+
+Final:   Prediction = Tree₁ + Tree₂ + Tree₃ + ...
+
+Each tree is small ('weak learner')
+Combined, they form a strong predictor
+")
+```
+
+## Fitting XGBoost
+
+```{r xgb-fit}
+# Prepare data for xgboost
+dtrain <- xgb.DMatrix(data = X_train, label = y_train)
+dtest <- xgb.DMatrix(data = X_test, label = y_test)
+
+# Parameters
+params <- list(
+  objective = "binary:logistic",
+  eval_metric = "auc",
+  max_depth = 4,
+  eta = 0.1,              # Learning rate
+  subsample = 0.8,
+  colsample_bytree = 0.8
+)
+
+# Fit with early stopping
+xgb_model <- xgb.train(
+  params = params,
+  data = dtrain,
+  nrounds = 500,
+  evals = list(train = dtrain, test = dtest),
+  early_stopping_rounds = 20,
+  verbose = 0
+)
+
+best_auc <- as.numeric(xgb_model$best_score)
+cat("Best AUC:", round(best_auc, 3), "\n")
+cat("Best iteration:", xgb_model$best_iteration, "\n")
+
+```
+
+## XGBoost importance
+
+```{r xgb-importance, fig.cap="XGBoost variable importance based on gain (improvement in accuracy from splits using each variable)."}
+# Variable importance
+xgb_importance <- xgb.importance(model = xgb_model)
+
+xgb.plot.importance(xgb_importance, main = "XGBoost Variable Importance")
+```
+
+## Comparing models
+
+```{r model-comparison, message=FALSE, warning=FALSE}
+library(pROC)
+
+# --- y_test: use existing object if present ---
+stopifnot(exists("y_test"))
+y_test <- if (is.factor(y_test)) as.integer(y_test) - 1 else as.integer(y_test)
+
+# --- pick your predictor data frame (this must exist) ---
+# Prefer test_df; if not, fall back to test_data
+if (exists("test_df")) {
+  Xdf <- test_df
+} else if (exists("test_data")) {
+  Xdf <- test_data
+} else {
+  stop("Need test_df or test_data (a data frame of predictors) to rebuild x_test with names.")
+}
+
+# Make a model matrix (this creates column names, handles factors)
+x_test <- model.matrix(~ . , data = Xdf)[, -1, drop = FALSE]
+
+# --- helper: align to glmnet fit ---
+align_to_glmnet <- function(x, cvfit) {
+  needed <- rownames(cvfit$glmnet.fit$beta)
+  needed <- setdiff(needed, "(Intercept)")
+  stopifnot(!is.null(colnames(x)))
+
+  missing <- setdiff(needed, colnames(x))
+  if (length(missing) > 0) {
+    add <- matrix(0, nrow = nrow(x), ncol = length(missing),
+                  dimnames = list(NULL, missing))
+    x <- cbind(x, add)
+  }
+  x <- x[, needed, drop = FALSE]
+  x
+}
+
+auc01 <- function(y, p) as.numeric(pROC::auc(pROC::roc(y, p, quiet = TRUE)))
+
+# --- glmnet probabilities ---
+stopifnot(exists("lasso_cv"), exists("ridge_cv"), exists("enet_cv"))
+
+x_lasso <- align_to_glmnet(x_test, lasso_cv)
+x_ridge <- align_to_glmnet(x_test, ridge_cv)
+x_enet  <- align_to_glmnet(x_test, enet_cv)
+
+stopifnot(length(y_test) == nrow(x_lasso))
+
+lasso_prob <- as.numeric(predict(lasso_cv, newx = x_lasso, s = "lambda.min", type = "response"))
+ridge_prob <- as.numeric(predict(ridge_cv, newx = x_ridge, s = "lambda.min", type = "response"))
+enet_prob  <- as.numeric(predict(enet_cv,  newx = x_enet,  s = "lambda.min", type = "response"))
+
+# --- Random Forest ---
+stopifnot(exists("rf_model"))
+rf_prob <- predict(rf_model, newdata = Xdf, type = "prob")[, 2]
+
+# --- XGBoost ---
+stopifnot(exists("xgb_model"))
+if (exists("dtest")) {
+  xgb_prob <- as.numeric(predict(xgb_model, newdata = dtest))
+} else {
+  dtest <- xgboost::xgb.DMatrix(data = x_test, label = y_test)
+  xgb_prob <- as.numeric(predict(xgb_model, newdata = dtest))
+}
+
+comparison <- data.frame(
+  Model = c("LASSO", "Ridge", "Elastic Net", "Random Forest", "XGBoost"),
+  AUC   = c(
+    auc01(y_test, lasso_prob),
+    auc01(y_test, ridge_prob),
+    auc01(y_test, enet_prob),
+    auc01(y_test, rf_prob),
+    auc01(y_test, xgb_prob)
+  )
+)
+
+comparison <- comparison[order(comparison$AUC, decreasing = TRUE), ]
+print(comparison, row.names = FALSE)
+```
+
+---
+
+# Part 6: Unsupervised Learning
+
+## K-means clustering
+
+Group observations into k clusters based on similarity:
+
+```{r kmeans-example, fig.cap="K-means clustering of sites based on environmental variables. Colors represent cluster membership."}
+# Cluster sites by environment
+env_scaled <- scale(env_data[, 1:6])
+
+# Determine optimal k using within-cluster sum of squares
+wss <- sapply(1:10, function(k) {
+  kmeans(env_scaled, centers = k, nstart = 20)$tot.withinss
+})
+
+# Elbow plot
+plot(1:10, wss, type = "b", pch = 19,
+     xlab = "Number of Clusters (k)",
+     ylab = "Total Within-Cluster Sum of Squares",
+     main = "Elbow Method for Optimal k")
+
+# Fit k-means with k=3
+km_fit <- kmeans(env_scaled, centers = 3, nstart = 25)
+
+# Visualize clusters
+env_data$cluster <- factor(km_fit$cluster)
+
+ggplot(env_data, aes(x = temp, y = precip, color = cluster, shape = presence)) +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Environmental Clusters",
+       x = "Temperature (°C)", y = "Precipitation (mm)") +
+  theme_minimal()
+```
+
+## Hierarchical clustering
+
+```{r hierarchical, fig.cap="Dendrogram from hierarchical clustering. Cut at different heights to get different numbers of clusters."}
+# Hierarchical clustering on subset for visualization
+set.seed(456)
+subset_idx <- sample(1:n, 50)
+env_subset <- env_scaled[subset_idx, ]
+
+# Distance matrix and clustering
+dist_mat <- dist(env_subset)
+hc <- hclust(dist_mat, method = "ward.D2")
+
+# Dendrogram
+plot(hc, labels = FALSE, main = "Hierarchical Clustering of Sites",
+     xlab = "Sites", ylab = "Height")
+rect.hclust(hc, k = 3, border = c("firebrick", "steelblue", "forestgreen"))
+```
+
+## Dimensionality reduction
+
+PCA reduces many variables to fewer dimensions (covered in ordination chapter):
+
+```{r pca-ml}
+# PCA on environmental data
+pca_result <- prcomp(env_scaled, scale. = FALSE)  # Already scaled
+
+# Variance explained
+var_explained <- pca_result$sdev^2 / sum(pca_result$sdev^2)
+
+cat("Variance explained by first 3 PCs:", 
+    round(sum(var_explained[1:3]) * 100, 1), "%\n")
+
+# Biplot
+biplot(pca_result, main = "PCA Biplot")
+```
+
+---
+
+# Part 7: Using tidymodels for ML Workflows
+
+## The tidymodels framework
+
+`tidymodels` provides a consistent interface for machine learning in R:
+
+```{r tidymodels-workflow}
+# Define the model specification
+rf_spec <- rand_forest(
+  trees = 500,
+  mtry = tune(),       # Tune this parameter
+  min_n = tune()       # Tune this too
+) %>%
+  set_mode("classification") %>%
+  set_engine("randomForest")
+
+# Define the recipe (preprocessing)
+rf_recipe <- recipe(presence ~ ., data = train_data) %>%
+  step_normalize(all_numeric_predictors())
+
+# Create workflow
+rf_workflow <- workflow() %>%
+  add_recipe(rf_recipe) %>%
+  add_model(rf_spec)
+
+rf_workflow
+```
+
+## Hyperparameter tuning
+
+```{r tune-model, message=FALSE, warning=FALSE}
+library(tidymodels)
+
+# Make yardstick treat the SECOND factor level as the "event" (positive class)
+# e.g., levels = c("Absent", "Present") -> event is "Present"
+options(yardstick.event_first = FALSE)
+
+# --- Preconditions ---
+stopifnot(exists("train_data"), exists("cv_folds"), exists("rf_workflow"))
+
+# --- 0) Ensure outcome is a factor with exactly 2 levels ---
+outcome <- "presence"  # change if needed
+stopifnot(outcome %in% names(train_data))
+
+train_data <- train_data %>%
+  dplyr::mutate(!!outcome := forcats::as_factor(.data[[outcome]]))
+
+stopifnot(nlevels(train_data[[outcome]]) == 2)
+
+# --- 1) Grid search (make mtry range safe) ---
+p <- ncol(train_data) - 1  # minus outcome column
+rf_grid <- dials::grid_regular(
+  dials::mtry(range = c(1L, min(6L, p))),
+  dials::min_n(range = c(2L, 20L)),
+  levels = 5
+)
+
+# --- 2) Metrics (must be a metric_set object) ---
+metrics <- yardstick::metric_set(
+  yardstick::roc_auc,
+  yardstick::accuracy
+)
+
+ctrl <- tune::control_grid(save_pred = TRUE)
+
+# --- 3) Tune ---
+rf_tune_results <- tune::tune_grid(
+  rf_workflow,
+  resamples = cv_folds,
+  grid = rf_grid,
+  metrics = metrics,
+  control = ctrl
+)
+
+# --- 4) Select best params by AUC and finalize ---
+best_params <- tune::select_best(rf_tune_results, metric = "roc_auc")
+print(best_params)
+
+final_rf <- rf_workflow %>%
+  tune::finalize_workflow(best_params) %>%
+  parsnip::fit(data = train_data)
+
+final_rf
+```
+
+---
+
+# Part 8: Case Study — Species Distribution Model
+
+Let's build a complete SDM workflow:
+
+```{r sdm-case-study, message=FALSE, warning=FALSE}
+cat("=== Species Distribution Modeling Workflow ===\n\n")
+
+stopifnot(requireNamespace("rsample", quietly = TRUE))
+stopifnot(requireNamespace("randomForest", quietly = TRUE))
+stopifnot(requireNamespace("xgboost", quietly = TRUE))
+stopifnot(requireNamespace("pROC", quietly = TRUE))
+
+# ---- 1) Ensure presence is a 2-level factor with known reference ----
+stopifnot("presence" %in% names(env_data))
+
+env_data <- env_data %>%
+  dplyr::mutate(
+    presence = as.factor(presence),
+    presence = forcats::fct_relevel(presence, "Absent", "Present")
+  )
+
+cat("1. Data Summary:\n")
+cat("   Prevalence:", round(mean(env_data$presence == "Present") * 100, 1), "%\n\n")
+
+# ---- 2) Split data ----
+pred_cols <- setdiff(names(env_data), "presence")
+
+set.seed(42)
+sdm_split <- rsample::initial_split(env_data[, c(pred_cols, "presence")], prop = 0.75, strata = presence)
+sdm_train <- rsample::training(sdm_split)
+sdm_test  <- rsample::testing(sdm_split)
+
+cat("2. Fitting models...\n")
+
+# ---- 3) Fit models ----
+glm_model <- stats::glm(presence ~ ., data = sdm_train, family = stats::binomial())
+
+rf_sdm <- randomForest::randomForest(presence ~ ., data = sdm_train, ntree = 500, importance = TRUE)
+
+# XGBoost prep: model.matrix handles factors safely
+X_train_sdm <- stats::model.matrix(presence ~ . , data = sdm_train)[, -1, drop = FALSE]
+X_test_sdm  <- stats::model.matrix(presence ~ . , data = sdm_test)[, -1, drop = FALSE]
+
+# Make sure columns match exactly
+X_test_sdm <- X_test_sdm[, colnames(X_train_sdm), drop = FALSE]
+
+y_train_sdm <- as.integer(sdm_train$presence == "Present")  # 0/1 numeric
+y_test_sdm  <- as.integer(sdm_test$presence == "Present")
+
+stopifnot(!anyNA(y_train_sdm), !anyNA(y_test_sdm))
+
+dtrain <- xgboost::xgb.DMatrix(data = X_train_sdm, label = y_train_sdm)
+dtest  <- xgboost::xgb.DMatrix(data = X_test_sdm,  label = y_test_sdm)
+
+watchlist <- list(train = dtrain, test = dtest)
+
+params <- list(
+  objective = "binary:logistic",
+  eval_metric = "auc",
+  max_depth = 4,
+  eta = 0.1
+)
+
+xgb_sdm <- xgboost::xgb.train(
+  params = params,
+  data = dtrain,
+  nrounds = 200,
+  watchlist = watchlist,
+  verbose = 0
+)
+
+# ---- 4) Evaluate on test set (AUC) ----
+cat("\n3. Test Set Performance (AUC):\n")
+
+glm_pred <- stats::predict(glm_model, newdata = sdm_test, type = "response")
+rf_pred  <- stats::predict(rf_sdm, newdata = sdm_test, type = "prob")[, "Present"]
+xgb_pred <- as.numeric(predict(xgb_sdm, newdata = dtest))  # <-- NO stats::predict()
+
+auc01 <- function(y, p) as.numeric(pROC::auc(pROC::roc(y, p, quiet = TRUE)))
+
+glm_auc     <- auc01(y_test_sdm, glm_pred)
+rf_auc_sdm  <- auc01(y_test_sdm, rf_pred)
+xgb_auc_sdm <- auc01(y_test_sdm, xgb_pred)
+
+cat("   GLM:", round(glm_auc, 3), "\n")
+cat("   Random Forest:", round(rf_auc_sdm, 3), "\n")
+cat("   XGBoost:", round(xgb_auc_sdm, 3), "\n")
+
+# ---- 5) Variable importance (Random Forest) ----
+cat("\n4. Variable Importance (Random Forest):\n")
+
+imp_mat <- randomForest::importance(rf_sdm)
+
+# Show available importance columns to avoid guessing wrong names
+cat("   Importance columns available:", paste(colnames(imp_mat), collapse = ", "), "\n")
+
+# Pick a column that exists
+imp_col <- dplyr::case_when(
+  "MeanDecreaseAccuracy" %in% colnames(imp_mat) ~ "MeanDecreaseAccuracy",
+  "MeanDecreaseGini"     %in% colnames(imp_mat) ~ "MeanDecreaseGini",
+  TRUE ~ colnames(imp_mat)[ncol(imp_mat)]
+)
+
+imp <- imp_mat[, imp_col]
+imp <- sort(imp, decreasing = TRUE)
+print(imp)
+```
+
+```{r sdm-viz, fig.cap="Species distribution model outputs. Left: ROC curves for three models. Right: Predicted probability surface.", message=FALSE, warning=FALSE}
+# ROC curves for all models
+graphics::par(mfrow = c(1, 2))
+
+# ROC comparison
+roc_glm <- pROC::roc(y_test_sdm, glm_pred, quiet = TRUE)
+roc_rf  <- pROC::roc(y_test_sdm, rf_pred,  quiet = TRUE)
+roc_xgb <- pROC::roc(y_test_sdm, xgb_pred, quiet = TRUE)
+
+graphics::plot(roc_glm, col = "gray50", lwd = 2, main = "Model Comparison")
+graphics::plot(roc_rf,  col = "steelblue", lwd = 2, add = TRUE)
+graphics::plot(roc_xgb, col = "firebrick", lwd = 2, add = TRUE)
+
+graphics::legend(
+  "bottomright",
+  legend = c("GLM", "Random Forest", "XGBoost"),
+  col = c("gray50", "steelblue", "firebrick"),
+  lwd = 2,
+  bty = "n"
+)
+
+pred_grid <- base::expand.grid(
+  temp = base::seq(5, 25, length.out = 50),
+  precip = base::seq(200, 2000, length.out = 50),
+  elevation = base::mean(env_data$elevation, na.rm = TRUE),
+  slope     = base::mean(env_data$slope,     na.rm = TRUE),
+  canopy    = base::mean(env_data$canopy,    na.rm = TRUE),
+  soil_ph   = base::mean(env_data$soil_ph,   na.rm = TRUE)
+)
+
+# ---- (because rf_sdm was trained with cluster) ----
+pred_grid$cluster <- factor(
+  levels(sdm_train$cluster)[1],
+  levels = levels(sdm_train$cluster)
+)
+
+pred_grid$prob <- stats::predict(rf_sdm, newdata = pred_grid, type = "prob")[, "Present"]
+
+z <- base::matrix(pred_grid$prob, nrow = 50, ncol = 50, byrow = FALSE)
+
+graphics::image(
+  x = base::seq(5, 25, length.out = 50),
+  y = base::seq(200, 2000, length.out = 50),
+  z = z,
+  col = viridis::viridis(100),
+  xlab = "Temperature",
+  ylab = "Precipitation",
+  main = "Predicted Occurrence"
+)
+
+graphics::par(mfrow = c(1, 1))
+```
+
+---
+
+# Part 9: Practical Challenges
+
+## Small sample sizes
+
+ML models need data. With small samples:
+- Use simpler models (regularized regression)
+- Use cross-validation carefully (leave-one-out may be needed)
+- Consider Bayesian approaches
+
+```{r small-sample}
+# Rule of thumb: need ~10-20 observations per predictor for stable results
+# With 50 sites and 10 predictors, you're pushing it
+```
+
+## Spatial autocorrelation
+
+Training and test data may not be independent if spatially autocorrelated:
+
+```{r spatial-cv-concept, echo=FALSE}
+cat("
+SPATIAL CROSS-VALIDATION
+═══════════════════════════════════════════════════════════════
+
+Problem: Random splits put nearby points in both train and test
+         → Model appears better than it really is
+
+Solution: Spatial blocking
+         - Divide study area into spatial blocks
+         - Entire blocks go to train or test
+         - Ensures spatial separation
+
+R packages: spatialsample, blockCV
+")
+```
+
+## Class imbalance
+
+When presence is rare:
+
+```{r imbalance-solutions, echo=FALSE}
+cat("
+HANDLING CLASS IMBALANCE
+═══════════════════════════════════════════════════════════════
+
+1. DOWNSAMPLING: Remove majority class observations
+2. UPSAMPLING: Duplicate minority class observations  
+3. SMOTE: Generate synthetic minority examples
+4. CLASS WEIGHTS: Penalize misclassification of minority more
+5. THRESHOLD TUNING: Adjust classification threshold
+
+For SDMs, often better to optimize AUC/TSS rather than accuracy
+")
+```
+
+## Extrapolation
+
+ML models don't extrapolate well beyond training data range:
+
+```{r extrapolation-warning}
+# Check if prediction data is within training range
+check_extrapolation <- function(train, new) {
+  for (col in names(train)) {
+    if (is.numeric(train[[col]])) {
+      out_of_range <- new[[col]] < min(train[[col]]) | 
+                      new[[col]] > max(train[[col]])
+      if (any(out_of_range)) {
+        cat("Warning:", col, "has", sum(out_of_range), 
+            "observations outside training range\n")
+      }
+    }
+  }
+}
+```
+
+---
+
+# Part 10: Interpretation vs Prediction
+
+## The black box concern
+
+ML models can predict well without being interpretable. For ecological insight:
+
+```{r interpretation-tools, echo=FALSE}
+cat("
+INTERPRETATION TOOLS
+═══════════════════════════════════════════════════════════════
+
+1. VARIABLE IMPORTANCE
+   - Which predictors matter most?
+   - Permutation importance most reliable
+
+2. PARTIAL DEPENDENCE PLOTS  
+   - Marginal effect of each predictor
+   - Shows direction and nonlinearity
+
+3. INDIVIDUAL CONDITIONAL EXPECTATION (ICE)
+   - Like PDP but for individual observations
+   - Reveals interactions
+
+4. SHAP VALUES
+   - Additive feature attribution
+   - Explains individual predictions
+
+5. ECOLOGICAL KNOWLEDGE
+   - Do patterns make biological sense?
+   - Are important variables ecologically meaningful?
+")
+```
+
+## Important caveat
+
+**Variable importance ≠ Causality**
+
+A predictor can be important because:
+- It directly affects the response (causal)
+- It correlates with something that does (confounding)
+- It captures spatial/temporal structure (autocorrelation)
+
+ML finds patterns but doesn't identify mechanisms.
+
+---
+
+# Part 11: Reporting ML Results
+
+## What to report
+
+1. **Data:** Sample size, prevalence, predictors used
+2. **Preprocessing:** Scaling, missing data handling
+3. **Models tried:** With hyperparameters
+4. **Validation:** CV scheme, train/test split
+5. **Metrics:** Appropriate for the problem
+6. **Variable importance:** What drives predictions
+7. **Partial dependence:** Response shapes
+8. **Limitations:** Extrapolation, uncertainty
+
+## Sample methods and results
+
+### Methods
+
+> We predicted species occurrence using machine learning to identify important environmental drivers. We split 500 observations into training (75%) and test (25%) sets, stratifying by presence to maintain class balance. We fit three models: logistic regression (baseline), random forest (500 trees, mtry tuned via 5-fold cross-validation), and gradient boosted trees (XGBoost, max depth = 4, learning rate = 0.1, early stopping). Model performance was evaluated using Area Under the ROC Curve (AUC) on the held-out test set. Variable importance was assessed using permutation importance for random forest. We generated partial dependence plots to visualize predictor-response relationships. Analyses were conducted using randomForest, xgboost, and tidymodels packages in R version 4.3.1.
+
+### Results
+
+> The random forest model showed the best predictive performance (test AUC = 0.87), outperforming logistic regression (AUC = 0.82) and XGBoost (AUC = 0.85; **Table X**). Temperature was the most important predictor (permutation importance = 0.15), followed by precipitation (0.08) and soil pH (0.06). Partial dependence plots revealed a nonlinear response to temperature, with occurrence probability peaking at approximately 20°C and declining at both lower and higher temperatures (**Fig. X**). The species showed increasing occurrence probability with precipitation up to ~1500 mm, with little additional effect at higher values. Model predictions suggested high habitat suitability in areas with moderate temperatures (18-22°C), high precipitation (>1200 mm), and near-neutral soil pH (5.5-6.5).
+
+---
+
+## Key takeaways
+
+1. **ML complements traditional statistics** — Use ML for prediction, stats for inference
+
+2. **Always validate on held-out data** — In-sample performance is misleading
+
+3. **Random forests are a great starting point** — Flexible, interpretable, robust
+
+4. **Regularization prevents overfitting** — Essential with many predictors
+
+5. **Interpret your models** — Variable importance + partial dependence
+
+6. **Watch for spatial autocorrelation** — Use spatial CV when needed
+
+7. **Don't extrapolate** — ML predictions are unreliable outside training range
+
+8. **Importance ≠ causality** — ML finds correlations, not mechanisms
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. When would you choose random forest over logistic regression for a species distribution model? When might logistic regression be preferred?
+
+2. Explain why we use a separate test set rather than evaluating model performance on the training data.
+
+3. A predictor has high variable importance but you don't think it's ecologically meaningful. What might explain this?
+
+### Part 2: Model building
+
+Using the built-in `iris` dataset (or ecological data of your choice):
+
+```{r assignment-model}
+data(iris)
+# Predict Species from measurements
+```
+
+1. Split data into training (75%) and test (25%) sets
+2. Fit a random forest classifier
+3. Evaluate accuracy and generate a confusion matrix
+4. Calculate variable importance
+5. Compare to a regularized multinomial regression (glmnet)
+
+### Part 3: SDM workflow
+
+Using species occurrence data (simulated or real):
+
+1. Fit at least 3 different ML models
+2. Compare test set AUC
+3. Generate partial dependence plots for the best model
+4. Create a predicted probability map
+5. Write a results paragraph
+
+### Part 4: Cross-validation
+
+1. Implement 10-fold cross-validation for random forest
+2. Compare CV performance to test set performance
+3. Calculate standard error of CV estimates
+4. Discuss why CV estimates might differ from test set estimates
+
+### Part 5: Reflection
+
+In 3-4 sentences, discuss the trade-off between model interpretability and predictive performance in ecological applications. When might you sacrifice some predictive accuracy for interpretability?
+

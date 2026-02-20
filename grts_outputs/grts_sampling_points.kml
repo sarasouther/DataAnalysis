@@ -68,7 +68,7 @@
   </Placemark>
   <Placemark>
 	<name>Site-17 (Base)</name>
-      <Point><coordinates>-110.000769680544,31.8630299550052</coordinates></Point>
+      <Point><coordinates>-110.000769680544,31.8630299550051</coordinates></Point>
   </Placemark>
   <Placemark>
 	<name>Site-18 (Base)</name>
@@ -120,7 +120,7 @@
   </Placemark>
   <Placemark>
 	<name>Site-30 (Base)</name>
-      <Point><coordinates>-110.270004267607,31.4237110505583</coordinates></Point>
+      <Point><coordinates>-110.270004267607,31.4237110505582</coordinates></Point>
   </Placemark>
   <Placemark>
 	<name>Site-31 (Base)</name>
@@ -140,11 +140,11 @@
   </Placemark>
   <Placemark>
 	<name>Site-35 (Base)</name>
-      <Point><coordinates>-110.53932406721,31.4410197844516</coordinates></Point>
+      <Point><coordinates>-110.53932406721,31.4410197844515</coordinates></Point>
   </Placemark>
   <Placemark>
 	<name>Site-36 (Base)</name>
-      <Point><coordinates>-111.183684911114,31.4200090363233</coordinates></Point>
+      <Point><coordinates>-111.183684911114,31.4200090363232</coordinates></Point>
   </Placemark>
   <Placemark>
 	<name>Site-37 (Base)</name>
@@ -196,7 +196,7 @@
   </Placemark>
   <Placemark>
 	<name>Site-49 (Oversample)</name>
-      <Point><coordinates>-110.687374601361,31.4738292371685</coordinates></Point>
+      <Point><coordinates>-110.687374601361,31.4738292371684</coordinates></Point>
   </Placemark>
   <Placemark>
 	<name>Site-50 (Oversample)</name>

@@ -1,185 +1,751 @@
 # Data Exploration and Assumption Checking
 
-Introduction: Why Explore Before You Analyze?
+Every statistical model makes assumptions about your data. Before you run any analysis, you need to know what you're working with—and afterward, you need to verify that your model's assumptions are reasonable. This chapter covers both phases of exploratory data analysis (EDA): the detective work you do *before* fitting a model, and the diagnostic checks you do *after*.
+
+Think of it this way: **pre-modeling EDA** helps you choose the right tool for the job, while **post-modeling diagnostics** confirm that you chose wisely.
+
+## Why explore before you analyze?
+
+It's tempting to jump straight into analysis. You have a hypothesis, you collected data, and you want to know if your treatment worked. But skipping exploration is a recipe for problems:
+
+- **Data entry errors** can produce impossible values that completely distort your results
+- **Missing data patterns** might not be random, which affects how you handle them
+- **Unexpected distributions** might indicate you need a different type of model
+- **Outliers** might represent measurement errors, data entry mistakes, or genuinely unusual biology
+
+The goal of exploratory analysis is simple: **no surprises when you run your model**. If your residual plots look terrible after fitting a regression, you want to have seen that coming—and ideally, you want to have addressed it beforehand.
+
+## The dataset: Forest seedling survival
+
+Throughout this chapter, we'll use a simulated dataset that mirrors what you might collect in an ecological field study. Imagine you've established plots across a burned forest landscape to monitor seedling regeneration. At each plot, you recorded:
+
+- **height_cm**: Seedling height in centimeters
+- **diameter_mm**: Stem diameter in millimeters  
+- **burn_severity**: Categorical burn severity (low, moderate, high)
+- **elevation_m**: Plot elevation in meters
+- **canopy_cover**: Percent canopy cover (0-100)
+- **survival**: Whether the seedling survived to the end of the growing season (0/1)
+- **seedling_count**: Number of seedlings in the plot
+
+Let's create this dataset so you can follow along:
+
+```{r create-seedling-data}
+# Set seed for reproducibility
+set.seed(42)
+
+# Number of observations
+n <- 150
+
+# Create the dataset
+seedlings <- data.frame(
+  plot_id = 1:n,
   
-  The "look at your data first" principle
-EDA catches errors, reveals patterns, and guides model choice
-Assumptions aren't just technicalities — violating them affects inference
-The goal: no surprises when you run your model
+  # Continuous predictors
+  elevation_m = round(rnorm(n, mean = 2200, sd = 300), 0),
+  canopy_cover = round(pmin(100, pmax(0, rnorm(n, mean = 45, sd = 20))), 1),
+  
+  # Categorical predictor
+  burn_severity = sample(c("low", "moderate", "high"), n, replace = TRUE,
+                         prob = c(0.3, 0.4, 0.3))
+)
 
-Getting to Know Your Data
-Initial data checks
+# Make burn_severity an ordered factor
+seedlings$burn_severity <- factor(seedlings$burn_severity, 
+                                   levels = c("low", "moderate", "high"))
 
-str(), summary(), head(), dim()
-Checking for missing values (is.na(), naniar package)
-Identifying data entry errors (impossible values, typos in factor levels)
+# Generate height as a function of canopy cover and burn severity
+# (with some noise and a few problematic values for teaching purposes)
+seedlings$height_cm <- round(
+  15 + 
+  0.2 * seedlings$canopy_cover + 
+  ifelse(seedlings$burn_severity == "high", -5, 
+         ifelse(seedlings$burn_severity == "moderate", -2, 0)) +
+  rnorm(n, 0, 4),
+  1
+)
 
-Ecological example: Import a messy vegetation dataset and clean it
-Quick reference table: Common data problems and how to spot them
-Visualizing Distributions
-Univariate exploration
+# Add some realistic messiness:
+# A few implausible negative heights (data entry errors)
+seedlings$height_cm[c(23, 87)] <- c(-3.2, -1.5)
 
-Histograms — shape, skew, modes
-Density plots — smoother view of distribution
-Boxplots — median, spread, potential outliers
-QQ plots — comparing data to theoretical distribution
+# One extremely large value (possible legacy tree, or typo?)
+seedlings$height_cm[112] <- 89.5
 
-R code examples with ecological data
+# Diameter correlates with height
+seedlings$diameter_mm <- round(
+  2 + 0.3 * seedlings$height_cm + rnorm(n, 0, 1.5), 
+  1
+)
 
-Seedling height (continuous)
-Species counts (discrete)
-Cover estimates (proportion)
+# Count data (number of seedlings per plot) - Poisson-ish with some overdispersion
+seedlings$seedling_count <- rpois(n, lambda = 3 + 0.02 * seedlings$canopy_cover)
 
-Multivariate exploration
+# Add some zeros for realism
+seedlings$seedling_count[seedlings$burn_severity == "high"][1:5] <- 0
 
-Scatterplots and scatterplot matrices (pairs(), GGally::ggpairs())
-Correlation matrices
-Visualizing relationships between predictors and response
+# Survival as binary outcome influenced by height and burn severity
+survival_prob <- plogis(-2 + 0.1 * seedlings$height_cm + 
+                         ifelse(seedlings$burn_severity == "high", -1, 0))
+seedlings$survival <- rbinom(n, 1, prob = survival_prob)
 
-Key questions to ask:
+# Add some missing values (realistic pattern: harder to measure in high-burn areas)
+seedlings$canopy_cover[seedlings$burn_severity == "high"][1:3] <- NA
+seedlings$height_cm[c(45, 98)] <- NA
+```
 
-Is the distribution roughly symmetric or skewed?
-Are there gaps or multiple modes?
-Do relationships look linear?
+This dataset intentionally includes some messy features you'll encounter in real fieldwork: a few impossible values, some missing data, potential outliers, and variables of different types. Let's explore it.
 
-Assumptions of Parametric Tests
-Why assumptions matter
+## Getting to know your data
 
-Models make predictions based on assumed data structure
-Violations can inflate Type I error or reduce power
-Some violations matter more than others
+### First look: Structure and dimensions
 
-The Big Four for linear models
+Before anything else, understand what you're working with. How many observations? How many variables? What type is each variable?
 
-Normality of residuals
+```{r initial-inspection}
+# How big is the dataset?
+dim(seedlings)
+```
 
-What it means (residuals, not raw data!)
-How to check: histogram of residuals, QQ plot, Shapiro-Wilk test
-When it matters most (small samples)
+The `dim()` function returns rows (observations) and columns (variables). Here we have 150 seedlings and 8 variables.
 
+```{r structure}
+# What types of data do we have?
+str(seedlings)
+```
 
-Homoscedasticity (equal variance)
+**What to look for in `str()` output:**
 
-What it means: spread of residuals constant across fitted values
-How to check: residuals vs. fitted plot, Levene's test, Breusch-Pagan test
-Common patterns: fan shape, trumpet shape
+- **Numeric variables** (`num` or `int`): Are these actually continuous measurements, or should some be factors?
+- **Factor variables**: Are the levels correct? In the right order?
+- **Character variables**: Should these be converted to factors?
+- **Unexpected types**: Sometimes numbers get read as characters due to typos or special characters
 
+Notice that `burn_severity` is already a factor with ordered levels (low < moderate < high). If it had been read as a character, we'd need to convert it.
 
-Independence
+```{r head-tail}
+# Look at the first few rows
+head(seedlings)
 
-What it means: observations don't influence each other
-How to check: study design review, residuals vs. time/space plots, Durbin-Watson test
-Common violations: repeated measures, spatial clustering, temporal autocorrelation
+# And the last few
+tail(seedlings)
+```
 
+Checking `head()` and `tail()` can reveal problems at the beginning or end of your data file—common locations for header issues or incomplete records.
 
-Linearity
+### Summary statistics: What are the ranges?
 
-What it means: relationship between predictors and response is linear
-How to check: residuals vs. fitted plot, component-residual plots
-What non-linearity looks like
+```{r summary}
+summary(seedlings)
+```
 
+**What to look for in `summary()` output:**
 
+- **Minimum and maximum values**: Are they plausible? A negative height or a canopy cover of 150% would indicate problems.
+- **Means vs. medians**: Large differences suggest skewness.
+- **NA's count**: How much missing data do we have, and where?
 
-Visual guide: Example diagnostic plots showing "good" vs. "problematic" patterns
-Checking Assumptions in R
-Base R approach
+Let's interpret what we see:
 
-plot(model) — the four default diagnostic plots
-Interpreting each plot
+1. **height_cm**: The minimum is -3.2, which is impossible. We have a data entry error to investigate.
+2. **canopy_cover**: 3 missing values (NA's). Range is 0-94%, which seems reasonable.
+3. **seedling_count**: Ranges from 0 to 14, with a median of 4. That's plausible for count data.
 
-Using the performance package
+### Checking for missing values
 
-check_model() — visual dashboard
-check_normality(), check_heteroscedasticity()
+Missing data requires careful handling. First, let's see the overall pattern:
 
-Using the DHARMa package (for GLMs)
+```{r missing-basic}
+# Count missing values per column
+colSums(is.na(seedlings))
+```
 
-Simulated residuals for non-normal models
-simulateResiduals(), plot()
+We have 2 missing heights and 3 missing canopy cover values. But *where* are they missing? Missing data patterns can be informative—or problematic.
 
-Worked example: Fit a linear model to plant biomass data, walk through full diagnostic workflow
-Identifying and Handling Outliers
-What is an outlier?
+```{r missing-pattern}
+# Which rows have missing data?
+seedlings[!complete.cases(seedlings), ]
+```
 
-Statistical definition vs. ecological reality
-Outliers in predictor space vs. response space
-Influential points vs. just unusual values
+Looking at the output, we can see that some missing canopy cover values occur in high-burn plots. This might not be random—perhaps the high-burn areas were harder to survey, or equipment failed in those conditions. This kind of **non-random missingness** can bias your results if not handled carefully.
 
-Detection methods
+For a more visual exploration of missing data patterns, the `naniar` package is excellent:
 
-Visual: boxplots, scatterplots, residual plots
-Statistical: Cook's distance, leverage values, studentized residuals
-Rule of thumb thresholds (Cook's D > 4/n, etc.)
+```{r naniar-missing, eval=FALSE}
+# install.packages("naniar")  # if needed
+library(naniar)
 
-What to do with outliers
+# Visual summary of missingness
+vis_miss(seedlings)
 
-Investigate first — data entry error? Measurement issue? Real biology?
-Document decisions transparently
-Options: correct, remove (with justification), use robust methods, transform
-Never delete just to "improve" results
+# Missing data by variable
+gg_miss_var(seedlings)
+```
 
-Ecological example: An unusually large tree in a seedling dataset — error or legacy tree?
-When Assumptions Are Violated
-Transformation approaches
+### Identifying impossible values
 
-Log, square root, arcsine-square root
-When transformations help vs. when to use a different model
-Back-transformation for interpretation
+Sometimes `summary()` reveals obvious problems. Let's dig into that negative height:
 
-Switch to appropriate GLM
+```{r impossible-values}
+# Find rows with impossible heights
+seedlings[seedlings$height_cm < 0 & !is.na(seedlings$height_cm), ]
+```
 
-Skewed positive data → Gamma
-Counts → Poisson or Negative Binomial
-Proportions → Beta or Binomial
+Plots 23 and 87 have negative heights. These are clearly data entry errors. Before changing anything, document what you found:
 
-Non-parametric alternatives
+```{r document-errors}
+# Document the problematic values
+problem_rows <- which(seedlings$height_cm < 0 & !is.na(seedlings$height_cm))
+print(paste("Impossible negative heights in rows:", 
+            paste(problem_rows, collapse = ", ")))
+```
 
-Brief mention (covered in later chapter on permutation methods)
+**What should you do?** Options include:
 
-Robust regression
+1. **Check original datasheets**: Maybe you can recover the correct value
+2. **Set to NA**: If the correct value is unknown
+3. **Remove the observation**: Only if it's a small fraction and you document it
 
-When useful, brief overview
+Never silently delete or change values. Your code should document every decision.
 
-Decision flowchart: Assumption violated → what are your options?
-Putting It All Together: An EDA Workflow
-Step-by-step checklist
+```{r fix-impossible}
+# Option: Set impossible values to NA (documenting the decision)
+# seedlings$height_cm[seedlings$height_cm < 0] <- NA
+```
 
-Import and inspect data structure
-Check for missing values and errors
-Visualize each variable individually
-Explore relationships between variables
-Fit preliminary model
-Run diagnostic checks
-Address any issues
-Proceed with analysis
+### Quick reference: Common data problems
 
-Complete worked example: Forest plot data from import to model-ready
-Key Takeaways
+| Problem | How to spot it | What to do |
+|---------|---------------|------------|
+| Impossible values | Check min/max in `summary()` | Verify against original data, set to NA or correct |
+| Typos in factor levels | Look at `levels()` or `unique()` | Correct spelling, combine levels |
+| Wrong data types | Check `str()` output | Convert with `as.factor()`, `as.numeric()`, etc. |
+| Duplicated rows | Use `duplicated()` | Investigate and remove if true duplicates |
+| Inconsistent missing codes | Look for -999, ".", "NA", etc. | Convert all to proper `NA` |
 
-Always explore before modeling
-Check residuals, not raw data, for most assumptions
-Visualization is your most powerful tool
-Document your decisions about outliers and transformations
-When in doubt, try a different model rather than forcing transformations
+Let's check for factor level problems:
 
-Test Your Knowledge
-Conceptual questions
+```{r check-factors}
+# Are there any unexpected levels?
+levels(seedlings$burn_severity)
 
-Why do we check normality of residuals rather than raw data?
-What does a "fan shape" in a residuals vs. fitted plot indicate?
-Name two ways to detect influential outliers.
+# Any typos if this were character data?
+unique(seedlings$burn_severity)
+```
 
-Applied exercises
+Good—our burn severity levels are clean. In real data, you might find entries like "Low", "low", "LOW", and "lo" that all need to be standardized.
 
-Given diagnostic plots, identify the assumption violation
-Import a dataset, conduct full EDA, report findings
-Identify and justify handling of outliers in a provided dataset
+## Visualizing distributions
 
-Assignment
-Conduct a complete EDA on your project dataset:
+Now that we've inspected the data structure and fixed obvious errors, let's visualize what we're working with. Visualization is your most powerful tool for understanding data—patterns that are invisible in summary statistics often jump out in plots.
 
-Report summary statistics and missing data
-Visualize distributions of key variables
-Create scatterplots of response vs. predictors
-Fit a preliminary model and check assumptions
-Document any issues found and your plan to address them
+### Continuous variables: Histograms
+
+Histograms show the distribution of a continuous variable. We're looking for:
+
+- **Shape**: Is it roughly symmetric, or skewed left/right?
+- **Modes**: Is there one peak (unimodal) or multiple (bimodal, multimodal)?
+- **Spread**: How variable is the data?
+- **Outliers**: Are there isolated values far from the rest?
+
+```{r hist-height, fig.cap="Distribution of seedling heights. Note the potential outlier above 80 cm and the gap between it and the main distribution."}
+hist(seedlings$height_cm, 
+     breaks = 20,
+     col = "lightblue",
+     border = "white",
+     main = "Distribution of Seedling Heights",
+     xlab = "Height (cm)",
+     ylab = "Frequency")
+```
+
+**Interpretation**: The distribution is roughly unimodal and symmetric, centered around 20 cm. But notice that isolated bar way out to the right near 90 cm—that's our potential outlier (plot 112). There's a clear gap between this value and the rest of the distribution, which warrants investigation.
+
+Let's also look at a variable we expect to be non-normal:
+
+```{r hist-counts, fig.cap="Distribution of seedling counts per plot. Count data typically show right skew and are bounded at zero."}
+hist(seedlings$seedling_count,
+     breaks = seq(-0.5, max(seedlings$seedling_count) + 0.5, by = 1),
+     col = "darkseagreen",
+     border = "white",
+     main = "Distribution of Seedling Counts",
+     xlab = "Number of Seedlings per Plot",
+     ylab = "Frequency")
+```
+
+**Interpretation**: This looks like classic count data—discrete values, bounded at zero, with a right skew. This is exactly what we'd expect for Poisson-distributed data, and it tells us that a linear model with normal errors would be inappropriate. We'd want to use a Poisson or negative binomial GLM instead.
+
+### Continuous variables: Density plots
+
+Density plots are smoothed versions of histograms. They're useful for comparing distributions across groups:
+
+```{r density-by-burn, fig.cap="Seedling height distributions differ by burn severity, with high-severity burns producing shorter seedlings on average."}
+# Base R approach
+plot(density(seedlings$height_cm[seedlings$burn_severity == "low"], na.rm = TRUE),
+     col = "forestgreen", lwd = 2,
+     main = "Height Distribution by Burn Severity",
+     xlab = "Height (cm)",
+     xlim = range(seedlings$height_cm, na.rm = TRUE),
+     ylim = c(0, 0.12))
+
+lines(density(seedlings$height_cm[seedlings$burn_severity == "moderate"], na.rm = TRUE),
+      col = "orange", lwd = 2)
+
+lines(density(seedlings$height_cm[seedlings$burn_severity == "high"], na.rm = TRUE),
+      col = "firebrick", lwd = 2)
+
+legend("topright", 
+       legend = c("Low", "Moderate", "High"),
+       col = c("forestgreen", "orange", "firebrick"),
+       lwd = 2,
+       title = "Burn Severity")
+```
+
+**Interpretation**: The three burn severity groups show similar spread (variance) but different centers—high-burn seedlings tend to be shorter. The similar shapes suggest that comparing groups with ANOVA or linear regression is reasonable, though we'll verify this with residual diagnostics later.
+
+### Boxplots: Comparing groups and spotting outliers
+
+Boxplots are excellent for comparing distributions across groups and identifying outliers:
+
+```{r boxplot-height, fig.cap="Boxplot of seedling height by burn severity. The extreme outlier appears in the moderate burn category."}
+plot_df <- seedlings %>%
+  dplyr::filter(!is.na(height_cm))
+
+boxplot(height_cm ~ burn_severity, 
+        data = plot_df,
+        col = c("forestgreen", "orange", "firebrick"),
+        main = "Seedling Height by Burn Severity",
+        xlab = "Burn Severity",
+        ylab = "Height (cm)")
+```
+
+**Reading a boxplot:**
+
+- **Box**: The middle 50% of the data (interquartile range, IQR)
+- **Bold line**: The median
+- **Whiskers**: Extend to the most extreme points within 1.5 × IQR of the box
+- **Points beyond whiskers**: Potential outliers
+
+That point way above the moderate-burn box is our 89.5 cm seedling. It's flagged as an outlier not because boxplots have opinions, but because it's more than 1.5 × IQR above the third quartile. Whether it's a *real* outlier (biologically unusual) or a *problem* outlier (data error) requires investigation.
+
+### QQ plots: Checking normality visually
+
+Quantile-quantile (QQ) plots compare your data's distribution to a theoretical distribution—usually the normal distribution. If your data are normally distributed, points should fall along a straight diagonal line.
+
+```{r qq-height, fig.cap="QQ plot for seedling height. Most points follow the line well, but the extreme high value deviates substantially."}
+qqnorm(seedlings$height_cm, 
+       main = "QQ Plot: Seedling Height",
+       pch = 16, col = "steelblue")
+qqline(seedlings$height_cm, col = "firebrick", lwd = 2)
+```
+
+**Reading a QQ plot:**
+
+| Pattern | What it suggests |
+|---------|------------------|
+| Points on the line | Data approximately normal |
+| S-shape (both tails curve same way) | Heavy tails (more extreme values than expected) |
+| Points curve up on right | Right skew |
+| Points curve down on left | Left skew |
+| Single points far from line | Outliers |
+
+**Interpretation**: Most points follow the line reasonably well, suggesting the height data are approximately normal. But that one point in the upper right deviates dramatically—this is our 89.5 cm outlier again. The lower-left deviation might be our impossible negative values (if we haven't removed them yet).
+
+### Scatterplots: Exploring relationships
+
+For understanding relationships between variables before modeling:
+
+```{r scatter-height-canopy, fig.cap="Seedling height increases with canopy cover, as expected. The relationship appears roughly linear."}
+plot(height_cm ~ canopy_cover, 
+     data = seedlings,
+     pch = 16, 
+     col = adjustcolor("steelblue", alpha = 0.6),
+     main = "Height vs. Canopy Cover",
+     xlab = "Canopy Cover (%)",
+     ylab = "Height (cm)")
+
+# Add a simple trend line
+abline(lm(height_cm ~ canopy_cover, data = seedlings), 
+       col = "firebrick", lwd = 2)
+```
+
+**Key questions when examining scatterplots:**
+
+1. **Is the relationship linear?** Or does it curve?
+2. **Is the spread constant?** Or does it fan out (heteroscedasticity)?
+3. **Are there outliers?** Points far from the overall pattern?
+4. **Are there clusters?** Might indicate subgroups in your data
+
+**Interpretation**: There's a positive relationship between canopy cover and seedling height—more shade means taller seedlings. The relationship looks reasonably linear. That high point near the top is our outlier again. The spread of points around the line looks fairly constant (good for linear regression assumptions).
+
+### Scatterplot matrices: The big picture
+
+When you have multiple variables, a scatterplot matrix lets you see all pairwise relationships at once:
+
+```{r pairs-plot, fig.cap="Scatterplot matrix showing relationships among continuous variables. Look for linear relationships, consistent spread, and outliers.", fig.width=8, fig.height=8}
+# Select numeric columns
+numeric_vars <- seedlings[, c("height_cm", "diameter_mm", "elevation_m", 
+                               "canopy_cover", "seedling_count")]
+
+pairs(numeric_vars,
+      pch = 16,
+      col = adjustcolor("steelblue", alpha = 0.5),
+      main = "Pairwise Relationships")
+```
+
+**What to look for:**
+
+- **Strong linear relationships**: Might indicate collinearity if both are predictors
+- **Curved relationships**: Might need transformation or polynomial terms
+- **Outliers**: Same point appearing as an outlier in multiple panels
+- **Clusters**: Might indicate groups you should model separately
+
+For a more informative version, the `GGally` package creates scatterplot matrices with correlations and distributions:
+
+```{r ggally, eval=FALSE}
+# install.packages("GGally")  # if needed
+library(GGally)
+
+ggpairs(numeric_vars,
+        lower = list(continuous = wrap("points", alpha = 0.5)),
+        diag = list(continuous = "densityDiag"),
+        upper = list(continuous = wrap("cor", size = 4)))
+```
+
+## Key questions to ask during exploration
+
+After this initial exploration, you should be able to answer:
+
+1. **Do I have data quality issues?** Impossible values, unexpected missingness patterns, wrong data types?
+
+2. **What do my distributions look like?** Symmetric or skewed? Bounded? Discrete or continuous?
+
+3. **What relationships exist?** Are they linear? Is variance constant across the range?
+
+4. **Are there outliers?** How many? Are they errors or real?
+
+5. **What type of model is appropriate?** Normal linear model? GLM? Something else?
+
+For our seedling data, initial exploration suggests:
+- We have some data entry errors to fix (negative heights)
+- One potential outlier to investigate (89.5 cm height)
+- Some non-random missing data in high-burn plots
+- Height is roughly normal; count data is not
+- Height relates linearly to canopy cover
+- Burn severity affects height (potential treatment effect)
+
+We're now ready to fit a preliminary model and check its assumptions more formally.
+
+## Assumptions of parametric tests
+
+### Why assumptions matter
+
+Every statistical model makes assumptions about how your data behave. These aren't arbitrary rules—they're the mathematical conditions under which the model's estimates and p-values are valid. When assumptions are violated:
+
+- **Point estimates may be biased**: Your estimate of the mean or slope might be systematically wrong
+- **Standard errors may be wrong**: Usually underestimated, making effects seem more "significant" than they are
+- **P-values may be misleading**: You might reject the null hypothesis more (or less) often than you should
+- **Confidence intervals may not contain the true value at the stated rate**: Your 95% CI might only capture the true value 80% of the time
+
+The good news: not all violations are equally serious, and many can be addressed.
+
+### The Big Four assumptions for linear models
+
+When fitting a linear model (regression, ANOVA, t-tests), we assume:
+
+**1. Normality of residuals**
+
+This is the most commonly misunderstood assumption. We do **not** assume that your raw data are normally distributed. We assume that the **residuals**—the differences between observed values and predicted values—are normally distributed.
+
+Why does this matter? Because many types of raw data *shouldn't* be normal. Heights might vary by treatment group, so the overall distribution is multimodal. Counts are bounded at zero. But once we account for the systematic effects (treatment, predictors), the leftover variation should scatter normally around zero.
+
+**When it matters most:** Small sample sizes. With large samples (n > 30 per group, roughly), the Central Limit Theorem helps protect your p-values even with some non-normality.
+
+**2. Homoscedasticity (equal variance)**
+
+The spread of residuals should be constant across all predicted values. In other words, the model should be equally good at predicting small values and large values.
+
+**Common violations:**
+- **Fan shape**: Variance increases with the mean (common with count data, positive-only data)
+- **Trumpet shape**: Similar to fan, often seen with growth data
+- **Groups with very different spread**: One treatment much more variable than another
+
+**Why it matters:** Unequal variance means some observations contribute more to parameter estimates than they should, and standard errors are wrong.
+
+**3. Independence**
+
+Observations should not influence each other. This is often the most important assumption—and the hardest to fix when violated.
+
+**Common violations in ecology:**
+- **Repeated measures**: Same plant measured at multiple time points
+- **Spatial clustering**: Plots near each other are more similar
+- **Temporal autocorrelation**: Measurements close in time are correlated
+- **Hierarchical structure**: Seedlings within plots within sites
+
+**Why it matters:** Non-independence inflates your effective sample size. You might have 100 observations, but if they're clustered in 10 plots, your effective sample size is closer to 10. P-values will be far too small.
+
+**4. Linearity**
+
+The relationship between predictors and response should be linear (for linear models). If the true relationship is curved, a linear model will systematically over- and under-predict in different regions.
+
+**How to detect:** Look for patterns in residual plots—if residuals curve systematically, the relationship isn't linear.
+
+## Checking assumptions after fitting a model
+
+Here's the key insight: **most assumption checks require fitting a model first**. You can't examine residuals until you have residuals, and you can't have residuals without a fitted model.
+
+This is why EDA happens in two phases:
+1. **Before fitting**: Explore raw data, identify problems, choose an appropriate model
+2. **After fitting**: Examine residuals to verify assumptions were reasonable
+
+Let's fit a simple model and walk through the diagnostic process.
+
+### Fitting a preliminary model
+
+We'll model seedling height as a function of canopy cover and burn severity:
+
+```{r fit-model}
+# First, let's clean up those impossible values
+seedlings_clean <- seedlings
+seedlings_clean$height_cm[seedlings_clean$height_cm < 0] <- NA
+
+# Fit a linear model
+model1 <- lm(height_cm ~ canopy_cover + burn_severity, data = seedlings_clean)
+
+# Quick look at results
+summary(model1)
+```
+
+The coefficients suggest that canopy cover has a positive effect on height, and high burn severity reduces height. But before we interpret these results, we need to check whether the model's assumptions are met.
+
+### Base R diagnostic plots
+
+The simplest approach is `plot(model)`, which produces four diagnostic plots:
+
+```{r base-diagnostics, fig.width=10, fig.height=10, fig.cap="The four default diagnostic plots from plot(model). Each reveals different potential problems."}
+par(mfrow = c(2, 2))
+plot(model1)
+par(mfrow = c(1, 1))
+```
+
+Let's interpret each plot:
+
+**Plot 1: Residuals vs. Fitted**
+
+This plot checks both **linearity** and **homoscedasticity**.
+
+- **X-axis**: Predicted (fitted) values from the model
+- **Y-axis**: Residuals (observed - predicted)
+- **Red line**: Smoothed average of residuals
+
+**What you want to see:**
+- Residuals scattered randomly around zero (the horizontal dashed line)
+- No systematic curve in the red line (would indicate non-linearity)
+- Constant spread across the range of fitted values (if spread changes, you have heteroscedasticity)
+
+**What our plot shows:** [Interpret based on actual output]
+
+**Plot 2: QQ Plot of Residuals**
+
+This checks **normality of residuals**.
+
+- **X-axis**: Theoretical quantiles (where points would fall if perfectly normal)
+- **Y-axis**: Actual quantiles of your residuals
+
+**What you want to see:**
+- Points falling along the diagonal line
+
+**What departures mean:**
+- Tails curving away: Heavy-tailed distribution
+- S-shape: Skewness
+- Individual points off the line in corners: Outliers
+
+**Plot 3: Scale-Location**
+
+This is another check for **homoscedasticity**, but plots √|standardized residuals| against fitted values.
+
+**What you want to see:**
+- Horizontal red line
+- Points spread evenly across the range
+
+**What increasing spread means:** Variance increases with the mean—common with positive-only data, counts, or when you need a log transformation.
+
+**Plot 4: Residuals vs. Leverage**
+
+This identifies **influential observations**—points that have a large effect on the model fit.
+
+- **Leverage**: How unusual a point is in predictor space (extreme X values)
+- **Standardized residuals**: How unusual a point is in response space (extreme Y given X)
+- **Cook's distance** (dashed contours): Combines both; measures overall influence
+
+**What you want to see:**
+- No points outside the Cook's distance contours (dashed red lines)
+- No points in the upper or lower right corners
+
+**What problems look like:**
+- Point with high leverage AND high residual = very influential, investigate
+- Points labeled with row numbers are R's way of saying "look at these"
+
+### Using the performance package
+
+The `performance` package provides a more visual and comprehensive diagnostic dashboard:
+
+```{r performance-check, eval=FALSE}
+# install.packages("performance")  # if needed
+library(performance)
+
+# All-in-one visual check
+check_model(model1)
+```
+
+This produces a multi-panel display checking:
+- Linearity (posterior predictive check)
+- Homoscedasticity
+- Influential observations
+- Collinearity (for multiple predictors)
+- Normality of residuals
+
+You can also run specific checks:
+
+```{r performance-specific, eval=FALSE}
+# Test normality formally
+check_normality(model1)
+
+# Test homoscedasticity
+check_heteroscedasticity(model1)
+
+# Check for influential observations
+check_outliers(model1)
+```
+
+### Interpreting diagnostic output: A worked example
+
+Let's walk through interpreting our model's diagnostics step by step:
+
+```{r diagnostic-walkthrough}
+# Extract residuals and fitted values
+residuals_model <- residuals(model1)
+fitted_model <- fitted(model1)
+
+# Keep only finite pairs (prevents lowess() failure)
+ok <- is.finite(fitted_model) & is.finite(residuals_model)
+f <- fitted_model[ok]
+r <- residuals_model[ok]
+
+# 1. Residuals vs fitted
+plot(f, r,
+     pch = 16, col = adjustcolor("steelblue", alpha = 0.6),
+     xlab = "Fitted Values",
+     ylab = "Residuals",
+     main = "Residuals vs. Fitted Values")
+abline(h = 0, col = "firebrick", lwd = 2, lty = 2)
+
+# Smooth trend line (only if there are enough points + unique x's)
+if(length(f) > 5 && length(unique(f)) > 2) {
+  lines(lowess(f, r), col = "forestgreen", lwd = 2)
+} else {
+  message("Skipping lowess(): not enough finite/unique fitted values.")
+}
+```
+
+**Questions to ask:**
+1. Does the green smooth line stay close to zero? (Yes = good, linearity satisfied)
+2. Does the vertical spread of points stay constant left to right? (Yes = homoscedasticity satisfied)
+3. Are there extreme points? (Check if they're outliers we identified earlier)
+
+```{r qq-residuals}
+# 2. Check normality of residuals
+qqnorm(residuals_model, pch = 16, col = "steelblue",
+       main = "QQ Plot of Residuals")
+qqline(residuals_model, col = "firebrick", lwd = 2)
+```
+
+```{r shapiro}
+# Formal test (but use with caution - very sensitive with large samples)
+shapiro.test(residuals_model)
+```
+
+**About the Shapiro-Wilk test:** A significant p-value suggests non-normality. But be careful:
+- With small samples, the test has low power and may miss real non-normality
+- With large samples, the test detects trivial departures that don't affect inference
+- **Visual assessment is usually more useful than the formal test**
+
+```{r influential 05}
+# 3. Check for influential points
+# Cook's distance
+cooks_d <- cooks.distance(model1)
+plot(cooks_d, type = "h",
+     main = "Cook's Distance",
+     ylab = "Cook's Distance",
+     xlab = "Observation")
+abline(h = 4/nrow(seedlings_clean), col = "firebrick", lty = 2)  # Common threshold
+
+# Which points are influential?
+influential <- which(cooks_d > 4/nrow(seedlings_clean))
+if(length(influential) > 0) {
+  print(paste("Potentially influential points:", paste(influential, collapse = ", ")))
+  print(seedlings_clean[influential, ])
+}
+```
+
+**Cook's distance thresholds:**
+- Traditional: Cook's D > 1 is concerning
+- More sensitive: Cook's D > 4/n flags more points for inspection
+- Best approach: Look at the plot and investigate any points that stand out
+
+## Summary: The EDA workflow
+
+Let's consolidate what we've learned into a repeatable workflow:
+
+### Before fitting a model:
+1. **Inspect structure**: `dim()`, `str()`, `head()`, `summary()`
+2. **Check for impossible values**: Look at min/max, find and document problems
+3. **Assess missing data**: Count and look for patterns
+4. **Visualize distributions**: Histograms, density plots, boxplots
+5. **Explore relationships**: Scatterplots, correlation
+6. **Decide on model type**: Based on data types and distributions
+
+### After fitting a model:
+1. **Plot diagnostics**: `plot(model)` or `check_model()`
+2. **Check normality**: QQ plot of residuals
+3. **Check homoscedasticity**: Residuals vs. fitted plot
+4. **Check linearity**: Residuals vs. fitted plot
+5. **Identify influential points**: Cook's distance
+6. **Address problems**: Transform, use different model, or document limitations
+
+This iterative process—explore, model, diagnose, adjust—is how real data analysis works. The goal isn't perfection; it's understanding your data well enough to draw defensible conclusions.
+
+## Key takeaways
+
+- **Always explore before modeling**: Catch errors and understand your data structure
+- **Check residuals, not raw data**: Assumptions apply to residuals, not observations
+- **Visualization is your most powerful tool**: Plots reveal patterns that statistics miss
+- **Document your decisions**: Every data cleaning choice should be reproducible
+- **No model is perfect**: The goal is "good enough" for valid inference, not mathematical perfection
+- **When in doubt, try a different model**: GLMs, transformations, and robust methods are all available
+
+## Assignment
+
+Conduct a complete EDA on your own project dataset:
+
+1. **Data inspection** (2-3 paragraphs)
+   - Report the dimensions and structure of your data
+   - Summarize any missing data and their patterns
+   - Document any impossible or suspicious values
+
+2. **Distribution visualization** (3-4 figures with captions)
+   - Create histograms or density plots for your main response variable(s)
+   - Create boxplots if you have categorical predictors
+   - Describe what you observe about shape, spread, and potential outliers
+
+3. **Relationship exploration** (2-3 figures with captions)
+   - Create scatterplots of your response vs. key predictors
+   - Describe the relationships you see: linear? curved? strong? weak?
+
+4. **Preliminary model and diagnostics**
+   - Fit an appropriate preliminary model
+   - Run diagnostic checks and include the plots
+   - Interpret each diagnostic plot in 1-2 sentences
+
+5. **Summary and plan** (1 paragraph)
+   - What issues did you identify?
+   - How do you plan to address them?
+   - What model do you think is most appropriate for your data?

@@ -1,0 +1,1030 @@
+# Mixed Effects Models
+
+In the real world, ecological data are rarely independent. Plants within a plot share soil conditions. Repeated measurements on the same individual are correlated. Sites within a region have similar climate. These dependencies violate the independence assumption of GLMs—and ignoring them can lead to inflated Type I error rates and misleading conclusions.
+
+**Mixed effects models** (also called hierarchical models or multilevel models) solve this by explicitly modeling the non-independence structure of your data. They're called "mixed" because they contain both:
+
+- **Fixed effects**: The variables you're actually interested in (treatments, predictors)
+- **Random effects**: Grouping factors that create dependency structure (blocks, individuals, sites)
+
+This chapter connects common ecological study designs to their corresponding mixed model structures. By the end, you'll be able to recognize which random effects structure matches your study design and implement it correctly.
+
+## Why mixed models matter
+
+Consider this scenario: You measure plant height in 5 plots, with 20 plants per plot, under two treatments (control vs. fertilized). You have 100 observations—but do you really have 100 independent data points?
+
+**No!** Plants within the same plot share soil, microclimate, and potentially genetics. Your effective sample size is closer to 5 plots (or 10, if treatment is applied at the plot level), not 100 plants.
+
+If you run a standard t-test or ANOVA treating all 100 plants as independent, you'll get:
+- **Artificially small standard errors**
+- **Inflated test statistics**
+- **False positives (Type I errors)**
+
+Mixed models account for within-group correlation, giving you honest p-values and appropriate uncertainty estimates.
+
+## Setup
+
+```{r setup-mixed, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lme4)          # Core mixed models package
+library(lmerTest)      # Adds p-values to lmer output
+library(emmeans)       # Estimated marginal means and post-hoc tests
+library(performance)   # Model diagnostics
+library(MuMIn)         # R-squared for mixed models
+library(nlme)          # Alternative mixed models (correlation structures)
+library(lattice)       # dotplot() for random effects visualization
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Fixed vs. Random Effects
+
+## Fixed effects
+
+**Fixed effects** are the variables whose specific levels you're interested in and that you would replicate in future studies.
+
+Examples:
+- Treatment (control vs. fertilized) — you'd use the same treatments again
+- Species (oak vs. pine vs. maple) — you chose these species deliberately
+- Temperature (ambient vs. +2°C vs. +4°C) — specific levels of interest
+
+**Key question:** Would you use these exact same levels in a future study?
+
+## Random effects
+
+**Random effects** are grouping factors that introduce correlation structure but whose specific levels are:
+- Not of primary interest
+- Sampled from a larger population of possible levels
+- Not replicable (you wouldn't use the exact same blocks/sites/individuals)
+
+Examples:
+- Block — you wouldn't replicate the exact same physical blocks
+- Site — your 10 sites are a sample of all possible sites
+- Individual — repeated measures on randomly selected individuals
+- Year — your 3 study years are a sample of possible years
+
+**Key question:** Are these specific levels a sample from a larger population of possible levels?
+
+## The gray area
+
+Some factors could be treated either way:
+
+| Factor | Fixed if... | Random if... |
+|--------|-------------|--------------|
+| Site | You chose sites for specific characteristics | Sites are a sample of possible sites |
+| Year | Specific years are of interest (El Niño years) | Years are a sample of possible years |
+| Species | You're comparing these specific species | Species are a sample from a community |
+
+**Rule of thumb:** If you have few levels (2-5) of a factor and want to make inferences about those specific levels, treat it as fixed. If you have many levels (5+) sampled from a population and want to generalize, treat it as random.
+
+---
+
+# Part 2: Design → Model Structure
+
+The random effects structure in your model should match your study design. Here's a guide:
+
+| Design | Dependency structure | Random effect syntax |
+|--------|---------------------|---------------------|
+| **Randomized complete block** | Obs within blocks | `(1|block)` |
+| **Nested/hierarchical** | Plots within sites | `(1|site/plot)` or `(1|site) + (1|site:plot)` |
+| **Crossed** | All sites measured in all years | `(1|site) + (1|year)` |
+| **Repeated measures** | Multiple measures per subject | `(1|subject)` |
+| **Longitudinal** | Repeated measures over time | `(1|subject)` + possibly `(time|subject)` |
+| **Random slopes** | Effect of X varies by group | `(1 + x|group)` |
+
+Let's work through each design with examples.
+
+---
+
+# Part 3: Randomized Complete Block Design
+
+## The design
+
+You have an environmental gradient or spatial heterogeneity, so you group experimental units into **blocks** of similar conditions. Each treatment appears once per block.
+
+**Example:** Testing 4 grass varieties across 6 field blocks (areas with similar soil/drainage).
+
+```{r rcbd-data}
+# Simulated oat variety trial data
+# 8 varieties × 5 blocks = 40 observations
+variety_data <- expand.grid(
+  variety = paste0("V", 1:8),
+  block = paste0("Block", 1:5)
+)
+
+# True variety effects (V1 is reference)
+variety_effects <- c(V1 = 300, V2 = 320, V3 = 280, V4 = 350, 
+                     V5 = 310, V6 = 290, V7 = 340, V8 = 305)
+
+# Block effects (random, representing field heterogeneity)
+block_effects <- c(Block1 = -20, Block2 = 15, Block3 = 5, 
+                   Block4 = -10, Block5 = 10)
+
+# Generate yields
+variety_data$yield <- variety_effects[variety_data$variety] + 
+                       block_effects[variety_data$block] +
+                       rnorm(40, 0, 15)
+
+# Look at the data
+head(variety_data)
+
+# Visualize
+ggplot(variety_data, aes(x = variety, y = yield, color = block, group = block)) +
+  geom_point(size = 3) +
+  geom_line(alpha = 0.5) +
+  labs(x = "Variety", y = "Yield (g)", title = "Oat Variety Trial") +
+  theme_minimal()
+```
+
+Notice how the lines (connecting blocks) are roughly parallel—blocks shift yields up or down, but variety differences are consistent across blocks.
+
+## The model
+
+**Fixed effect:** Variety (we want to compare these specific 8 varieties)
+
+**Random effect:** Block (we don't care about these specific blocks; they represent field heterogeneity)
+
+```{r rcbd-model}
+# Mixed model with random intercept for block
+rcbd_model <- lmer(yield ~ variety + (1|block), data = variety_data)
+summary(rcbd_model)
+```
+
+### Interpret the output
+
+**Fixed effects:** These are the variety effects. The intercept is the mean for the reference variety (V1). Other coefficients show differences from V1.
+
+**Random effects:**
+- `block (Intercept)`: Variance = 159.6, SD = 12.6 — blocks vary by about ±12.6 g
+- `Residual`: Variance = 229.3, SD = 15.1 — within-block variation
+
+```{r rcbd-anova}
+# ANOVA table for fixed effects
+anova(rcbd_model)
+```
+
+Variety has a significant effect (F = 9.74, p < 0.001).
+
+### Post-hoc comparisons
+
+```{r rcbd-posthoc}
+# Estimated marginal means
+emm_variety <- emmeans(rcbd_model, ~ variety)
+emm_variety
+
+# Pairwise comparisons
+pairs(emm_variety, adjust = "tukey")
+
+# Compact letter display
+cld(emm_variety, Letters = letters)
+```
+
+### What if we ignored the blocking?
+
+```{r rcbd-comparison}
+# Wrong model: ignoring blocks
+wrong_model <- lm(yield ~ variety, data = variety_data)
+
+# Compare standard errors
+se_mixed <- summary(rcbd_model)$coefficients[, "Std. Error"]
+se_wrong <- summary(wrong_model)$coefficients[, "Std. Error"]
+
+# The mixed model has LARGER (more honest) SEs because it accounts for block structure
+cbind(Mixed = se_mixed[1:3], Wrong = se_wrong[1:3])
+```
+
+In this case, ignoring blocks gives similar SEs because blocks explained relatively little variance. But when blocks explain substantial variance, ignoring them seriously inflates Type I error.
+
+### Sample results
+
+> Yield differed significantly among oat varieties (linear mixed model with block as random effect: F₇,₂₈ = 9.74, p < 0.001). Variety V4 had the highest yield (348.5 ± 7.8 g, mean ± SE), while V3 had the lowest (279.2 ± 7.8 g). Post-hoc comparisons (Tukey-adjusted) showed that V4 and V7 yielded significantly more than V3 and V6 (all p < 0.05).
+
+---
+
+# Part 4: Nested (Hierarchical) Designs
+
+## The design
+
+Sampling units are grouped within higher-level units. Lower-level units are **unique to** their higher-level unit.
+
+**Example:** You measure 5 plants in each of 4 plots at each of 3 sites. Each plot only exists within one site; plot "1" at site A is different from plot "1" at site B.
+
+This creates a hierarchy: **Plants → Plots → Sites**
+
+```{r nested-data}
+# Simulated nested data
+# 3 sites × 4 plots/site × 5 plants/plot = 60 observations
+nested_data <- expand.grid(
+  plant = 1:5,
+  plot = 1:4,
+  site = c("Site_A", "Site_B", "Site_C")
+)
+
+# Create unique plot IDs (important!)
+nested_data$plot_id <- paste(nested_data$site, nested_data$plot, sep = "_")
+
+# Site effects
+site_effects <- c(Site_A = 20, Site_B = 35, Site_C = 25)
+
+# Plot effects (nested within sites)
+set.seed(123)
+plot_effects <- rnorm(12, 0, 5)  # 12 unique plots
+names(plot_effects) <- unique(nested_data$plot_id)
+
+# Treatment: half the plots in each site are fertilized
+nested_data$treatment <- rep(rep(c("Control", "Fertilized"), each = 5), 6)
+treatment_effect <- c(Control = 0, Fertilized = 8)
+
+# Generate height
+nested_data$height <- 15 + 
+  site_effects[nested_data$site] +
+  plot_effects[nested_data$plot_id] +
+  treatment_effect[nested_data$treatment] +
+  rnorm(60, 0, 3)
+
+head(nested_data)
+```
+
+## The model
+
+**Fixed effect:** Treatment (fertilized vs. control)
+
+**Random effects:** 
+- Site (3 sites sampled from possible sites)
+- Plot nested within site (plots are unique to each site)
+
+```{r nested-model}
+# Nested random effects: plots within sites
+# Two equivalent syntaxes:
+
+# Syntax 1: Explicit nesting
+nested_model <- lmer(height ~ treatment + (1|site/plot_id), data = nested_data)
+
+# Syntax 2: Separate terms (if plot_id is already unique)
+# nested_model <- lmer(height ~ treatment + (1|site) + (1|plot_id), data = nested_data)
+
+summary(nested_model)
+```
+
+### Interpret the variance components
+
+```{r nested-variance}
+# Extract variance components
+VarCorr(nested_model)
+```
+
+- **site**: SD = 6.65 — sites vary substantially
+- **plot_id:site**: SD = 4.75 — plots within sites also vary
+- **Residual**: SD = 2.91 — within-plot (plant-to-plant) variation
+
+### Calculate ICC (Intraclass Correlation)
+
+ICC tells you what proportion of variance is at each level:
+
+```{r nested-icc}
+# Using performance package
+icc(nested_model)
+```
+
+### Test fixed effects
+
+```{r nested-test}
+anova(nested_model)
+```
+
+Treatment is significant (F = 10.16, p = 0.01).
+
+### Important note on degrees of freedom
+
+Notice the denominator df = 9. This is because the effective sample size for testing treatment is the number of plots (12), not the number of plants (60). The mixed model correctly accounts for this.
+
+### Sample methods and results
+
+**Methods:**
+
+> We examined the effect of fertilization on plant height using a linear mixed model with site and plot (nested within site) as random effects. Five plants were measured in each of 12 plots (6 fertilized, 6 control) distributed across 3 sites. We used the lmerTest package to obtain p-values via Satterthwaite's approximation for denominator degrees of freedom. All analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> Fertilization significantly increased plant height (linear mixed model: F₁,₉ = 10.16, p = 0.011). Fertilized plants averaged 39.2 ± 1.8 cm (mean ± SE) compared to 31.1 ± 1.8 cm for controls—a 26% increase. Variance components indicated substantial variation among sites (SD = 6.65 cm) and among plots within sites (SD = 4.75 cm), with within-plot variation being smaller (SD = 2.91 cm).
+
+---
+
+# Part 5: Crossed Random Effects
+
+## The design
+
+When every level of one random factor occurs with every level of another random factor, they are **crossed** (not nested).
+
+**Example:** You measure abundance at 5 sites across 4 years. Each site is measured in every year; each year includes every site. Site and year are crossed.
+
+```{r crossed-data}
+# Simulated crossed data
+# 5 sites × 4 years × 3 replicates = 60 observations
+crossed_data <- expand.grid(
+  replicate = 1:3,
+  site = paste0("Site", 1:5),
+  year = 2019:2022
+)
+
+# Site effects (some sites have more)
+site_effects <- c(Site1 = 5, Site2 = 12, Site3 = 8, Site4 = 15, Site5 = 10)
+
+# Year effects (good and bad years)
+year_effects <- c(`2019` = -3, `2020` = 5, `2021` = -1, `2022` = 2)
+
+# Treatment applied starting 2021
+crossed_data$period <- ifelse(crossed_data$year < 2021, "Before", "After")
+
+# Generate abundance (count data, but we'll use Gaussian for simplicity)
+crossed_data$abundance <- 20 + 
+  site_effects[crossed_data$site] +
+  year_effects[as.character(crossed_data$year)] +
+  ifelse(crossed_data$period == "After", 5, 0) +
+  rnorm(60, 0, 3)
+
+head(crossed_data)
+```
+
+## The model
+
+**Fixed effect:** Period (before vs. after intervention)
+
+**Random effects:**
+- Site (5 sites, want to generalize to other sites)
+- Year (4 years, want to generalize to other years)
+
+Because site and year are crossed (not nested), we specify them as separate random effects:
+
+```{r crossed-model}
+# Crossed random effects
+crossed_model <- lmer(abundance ~ period + (1|site) + (1|year), 
+                       data = crossed_data)
+summary(crossed_model)
+```
+
+### Interpret
+
+```{r crossed-variance}
+VarCorr(crossed_model)
+```
+
+Both site (SD = 3.6) and year (SD = 3.1) contribute substantial variance. The model correctly partitions variation among these crossed factors.
+
+```{r crossed-test}
+anova(crossed_model)
+```
+
+The period effect is significant (F = 28.1, p < 0.001).
+
+### When to use crossed vs. nested
+
+| Question | Answer → Structure |
+|----------|-------------------|
+| Does plot 1 at site A = plot 1 at site B? | No → Nested `(1|site/plot)` |
+| Is every site measured in every year? | Yes → Crossed `(1|site) + (1|year)` |
+| Is each subject measured under all conditions? | Yes → Crossed (repeated measures) |
+
+---
+
+# Part 6: Repeated Measures and Longitudinal Data
+
+## The design
+
+The same subjects are measured multiple times. Measurements within a subject are correlated.
+
+**Example:** You track seedling height over 5 time points for 20 individuals.
+
+```{r repeated-data}
+# Simulated repeated measures data
+# 20 individuals × 5 time points = 100 observations
+repeated_data <- expand.grid(
+  time = c(0, 2, 4, 6, 8),  # Weeks
+  individual = paste0("Ind", sprintf("%02d", 1:20))
+)
+
+# Treatment (half the individuals)
+repeated_data$treatment <- ifelse(as.numeric(gsub("Ind", "", repeated_data$individual)) <= 10,
+                                   "Control", "Fertilized")
+
+# Individual random intercepts
+ind_intercepts <- rnorm(20, 0, 5)
+names(ind_intercepts) <- unique(repeated_data$individual)
+
+# Generate height with growth over time
+# Treatment affects growth rate (slope), not just intercept
+repeated_data$height <- 10 +                                           # baseline
+  ind_intercepts[repeated_data$individual] +                          # individual variation
+  2 * repeated_data$time +                                            # growth (control)
+  ifelse(repeated_data$treatment == "Fertilized", 1, 0) * repeated_data$time +  # extra growth if fertilized
+  rnorm(100, 0, 2)                                                    # residual
+
+head(repeated_data)
+```
+
+```{r repeated-plot, fig.cap="Growth trajectories of individual seedlings under control and fertilized treatments. Each line is one individual; fertilized seedlings grow faster."}
+ggplot(repeated_data, aes(x = time, y = height, group = individual, color = treatment)) +
+  geom_line(alpha = 0.5) +
+  geom_point(size = 1) +
+  scale_color_manual(values = c("gray50", "forestgreen")) +
+  labs(x = "Time (weeks)", y = "Height (cm)",
+       title = "Seedling Growth Over Time") +
+  theme_minimal()
+```
+
+## Random intercept model
+
+If you only expect individuals to differ in their starting point (intercept), use a random intercept:
+
+```{r random-intercept}
+# Random intercept only
+ri_model <- lmer(height ~ time * treatment + (1|individual), data = repeated_data)
+summary(ri_model)
+```
+
+The `time:treatmentFertilized` interaction tests whether growth rate differs between treatments.
+
+## Random slope model
+
+If individuals might also differ in how they respond to the predictor (e.g., different growth rates), add a random slope:
+
+```{r random-slope}
+# Random intercept AND random slope for time
+rs_model <- lmer(height ~ time * treatment + (1 + time|individual), data = repeated_data)
+summary(rs_model)
+```
+
+### Interpret random slope output
+
+```{r random-slope-variance}
+VarCorr(rs_model)
+```
+
+- **individual (Intercept)**: SD = 5.02 — individuals vary in baseline height
+- **individual time**: SD = 0.27 — individuals vary slightly in growth rate
+- **Corr**: -0.68 — individuals with high intercepts tend to have lower slopes (and vice versa)
+
+### Compare models
+
+```{r compare-models}
+# Does adding random slopes improve the model?
+anova(ri_model, rs_model)
+
+# AIC comparison
+AIC(ri_model, rs_model)
+```
+
+If the random slope model is significantly better (LRT p < 0.05 or ΔAIC > 2), individuals truly vary in their responses.
+
+### When to use random slopes
+
+**Use random slopes when:**
+- You have repeated measures with a continuous predictor (like time)
+- You expect the effect of that predictor to vary across groups
+- You have enough data per group to estimate slopes (typically ≥5 observations per group)
+
+**Random slope syntax:**
+- `(1 + x | group)` — correlated random intercept and slope
+- `(1 | group) + (0 + x | group)` — uncorrelated random intercept and slope
+- `(x | group)` — equivalent to `(1 + x | group)`
+
+---
+
+# Part 7: Model Diagnostics
+
+Mixed model diagnostics are similar to GLM diagnostics, but we also check random effects assumptions.
+
+## Check residuals
+
+```{r diagnostics-residuals, fig.cap="Diagnostic plots for mixed effects model. Left: Residuals vs. fitted should show random scatter. Right: QQ plot of residuals should follow the diagonal."}
+# Using performance package
+check_model(rs_model)
+```
+
+## Check random effects normality
+
+Random effects are assumed to be normally distributed:
+
+```{r diagnostics-random}
+# Extract random effects
+rand_eff <- lme4::ranef(rs_model)$individual
+
+# QQ plot for random intercepts
+par(mfrow = c(1, 2))
+qqnorm(rand_eff$`(Intercept)`, main = "Random Intercepts")
+qqline(rand_eff$`(Intercept)`)
+
+# QQ plot for random slopes
+qqnorm(rand_eff$time, main = "Random Slopes")
+qqline(rand_eff$time)
+par(mfrow = c(1, 1))
+```
+
+## Check for influential groups
+
+```{r influential}
+# Cook's distance by group
+# (Requires additional packages for full implementation)
+
+# Simple check: look at random effect estimates
+lattice::dotplot(lme4::ranef(rs_model))
+```
+
+Look for groups with unusually large random effects—they may be influential.
+
+---
+
+# Part 8: Reporting Mixed Models
+
+## What to report
+
+1. **Model structure:** Fixed effects, random effects structure
+2. **Method for p-values:** Satterthwaite, Kenward-Roger, or likelihood ratio tests
+3. **Software:** Package and version
+4. **Fixed effects:** Estimates, SEs, test statistics, p-values
+5. **Random effects:** Variance components (or SDs)
+6. **Model fit:** Conditional and marginal R²
+
+## R-squared for mixed models
+
+Mixed models have two types of R²:
+
+- **Marginal R²**: Variance explained by fixed effects only
+- **Conditional R²**: Variance explained by fixed AND random effects
+
+```{r r-squared}
+# Using MuMIn package
+r.squaredGLMM(rs_model)
+```
+
+## Sample methods and results
+
+**Methods:**
+
+> We analyzed seedling growth using a linear mixed model with treatment (control vs. fertilized), time, and their interaction as fixed effects. Individual seedlings were included as a random effect with both random intercepts and random slopes for time, allowing individuals to vary in both initial height and growth rate. We used the lmerTest package with Satterthwaite's approximation for degrees of freedom. Model fit was assessed using conditional and marginal R² (MuMIn package). All analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> Fertilized seedlings grew significantly faster than controls (time × treatment interaction: β = 0.98, SE = 0.16, t = 6.02, p < 0.001; **Fig. X**). Control seedlings grew at 2.01 cm/week, while fertilized seedlings grew at 2.99 cm/week—a 49% increase in growth rate. Individuals varied substantially in initial height (SD = 5.02 cm) and modestly in growth rate (SD = 0.27 cm/week), with a negative correlation between intercept and slope (r = −0.68), suggesting that initially smaller seedlings tended to grow faster. The model explained 89% of variance in height (conditional R²), with fixed effects alone explaining 75% (marginal R²).
+
+---
+
+# Part 9: Common Issues and Solutions
+
+## Singular fit / convergence warnings
+
+**"boundary (singular) fit"** or **"Model failed to converge"**
+
+This often means:
+- Random effects variance is estimated near zero
+- Too complex a random structure for your data
+- Sample size too small
+
+**Solutions:**
+1. Simplify random structure (remove random slopes, or correlations)
+2. Center continuous predictors
+3. Check for outliers
+4. Use a simpler model
+
+```{r singular-solutions, eval=FALSE}
+# If (1 + time | individual) is singular, try:
+
+# Remove correlation
+model <- lmer(y ~ x + (1|group) + (0 + x|group), data = data)
+
+# Or remove random slopes entirely
+model <- lmer(y ~ x + (1|group), data = data)
+```
+
+## How many levels do you need for random effects?
+
+**Rule of thumb:** At least 5-6 levels for a random effect, ideally more.
+
+With fewer levels:
+- Random effect variance is poorly estimated
+- Consider treating as fixed effect instead
+- Or use a Bayesian approach with informative priors
+
+## Nested factors with same labels
+
+**Problem:** Plots labeled 1, 2, 3 at site A and 1, 2, 3 at site B are different plots!
+
+```{r nested-labels}
+# WRONG: R thinks plot 1 at site A = plot 1 at site B
+# lmer(y ~ x + (1|site) + (1|plot), data = data)  # Wrong!
+
+# RIGHT: Create unique plot IDs
+# data$plot_id <- paste(data$site, data$plot, sep = "_")
+# lmer(y ~ x + (1|site) + (1|plot_id), data = data)  # Correct
+
+# Or use nesting syntax
+# lmer(y ~ x + (1|site/plot), data = data)  # Also correct
+```
+
+---
+
+# Part 8: BACI Analysis — A Complete Worked Example
+
+The Before-After-Control-Impact (BACI) design was introduced in the Experimental Design chapter. Here we implement the full statistical analysis, showing how the design concepts translate directly into a mixed model.
+
+## The scenario
+
+A wastewater treatment plant began discharging into a stream in 2020. You monitored aquatic invertebrate density (individuals per m²) at both an impact site (downstream of discharge) and a control site (upstream, unaffected) for 3 years before (2017-2019) and 3 years after (2020-2022) the discharge began.
+
+```{r baci-data}
+# Simulated BACI data
+set.seed(123)
+
+# Design structure
+years <- 2017:2022
+sites <- c("Control", "Impact")
+
+# Create full dataset with 4 samples per site per year
+baci_data <- expand.grid(
+  year = years,
+  site = sites,
+  sample = 1:4
+)
+
+# Define periods
+baci_data$period <- ifelse(baci_data$year < 2020, "Before", "After")
+
+# Generate invertebrate densities
+# Control site: stable around 45, slight year-to-year variation
+# Impact site: similar to control before, drops after discharge
+base_density <- 45
+year_effects <- c(`2017` = 2, `2018` = -3, `2019` = 5, 
+                  `2020` = -2, `2021` = 1, `2022` = -1)
+
+# The key: impact effect only occurs after discharge begins
+impact_effect <- -15  # Density drops by 15 at impact site after discharge
+
+baci_data$density <- base_density +
+  year_effects[as.character(baci_data$year)] +
+  ifelse(baci_data$site == "Impact" & baci_data$period == "After", impact_effect, 0) +
+  rnorm(nrow(baci_data), 0, 4)
+
+# Make factors
+baci_data$site <- factor(baci_data$site, levels = c("Control", "Impact"))
+baci_data$period <- factor(baci_data$period, levels = c("Before", "After"))
+baci_data$year <- factor(baci_data$year)
+
+head(baci_data)
+```
+
+## Visualize the BACI pattern
+
+```{r baci-plot, fig.cap="BACI design: Invertebrate density at control (blue) and impact (red) sites before and after wastewater discharge began in 2020. The control site remains stable while the impact site shows a clear decline after the disturbance."}
+# Calculate means for plotting
+baci_means <- baci_data %>%
+  group_by(year, site, period) %>%
+  summarize(
+    mean_density = mean(density),
+    se = sd(density) / sqrt(n()),
+    .groups = "drop"
+  )
+
+ggplot(baci_means, aes(x = year, y = mean_density, color = site, group = site)) +
+  geom_vline(xintercept = 3.5, linetype = "dashed", color = "gray50") +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_density - se, ymax = mean_density + se), 
+                width = 0.2) +
+  annotate("text", x = 2, y = 55, label = "Before", color = "gray40") +
+  annotate("text", x = 5, y = 55, label = "After", color = "gray40") +
+  scale_color_manual(values = c("Control" = "steelblue", "Impact" = "firebrick")) +
+  labs(x = "Year", y = expression("Invertebrate density (individuals/m"^2*")"),
+       title = "BACI Design: Wastewater Discharge Impact",
+       color = "Site") +
+  theme_minimal()
+```
+
+The pattern is clear visually: the control site remains stable, while the impact site drops after 2020. But is this statistically significant?
+
+## The BACI model
+
+The key test in a BACI design is the **period × site interaction**. This tests whether the change from before to after differs between sites.
+
+```{r baci-model}
+# BACI model with year as random effect to account for temporal correlation
+baci_model <- lmer(density ~ period * site + (1|year), data = baci_data)
+summary(baci_model)
+```
+
+## Interpret the BACI output
+
+```{r baci-anova}
+# Type III tests for the interaction
+Anova(baci_model, type = "III")
+```
+
+**The critical result:** The period:site interaction is highly significant (χ² = 56.7, p < 0.001). This means the change from before to after was different at the two sites—exactly what we'd expect if the discharge had an impact.
+
+### Understanding the coefficients
+
+```{r baci-coef}
+# Fixed effects
+fixef(baci_model)
+```
+
+Reading the coefficients:
+
+- **Intercept (46.4):** Mean density at Control site in Before period
+- **periodAfter (-0.5):** Change at Control site from Before to After (essentially zero—no change)
+- **siteImpact (-0.7):** Difference between sites in Before period (essentially zero—sites were similar)
+- **periodAfter:siteImpact (-15.8):** THE BACI EFFECT — the *additional* change at Impact site relative to Control
+
+The interaction coefficient (-15.8) is the estimated impact of the discharge: invertebrate density dropped by about 16 individuals/m² at the impact site, beyond any change that occurred at the control site.
+
+### Estimated marginal means
+
+```{r baci-emmeans}
+# Get means for all four combinations
+emm <- emmeans(baci_model, ~ period * site)
+emm
+
+# The BACI contrast
+contrast(emm, interaction = "pairwise")
+```
+
+## BACI effect size and confidence interval
+
+```{r baci-effect}
+# Extract the interaction effect with CI
+baci_effect <- confint(baci_model)["periodAfter:siteImpact", ]
+baci_effect
+
+# The BACI effect
+cat("BACI effect (impact of discharge):\n")
+cat("Estimate:", round(fixef(baci_model)["periodAfter:siteImpact"], 1), "individuals/m²\n")
+cat("95% CI:", round(baci_effect[1], 1), "to", round(baci_effect[2], 1), "\n")
+```
+
+## Sample methods and results for BACI
+
+**Methods:**
+
+> We assessed the impact of wastewater discharge on aquatic invertebrate communities using a Before-After-Control-Impact (BACI) design. We monitored invertebrate density (individuals/m²) at an impact site (200 m downstream of the discharge point) and a control site (500 m upstream) for 3 years before (2017–2019) and 3 years after (2020–2022) discharge began. Four replicate samples were collected at each site in each year. We analyzed the data using a linear mixed model with period (before/after), site (control/impact), and their interaction as fixed effects, and year as a random effect to account for temporal correlation. The period × site interaction tests whether the change from before to after differed between sites—the key test for an environmental impact. Analyses were conducted using the lme4 and lmerTest packages in R version 4.3.1.
+
+**Results:**
+
+> Invertebrate density showed a significant BACI interaction (period × site: χ² = 56.7, df = 1, p < 0.001; **Fig. X**), indicating that the wastewater discharge affected the downstream community. Before discharge began, both sites had similar invertebrate densities (control: 46.4 ± 1.4, impact: 45.7 ± 1.4 individuals/m², mean ± SE). At the control site, density remained stable after 2020 (change: −0.5 ± 2.0 individuals/m²). In contrast, the impact site experienced a significant decline (change: −16.3 ± 2.0 individuals/m²). The estimated impact of the discharge—the difference in temporal change between sites—was −15.8 individuals/m² (95% CI: −19.9 to −11.7), representing a 35% reduction in invertebrate density at the affected site.
+
+---
+
+# Part 9: Temporal Autocorrelation
+
+When observations are collected over time, adjacent time points are often more similar than distant time points. This **temporal autocorrelation** violates the independence assumption.
+
+## When does it matter?
+
+| Situation | Autocorrelation? | What to do |
+|-----------|------------------|------------|
+| 3-5 time points per subject | Usually minimal | Random intercept may suffice |
+| Many time points (>10) per subject | Likely present | Check and model if needed |
+| Long time series (years of data) | Almost certain | Need time series methods |
+| Irregular sampling intervals | Depends | Check empirically |
+
+## Detecting temporal autocorrelation
+
+The **autocorrelation function (ACF)** shows correlation between observations at different time lags:
+
+```{r acf-example, fig.cap="Autocorrelation function (ACF) for model residuals. Bars extending beyond the dashed blue lines indicate significant autocorrelation at that lag. Lag 1 autocorrelation (adjacent time points) is most common."}
+# Simulate data with temporal autocorrelation
+set.seed(456)
+n_subjects <- 10
+n_times <- 20
+
+# Create autocorrelated errors within each subject
+ar_data <- data.frame(
+  subject = rep(1:n_subjects, each = n_times),
+  time = rep(1:n_times, times = n_subjects),
+  treatment = rep(c("Control", "Treatment"), each = n_subjects/2 * n_times)
+)
+
+# Generate response with AR(1) errors
+ar_data$response <- NA
+for (subj in 1:n_subjects) {
+  idx <- ar_data$subject == subj
+  errors <- arima.sim(n = n_times, model = list(ar = 0.6), sd = 2)
+  ar_data$response[idx] <- 10 + 
+    ifelse(ar_data$treatment[idx] == "Treatment", 5, 0) +
+    0.3 * ar_data$time[idx] +
+    as.numeric(errors)
+}
+
+# Fit model ignoring autocorrelation
+naive_model <- lmer(response ~ treatment * time + (1|subject), data = ar_data)
+
+# Check residuals for autocorrelation
+# First, organize residuals by subject and time
+ar_data$resid <- residuals(naive_model)
+
+# ACF of residuals (pooled across subjects)
+acf(ar_data$resid, main = "ACF of Model Residuals", lag.max = 10)
+```
+
+**Reading the ACF:**
+- Lag 0 is always 1.0 (perfect correlation with itself)
+- Lag 1 shows correlation between adjacent time points
+- Dashed lines show 95% confidence bounds under no autocorrelation
+- Bars exceeding bounds indicate significant autocorrelation
+
+## What autocorrelation does to your analysis
+
+If you ignore positive autocorrelation:
+
+- **Standard errors are too small** (adjacent residuals aren't independent)
+- **P-values are too small** (false positives increase)
+- **Confidence intervals are too narrow**
+
+```{r autocorr-problem}
+# Compare SEs from naive model vs. acknowledging the issue
+summary(naive_model)$coefficients[, "Std. Error"]
+```
+
+## Solutions for temporal autocorrelation
+
+### Solution 1: Random slopes (often sufficient)
+
+If autocorrelation comes from subjects having different trajectories, random slopes can help:
+
+```{r random-slope-solution}
+# Add random slope for time
+slope_model <- lmer(response ~ treatment * time + (1 + time|subject), data = ar_data)
+
+# Compare residual ACF
+acf(residuals(slope_model), main = "ACF After Random Slopes", lag.max = 10)
+```
+
+### Solution 2: Explicit autocorrelation structure (nlme)
+
+For persistent autocorrelation, model it explicitly using `nlme::lme()`:
+
+```{r nlme-ar1}
+# Using nlme with AR(1) correlation structure
+library(nlme)
+
+# Convert subject to factor for nlme
+ar_data$subject <- factor(ar_data$subject)
+
+# Fit model with AR(1) errors
+ar1_model <- lme(response ~ treatment * time, 
+                  random = ~ 1 | subject,
+                  correlation = corAR1(form = ~ time | subject),
+                  data = ar_data)
+
+summary(ar1_model)
+
+# Extract the estimated autocorrelation
+cat("Estimated AR(1) correlation:", 
+    as.numeric(coef(ar1_model$modelStruct$corStruct, unconstrained = FALSE)), "\n")
+```
+
+### Comparing approaches
+
+```{r compare-autocorr-models}
+# Compare AICs
+AIC(naive_model)
+AIC(slope_model)
+AIC(ar1_model)
+```
+
+Lower AIC suggests better fit. If the AR(1) model has substantially lower AIC, autocorrelation is important to model.
+
+## When to worry vs. when to relax
+
+**Worry about autocorrelation when:**
+- You have many time points (>10) per subject
+- ACF shows significant lag-1 (or higher) correlation
+- Your conclusions depend on precise standard errors
+
+**You can probably relax when:**
+- You have few time points (3-5) per subject
+- Random slopes capture the dependency
+- ACF looks clean after fitting random slopes
+- Your effects are very large and robust
+
+## The bridge to time series
+
+When you have **very long time series** (dozens to hundreds of time points) with no grouping structure, you've moved beyond mixed models into true time series territory:
+
+- **Decomposition:** Separating trend, seasonality, and residuals
+- **ARIMA models:** Autoregressive integrated moving average
+- **Forecasting:** Predicting future values
+
+These methods are covered in the Working with Long-term Data chapter. For most ecological studies with repeated measures on multiple subjects, mixed models with appropriate random effects (and possibly AR(1) errors) are sufficient.
+
+---
+
+# Part 10: Summary Tables
+
+## Design to model structure
+
+| Design | Fixed effects | Random effects |
+|--------|--------------|----------------|
+| RCBD | Treatment | `(1|block)` |
+| Split-plot | Whole-plot × sub-plot treatments | `(1|block/whole_plot)` |
+| Nested observational | Predictor of interest | `(1|site/plot)` |
+| Crossed (site × year) | Predictor of interest | `(1|site) + (1|year)` |
+| Repeated measures | Time, treatment, time×treatment | `(1|subject)` or `(time|subject)` |
+| Multi-site experiment | Treatment | `(1|site)` or `(treatment|site)` |
+| BACI | Period × site_type (interaction is key test) | `(1|site)` and/or `(1|year)` |
+| With temporal autocorrelation | Same as above | Use `nlme::lme()` with `correlation = corAR1()` |
+
+## Syntax quick reference
+
+```{r syntax-reference, eval=FALSE}
+# Random intercept only
+(1 | group)
+
+# Random intercept and slope (correlated)
+(1 + x | group)
+
+# Random intercept and slope (uncorrelated)
+(1 | group) + (0 + x | group)
+
+# Nested: plots within sites
+(1 | site/plot)
+# equivalent to:
+(1 | site) + (1 | site:plot)
+
+# Crossed: site and year
+(1 | site) + (1 | year)
+
+# Multiple random slopes
+(1 + x1 + x2 | group)
+```
+
+---
+
+## Key takeaways
+
+1. **Match your model to your design** — The random effects structure should reflect how your data were collected
+
+2. **Fixed = what you're testing; Random = structure you're accounting for**
+
+3. **Nested vs. crossed** — If lower-level units are unique to higher-level units, they're nested
+
+4. **Random slopes** — Use when the effect of a predictor might vary across groups
+
+5. **BACI interaction is the key test** — The period × site interaction estimates the impact
+
+6. **Check for temporal autocorrelation** — Use ACF plots when you have many time points
+
+7. **Check diagnostics** — Especially residual plots and random effects normality
+
+8. **Report variance components** — They're informative about your system
+
+9. **Singular fits** — Usually mean your random structure is too complex for your data
+
+---
+
+## Assignment
+
+### Part 1: Identify the structure
+
+For each scenario, specify the fixed effects and random effects structure:
+
+1. You compare 3 grazing treatments in 6 pastures (2 pastures per treatment). You measure plant biomass in 5 quadrats per pasture.
+
+2. You measure tree growth at 10 sites over 5 years, with 8 trees measured per site per year.
+
+3. You test 4 fertilizer levels on 30 plants, with each plant measured at 3 time points.
+
+4. A dam was removed from a river in 2021. You have fish abundance data from 2 upstream sites and 2 downstream sites, sampled annually from 2018-2024.
+
+### Part 2: Blocked design analysis
+
+Use the built-in `sleepstudy` data (lme4 package):
+
+```{r assignment-sleep}
+data(sleepstudy)
+head(sleepstudy)
+# Reaction time measured over 10 days of sleep deprivation
+# 18 subjects, each measured on days 0-9
+```
+
+1. Fit a model with Days as fixed effect and Subject as random intercept
+2. Fit a model with random intercept AND random slope for Days
+3. Compare the two models
+4. Interpret the random effects variance
+5. Check for temporal autocorrelation using ACF of residuals
+6. Create a figure showing individual trajectories
+7. Write methods and results sections
+
+### Part 3: BACI analysis
+
+Using the simulated dam removal scenario from Part 1 (or your own data), conduct a full BACI analysis:
+
+1. Create a visualization showing the BACI pattern
+2. Fit the appropriate mixed model with period × site_type interaction
+3. Interpret the interaction coefficient
+4. Calculate the effect size with confidence intervals
+5. Write a results statement
+
+### Part 4: Reflection
+
+In 2-3 sentences, explain why ignoring the grouping structure in your data (e.g., running a simple t-test when you have a blocked design) can lead to false positives.

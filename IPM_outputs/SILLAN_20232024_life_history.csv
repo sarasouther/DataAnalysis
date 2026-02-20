@@ -1,11 +1,11 @@
 "Metric","Estimate"
-"Population growth rate (λ)",0.9647
-"Mean size (stable, log)",0.2125
-"Mean size (stable, cm)",1.2368
-"Median size (stable, log)",0.1363
-"Median size (stable, cm)",1.146
-"Mean reproductive size (log)",4.783
-"Mean reproductive size (cm)",119.4663
-"Variance reproductive size (log)",0.07
-"Expected lifetime at median",256.5872
+"Population growth rate (λ)",0.9694
+"Mean size (stable, log)",-0.0597
+"Mean size (stable, cm)",0.9421
+"Median size (stable, log)",-0.1115
+"Median size (stable, cm)",0.8945
+"Mean reproductive size (log)",4.725
+"Mean reproductive size (cm)",112.7281
+"Variance reproductive size (log)",0.079
+"Expected lifetime at median",322.6221
 "Max reproductive value",1

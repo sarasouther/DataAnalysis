@@ -1,0 +1,781 @@
+# Generalized Linear Models (GLMs)
+
+SARA ADD IN PREVIOUS CHAPTER THAT YOU FOUND - NOW LABELED OLD
+
+In the previous chapters, you learned three fundamental approaches to statistical analysis:
+
+- **Comparing groups** (t-tests, ANOVA) — Is there a difference between categories?
+- **Testing relationships** (Regression) — How does Y change with X?
+- **Analyzing categorical data** (Chi-square) — Are categorical variables associated?
+
+Here's the secret: **these are all special cases of a single framework**—the Generalized Linear Model. Understanding GLMs gives you a unified approach to almost any statistical question, plus the ability to handle data that violate traditional assumptions.
+
+## The problem with "classic" methods
+
+Traditional linear models (ANOVA, regression) assume:
+
+1. **Normal distribution** of residuals
+2. **Constant variance** (homoscedasticity)
+3. **Linear relationship** between predictors and response
+
+But ecological data often violate these assumptions:
+
+| Data type | The problem |
+|-----------|-------------|
+| **Counts** (offspring, species, visits) | Can't be negative; often right-skewed; variance increases with mean |
+| **Proportions** (survival rate, germination %) | Bounded between 0 and 1 |
+| **Binary** (present/absent, alive/dead) | Only two possible values |
+| **Time to event** (days to flowering) | Positive only; often skewed |
+
+The old solution was data transformation (log, square root, arcsine). But transformations are awkward—you have to back-transform for interpretation, confidence intervals become asymmetric, and sometimes nothing works.
+
+**GLMs solve this elegantly** by letting you specify the appropriate error distribution for your data type.
+
+## The GLM framework
+
+A GLM has three components:
+
+### 1. The linear predictor (η)
+
+This is the familiar linear model part:
+
+$$\eta = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_p X_p$$
+
+This is exactly what you learned in regression. The coefficients (β) describe how predictors relate to the response.
+
+### 2. The error distribution (family)
+
+Instead of assuming normal errors, you specify a distribution that matches your data:
+
+| Data type | Distribution | R family |
+|-----------|--------------|----------|
+| Continuous, unbounded | Normal/Gaussian | `gaussian()` |
+| Counts | Poisson | `poisson()` |
+| Binary (0/1) | Binomial | `binomial()` |
+| Proportions | Binomial (with weights) | `binomial()` |
+| Positive continuous, skewed | Gamma | `Gamma()` |
+
+### 3. The link function (g)
+
+The link function connects the linear predictor to the expected value of the response:
+
+$$g(\mu) = \eta$$
+
+or equivalently:
+
+$$\mu = g^{-1}(\eta)$$
+
+where μ is the expected value (mean) of the response variable.
+
+**Why do we need link functions?**
+
+The linear predictor η can take any value from -∞ to +∞. But:
+- Counts can't be negative
+- Probabilities must be between 0 and 1
+- Positive measurements can't go below zero
+
+Link functions transform the expected value to ensure predictions make sense for your data type.
+
+## Setup
+
+```{r setup-glm, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(car)           # For Anova() with Type II tests
+library(performance)   # For model diagnostics
+library(DHARMa)        # For GLM residual diagnostics
+library(emmeans)       # For estimated marginal means
+library(AER)           # For dispersion tests
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Everything you know is a GLM
+
+Let's prove that ANOVA and regression are special cases of GLMs.
+
+## ANOVA as a GLM
+
+```{r anova-as-glm}
+# Create example data: Specific Leaf Area in 3 populations
+sla_data <- data.frame(
+  Population = factor(rep(c("Flagstaff", "Sedona", "Camp Verde"), each = 10)),
+  SLA = c(rnorm(10, 15, 2),    # Flagstaff: mean = 15
+          rnorm(10, 22, 2),    # Sedona: mean = 22
+          rnorm(10, 18, 2))    # Camp Verde: mean = 18
+)
+
+# Classic ANOVA
+anova_classic <- aov(SLA ~ Population, data = sla_data)
+summary(anova_classic)
+
+# Same analysis as GLM
+glm_anova <- glm(SLA ~ Population, family = gaussian(), data = sla_data)
+Anova(glm_anova)
+
+# Same analysis as lm()
+lm_anova <- lm(SLA ~ Population, data = sla_data)
+summary(lm_anova)
+```
+
+**The results are identical!** All three approaches give the same F-statistic and p-value.
+
+## Regression as a GLM
+
+```{r regression-as-glm}
+# Example: Seedling height vs. light availability
+seedling_data <- data.frame(
+  light = runif(30, 10, 90),
+  height = NA
+)
+seedling_data$height <- 5 + 0.3 * seedling_data$light + rnorm(30, 0, 4)
+
+# Classic regression
+lm_model <- lm(height ~ light, data = seedling_data)
+summary(lm_model)
+
+# Same as GLM with Gaussian family
+glm_model <- glm(height ~ light, family = gaussian(), data = seedling_data)
+summary(glm_model)
+
+# Compare coefficients - they're identical
+cbind(lm = coef(lm_model), glm = coef(glm_model))
+```
+
+**Key insight:** When you use `family = gaussian()` (normal distribution) with the identity link, a GLM is exactly equivalent to `lm()`. The power of GLMs comes when we change the family and link function.
+
+---
+
+# Part 2: Understanding Link Functions
+
+Link functions are the heart of GLMs. Let's understand them deeply.
+
+## The identity link (Gaussian GLM)
+
+For normal data, the link function is the **identity**—it does nothing:
+
+$$g(\mu) = \mu$$
+
+The expected value equals the linear predictor directly:
+
+$$\mu = \beta_0 + \beta_1 X$$
+
+This is just ordinary regression.
+
+## The log link (Poisson GLM for counts)
+
+For count data, we use the **log link**:
+
+$$g(\mu) = \ln(\mu)$$
+
+Which means:
+
+$$\ln(\mu) = \beta_0 + \beta_1 X$$
+
+To get predictions on the original scale, we **back-transform** using the inverse link (exponential):
+
+$$\mu = e^{\beta_0 + \beta_1 X}$$
+
+**Why log link for counts?**
+
+1. Counts must be ≥ 0, and exp() always gives positive values
+2. Effects are multiplicative: a one-unit increase in X multiplies the count by $e^{\beta_1}$
+3. Variance naturally increases with the mean (Poisson assumption)
+
+## The logit link (Binomial GLM for proportions/binary)
+
+For binary or proportion data, we use the **logit link**:
+
+$$g(\pi) = \ln\left(\frac{\pi}{1-\pi}\right) = \text{logit}(\pi)$$
+
+Where π is the probability of success. The quantity π/(1-π) is called the **odds**.
+
+The linear predictor relates to the log-odds:
+
+$$\ln\left(\frac{\pi}{1-\pi}\right) = \beta_0 + \beta_1 X$$
+
+To get predictions (probabilities), we use the **inverse logit**:
+
+$$\pi = \frac{e^{\beta_0 + \beta_1 X}}{1 + e^{\beta_0 + \beta_1 X}} = \frac{1}{1 + e^{-(\beta_0 + \beta_1 X)}}$$
+
+This is the famous S-shaped (sigmoid) logistic curve!
+
+### Demonstrating the logit transformation
+
+Let's see how the link function works step by step—this is how you might have plotted logistic regression in Excel:
+
+```{r logit-demo, fig.cap="The logit link function transforms probabilities (bounded 0-1) to the log-odds scale (unbounded), where we can fit a linear model. The inverse logit transforms predictions back to probabilities."}
+# Create a sequence of probabilities
+prob <- seq(0.01, 0.99, by = 0.01)
+
+# Calculate odds and log-odds
+odds <- prob / (1 - prob)
+log_odds <- log(odds)
+
+# Plot the transformation
+par(mfrow = c(1, 3))
+
+# Panel 1: Probability scale (S-curve will map to this)
+plot(log_odds, prob, type = "l", lwd = 2, col = "steelblue",
+     xlab = "Log-odds (linear predictor η)", 
+     ylab = "Probability",
+     main = "Inverse Logit\n(what we plot)")
+
+# Panel 2: Odds scale
+plot(prob, odds, type = "l", lwd = 2, col = "coral",
+     xlab = "Probability", ylab = "Odds",
+     main = "Probability to Odds")
+
+# Panel 3: Log-odds scale (where we fit the linear model)
+plot(prob, log_odds, type = "l", lwd = 2, col = "forestgreen",
+     xlab = "Probability", ylab = "Log-odds",
+     main = "Logit Transform\n(makes it linear)")
+par(mfrow = c(1, 1))
+```
+
+### Creating a logistic curve from coefficients
+
+Here's the Excel-style approach: once you have coefficients, you can calculate the predicted probability at any X value:
+
+```{r logistic-curve-manual}
+# Suppose our logistic regression gives us:
+beta_0 <- -3        # Intercept
+beta_1 <- 0.1       # Slope
+
+# For any X, calculate the linear predictor (log-odds)
+x_values <- seq(0, 100, by = 1)
+linear_predictor <- beta_0 + beta_1 * x_values
+
+# Apply inverse logit to get probability
+# Method 1: The formula
+probability <- exp(linear_predictor) / (1 + exp(linear_predictor))
+
+# Method 2: Equivalent formula (more numerically stable)
+probability2 <- 1 / (1 + exp(-linear_predictor))
+
+# Method 3: Use R's built-in function
+probability3 <- plogis(linear_predictor)
+
+# All three methods give the same result
+head(cbind(probability, probability2, probability3))
+```
+
+```{r logistic-curve-plot, fig.cap="Building a logistic curve from coefficients. Once you know β₀ and β₁, you can calculate the predicted probability at any X value using the inverse logit function."}
+# Plot the curve
+plot_data <- data.frame(x = x_values, probability = probability)
+
+ggplot(plot_data, aes(x = x, y = probability)) +
+  geom_line(color = "steelblue", linewidth = 1.5) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "gray50") +
+  geom_vline(xintercept = -beta_0/beta_1, linetype = "dashed", color = "coral") +
+  annotate("text", x = -beta_0/beta_1 + 5, y = 0.55, 
+           label = paste("X at P=0.5:", -beta_0/beta_1), hjust = 0) +
+  labs(x = "X variable",
+       y = "Probability",
+       title = "Logistic Curve from Coefficients",
+       subtitle = paste("π = 1/(1 + exp(-(", beta_0, "+", beta_1, "× X)))")) +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme_minimal()
+```
+
+**Key insight:** The X value where probability = 0.5 is where the log-odds = 0, which occurs at X = -β₀/β₁. In this example, that's X = 30.
+
+---
+
+# Part 3: Logistic Regression (Binomial GLM)
+
+## When to use it
+
+Use logistic regression when your response is:
+- **Binary:** Success/failure, alive/dead, present/absent (coded as 1/0)
+- **Proportion:** Number of successes out of total trials
+
+## Ecological example: Plant survival along a moisture gradient
+
+You transplanted seedlings across a soil moisture gradient and recorded survival after one year.
+
+```{r logistic-data}
+# Simulated survival data
+moisture <- c(5, 8, 12, 15, 18, 22, 25, 28, 32, 35, 38, 42, 45, 48, 52,
+              55, 58, 62, 65, 68, 72, 75, 78, 82, 85, 88, 92, 95, 98, 100)
+
+# True relationship: survival increases with moisture (logistic curve)
+set.seed(123)
+log_odds_true <- -4 + 0.08 * moisture
+prob_true <- plogis(log_odds_true)
+survival <- rbinom(30, 1, prob_true)
+
+plant_data <- data.frame(moisture, survival)
+
+# Look at the data
+table(plant_data$survival)
+```
+
+### Visualize the raw data
+
+```{r logistic-raw-plot, fig.cap="Survival (1) and mortality (0) across a soil moisture gradient. Points are jittered vertically to show overlapping observations."}
+ggplot(plant_data, aes(x = moisture, y = survival)) +
+  geom_jitter(height = 0.05, width = 0, size = 3, alpha = 0.6) +
+  labs(x = "Soil Moisture (%)",
+       y = "Survival (1 = alive, 0 = dead)",
+       title = "Seedling Survival Across Moisture Gradient") +
+  theme_minimal()
+```
+
+### Fit the model
+
+```{r logistic-fit}
+# Logistic regression
+survival_model <- glm(survival ~ moisture, 
+                       family = binomial(link = "logit"), 
+                       data = plant_data)
+summary(survival_model)
+```
+
+### Interpret the output
+
+#### Coefficients on the log-odds scale
+
+```{r logistic-coef}
+coef(survival_model)
+```
+
+- **Intercept (-3.29):** The log-odds of survival when moisture = 0. 
+  - Convert to probability: `plogis(-3.29)` = `r round(plogis(-3.29), 3)` (3.6% survival at 0% moisture)
+  
+- **Slope (0.067):** For each 1% increase in moisture, the log-odds of survival increases by 0.067.
+  - This isn't intuitive. Let's convert to odds ratio.
+
+#### Converting to odds ratios
+
+```{r odds-ratios}
+# Odds ratios
+exp(coef(survival_model))
+
+# With confidence intervals
+exp(confint(survival_model))
+```
+
+**Interpretation:** For each 1% increase in soil moisture, the odds of survival are multiplied by 1.07 (increase by 7%).
+
+For a 10% increase in moisture:
+```{r or-10}
+exp(coef(survival_model)["moisture"] * 10)
+```
+
+The odds of survival nearly double (1.95×) for every 10% increase in moisture.
+
+### Test significance
+
+```{r logistic-test}
+# Likelihood ratio test (preferred)
+Anova(survival_model, type = "II")
+
+# Or use drop1
+drop1(survival_model, test = "Chisq")
+```
+
+### Generate predictions
+
+```{r logistic-predict}
+# Create prediction data
+pred_data <- data.frame(moisture = seq(0, 100, by = 1))
+
+# Predict on the link scale (log-odds)
+pred_data$log_odds <- predict(survival_model, newdata = pred_data, type = "link")
+
+# Predict on the response scale (probability)
+pred_data$probability <- predict(survival_model, newdata = pred_data, type = "response")
+
+# Add confidence intervals
+pred_link <- predict(survival_model, newdata = pred_data, type = "link", se.fit = TRUE)
+pred_data$prob_lower <- plogis(pred_link$fit - 1.96 * pred_link$se.fit)
+pred_data$prob_upper <- plogis(pred_link$fit + 1.96 * pred_link$se.fit)
+
+head(pred_data)
+```
+
+### Visualize with fitted curve
+
+```{r logistic-final-plot, fig.cap="Figure 1. Seedling survival probability increases significantly with soil moisture (logistic regression: χ² = 9.8, p = 0.002). Points show observed outcomes (jittered); curve shows fitted probability with 95% CI."}
+ggplot() +
+  # Confidence ribbon
+  geom_ribbon(data = pred_data, 
+              aes(x = moisture, ymin = prob_lower, ymax = prob_upper),
+              fill = "steelblue", alpha = 0.3) +
+  # Fitted curve
+  geom_line(data = pred_data, 
+            aes(x = moisture, y = probability),
+            color = "steelblue", linewidth = 1.2) +
+  # Observed data
+  geom_jitter(data = plant_data, 
+              aes(x = moisture, y = survival),
+              height = 0.03, width = 0, size = 2.5, alpha = 0.6) +
+  # Reference lines
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "gray50") +
+  labs(x = "Soil Moisture (%)",
+       y = "Survival Probability",
+       title = "Seedling Survival vs. Soil Moisture") +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme_minimal()
+```
+
+### Calculate the LD50 / ED50
+
+The moisture level at which survival probability = 50%:
+
+```{r ld50}
+# At P = 0.5, log-odds = 0
+# So: 0 = β₀ + β₁X
+# X = -β₀/β₁
+
+ld50 <- -coef(survival_model)[1] / coef(survival_model)[2]
+names(ld50) <- "LD50"
+ld50
+
+# Verify
+predict(survival_model, newdata = data.frame(moisture = ld50), type = "response")
+```
+
+At 49% soil moisture, seedlings have a 50% chance of survival.
+
+### Sample methods and results
+
+**Methods:**
+
+> We modeled seedling survival as a function of soil moisture using logistic regression (GLM with binomial family and logit link). Seedlings (n = 30) were transplanted across a moisture gradient (5–100%) and survival was recorded after one year. We tested the significance of moisture using a likelihood ratio test and calculated odds ratios with 95% confidence intervals. The moisture level corresponding to 50% survival probability was calculated as −β₀/β₁. All analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> Survival probability increased significantly with soil moisture (logistic regression: χ² = 9.8, df = 1, p = 0.002; **Fig. 1**). For every 10% increase in soil moisture, the odds of survival nearly doubled (OR = 1.95, 95% CI: 1.24–3.47). At low moisture (10%), predicted survival was only 11% (95% CI: 2–41%), while at high moisture (90%), survival reached 97% (95% CI: 78–100%). The moisture level corresponding to 50% survival probability was 49%.
+
+---
+
+# Part 4: Poisson Regression (Count Data)
+
+## When to use it
+
+Use Poisson regression when your response is:
+- **Counts:** Non-negative integers (0, 1, 2, 3, ...)
+- Examples: Number of offspring, species counts, flower visits, disease cases
+
+The Poisson distribution assumes:
+- Mean = Variance (we'll check this!)
+- Counts are independent
+
+## Ecological example: Pollinator visits and flower display
+
+You observed pollinator visitation at 40 plants with varying flower display sizes.
+
+```{r poisson-data}
+# Simulated count data
+set.seed(456)
+flowers <- rpois(40, lambda = 15)  # Number of flowers per plant
+flowers[flowers < 3] <- 3          # Minimum 3 flowers
+
+# Visits increase with flower number (log-linear relationship)
+log_visits <- 0.5 + 0.08 * flowers + rnorm(40, 0, 0.3)
+visits <- rpois(40, lambda = exp(log_visits))
+
+pollinator_data <- data.frame(flowers, visits)
+
+# Summary
+summary(pollinator_data)
+```
+
+### Visualize
+
+```{r poisson-plot, fig.cap="Pollinator visits increase with flower display size. The relationship appears curved because counts are on a multiplicative scale."}
+ggplot(pollinator_data, aes(x = flowers, y = visits)) +
+  geom_point(size = 3, alpha = 0.7, color = "purple") +
+  labs(x = "Number of Flowers",
+       y = "Pollinator Visits",
+       title = "Pollinator Visitation vs. Floral Display") +
+  theme_minimal()
+```
+
+### Fit the model
+
+```{r poisson-fit}
+# Poisson regression
+visit_model <- glm(visits ~ flowers, 
+                    family = poisson(link = "log"), 
+                    data = pollinator_data)
+summary(visit_model)
+```
+
+### Interpret coefficients
+
+With the log link, coefficients represent **log rate ratios**. To interpret:
+
+```{r poisson-interpret}
+# Raw coefficients (log scale)
+coef(visit_model)
+
+# Exponentiated coefficients (rate ratios)
+exp(coef(visit_model))
+
+# Confidence intervals
+exp(confint(visit_model))
+```
+
+**Interpretation:**
+- For each additional flower, visits are multiplied by 1.075 (7.5% increase)
+- For 10 additional flowers: `exp(0.072 * 10)` = `r round(exp(0.072 * 10), 2)` (visits double!)
+
+### Check for overdispersion
+
+The Poisson distribution assumes mean = variance. If variance > mean, you have **overdispersion**, which inflates Type I error rates.
+
+```{r overdispersion-check}
+# Quick check: residual deviance should ≈ residual df
+# If deviance >> df, you have overdispersion
+summary(visit_model)$deviance
+summary(visit_model)$df.residual
+
+# Dispersion ratio
+dispersion_ratio <- summary(visit_model)$deviance / summary(visit_model)$df.residual
+dispersion_ratio
+
+# Formal test
+dispersiontest(visit_model)
+```
+
+Dispersion ratio ≈ 1 suggests no overdispersion. If it were > 1.5 or so, we'd need to address it.
+
+### Handling overdispersion
+
+If overdispersion is detected:
+
+```{r overdispersion-solutions, eval=FALSE}
+# Option 1: Quasi-Poisson (adjusts standard errors)
+quasi_model <- glm(visits ~ flowers, 
+                   family = quasipoisson(link = "log"), 
+                   data = pollinator_data)
+
+# Option 2: Negative binomial (MASS package)
+library(MASS)
+nb_model <- glm.nb(visits ~ flowers, data = pollinator_data)
+```
+
+### Generate predictions
+
+```{r poisson-predict}
+# Create prediction data
+pred_flowers <- data.frame(flowers = seq(3, 25, by = 0.5))
+
+# Predict on link scale (log counts)
+pred_link <- predict(visit_model, newdata = pred_flowers, type = "link", se.fit = TRUE)
+
+# Transform to response scale
+pred_flowers$visits <- exp(pred_link$fit)
+pred_flowers$lower <- exp(pred_link$fit - 1.96 * pred_link$se.fit)
+pred_flowers$upper <- exp(pred_link$fit + 1.96 * pred_link$se.fit)
+```
+
+### Visualize
+
+```{r poisson-final-plot, fig.cap="Figure 2. Pollinator visits increase exponentially with flower display size (Poisson regression: χ² = 81.2, p < 0.001). The curve shows predicted visits with 95% CI."}
+ggplot() +
+  geom_ribbon(data = pred_flowers,
+              aes(x = flowers, ymin = lower, ymax = upper),
+              fill = "purple", alpha = 0.3) +
+  geom_line(data = pred_flowers,
+            aes(x = flowers, y = visits),
+            color = "purple", linewidth = 1.2) +
+  geom_point(data = pollinator_data,
+             aes(x = flowers, y = visits),
+             size = 3, alpha = 0.7) +
+  labs(x = "Number of Flowers",
+       y = "Pollinator Visits",
+       title = "Pollinator Visitation vs. Floral Display") +
+  theme_minimal()
+```
+
+### Sample results
+
+> Pollinator visitation increased significantly with floral display size (Poisson regression: χ² = 81.2, df = 1, p < 0.001; **Fig. 2**). Each additional flower increased visitation by 7.5% (rate ratio = 1.075, 95% CI: 1.058–1.092). Plants with 20 flowers received an average of 5.8 visits (95% CI: 4.9–6.9), while plants with 10 flowers received only 2.8 visits (95% CI: 2.5–3.2).
+
+---
+
+# Part 5: GLM Diagnostics
+
+GLM diagnostics differ from linear model diagnostics because we don't expect normally distributed residuals.
+
+## Using DHARMa for GLM diagnostics
+
+The **DHARMa** package creates "simulation-based residuals" that ARE expected to be uniform, making diagnostics easier:
+
+```{r dharma-diagnostics, fig.cap="DHARMa diagnostic plots for the Poisson model. Left: QQ plot of simulated residuals (should follow the line). Right: Residuals vs. predicted (should show no pattern)."}
+# Simulate residuals
+sim_resid <- simulateResiduals(visit_model, n = 1000)
+
+# Plot diagnostics
+plot(sim_resid)
+```
+
+**What to look for:**
+- Left panel (QQ plot): Points should follow the diagonal line
+- Right panel (Residuals vs predicted): No obvious patterns; dispersion test result shown
+
+```{r dharma-tests}
+# Formal tests
+testDispersion(sim_resid)    # Overdispersion test
+testZeroInflation(sim_resid) # Zero-inflation test (for count data)
+```
+
+## Traditional GLM diagnostics
+
+```{r glm-traditional-diagnostics, fig.cap="Traditional residual plots for GLMs. For non-Gaussian models, interpret these with caution—they won't show normal residuals even when the model is correct."}
+par(mfrow = c(2, 2))
+plot(visit_model)
+par(mfrow = c(1, 1))
+```
+
+For GLMs, focus on:
+1. **Residuals vs Fitted:** Look for patterns suggesting wrong link function or missing predictors
+2. **Cook's distance:** Identify influential observations
+
+---
+
+# Part 6: Model Comparison
+
+## Comparing models with AIC
+
+AIC (Akaike Information Criterion) balances fit against complexity:
+
+$$AIC = 2k - 2\ln(L)$$
+
+where k = number of parameters and L = likelihood.
+
+**Lower AIC is better.** A difference of 2+ suggests meaningful difference; 10+ is strong evidence.
+
+```{r aic-comparison}
+# Compare models for pollinator data
+model_null <- glm(visits ~ 1, family = poisson(), data = pollinator_data)
+model_flowers <- glm(visits ~ flowers, family = poisson(), data = pollinator_data)
+
+AIC(model_null, model_flowers)
+
+# Delta AIC
+AIC(model_null) - AIC(model_flowers)
+```
+
+The flower model is much better (ΔAIC = 79).
+
+## Likelihood ratio tests
+
+To formally test whether a term improves the model:
+
+```{r lr-test}
+# Compare nested models
+anova(model_null, model_flowers, test = "Chisq")
+```
+
+---
+
+# Part 7: Summary Tables
+
+## Choosing the right GLM
+
+| Response type | Distribution | Link | R syntax |
+|---------------|--------------|------|----------|
+| Continuous (normal) | Gaussian | Identity | `family = gaussian()` |
+| Binary (0/1) | Binomial | Logit | `family = binomial()` |
+| Proportion (with n) | Binomial | Logit | `family = binomial()`, use weights |
+| Counts | Poisson | Log | `family = poisson()` |
+| Overdispersed counts | Negative binomial | Log | `MASS::glm.nb()` |
+| Positive continuous | Gamma | Log or inverse | `family = Gamma(link = "log")` |
+
+## Quick reference for interpretation
+
+| Family | Coefficient interpretation | Exponentiated coefficient |
+|--------|---------------------------|---------------------------|
+| Gaussian | Change in Y per unit X | — |
+| Binomial (logit) | Change in log-odds | Odds ratio |
+| Poisson (log) | Change in log-count | Rate ratio / incidence rate ratio |
+| Gamma (log) | Change in log-Y | Multiplicative effect |
+
+## Assumptions to check
+
+| Assumption | How to check | If violated |
+|------------|--------------|-------------|
+| Correct distribution | DHARMa QQ plot | Try different family |
+| Correct link function | Residuals vs fitted | Try different link |
+| Independence | Study design | Mixed models |
+| No overdispersion (Poisson) | Dispersion test | Use quasi-Poisson or negative binomial |
+| No zero-inflation | DHARMa zero-inflation test | Use zero-inflated models |
+
+---
+
+## Key takeaways
+
+1. **GLMs unify statistical methods** — t-tests, ANOVA, regression, and logistic regression are all special cases
+
+2. **Choose the distribution to match your data** — Gaussian for continuous, binomial for binary/proportions, Poisson for counts
+
+3. **Link functions make it work** — They transform predictions to ensure they make sense for your data type
+
+4. **Interpret coefficients carefully** — Often need to exponentiate for meaningful interpretation (odds ratios, rate ratios)
+
+5. **Check for overdispersion** in count models — It's common and can inflate Type I error
+
+6. **Use DHARMa for diagnostics** — It creates residuals that are easy to interpret
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Explain in your own words what a link function does and why it's necessary.
+
+2. You fit a Poisson regression and get a coefficient of 0.15 for your predictor. What does this mean? Express your interpretation in terms of a rate ratio.
+
+3. Your Poisson model has residual deviance of 89 with 40 df. Is there evidence of overdispersion? What would you do?
+
+### Part 2: Logistic regression
+
+Use the following data on frog presence across a pH gradient:
+
+```{r assignment-logistic}
+# Frog presence/absence data
+frog_data <- data.frame(
+  pH = c(4.2, 4.5, 4.8, 5.0, 5.3, 5.5, 5.8, 6.0, 6.2, 6.5,
+         6.8, 7.0, 7.2, 7.5, 7.8, 8.0, 8.2, 8.5, 8.8, 9.0),
+  present = c(0, 0, 0, 1, 0, 1, 1, 0, 1, 1,
+              1, 1, 1, 1, 1, 1, 0, 1, 0, 0)
+)
+```
+
+Complete:
+1. Fit a logistic regression
+2. Interpret the coefficient as an odds ratio
+3. Calculate the pH at which presence probability = 50%
+4. Create a figure with the fitted probability curve
+5. Write methods and results sections
+
+### Part 3: Poisson regression
+
+Use the following data on beetle counts across an elevation gradient:
+
+```{r assignment-poisson}
+# Beetle count data
+beetle_data <- data.frame(
+  elevation = seq(1000, 2900, by = 100),
+  beetles = c(45, 52, 48, 55, 62, 58, 53, 47, 42, 38,
+              35, 28, 25, 22, 18, 15, 12, 10, 8, 5)
+)
+```
+
+Complete:
+1. Fit a Poisson regression
+2. Check for overdispersion
+3. Interpret the coefficient as a rate ratio
+4. Create a figure with the fitted curve
+5. Write methods and results sections
+
+### Part 4: Reflection
+
+In 2-3 sentences, explain how understanding GLMs as a unified framework (rather than separate tests) changes how you think about statistical analysis.

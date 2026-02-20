@@ -1,0 +1,894 @@
+# Causal Inference and Directed Acyclic Graphs
+
+Correlation is not causation. You've heard this a thousand times. But then what *is* causation? And how do we move from observing patterns to making causal claims?
+
+This chapter introduces the modern framework for causal inference based on **Directed Acyclic Graphs (DAGs)**. DAGs provide a visual and mathematical language for:
+
+- Stating causal assumptions explicitly
+- Identifying confounders that bias estimates
+- Determining which variables to control for (and which NOT to)
+- Understanding when causal inference is possible from observational data
+
+This foundation is essential for structural equation modeling (Chapters 23-25) and for designing studies that can answer causal questions.
+
+## Why causal inference matters in ecology
+
+Ecologists constantly ask causal questions:
+
+- Does nitrogen addition *cause* increased productivity?
+- Does fragmentation *cause* species loss?
+- Does warming *cause* earlier phenology?
+
+But most ecological data are observational. We can't randomly assign temperatures to ecosystems or fragmentation levels to landscapes. Without experiments, how do we make causal claims?
+
+**The answer:** We need to understand the *structure* of causal relationships—what causes what, what confounds what—before we can extract causal information from data.
+
+## Setup
+
+```{r dag-setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dagitty)       # DAG specification and analysis
+library(ggdag)         # DAG visualization
+library(ggplot2)
+
+set.seed(42)
+```
+
+---
+
+# Part 1: From Correlation to Causation
+
+## The ladder of causation
+
+Judea Pearl describes three levels of causal reasoning:
+
+```{r dag-ladder, echo=FALSE}
+cat("
+THE LADDER OF CAUSATION (Pearl)
+═══════════════════════════════════════════════════════════════
+
+RUNG 1: ASSOCIATION (Seeing)
+  Question: 'What is?'
+  Example:  'Do plants with more nitrogen have higher biomass?'
+  Method:   Observe correlations in data
+  
+RUNG 2: INTERVENTION (Doing)
+  Question: 'What if I do?'
+  Example:  'If I ADD nitrogen, will biomass increase?'
+  Method:   Experiments or causal inference from observational data
+  
+RUNG 3: COUNTERFACTUAL (Imagining)
+  Question: 'What if I had done differently?'
+  Example:  'Would this plant have survived if I hadn't added nitrogen?'
+  Method:   Requires causal model + individual-level reasoning
+
+Most statistics operates at Rung 1.
+Causal inference aims for Rung 2.
+DAGs help us climb the ladder.
+")
+```
+
+## Why correlation ≠ causation
+
+Three reasons a correlation between X and Y might exist:
+
+1. **X causes Y** (direct causation)
+2. **Y causes X** (reverse causation)
+3. **Z causes both X and Y** (confounding)
+
+```{r dag-correlation-reasons, fig.cap="Three reasons X and Y might be correlated, only one of which represents X causing Y."}
+# Create three DAGs showing different causal structures
+
+# 1. X causes Y
+dag1 <- dagify(Y ~ X)
+
+# 2. Y causes X  
+dag2 <- dagify(X ~ Y)
+
+# 3. Confounding
+dag3 <- dagify(X ~ Z, Y ~ Z)
+
+p1 <- ggdag(dag1) + theme_dag() + labs(title = "X causes Y")
+p2 <- ggdag(dag2) + theme_dag() + labs(title = "Y causes X")
+p3 <- ggdag(dag3) + theme_dag() + labs(title = "Z confounds X and Y")
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+
+**The challenge:** Data alone cannot distinguish these scenarios. We need *causal assumptions* about the system.
+
+---
+
+# Part 2: What is a DAG?
+
+## Directed Acyclic Graphs
+
+A **DAG** is a diagram representing causal relationships:
+
+- **Nodes:** Variables (measured or unmeasured)
+- **Arrows:** Direct causal effects (cause → effect)
+- **Directed:** Arrows have direction (no bidirectional arrows)
+- **Acyclic:** No feedback loops (can't follow arrows back to start)
+
+```{r dag-simple-example, fig.cap="A simple DAG showing that temperature affects both metabolism and activity, which both affect growth."}
+# Simple ecological DAG
+eco_dag <- dagify(
+  Growth ~ Metabolism + Activity,
+  Metabolism ~ Temperature,
+  Activity ~ Temperature,
+  labels = c(
+    Growth = "Growth",
+    Metabolism = "Metabolism",
+    Activity = "Activity",
+    Temperature = "Temperature"
+  )
+)
+
+ggdag(eco_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Temperature Effects on Growth")
+```
+
+## Reading a DAG
+
+```{r dag-terminology, echo=FALSE}
+cat("
+DAG TERMINOLOGY
+═══════════════════════════════════════════════════════════════
+
+PARENT:     A variable with an arrow pointing TO another variable
+            Temperature is a parent of Metabolism
+
+CHILD:      A variable with an arrow pointing FROM another variable
+            Metabolism is a child of Temperature
+
+ANCESTOR:   Any variable you can reach by following arrows backward
+            Temperature is an ancestor of Growth
+
+DESCENDANT: Any variable you can reach by following arrows forward
+            Growth is a descendant of Temperature
+
+PATH:       Any route connecting two variables (ignoring arrow direction)
+            Temperature → Metabolism → Growth is a path
+
+DIRECTED PATH: A path following arrow directions
+               Temperature → Metabolism → Growth is directed
+
+BACKDOOR PATH: A path that enters a variable through an incoming arrow
+               (We'll return to this crucial concept)
+")
+```
+
+## Creating DAGs in R
+
+```{r dag-dagitty-basics}
+# Using dagitty syntax
+simple_dag <- dagify(
+  # Each line specifies: outcome ~ causes
+  Y ~ X + Z,
+  X ~ Z,
+  
+  # Specify which variable is exposure and outcome
+  exposure = "X",
+  outcome = "Y"
+)
+
+# View the DAG structure
+print(simple_dag)
+
+# What are the paths between X and Y?
+paths(simple_dag, from = "X", to = "Y")
+```
+
+---
+
+# Part 3: The Three Fundamental Structures
+
+Every DAG, no matter how complex, is built from three basic structures. Understanding these is the key to causal inference.
+
+## Structure 1: Chains (Mediation)
+
+**A → B → C**
+
+B *mediates* the effect of A on C.
+
+```{r dag-chain, fig.cap="Chain structure: Fire affects soil moisture through its effect on canopy cover."}
+chain_dag <- dagify(
+  SoilMoisture ~ CanopyCover,
+  CanopyCover ~ Fire,
+  labels = c(
+    Fire = "Fire",
+    CanopyCover = "Canopy\nCover",
+    SoilMoisture = "Soil\nMoisture"
+  ),
+  exposure = "Fire",
+  outcome = "SoilMoisture"
+)
+
+ggdag(chain_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Chain: Mediation")
+```
+
+**Key property:** A and C are *dependent* (correlated) marginally, but *independent* conditional on B.
+
+```{r dag-chain-demo}
+# Demonstrate chain independence
+n <- 1000
+Fire <- rnorm(n)
+CanopyCover <- -0.8 * Fire + rnorm(n, 0, 0.5)
+SoilMoisture <- 0.6 * CanopyCover + rnorm(n, 0, 0.5)
+
+chain_data <- data.frame(Fire, CanopyCover, SoilMoisture)
+
+# Marginal correlation: Fire and SoilMoisture
+cat("Correlation Fire ~ SoilMoisture (marginal):", 
+    round(cor(Fire, SoilMoisture), 3), "\n")
+
+# Partial correlation: Fire and SoilMoisture | CanopyCover
+residual_fire <- residuals(lm(Fire ~ CanopyCover, data = chain_data))
+residual_soil <- residuals(lm(SoilMoisture ~ CanopyCover, data = chain_data))
+cat("Correlation Fire ~ SoilMoisture | CanopyCover:", 
+    round(cor(residual_fire, residual_soil), 3), "\n")
+```
+
+**Implication:** If you control for the mediator (CanopyCover), you *block* the causal path and can't estimate the total effect of Fire on SoilMoisture.
+
+## Structure 2: Forks (Confounding)
+
+**A ← B → C**
+
+B is a *common cause* (confounder) of both A and C.
+
+```{r dag-fork, fig.cap="Fork structure: Soil type confounds the relationship between invasive cover and native richness."}
+fork_dag <- dagify(
+  InvasiveCover ~ SoilType,
+  NativeRichness ~ SoilType,
+  labels = c(
+    SoilType = "Soil\nType",
+    InvasiveCover = "Invasive\nCover",
+    NativeRichness = "Native\nRichness"
+  ),
+  exposure = "InvasiveCover",
+  outcome = "NativeRichness"
+)
+
+ggdag(fork_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Fork: Confounding")
+```
+
+**Key property:** A and C are *dependent* marginally (spuriously!), but *independent* conditional on B.
+
+```{r dag-fork-demo}
+# Demonstrate fork dependence
+SoilType <- rnorm(n)  # Continuous for simplicity
+InvasiveCover <- 0.7 * SoilType + rnorm(n, 0, 0.5)
+NativeRichness <- -0.5 * SoilType + rnorm(n, 0, 0.5)
+
+fork_data <- data.frame(SoilType, InvasiveCover, NativeRichness)
+
+# Marginal correlation: spurious!
+cat("Correlation Invasive ~ Native (marginal):", 
+    round(cor(InvasiveCover, NativeRichness), 3), "\n")
+
+# Partial correlation: controlling for confounder
+residual_inv <- residuals(lm(InvasiveCover ~ SoilType, data = fork_data))
+residual_nat <- residuals(lm(NativeRichness ~ SoilType, data = fork_data))
+cat("Correlation Invasive ~ Native | SoilType:", 
+    round(cor(residual_inv, residual_nat), 3), "\n")
+```
+
+**Implication:** You MUST control for the confounder to get an unbiased estimate of the causal effect (which in this case is zero—there's no direct effect of Invasive on Native).
+
+## Structure 3: Colliders
+
+**A → B ← C**
+
+B is caused by both A and C. B is called a *collider* because two arrows "collide" at it.
+
+```{r dag-collider, fig.cap="Collider structure: Plant growth is influenced by both soil nitrogen and pathogen load."}
+collider_dag <- dagify(
+  PlantGrowth ~ SoilN + Pathogens,
+  labels = c(
+    SoilN = "Soil N",
+    Pathogens = "Pathogens",
+    PlantGrowth = "Plant\nGrowth"
+  ),
+  exposure = "SoilN",
+  outcome = "Pathogens"
+)
+
+ggdag(collider_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Collider: Don't Control!")
+```
+
+**Key property:** A and C are *independent* marginally, but become *dependent* conditional on B!
+
+This is counterintuitive but crucial.
+
+```{r dag-collider-demo}
+# Demonstrate collider behavior
+SoilN <- rnorm(n)
+Pathogens <- rnorm(n)  # Independent of SoilN!
+PlantGrowth <- 0.6 * SoilN - 0.5 * Pathogens + rnorm(n, 0, 0.5)
+
+collider_data <- data.frame(SoilN, Pathogens, PlantGrowth)
+
+# Marginal correlation: should be ~0 (independent)
+cat("Correlation SoilN ~ Pathogens (marginal):", 
+    round(cor(SoilN, Pathogens), 3), "\n")
+
+# Partial correlation: conditioning on collider creates spurious association!
+residual_n <- residuals(lm(SoilN ~ PlantGrowth, data = collider_data))
+residual_p <- residuals(lm(Pathogens ~ PlantGrowth, data = collider_data))
+cat("Correlation SoilN ~ Pathogens | PlantGrowth:", 
+    round(cor(residual_n, residual_p), 3), "\n")
+```
+
+**Implication:** Controlling for a collider *creates* a spurious association where none exists. This is called **collider bias** or **selection bias**.
+
+## Summary: The three structures
+
+| Structure | Form | Marginal | Conditional on middle |
+|-----------|------|----------|----------------------|
+| **Chain** | A → B → C | Dependent | Independent |
+| **Fork** | A ← B → C | Dependent | Independent |
+| **Collider** | A → B ← C | Independent | Dependent |
+
+```{r dag-summary-rule, echo=FALSE}
+cat("
+THE GOLDEN RULES
+═══════════════════════════════════════════════════════════════
+
+✅ CONTROL FOR forks (confounders)
+   → Removes spurious association
+
+❌ DON'T CONTROL FOR chains (mediators)
+   → Blocks the causal path you want to estimate
+
+❌ DON'T CONTROL FOR colliders
+   → Creates spurious association where none exists
+")
+```
+
+---
+
+# Part 4: Paths and D-Separation
+
+## What is a path?
+
+A **path** is any route connecting two variables, regardless of arrow direction. Paths can be:
+
+- **Open:** Information flows through the path (creates association)
+- **Blocked:** Information cannot flow (no association through this path)
+
+## When is a path blocked?
+
+```{r dag-blocking-rules, echo=FALSE}
+cat("
+PATH BLOCKING RULES
+═══════════════════════════════════════════════════════════════
+
+A path is BLOCKED if:
+
+1. It contains a CHAIN (A → B → C) or FORK (A ← B → C)
+   where B is conditioned on (controlled for)
+   
+2. It contains a COLLIDER (A → B ← C)
+   where B is NOT conditioned on
+   AND no descendant of B is conditioned on
+
+A path is OPEN if it is not blocked.
+
+D-SEPARATION:
+Two variables are 'd-separated' (conditionally independent)
+if ALL paths between them are blocked.
+")
+```
+
+## Example: Multiple paths
+
+```{r dag-multiple-paths, fig.cap="A DAG with multiple paths between treatment and outcome. Some paths are causal, others are confounding."}
+complex_dag <- dagify(
+  Y ~ X + Z + W,
+  X ~ Z,
+  W ~ Z,
+  labels = c(
+    X = "Treatment",
+    Y = "Outcome",
+    Z = "Confounder",
+    W = "Mediator"
+  ),
+  exposure = "X",
+  outcome = "Y"
+)
+
+ggdag(complex_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Multiple Paths Between X and Y")
+```
+
+```{r dag-find-paths}
+# Find all paths between X and Y
+all_paths <- paths(complex_dag, from = "X", to = "Y")
+print(all_paths)
+```
+
+---
+
+# Part 5: The Backdoor Criterion
+
+## Causal vs non-causal paths
+
+To estimate the causal effect of X on Y, we need to:
+
+1. **Keep open** the causal (directed) paths from X to Y
+2. **Block** all non-causal (backdoor) paths
+
+A **backdoor path** is any path that enters X through an arrow pointing INTO X.
+
+```{r dag-backdoor-concept, echo=FALSE}
+cat("
+BACKDOOR PATHS
+═══════════════════════════════════════════════════════════════
+
+Consider: Z → X → Y
+          Z → Y
+
+Causal path:    X → Y (what we want to estimate)
+Backdoor path:  X ← Z → Y (confounding path)
+
+The backdoor path 'sneaks in the back door' of X.
+It creates non-causal association between X and Y.
+
+To isolate the causal effect, we must BLOCK the backdoor.
+")
+```
+
+## Finding adjustment sets
+
+An **adjustment set** is a set of variables that, when controlled for, blocks all backdoor paths while leaving causal paths open.
+
+```{r dag-adjustment-sets}
+# Simple confounding example
+confound_dag <- dagify(
+  Y ~ X + Z,
+  X ~ Z,
+  exposure = "X",
+  outcome = "Y"
+)
+
+# What do we need to adjust for?
+adjustmentSets(confound_dag, exposure = "X", outcome = "Y")
+```
+
+```{r dag-adjustment-visual, fig.cap="Adjustment sets highlighted: controlling for Z blocks the backdoor path."}
+ggdag_adjustment_set(confound_dag) +
+  theme_dag() +
+  labs(title = "Adjustment Set for X → Y")
+```
+
+## More complex example
+
+```{r dag-complex-adjustment}
+# Multiple confounders
+multi_dag <- dagify(
+  Y ~ X + A + B,
+  X ~ A + C,
+  A ~ C,
+  B ~ C,
+  exposure = "X",
+  outcome = "Y"
+)
+
+# Find minimal adjustment sets
+adj_sets <- adjustmentSets(multi_dag, exposure = "X", outcome = "Y")
+print(adj_sets)
+```
+
+```{r dag-complex-visual, fig.cap="A more complex DAG with multiple potential confounders. dagitty identifies the minimal adjustment sets needed."}
+ggdag_adjustment_set(multi_dag) +
+  theme_dag() +
+  labs(title = "Adjustment Sets for Complex DAG")
+```
+
+---
+
+# Part 6: Common Pitfalls
+
+## Pitfall 1: Controlling for a mediator
+
+```{r dag-pitfall-mediator, fig.cap="Pitfall: Controlling for mediator M blocks the causal path we're trying to estimate."}
+mediator_dag <- dagify(
+  Y ~ M,
+  M ~ X,
+  exposure = "X",
+  outcome = "Y",
+  labels = c(X = "Treatment", M = "Mediator", Y = "Outcome")
+)
+
+# If we control for M, we block the only path!
+ggdag_paths(mediator_dag, shadow = TRUE) +
+  theme_dag() +
+  labs(title = "Don't Control for Mediator!",
+       subtitle = "Controlling for M gives effect estimate of 0")
+```
+
+**When is this a problem?**
+
+You want to know: "Does fertilizer affect yield?"
+The path is: Fertilizer → Plant Size → Yield
+
+If you control for plant size, you're asking: "Does fertilizer affect yield *for plants of the same size*?" This removes most of the effect!
+
+## Pitfall 2: Controlling for a collider
+
+```{r dag-pitfall-collider}
+# Example: Selection bias in graduate school
+# Smart students AND hard-working students get admitted
+# But among admitted students, smart and hard-working appear negatively correlated
+
+collider_example <- dagify(
+  Admitted ~ Smart + HardWorking,
+  GPA ~ Smart + HardWorking,
+  exposure = "Smart",
+  outcome = "GPA"
+)
+
+# If we only look at admitted students (condition on Admitted)...
+cat("Paths between Smart and HardWorking:\n")
+paths(collider_example, from = "Smart", to = "HardWorking")
+```
+
+**The problem:** Among admitted students, smart students who aren't hard-working still got in (because they're smart), so there's a negative correlation between intelligence and work ethic—but ONLY in the selected sample!
+
+## Pitfall 3: Controlling for a descendant of a collider
+
+```{r dag-pitfall-descendant, fig.cap="Pitfall: Controlling for a descendant of a collider also opens the collider path."}
+descendant_dag <- dagify(
+  M ~ X + U,      # M is collider
+  D ~ M,          # D is descendant of collider
+  Y ~ X + U,
+  exposure = "X",
+  outcome = "Y"
+)
+
+ggdag(descendant_dag) +
+  theme_dag() +
+  labs(title = "Descendant of Collider",
+       subtitle = "Controlling for D partially opens M's collider path")
+```
+
+**Rule:** Don't control for descendants of colliders either!
+
+## Pitfall 4: Table 2 Fallacy
+
+Including all variables in a regression and interpreting each coefficient causally.
+
+```{r dag-table2-fallacy, echo=FALSE}
+cat("
+THE TABLE 2 FALLACY
+═══════════════════════════════════════════════════════════════
+
+A regression model:
+  Y ~ X + Z + W + V
+
+Each coefficient has a DIFFERENT causal interpretation:
+  - X coefficient: effect of X controlling for Z, W, V
+  - Z coefficient: effect of Z controlling for X, W, V
+  ...
+
+But the correct adjustment set DIFFERS for each variable!
+
+To estimate X → Y: might need to control for Z only
+To estimate W → Y: might need to control for X and Z
+
+Including everything gives biased estimates for most coefficients.
+")
+```
+
+---
+
+# Part 7: Building Your Own DAG
+
+## Step-by-step process
+
+```{r dag-building-process, echo=FALSE}
+cat("
+HOW TO BUILD A DAG
+═══════════════════════════════════════════════════════════════
+
+STEP 1: Define your causal question
+  - What exposure (X) and outcome (Y) are you interested in?
+  
+STEP 2: List all relevant variables
+  - What might affect X?
+  - What might affect Y?
+  - What might affect both?
+  
+STEP 3: Draw arrows based on causal knowledge
+  - Use domain expertise, literature, biological reasoning
+  - Arrow means 'directly causes' (not just correlates)
+  
+STEP 4: Check for cycles
+  - DAGs must be acyclic (no feedback loops)
+  - If you have feedback, consider a time-indexed DAG
+  
+STEP 5: Identify unmeasured variables
+  - Include them! They affect what you can estimate
+  
+STEP 6: Find adjustment sets
+  - Use dagitty to identify what to control for
+  
+STEP 7: Assess feasibility
+  - Can you measure the variables in the adjustment set?
+  - If not, causal inference may not be possible
+")
+```
+
+## Example: Grazing effects on plant diversity
+
+```{r dag-grazing-example, fig.cap="A DAG for understanding grazing effects on plant diversity."}
+# Build a DAG for grazing → diversity
+grazing_dag <- dagify(
+  # Diversity depends on...
+  Diversity ~ Grazing + SoilN + Moisture + Competition,
+  
+  # Competition depends on...
+  Competition ~ Grazing + SoilN + Moisture,
+  
+  # Grazing intensity depends on...
+  Grazing ~ Rancher + Forage,
+  
+  # Forage depends on...
+  Forage ~ Moisture + SoilN,
+  
+  # Moisture and SoilN might share common cause
+  Moisture ~ Topography,
+  SoilN ~ Topography,
+  
+  # Labels
+  labels = c(
+    Diversity = "Plant\nDiversity",
+    Grazing = "Grazing\nIntensity",
+    SoilN = "Soil N",
+    Moisture = "Moisture",
+    Competition = "Competition",
+    Rancher = "Rancher\nDecision",
+    Forage = "Forage\nAvailability",
+    Topography = "Topography"
+  ),
+  
+  exposure = "Grazing",
+  outcome = "Diversity"
+)
+
+ggdag(grazing_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "DAG: Grazing Effects on Plant Diversity")
+```
+
+```{r dag-grazing-adjustment}
+# What do we need to control for?
+adjustment_sets <- adjustmentSets(grazing_dag, 
+                                   exposure = "Grazing", 
+                                   outcome = "Diversity",
+                                   type = "minimal")
+
+cat("Minimal adjustment sets:\n")
+print(adjustment_sets)
+```
+
+**Interpretation:** To estimate the causal effect of Grazing on Diversity, we need to control for Forage (and its causes) but NOT for Competition (which is a mediator).
+
+---
+
+# Part 8: When Causal Inference Fails
+
+## Unmeasured confounding
+
+```{r dag-unmeasured, fig.cap="Unmeasured confounding: U affects both X and Y but cannot be measured."}
+unmeasured_dag <- dagify(
+  Y ~ X + U,
+  X ~ U,
+  latent = "U",
+  exposure = "X",
+  outcome = "Y",
+  labels = c(X = "Observed\nExposure", Y = "Outcome", U = "Unmeasured\nConfounder")
+)
+
+ggdag(unmeasured_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Unmeasured Confounding",
+       subtitle = "Cannot identify causal effect without measuring U")
+```
+
+```{r dag-unmeasured-check}
+# Check if effect is identifiable
+adj <- adjustmentSets(unmeasured_dag, exposure = "X", outcome = "Y")
+cat("Adjustment sets:", ifelse(length(adj) == 0, "NONE - effect not identifiable", 
+                                paste(adj, collapse = ", ")), "\n")
+```
+
+## Alternatives when DAG assumptions fail
+
+| Problem | Potential solutions |
+|---------|---------------------|
+| Unmeasured confounding | Instrumental variables, regression discontinuity |
+| Can't measure mediator | Sensitivity analysis |
+| Feedback loops | Time-series analysis, dynamic models |
+| Complex interactions | Targeted learning, causal forests |
+
+---
+
+# Part 9: Connecting DAGs to Analysis
+
+## DAGs inform statistical models
+
+```{r dag-to-model, echo=FALSE}
+cat("
+FROM DAG TO STATISTICAL MODEL
+═══════════════════════════════════════════════════════════════
+
+DAG Analysis:
+  1. Draw DAG based on domain knowledge
+  2. Identify adjustment set for your causal question
+  3. Check for unmeasured confounders
+  
+Statistical Analysis:
+  4. Include adjustment variables as covariates
+  5. DO NOT include mediators or colliders
+  6. Fit appropriate model (regression, GLM, etc.)
+  7. Interpret coefficient on exposure as causal effect
+     (given DAG assumptions are correct)
+
+Key insight: The DAG justifies your model specification.
+Without a DAG, covariate selection is arbitrary.
+")
+```
+
+## Example: Complete workflow
+
+```{r dag-workflow-example}
+# Question: Does nitrogen addition increase plant biomass?
+
+# Step 1: Build DAG
+nitrogen_dag <- dagify(
+  Biomass ~ Nitrogen + Water + Light + Herbivory,
+  Herbivory ~ Nitrogen + Biomass,  # Herbivores attracted to high-N plants
+  Light ~ Biomass,  # Self-shading
+  Water ~ SoilType,
+  Nitrogen ~ SoilType + Treatment,  # Treatment is our manipulation
+  
+  exposure = "Nitrogen",
+  outcome = "Biomass"
+)
+
+# Step 2: Find adjustment set
+adj_set <- adjustmentSets(nitrogen_dag, exposure = "Nitrogen", outcome = "Biomass")
+cat("To estimate N → Biomass, control for:", 
+    paste(unlist(adj_set), collapse = ", "), "\n")
+
+# Step 3: Check what NOT to control for
+cat("\nDO NOT control for:\n")
+cat("- Herbivory (collider + descendant)\n")
+cat("- Light (descendant of outcome)\n")
+```
+
+```{r dag-workflow-model}
+# Step 4: Simulate data following DAG structure
+n <- 200
+SoilType <- rnorm(n)
+Treatment <- rbinom(n, 1, 0.5)
+Water <- 0.6 * SoilType + rnorm(n, 0, 0.5)
+Nitrogen <- 0.3 * SoilType + 2 * Treatment + rnorm(n, 0, 0.5)
+Biomass <- 0.8 * Nitrogen + 0.5 * Water - 0.3 * SoilType + rnorm(n, 0, 1)
+Herbivory <- 0.4 * Nitrogen + 0.3 * Biomass + rnorm(n, 0, 0.5)
+
+dag_data <- data.frame(SoilType, Treatment, Water, Nitrogen, Biomass, Herbivory)
+
+# Step 5: Fit correct model (control for adjustment set)
+correct_model <- lm(Biomass ~ Nitrogen + Water, data = dag_data)
+
+# Compare to naive model (everything)
+naive_model <- lm(Biomass ~ Nitrogen + Water + SoilType + Herbivory, data = dag_data)
+
+# And to treatment model (ignoring confounding)
+treatment_model <- lm(Biomass ~ Nitrogen, data = dag_data)
+
+cat("True effect of Nitrogen: 0.8\n\n")
+cat("Estimates:\n")
+cat("Correct model (adjust for Water):", round(coef(correct_model)["Nitrogen"], 3), "\n")
+cat("Naive model (adjust for everything):", round(coef(naive_model)["Nitrogen"], 3), "\n")
+cat("Unadjusted model:", round(coef(treatment_model)["Nitrogen"], 3), "\n")
+```
+
+**The correct model recovers the true effect because we controlled for the right variables based on the DAG.**
+
+---
+
+# Part 10: Reporting Causal Analysis
+
+## What to report
+
+1. **Your causal question:** What effect are you trying to estimate?
+2. **The DAG:** Show it! Justify arrow presence/absence
+3. **Adjustment set:** What variables you controlled for and why
+4. **What you didn't control for:** And why (mediators, colliders)
+5. **Assumptions:** What must be true for your estimate to be causal?
+6. **Sensitivity:** How robust is your conclusion to unmeasured confounding?
+
+## Sample methods paragraph
+
+> We used directed acyclic graphs (DAGs) to identify the minimal adjustment set for estimating the causal effect of nitrogen addition on plant biomass. Based on ecological knowledge and prior literature, we constructed a DAG including nitrogen availability, soil moisture, soil type, herbivory, and light availability as potentially relevant variables (**Fig. X**). Analysis of the DAG using the dagitty package in R revealed that controlling for soil moisture was sufficient to block all backdoor paths between nitrogen and biomass, while avoiding conditioning on colliders (herbivory, which is affected by both nitrogen and biomass) or mediators. We therefore fit a linear regression of biomass on nitrogen addition with soil moisture as the only covariate. Our causal interpretation assumes no unmeasured confounders beyond those in the DAG—particularly, we assume no unmeasured variables that affect both nitrogen availability and biomass independently of the pathways we modeled.
+
+---
+
+## Key takeaways
+
+1. **Correlation ≠ causation** — But DAGs help us move from one to the other
+
+2. **Three structures:** Chains (mediate), Forks (confound), Colliders (don't control!)
+
+3. **Backdoor paths create confounding** — Must be blocked for causal estimates
+
+4. **Adjustment sets tell you what to control** — dagitty does the work
+
+5. **Not everything should be controlled** — Mediators and colliders cause bias
+
+6. **DAGs encode assumptions** — They make your causal reasoning explicit
+
+7. **Unmeasured confounding breaks causal inference** — Include unmeasured variables in your DAG
+
+8. **DAGs justify your statistical model** — Without them, covariate selection is arbitrary
+
+---
+
+## Assignment
+
+### Part 1: Identify structures
+
+For each scenario, identify whether the middle variable is a chain, fork, or collider:
+
+1. Temperature → Metabolic Rate → Activity Level
+2. Soil Quality → Crop Yield, Soil Quality → Pest Pressure
+3. Pollution → Fish Health ← Fishing Pressure
+
+### Part 2: Build a DAG
+
+For your research question (or a hypothetical one):
+
+1. List all variables that might be relevant
+2. Draw arrows based on causal relationships
+3. Identify your exposure and outcome
+4. Use dagitty to find the adjustment set
+5. Explain what variables you should and shouldn't control for
+
+### Part 3: Collider bias simulation
+
+Create a simulation demonstrating collider bias:
+
+1. Generate X and Y as independent variables
+2. Create Z that depends on both X and Y (collider)
+3. Show that X and Y are uncorrelated marginally
+4. Show that X and Y become correlated when conditioning on Z
+5. Explain in words why this happens
+
+### Part 4: Analyze a DAG
+
+Consider this ecological scenario:
+
+> You want to know if invasive plants reduce native bee diversity. You have data on invasive plant cover, native plant diversity, floral resources, pesticide use, and land use intensity.
+
+1. Draw a plausible DAG for this system
+2. Identify backdoor paths
+3. Find the minimal adjustment set
+4. Discuss what happens if you control for floral resources (is it a mediator?)
+
+### Part 5: Reflection
+
+In 3-4 sentences, explain why it's important to draw a DAG *before* running your regression analysis. What problems can arise from selecting covariates based on statistical criteria (like stepwise selection) rather than causal reasoning?
+

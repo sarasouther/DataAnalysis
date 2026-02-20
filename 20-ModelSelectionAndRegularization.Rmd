@@ -1,0 +1,658 @@
+# Model Selection and Multi-Model Inference
+
+In complex ecological systems, we rarely know in advance which variables best explain our response. We might have dozens of potential predictors—climate variables, soil properties, disturbance history, connectivity metrics—and need a principled way to identify which ones matter most.
+
+**Model selection** provides that framework. Rather than testing each variable in isolation or throwing everything into one massive model, we compare multiple competing models and quantify the relative support for each.
+
+This chapter walks through the complete workflow: from reducing collinear predictors, to comparing candidate models, to reporting results appropriately.
+
+## When to use model selection
+
+Model selection is appropriate when you:
+
+1. **Have multiple competing hypotheses** about what drives your response
+2. **Want to identify important predictors** from a larger set of candidates
+3. **Need to balance fit with complexity** to avoid overfitting
+4. **Want to quantify uncertainty** about which model is "best"
+
+Model selection is NOT appropriate when:
+
+- You have a single, pre-specified hypothesis to test
+- You're fishing for significant p-values (that's p-hacking!)
+- You have very few observations relative to predictors
+
+## A guiding example: Drought resilience in Emory oak woodlands
+
+Throughout this chapter, we'll work with data inspired by a study of post-drought recovery in Southwestern oak woodlands. Following the extreme 2020-2021 drought, researchers measured recovery at 100 plots across Emory oak's range.
+
+**Response variable:** Community recovery index (continuous, 0-100 scale)
+
+**Candidate predictors:**
+- Pre-drought climate (baseline conditions)
+- Drought severity (stress during event)
+- Post-drought climate (recovery conditions)
+- Stand diversity (species richness, evenness)
+- Connectivity (landscape connectivity metrics)
+
+The challenge: Many climate variables are correlated (annual precipitation correlates with monsoon precipitation), and we don't know a priori whether diversity, connectivity, or climate best predicts recovery.
+
+## Setup
+
+```{r setup-modelsel, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(car)           # VIF calculation
+library(corrplot)      # Correlation visualization
+library(MuMIn)         # Model selection and averaging
+library(performance)   # Model diagnostics
+library(see)           # Visualization for performance
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Dealing with Collinearity
+
+Before model selection, we must address **collinearity**—when predictor variables are highly correlated with each other.
+
+## Why collinearity is a problem
+
+When predictors are correlated, your model struggles to separate their effects:
+
+1. **Unstable coefficients:** Small changes in data cause large swings in estimates
+2. **Inflated standard errors:** Makes real effects appear non-significant
+3. **Unreliable variable importance:** Can't tell which correlated variable matters
+4. **Poor prediction on new data:** Overfits to spurious correlations
+
+## Create example data
+
+Let's simulate data resembling the Emory oak study:
+
+```{r collinearity-data}
+# Simulate 100 plots with multiple climate and ecological predictors
+n <- 100
+
+# --- Pre-drought climate (correlated variables) ---
+precip_annual <- rnorm(n, 450, 80)                          # Annual precip (mm)
+precip_monsoon <- 0.45 * precip_annual + rnorm(n, 50, 30)   # Monsoon precip (correlated!)
+precip_winter <- 0.40 * precip_annual + rnorm(n, 30, 25)    # Winter precip (correlated!)
+temp_mean <- rnorm(n, 18, 3)                                 # Mean annual temp (°C)
+temp_summer <- temp_mean + rnorm(n, 8, 1)                    # Summer temp (correlated!)
+vpd_mean <- 0.3 * temp_mean - 0.01 * precip_annual + rnorm(n, 1, 0.3)  # VPD
+
+# --- Drought severity ---
+drought_severity <- rnorm(n, 2.5, 0.8)                       # SPEI drought index
+drought_duration <- 0.6 * drought_severity + rnorm(n, 6, 2)  # Months in drought
+
+# --- Post-drought conditions ---
+precip_post <- rnorm(n, 420, 90)                             # Post-drought precip
+temp_post <- rnorm(n, 19, 3)                                 # Post-drought temp
+
+# --- Ecological variables (true drivers) ---
+diversity <- rnorm(n, 2.5, 0.6)                              # Shannon diversity
+connectivity <- rnorm(n, 0.5, 0.15)                          # Landscape connectivity
+
+# --- Response variable ---
+# True model: recovery depends on diversity, connectivity, precip_post, and drought_severity
+recovery <- 30 + 
+  8 * diversity +                    # Diversity helps recovery
+  15 * connectivity +                # Connectivity helps recovery
+  0.05 * precip_post +               # Post-drought rain helps
+  -5 * drought_severity +            # Severe drought hurts
+  rnorm(n, 0, 8)                     # Residual variation
+
+# Combine into data frame
+oak_data <- data.frame(
+  recovery,
+  precip_annual, precip_monsoon, precip_winter,
+  temp_mean, temp_summer, vpd_mean,
+  drought_severity, drought_duration,
+  precip_post, temp_post,
+  diversity, connectivity
+)
+
+# Quick look
+head(oak_data)
+summary(oak_data)
+```
+
+## Step 1: Visualize correlations
+
+```{r correlation-matrix, fig.cap="Correlation matrix of candidate predictor variables. Strong correlations (dark colors) indicate collinearity that must be addressed before model selection."}
+# Calculate correlation matrix (exclude response)
+predictors <- oak_data %>% select(-recovery)
+cor_matrix <- cor(predictors, use = "complete.obs")
+
+# Visualize
+corrplot(cor_matrix, method = "color", type = "lower", 
+         tl.col = "black", tl.cex = 0.8,
+         addCoef.col = "black", number.cex = 0.6,
+         col = colorRampPalette(c("#D73027", "white", "#1A9850"))(100),
+         title = "Predictor Correlations", mar = c(0, 0, 2, 0))
+```
+
+**What to look for:**
+- Correlations |r| > 0.7 are concerning
+- Correlations |r| > 0.9 are severe
+
+Here we see strong correlations among precipitation variables and between temp_mean and temp_summer.
+
+## Step 2: Identify highly correlated pairs
+
+```{r high-correlations}
+# Find all correlations above threshold
+threshold <- 0.7
+
+# Get upper triangle of correlation matrix
+cor_upper <- cor_matrix
+cor_upper[lower.tri(cor_upper, diag = TRUE)] <- NA
+
+# Find high correlations
+high_cor <- which(abs(cor_upper) > threshold, arr.ind = TRUE)
+high_cor_pairs <- data.frame(
+  var1 = rownames(cor_matrix)[high_cor[, 1]],
+  var2 = colnames(cor_matrix)[high_cor[, 2]],
+  correlation = cor_matrix[high_cor]
+) %>%
+  arrange(desc(abs(correlation)))
+
+high_cor_pairs
+```
+
+## Step 3: Calculate Variance Inflation Factors (VIF)
+
+VIF quantifies how much the variance of a coefficient is inflated due to collinearity. It's calculated by regressing each predictor against all others.
+
+$$VIF_j = \frac{1}{1 - R^2_j}$$
+
+where $R^2_j$ is the R² from regressing predictor j on all other predictors.
+
+**Rules of thumb:**
+- VIF > 5: Moderate collinearity, consider removing
+- VIF > 10: Severe collinearity, definitely address
+
+```{r vif-calculation}
+# Fit a model with all predictors to calculate VIF
+full_model <- lm(recovery ~ ., data = oak_data)
+
+# Calculate VIF
+vif_values <- vif(full_model)
+vif_df <- data.frame(
+  variable = names(vif_values),
+  VIF = round(vif_values, 2)
+) %>%
+  arrange(desc(VIF))
+
+vif_df
+```
+
+Several variables have VIF > 10, confirming collinearity issues.
+
+## Step 4: Iterative VIF reduction
+
+We'll remove variables one at a time (highest VIF first) until all VIF < 5:
+
+```{r vif-reduction}
+# Function to iteratively remove high-VIF variables
+reduce_vif <- function(data, response_var, threshold = 5) {
+  
+  # Separate response and predictors
+  predictors <- data %>% select(-all_of(response_var))
+  
+  # Track removed variables
+  removed <- c()
+  
+  repeat {
+    # Fit model with current predictors
+    model_data <- data.frame(response = data[[response_var]], predictors)
+    model <- lm(response ~ ., data = model_data)
+    
+    # Calculate VIF
+    vif_vals <- vif(model)
+    max_vif <- max(vif_vals)
+    
+    # Check if we're done
+    if (max_vif <= threshold) {
+      cat("All VIFs below threshold.\n")
+      break
+    }
+    
+    # Remove variable with highest VIF
+    remove_var <- names(which.max(vif_vals))
+    removed <- c(removed, remove_var)
+    predictors <- predictors %>% select(-all_of(remove_var))
+    
+    cat("Removed:", remove_var, "(VIF =", round(max_vif, 2), ")\n")
+  }
+  
+  # Return results
+  list(
+    retained = names(predictors),
+    removed = removed,
+    final_data = data %>% select(all_of(response_var), all_of(names(predictors)))
+  )
+}
+
+# Apply VIF reduction
+vif_result <- reduce_vif(oak_data, "recovery", threshold = 5)
+
+# Show results
+cat("\nRetained variables:\n")
+print(vif_result$retained)
+
+cat("\nRemoved variables:\n")
+print(vif_result$removed)
+```
+
+## Step 5: Verify final VIFs
+
+```{r vif-final}
+# Check VIFs in reduced dataset
+final_model <- lm(recovery ~ ., data = vif_result$final_data)
+vif(final_model)
+```
+
+All VIFs are now below 5. We can proceed with model selection using this reduced predictor set.
+
+## Blended approach: Expert + Statistical
+
+Pure automated removal might discard ecologically important variables. A better approach combines:
+
+1. **Expert knowledge** to define candidate predictors
+2. **Statistical tools** to remove redundancy within that set
+3. **Ecological judgment** when choosing between correlated alternatives
+
+For example, if `precip_annual` and `precip_monsoon` are highly correlated, you might:
+- Keep `precip_monsoon` if monsoon timing is more ecologically relevant
+- Keep `precip_annual` if it's more commonly reported and comparable across studies
+
+```{r expert-selection}
+# Expert-selected variables based on ecological reasoning
+expert_vars <- c(
+  "recovery",          # Response
+  "precip_annual",     # Overall water availability (keep instead of monsoon)
+  "temp_mean",         # Temperature (keep instead of summer temp)
+  "drought_severity",  # Drought stress (keep instead of duration)
+  "precip_post",       # Post-drought recovery conditions
+  "diversity",         # Ecological resilience factor
+  "connectivity"       # Landscape connectivity
+)
+
+oak_reduced <- oak_data %>% select(all_of(expert_vars))
+
+# Verify VIFs
+expert_model <- lm(recovery ~ ., data = oak_reduced)
+vif(expert_model)
+```
+
+VIFs are acceptable. Let's proceed with model selection using this expert-curated dataset.
+
+---
+
+# Part 2: Information-Theoretic Model Selection (AIC)
+
+## The philosophy
+
+Information-theoretic approaches don't ask "Is this effect significant?" They ask:
+
+**"Which model best balances fit with complexity?"**
+
+AIC (Akaike Information Criterion) formalizes this:
+
+$$AIC = 2k - 2\ln(L)$$
+
+where:
+- k = number of parameters
+- L = likelihood of the model
+
+**Lower AIC = Better model** (better fit relative to complexity)
+
+## AICc for small samples
+
+With small samples (n/k < 40), use the corrected version:
+
+$$AICc = AIC + \frac{2k(k+1)}{n-k-1}$$
+
+This adds a stronger penalty for complexity when data are limited.
+
+## Key concepts
+
+### Delta AIC (ΔAIC)
+
+The difference between each model's AIC and the best model's AIC:
+
+$$\Delta_i = AIC_i - AIC_{min}$$
+
+**Interpretation:**
+- ΔAIC < 2: Substantial support (essentially equivalent to best model)
+- ΔAIC 2-7: Some support
+- ΔAIC > 10: Essentially no support
+
+### Akaike weights (wᵢ)
+
+The probability that model i is the best model, given the data and candidate set:
+
+$$w_i = \frac{\exp(-\Delta_i/2)}{\sum_j \exp(-\Delta_j/2)}$$
+
+Weights sum to 1 across all models.
+
+## Model selection with MuMIn
+
+The `MuMIn` package provides powerful tools for multi-model inference:
+
+```{r mumin-setup}
+# IMPORTANT: Set na.action for MuMIn compatibility
+options(na.action = "na.fail")
+
+# Fit global model (includes all predictors)
+global_model <- lm(recovery ~ precip_annual + temp_mean + drought_severity + 
+                    precip_post + diversity + connectivity, 
+                   data = oak_reduced)
+
+summary(global_model)
+```
+
+### Generate all subsets
+
+```{r dredge}
+# Generate all possible models (subsets of global model)
+all_models <- dredge(global_model, rank = "AICc")
+
+# View top models
+head(all_models, 10)
+```
+
+### Interpret the output
+
+```{r model-table}
+# Create cleaner summary table
+top_models <- subset(all_models, delta < 4)  # Models within ΔAIC < 4
+
+# View
+as.data.frame(top_models)
+```
+
+**Reading the table:**
+- Each row is a model
+- `+` indicates the variable is included
+- `(Intercept)` shows the intercept estimate
+- Other columns show coefficient estimates
+- `df` = degrees of freedom (parameters)
+- `logLik` = log-likelihood
+- `AICc` = corrected AIC
+- `delta` = ΔAIC
+- `weight` = Akaike weight
+
+### Identify important variables
+
+```{r variable-importance}
+# Variable importance (sum of model weights across models containing each variable)
+MuMIn::sw(all_models)
+```
+
+**Interpretation:** Values close to 1 indicate the variable appears in most high-ranking models. Variables with importance > 0.8 are strong predictors.
+
+### Visualize model selection
+
+```{r model-selection-plot, fig.cap="Model selection results showing ΔAIC for top models. Models within ΔAIC < 2 (dashed line) have substantial support."}
+# Create plot data
+plot_data <- as.data.frame(all_models) %>%
+  head(15) %>%
+  mutate(model_rank = row_number())
+
+ggplot(plot_data, aes(x = model_rank, y = delta)) +
+  geom_col(aes(fill = delta < 2), width = 0.7) +
+  geom_hline(yintercept = 2, linetype = "dashed", color = "firebrick") +
+  scale_fill_manual(values = c("gray50", "steelblue"), guide = "none") +
+  labs(x = "Model Rank",
+       y = "ΔAIC",
+       title = "Model Selection Results",
+       subtitle = "Models below dashed line (ΔAIC < 2) have substantial support") +
+  theme_minimal()
+```
+
+---
+
+# Part 3: Model Averaging
+
+## When to average
+
+If multiple models have substantial support (ΔAIC < 2-4), selecting a single "best" model ignores this uncertainty. **Model averaging** incorporates predictions from multiple models, weighted by their support.
+
+## Full vs. conditional averaging
+
+- **Full averaging:** Coefficients are averaged across ALL models; if a variable is absent from a model, its coefficient is treated as 0
+- **Conditional averaging:** Coefficients are averaged only across models where the variable appears
+
+**Use full averaging** for prediction and effect estimation; it's more conservative.
+
+## Perform model averaging
+
+```{r model-averaging}
+# Extract models with ΔAIC < 4
+top_models <- get.models(all_models, subset = delta < 4)
+
+# Sanity check
+length(top_models)
+
+# Now average from the actual model list
+averaged_model <- model.avg(top_models)
+
+summary(averaged_model)
+```
+
+### Extract averaged coefficients
+
+```{r averaged-coef}
+# Full averaged coefficients (conservative)
+coef(averaged_model, full = TRUE)
+
+# Conditional averaged coefficients
+coef(averaged_model, full = FALSE)
+
+# Confidence intervals (full averaging)
+confint(averaged_model, full = TRUE)
+```
+
+### Variable importance from averaged model
+
+```{r averaged-importance}
+# Relative importance
+sw(averaged_model)
+```
+
+## Predictions from averaged model
+
+```{r averaged-predictions}
+# Create new data for prediction
+new_data <- data.frame(
+  precip_annual = c(350, 450, 550),
+  temp_mean = mean(oak_reduced$temp_mean),
+  drought_severity = mean(oak_reduced$drought_severity),
+  precip_post = mean(oak_reduced$precip_post),
+  diversity = mean(oak_reduced$diversity),
+  connectivity = mean(oak_reduced$connectivity)
+)
+
+# Predict with averaged model
+predict(averaged_model, newdata = new_data, se.fit = TRUE, full = TRUE)
+```
+
+---
+
+# Part 4: Comparing Model Selection Approaches
+
+## Overview of alternatives
+
+| Method | Best for | Pros | Cons |
+|--------|----------|------|------|
+| **AIC/AICc** | Exploratory, multiple hypotheses | Handles non-nested models, quantifies uncertainty | Depends on candidate set |
+| **Stepwise** | Quick reduction | Fast, automated | Unstable, inflates Type I error |
+| **Best subsets** | Small predictor sets | Exhaustive | Computationally intensive |
+| **LASSO** | High-dimensional data (p >> n) | Handles many predictors | Less interpretable |
+| **Cross-validation** | Predictive modeling | Focuses on prediction accuracy | Doesn't assess explanatory power |
+
+## When to use each
+
+```{r decision-table, echo=FALSE}
+decision_df <- data.frame(
+  Situation = c(
+    "Testing ecological hypotheses",
+    "Many candidate predictors (>20)",
+    "Prediction is main goal",
+    "Need to explain patterns",
+    "Small sample size"
+  ),
+  Recommended = c(
+    "AIC + model averaging",
+    "LASSO or regularization",
+    "Cross-validation",
+    "AIC with model averaging",
+    "AICc (corrected AIC)"
+  )
+)
+knitr::kable(decision_df, caption = "Guide to selecting model selection approach")
+```
+
+## Brief example: LASSO
+
+For comparison, here's how LASSO would approach the same problem:
+
+```{r lasso-example 20, message=FALSE}
+library(glmnet)
+
+# Prepare data for glmnet
+x <- as.matrix(oak_reduced %>% select(-recovery))
+y <- oak_reduced$recovery
+
+# Fit LASSO with cross-validation to find optimal lambda
+lasso_cv <- cv.glmnet(x, y, alpha = 1)
+
+# Plot cross-validation results
+plot(lasso_cv)
+
+# Coefficients at optimal lambda
+coef(lasso_cv, s = "lambda.1se")
+```
+
+LASSO shrinks some coefficients to exactly zero, performing automatic variable selection. The variables retained are similar to our AIC-based selection.
+
+---
+
+# Part 5: Reporting Model Selection Results
+
+## What to include
+
+1. **Global model:** All predictors considered
+2. **Selection method:** AIC, AICc, BIC, etc.
+3. **Number of candidate models:** How many were compared
+4. **Top models:** Show models with ΔAIC < 2 or ΔAIC < 4
+5. **Variable importance:** Summed Akaike weights
+6. **Model-averaged estimates:** If multiple models have support
+7. **Interpretation:** What do the results mean ecologically?
+
+## Creating a publication-ready model selection table
+
+```{r pub-table}
+# Extract top models for reporting
+report_table <- as.data.frame(all_models) %>%
+  head(8) %>%
+  mutate(
+    across(where(is.numeric), ~round(., 2)),
+    Model = row_number()
+  ) %>%
+  select(Model, diversity, connectivity, drought_severity, 
+         precip_post, precip_annual, temp_mean,
+         df, AICc, delta, weight)
+
+# Clean up for presentation
+names(report_table) <- c("Model", "Diversity", "Connectivity", "Drought", 
+                          "Post-precip", "Annual precip", "Temp", 
+                          "df", "AICc", "ΔAIC", "Weight")
+
+knitr::kable(report_table, 
+             caption = "Table 1. Model selection results for oak woodland recovery. 
+             Shown are coefficient estimates for each variable; blank cells indicate 
+             the variable was not included in that model.",
+             digits = 2)
+```
+
+## Sample methods and results
+
+### Methods
+
+> We used an information-theoretic approach to identify predictors of post-drought community recovery in Emory oak woodlands. Starting with six candidate predictors representing pre-drought climate (annual precipitation, mean temperature), drought stress (drought severity index), post-drought conditions (post-drought precipitation), and ecological factors (Shannon diversity, landscape connectivity), we first assessed collinearity using variance inflation factors (VIF) and removed variables with VIF > 5. We then compared all possible subsets of the remaining predictors using AICc (Akaike Information Criterion corrected for small sample sizes) and calculated Akaike weights to quantify relative support for each model. We performed model averaging across all models with ΔAICc < 4 to account for model selection uncertainty. Variable importance was calculated as the sum of Akaike weights across all models containing each variable. Analyses were conducted using the MuMIn package (Bartoń 2023) in R version 4.3.1.
+
+### Results
+
+> Model selection identified four variables as important predictors of post-drought recovery: diversity (importance = 0.98), connectivity (importance = 0.95), drought severity (importance = 0.87), and post-drought precipitation (importance = 0.72; **Table 1**). The top-ranked model included all four variables (AICc = 542.3, weight = 0.42), with two additional models receiving substantial support (ΔAICc < 2; **Table 1**). Model-averaged estimates indicated that recovery increased with stand diversity (β = 7.8, 95% CI: 5.2–10.4) and landscape connectivity (β = 14.2, 95% CI: 8.1–20.3), and decreased with drought severity (β = −4.9, 95% CI: −7.1 to −2.7; **Fig. X**). Pre-drought climate variables (annual precipitation, mean temperature) received little support, suggesting that site-level ecological characteristics and post-drought conditions were more important than baseline climate in determining recovery trajectories.
+
+---
+
+## Key takeaways
+
+1. **Address collinearity first** — Model selection with correlated predictors gives unreliable results
+
+2. **Use expert knowledge + statistics** — Don't blindly automate; consider ecological relevance
+
+3. **AIC compares models, not variables** — It tells you which combination of predictors best balances fit and complexity
+
+4. **ΔAIC < 2 = substantial support** — Multiple models may be nearly equivalent
+
+5. **Model averaging accounts for uncertainty** — Use when multiple models have support
+
+6. **Report variable importance** — Summed Akaike weights show which variables consistently appear in top models
+
+7. **Don't use model selection to "find" significance** — It's for comparing pre-specified hypotheses, not p-hacking
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Explain why collinearity is problematic for model selection. What specific issues does it cause?
+
+2. You compare 15 models and find that the top 5 all have ΔAIC < 2. What should you do, and why?
+
+3. A colleague says "I used stepwise regression and found that temperature is significant (p = 0.03)." What concerns would you raise about this approach?
+
+### Part 2: Collinearity reduction
+
+Using the following dataset, identify and remove collinear variables:
+
+```{r assignment-collinearity}
+# Generate correlated predictors
+set.seed(789)
+n <- 80
+assignment_data <- data.frame(
+  y = rnorm(n, 50, 10),
+  x1 = rnorm(n, 20, 5),
+  x2 = rnorm(n, 20, 5)
+)
+assignment_data$x3 <- 0.9 * assignment_data$x1 + rnorm(n, 0, 2)  # Correlated with x1
+assignment_data$x4 <- rnorm(n, 15, 3)
+assignment_data$x5 <- 0.85 * assignment_data$x2 + rnorm(n, 0, 2)  # Correlated with x2
+assignment_data$x6 <- rnorm(n, 30, 8)
+```
+
+1. Create a correlation matrix and identify problematic pairs
+2. Calculate VIF for all predictors
+3. Remove collinear variables using either automated or expert-guided approach
+4. Verify final VIFs are acceptable
+
+### Part 3: Model selection
+
+Using the reduced dataset from Part 2 (or provided clean data), conduct full model selection:
+
+1. Fit a global model with all retained predictors
+2. Use `dredge()` to generate all candidate models
+3. Identify models with ΔAIC < 4
+4. Calculate variable importance
+5. Perform model averaging
+6. Create a publication-ready table showing top 5 models
+7. Write a methods paragraph and results paragraph
+
+### Part 4: Reflection
+
+In 2-3 sentences, explain how model averaging addresses the problem of "which model is best?" when multiple models have similar support.

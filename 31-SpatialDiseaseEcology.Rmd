@@ -1,0 +1,725 @@
+# Spatial Disease Ecology: Patterns, Spread, and Risk
+
+Is the disease everywhere, waiting for stressed trees to succumb? Or is it actively spreading across the landscape, jumping from tree to tree? These two scenarios require fundamentally different management responses—and distinguishing them requires careful spatial analysis.
+
+This chapter addresses a common challenge in forest pathology and wildlife disease: **separating environmentally-driven disease emergence from spatial contagion**. We'll use the example of *Biscogniauxia* canker on Emory oak (*Quercus emoryi*), an opportunistic fungal pathogen that may be triggered by drought stress, actively spreading, or both.
+
+## The core question
+
+```{r disease-hypotheses, echo=FALSE}
+cat("
+TWO COMPETING HYPOTHESES
+═══════════════════════════════════════════════════════════════
+
+HYPOTHESIS 1: UBIQUITOUS PATHOGEN, STRESS-TRIGGERED
+────────────────────────────────────────────────────
+  • Biscogniauxia is everywhere (or nearly everywhere)
+  • Infection only manifests when trees are stressed
+  • Disease clusters because STRESS clusters (drought, poor soils)
+  • Spatial pattern driven by ENVIRONMENT, not contagion
+
+  Management: Focus on tree health, reduce stress, identify 
+              vulnerable sites based on environmental risk
+
+HYPOTHESIS 2: ACTIVE SPATIAL SPREAD
+────────────────────────────────────
+  • Pathogen spreads from infected to nearby susceptible trees
+  • Disease clusters because of LOCAL TRANSMISSION
+  • Pattern expands outward from infection foci over time
+  • Spatial structure exists BEYOND environmental predictors
+
+
+  Management: Containment, remove infected trees, create barriers,
+              prevent spread to uninfected areas
+
+HYPOTHESIS 3: BOTH MECHANISMS
+─────────────────────────────
+  • Stress creates susceptibility
+  • But transmission also occurs locally
+  • Disease spreads faster in stressed areas
+
+  Management: Combination - reduce stress AND contain spread
+")
+```
+
+## Analytical framework
+
+To distinguish these hypotheses, we need to:
+
+1. **Map disease occurrence** — Where are infected trees?
+2. **Test for spatial clustering** — Is disease more clustered than random?
+3. **Model environmental risk** — What predicts infection?
+4. **Check residual clustering** — Is there spatial structure *beyond* environment?
+5. **Examine temporal spread** — Does the pattern expand over time?
+
+## Setup
+
+```{r setup-disease, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(sf)
+library(spdep)
+library(spatstat)      # Point pattern analysis
+library(spatialreg)
+library(terra)
+library(viridis)
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Disease Data Structure
+
+## Types of disease data
+
+| Data type | Description | Analysis approach |
+|-----------|-------------|-------------------|
+| **Point locations** | Coordinates of infected trees | Point pattern analysis |
+| **Presence/absence in plots** | Binary infection status | Spatial logistic regression |
+| **Infection intensity** | Severity score, % canopy affected | Spatial regression (Gaussian, Beta) |
+| **Time of detection** | When each tree was first found infected | Spatio-temporal analysis |
+
+## Example: Simulating Emory oak disease data
+
+Let's create a realistic dataset representing both hypotheses:
+
+```{r simulate-disease-data}
+# Study area: 5km × 5km landscape
+set.seed(123)
+
+# Generate 500 Emory oak locations (clustered, as trees often are)
+n_trees <- 500
+
+# Trees cluster in suitable habitat
+tree_x <- c(rnorm(200, 1.5, 0.5), rnorm(150, 3.5, 0.6), rnorm(150, 2.5, 0.8))
+tree_y <- c(rnorm(200, 1.5, 0.5), rnorm(150, 3.0, 0.6), rnorm(150, 4.0, 0.7))
+
+# Keep within bounds
+tree_x <- pmin(pmax(tree_x, 0), 5)
+tree_y <- pmin(pmax(tree_y, 0), 5)
+
+# Environmental variables
+# Drought stress index (higher = more stressed)
+# Varies spatially - worse in the east
+drought_stress <- 0.3 + 0.4 * (tree_x / 5) + rnorm(n_trees, 0, 0.15)
+drought_stress <- pmin(pmax(drought_stress, 0), 1)
+
+# Tree size (DBH) - larger trees may be more susceptible
+dbh <- rnorm(n_trees, 30, 10)
+dbh <- pmax(dbh, 5)
+
+# Create data frame
+oak_data <- data.frame(
+  tree_id = 1:n_trees,
+  x = tree_x,
+  y = tree_y,
+  drought_stress = drought_stress,
+  dbh = dbh
+)
+
+# Now simulate infection under BOTH mechanisms
+# 1. Environmental risk (stress-driven)
+env_risk <- plogis(-3 + 4 * drought_stress + 0.02 * dbh)
+
+# 2. Spatial contagion (spread from initial foci)
+# Place 3 initial infection centers
+foci <- data.frame(x = c(1.2, 3.8, 2.3), y = c(1.3, 3.2, 4.2))
+
+# Distance to nearest focus
+dist_to_focus <- sapply(1:n_trees, function(i) {
+  min(sqrt((oak_data$x[i] - foci$x)^2 + (oak_data$y[i] - foci$y)^2))
+})
+
+# Contagion risk (higher near foci)
+contagion_risk <- plogis(1 - 3 * dist_to_focus)
+
+# Combined infection probability (both mechanisms)
+# Stress makes trees susceptible; proximity to infected increases transmission
+combined_prob <- plogis(-2 + 3 * drought_stress + 2 * (1 - dist_to_focus/max(dist_to_focus)))
+
+# Generate infection status
+oak_data$infected <- rbinom(n_trees, 1, combined_prob)
+
+# Add year of first detection (for temporal analysis)
+# Earlier detection near foci, later at edges
+oak_data$year_detected <- ifelse(oak_data$infected == 1,
+                                   2018 + round(2 * dist_to_focus + runif(n_trees, -0.5, 0.5)),
+                                   NA)
+oak_data$year_detected <- pmin(oak_data$year_detected, 2024)
+
+# Summary
+cat("Total trees:", n_trees, "\n")
+cat("Infected trees:", sum(oak_data$infected), "\n")
+cat("Infection prevalence:", round(mean(oak_data$infected) * 100, 1), "%\n")
+```
+
+---
+
+# Part 2: Mapping Disease Patterns
+
+## Basic disease map
+
+```{r disease-map, fig.cap="Spatial distribution of Biscogniauxia infection in Emory oaks. Red points are infected trees; gray points are healthy trees."}
+# Convert to sf
+oak_sf <- st_as_sf(oak_data, coords = c("x", "y"), crs = NA)
+
+# Basic map
+ggplot() +
+  geom_sf(data = oak_sf, aes(color = factor(infected)), size = 2, alpha = 0.7) +
+  scale_color_manual(values = c("0" = "gray70", "1" = "firebrick"),
+                     labels = c("Healthy", "Infected"),
+                     name = "Status") +
+  labs(title = "Biscogniauxia Infection in Emory Oak",
+       subtitle = paste0("Prevalence: ", round(mean(oak_data$infected)*100, 1), "%")) +
+  theme_minimal() +
+  coord_sf()
+```
+
+## Disease intensity with environment
+
+```{r disease-environment, fig.cap="Infection status overlaid on drought stress gradient. Visual inspection suggests disease is more common in high-stress areas (east side)."}
+# Map with drought stress as background
+ggplot(oak_data, aes(x = x, y = y)) +
+  geom_point(aes(color = drought_stress, shape = factor(infected)), 
+             size = 3, alpha = 0.8) +
+  scale_color_viridis(name = "Drought\nStress", option = "magma") +
+  scale_shape_manual(values = c(1, 19), 
+                     labels = c("Healthy", "Infected"),
+                     name = "Status") +
+  labs(title = "Infection and Drought Stress",
+       x = "Easting (km)", y = "Northing (km)") +
+  coord_equal() +
+  theme_minimal()
+```
+
+## Kernel density of infected trees
+
+```{r kernel-density, fig.cap="Kernel density estimation showing infection 'hotspots'. High-density areas suggest either environmental risk or spread foci."}
+# Separate infected trees
+infected_coords <- oak_data[oak_data$infected == 1, c("x", "y")]
+
+# Kernel density
+ggplot(oak_data, aes(x = x, y = y)) +
+  stat_density_2d(data = infected_coords,
+                  aes(fill = after_stat(level)),
+                  geom = "polygon", alpha = 0.5) +
+  geom_point(aes(shape = factor(infected)), 
+             size = 1.5, alpha = 0.5) +
+  scale_fill_viridis(name = "Infection\nDensity", option = "inferno") +
+  scale_shape_manual(values = c(1, 19), guide = "none") +
+  labs(title = "Infection Density Surface",
+       x = "Easting (km)", y = "Northing (km)") +
+  coord_equal() +
+  theme_minimal()
+```
+
+---
+
+# Part 3: Testing for Spatial Clustering
+
+## Is disease clustered beyond what tree distribution explains?
+
+Trees themselves are clustered. We need to test whether *infected* trees are more clustered than expected given where trees occur.
+
+### Join count test
+
+For binary data (infected/not), the **join count test** asks whether infected trees are neighbors more often than expected:
+
+```{r join-count}
+# Create neighbor list
+coords <- as.matrix(oak_data[, c("x", "y")])
+knn <- knn2nb(knearneigh(coords, k = 8))
+weights <- nb2listw(knn, style = "B")  # Binary weights
+
+# Join count test
+# H0: infection status is randomly distributed among trees
+jc_test <- joincount.test(as.factor(oak_data$infected), weights)
+print(jc_test)
+```
+
+**Interpretation:**
+- Significant "1:1" joins (infected-infected neighbors) → Disease is clustered
+- More infected neighbors than expected by chance → Spatial aggregation
+
+### Moran's I on residuals (key test!)
+
+The critical test: **Is there spatial clustering in infection AFTER accounting for environment?**
+
+```{r moran-residuals}
+# Step 1: Fit environmental model (ignoring space)
+env_model <- glm(infected ~ drought_stress + dbh, 
+                  family = binomial, data = oak_data)
+summary(env_model)
+
+# Step 2: Get residuals
+oak_data$residuals <- residuals(env_model, type = "deviance")
+
+# Step 3: Test residuals for spatial autocorrelation
+weights_W <- nb2listw(knn, style = "W")
+moran_resid <- moran.test(oak_data$residuals, weights_W)
+print(moran_resid)
+```
+
+**This is the key diagnostic:**
+
+| Result | Interpretation | Implication |
+|--------|----------------|-------------|
+| Residual Moran's I **not significant** | Environment explains spatial pattern | Supports stress-triggered hypothesis |
+| Residual Moran's I **significant positive** | Clustering beyond environment | Supports active spread hypothesis |
+
+---
+
+# Part 4: Point Pattern Analysis
+
+## Using spatstat for formal point pattern tests
+
+Point pattern analysis directly tests whether infected trees are more clustered than expected.
+
+```{r point-pattern}
+# Create point pattern objects
+library(spatstat)
+
+# Define window (study area)
+W <- owin(xrange = c(0, 5), yrange = c(0, 5))
+
+# All trees as a marked point pattern
+all_trees_ppp <- ppp(oak_data$x, oak_data$y, window = W,
+                      marks = factor(oak_data$infected, labels = c("Healthy", "Infected")))
+
+# Just infected trees
+infected_ppp <- ppp(infected_coords$x, infected_coords$y, window = W)
+
+# Plot
+plot(all_trees_ppp, cols = c("gray70", "firebrick"), 
+     main = "Point Pattern of Oak Infection")
+```
+
+## K-function: Testing for clustering
+
+The **K-function** compares observed point density at various distances to random expectation:
+
+```{r k-function, fig.cap="K-function analysis of infected trees. The observed line (black) above the theoretical envelope (gray) indicates significant clustering at those distances."}
+# K-function for infected trees with simulation envelope
+K_env <- spatstat.explore::envelope(infected_ppp, Kest, nsim = 99, verbose = FALSE)
+
+plot(K_env, main = "K-function: Infected Trees",
+     xlab = "Distance (km)", ylab = "K(r)")
+legend("topleft", c("Observed", "Theoretical", "Simulation envelope"),
+       lty = c(1, 2, 1), col = c("black", "red", "gray"), lwd = c(2, 1, 10))
+```
+
+**Interpretation:**
+- **Observed above envelope:** Significant clustering (more neighbors than random)
+- **Observed within envelope:** Cannot reject random distribution
+- **Observed below envelope:** Significant regularity (fewer neighbors than random)
+
+## Cross-type K-function
+
+Does infection status show spatial dependence? Test whether infected and healthy trees are randomly intermixed:
+
+```{r cross-k, fig.cap="Cross-K function testing whether infected and healthy trees are randomly intermixed. Deviation from the envelope suggests non-random association."}
+# Cross K-function
+Kcross_env <- spatstat.explore::envelope(all_trees_ppp, Kcross, 
+                        i = "Infected", j = "Healthy",
+                        nsim = 99, verbose = FALSE)
+
+plot(Kcross_env, main = "Cross K-function: Infected vs Healthy",
+     xlab = "Distance (km)")
+```
+
+---
+
+# Part 5: Spatial Disease Regression
+
+## Building a risk model
+
+Now we model infection probability as a function of environmental risk factors, properly accounting for spatial structure.
+
+```{r spatial-logistic}
+# Standard logistic regression (ignoring spatial structure)
+model_glm <- glm(infected ~ drought_stress + dbh, 
+                  family = binomial, data = oak_data)
+
+# Check residual autocorrelation
+cat("Residual Moran's I for GLM:\n")
+print(moran.test(residuals(model_glm), weights_W))
+```
+
+## Autologistic regression
+
+The **autologistic model** adds a term for neighborhood infection status:
+
+```{r autologistic}
+# Calculate proportion of infected neighbors
+neighbor_infection <- lag.listw(weights_W, oak_data$infected)
+oak_data$neighbor_infected <- neighbor_infection
+
+# Autologistic model
+model_auto <- glm(infected ~ drought_stress + dbh + neighbor_infected,
+                   family = binomial, data = oak_data)
+summary(model_auto)
+
+# Compare AIC
+cat("\nModel comparison:\n")
+cat("GLM (environment only) AIC:", round(AIC(model_glm), 1), "\n")
+cat("Autologistic (+ neighbor infection) AIC:", round(AIC(model_auto), 1), "\n")
+```
+
+**Interpretation of autologistic coefficient:**
+- **Significant positive neighbor effect:** Supports contagion/spread
+- **Non-significant neighbor effect:** No evidence of local transmission beyond environment
+
+## Interpreting the results
+
+```{r interpret-models}
+# Effect sizes
+cat("\n=== Risk Factor Analysis ===\n\n")
+
+# Drought stress effect
+drought_coef <- coef(model_auto)["drought_stress"]
+drought_or <- exp(drought_coef)
+cat("Drought stress (per unit increase):\n")
+cat("  Odds ratio:", round(drought_or, 2), "\n")
+cat("  Interpretation: Each unit increase in drought stress multiplies\n")
+cat("                  infection odds by", round(drought_or, 1), "\n\n")
+
+# Neighbor infection effect
+neighbor_coef <- coef(model_auto)["neighbor_infected"]
+neighbor_or <- exp(neighbor_coef)
+cat("Neighbor infection (proportion infected nearby):\n")
+cat("  Odds ratio:", round(neighbor_or, 2), "\n")
+cat("  Interpretation: A tree with all neighbors infected has\n")
+cat("                 ", round(neighbor_or, 1), "× higher odds than one with no infected neighbors\n")
+```
+
+---
+
+# Part 6: Temporal Spread Analysis
+
+## Does the spatial pattern change over time?
+
+If disease is spreading, we should see:
+- Earlier infections clustered near foci
+- Later infections at expanding edges
+- Spatial extent increasing over time
+
+```{r temporal-spread, fig.cap="Temporal progression of infection. Colors indicate year of first detection. A spreading disease shows expansion from initial foci."}
+# Plot temporal spread
+infected_only <- oak_data[oak_data$infected == 1, ]
+
+ggplot(infected_only, aes(x = x, y = y, color = year_detected)) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_viridis(name = "Year\nDetected", option = "plasma") +
+  labs(title = "Temporal Spread of Infection",
+       subtitle = "Earlier detections in yellow, later in purple",
+       x = "Easting (km)", y = "Northing (km)") +
+  coord_equal() +
+  theme_minimal()
+```
+
+## Testing for directional spread
+
+```{r directional-spread}
+# Correlation between detection year and distance from foci
+infected_only$dist_to_nearest_focus <- sapply(1:nrow(infected_only), function(i) {
+  min(sqrt((infected_only$x[i] - foci$x)^2 + (infected_only$y[i] - foci$y)^2))
+})
+
+# Regression
+spread_model <- lm(year_detected ~ dist_to_nearest_focus, data = infected_only)
+summary(spread_model)
+
+cat("\nSpread velocity estimate:\n")
+spread_rate <- 1 / coef(spread_model)["dist_to_nearest_focus"]
+cat("Approximately", round(abs(spread_rate), 2), "km per year\n")
+```
+
+```{r spread-viz, fig.cap="Detection year vs distance from putative infection foci. A positive relationship supports the spread hypothesis."}
+ggplot(infected_only, aes(x = dist_to_nearest_focus, y = year_detected)) +
+  geom_point(alpha = 0.6, color = "firebrick") +
+  geom_smooth(method = "lm", color = "black") +
+  labs(title = "Evidence for Spatial Spread",
+       subtitle = "Later detections farther from initial foci",
+       x = "Distance to Nearest Focus (km)",
+       y = "Year Detected") +
+  theme_minimal()
+```
+
+---
+
+# Part 7: Predicting At-Risk Areas
+
+## Building a risk surface
+
+Using our model, we can predict infection risk across the landscape to identify priority areas for management.
+
+```{r risk-prediction, fig.cap="Predicted infection risk surface based on drought stress and spatial contagion. Red areas are highest risk for future infection."}
+# Create prediction grid
+pred_grid <- expand.grid(
+  x = seq(0, 5, by = 0.1),
+  y = seq(0, 5, by = 0.1)
+)
+
+# Add environmental predictors to grid
+# Drought stress surface (same gradient as before)
+pred_grid$drought_stress <- 0.3 + 0.4 * (pred_grid$x / 5)
+pred_grid$dbh <- 30  # Average DBH
+
+# Calculate neighbor infection for each grid cell
+# (proportion of nearby trees that are infected)
+pred_grid$neighbor_infected <- sapply(1:nrow(pred_grid), function(i) {
+  dists <- sqrt((oak_data$x - pred_grid$x[i])^2 + 
+                (oak_data$y - pred_grid$y[i])^2)
+  nearby <- which(dists < 0.5)  # Trees within 500m
+  if (length(nearby) == 0) return(mean(oak_data$infected))
+  mean(oak_data$infected[nearby])
+})
+
+# Predict risk
+pred_grid$risk <- predict(model_auto, newdata = pred_grid, type = "response")
+
+# Plot risk surface
+ggplot(pred_grid, aes(x = x, y = y, fill = risk)) +
+  geom_tile() +
+  geom_point(data = oak_data, aes(fill = NULL), 
+             shape = 1, size = 0.5, alpha = 0.3) +
+  geom_point(data = oak_data[oak_data$infected == 1, ], 
+             aes(fill = NULL), color = "white", size = 1) +
+  scale_fill_viridis(name = "Infection\nRisk", option = "inferno", 
+                     limits = c(0, 1)) +
+  labs(title = "Predicted Infection Risk",
+       subtitle = "White points = current infections",
+       x = "Easting (km)", y = "Northing (km)") +
+  coord_equal() +
+  theme_minimal()
+```
+
+## Identifying high-risk uninfected trees
+
+```{r high-risk-trees}
+# Predict risk for each tree
+oak_data$predicted_risk <- predict(model_auto, type = "response")
+
+# High-risk uninfected trees
+high_risk <- oak_data %>%
+  filter(infected == 0) %>%
+  arrange(desc(predicted_risk)) %>%
+  head(20)
+
+cat("Top 20 highest-risk uninfected trees:\n")
+print(high_risk[, c("tree_id", "x", "y", "drought_stress", "neighbor_infected", "predicted_risk")])
+```
+
+```{r priority-map, fig.cap="Priority trees for monitoring. Large red points are high-risk uninfected trees that should be monitored closely."}
+# Map priority trees
+oak_data$priority <- ifelse(oak_data$infected == 0 & 
+                             oak_data$predicted_risk > quantile(oak_data$predicted_risk[oak_data$infected == 0], 0.9),
+                           "High Priority", 
+                           ifelse(oak_data$infected == 1, "Infected", "Lower Risk"))
+
+ggplot(oak_data, aes(x = x, y = y, color = priority, size = priority)) +
+  geom_point(alpha = 0.7) +
+  scale_color_manual(values = c("Infected" = "gray50", 
+                                 "Lower Risk" = "gray80",
+                                 "High Priority" = "firebrick")) +
+  scale_size_manual(values = c("Infected" = 2, "Lower Risk" = 1, "High Priority" = 4)) +
+  labs(title = "Priority Trees for Monitoring",
+       subtitle = "Large red points = highest risk uninfected trees",
+       x = "Easting (km)", y = "Northing (km)") +
+  coord_equal() +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+---
+
+# Part 8: Distinguishing Hypotheses
+
+## Summary of evidence
+
+```{r hypothesis-summary}
+cat("
+═══════════════════════════════════════════════════════════════
+           HYPOTHESIS TESTING SUMMARY
+═══════════════════════════════════════════════════════════════
+
+TEST 1: Spatial clustering of infection
+────────────────────────────────────────
+")
+cat("Join count test (infected-infected):", 
+    ifelse(jc_test[[2]]$p.value < 0.05, "SIGNIFICANT clustering", "Not significant"), "\n")
+cat("Interpretation: Disease IS spatially clustered\n")
+
+cat("\n
+TEST 2: Clustering beyond environment
+────────────────────────────────────────
+")
+cat("Residual Moran's I:", round(moran_resid$estimate[1], 3), "\n")
+cat("P-value:", round(moran_resid$p.value, 4), "\n")
+cat("Interpretation:", ifelse(moran_resid$p.value < 0.05, 
+                               "Clustering BEYOND environment (supports spread)",
+                               "Environment explains clustering (supports stress-triggered)"), "\n")
+
+cat("\n
+TEST 3: Neighbor infection effect
+────────────────────────────────────────
+")
+neighbor_p <- summary(model_auto)$coefficients["neighbor_infected", "Pr(>|z|)"]
+cat("Neighbor effect p-value:", round(neighbor_p, 4), "\n")
+cat("Interpretation:", ifelse(neighbor_p < 0.05,
+                               "Significant local transmission (supports spread)",
+                               "No local transmission beyond environment"), "\n")
+
+cat("\n
+TEST 4: Temporal spread pattern
+────────────────────────────────────────
+")
+spread_p <- summary(spread_model)$coefficients["dist_to_nearest_focus", "Pr(>|t|)"]
+cat("Distance-time relationship p-value:", round(spread_p, 4), "\n")
+cat("Interpretation:", ifelse(spread_p < 0.05 & coef(spread_model)[2] > 0,
+                               "Later infections farther from foci (supports spread)",
+                               "No evidence of expansion from foci"), "\n")
+
+cat("\n
+═══════════════════════════════════════════════════════════════
+                     CONCLUSION
+═══════════════════════════════════════════════════════════════
+")
+# Count evidence for each hypothesis
+spread_evidence <- sum(c(moran_resid$p.value < 0.05, neighbor_p < 0.05, spread_p < 0.05))
+stress_evidence <- sum(c(summary(model_auto)$coefficients["drought_stress", "Pr(>|z|)"] < 0.05))
+
+if (spread_evidence >= 2 & stress_evidence >= 1) {
+  cat("Evidence supports BOTH mechanisms:\n")
+  cat("- Stress creates susceptibility\n")
+  cat("- Disease also spreads locally\n")
+  cat("\nRecommended management: COMBINED APPROACH\n")
+  cat("- Reduce tree stress where possible\n")
+  cat("- Monitor and contain around infection foci\n")
+  cat("- Prioritize high-risk uninfected trees\n")
+} else if (spread_evidence >= 2) {
+  cat("Evidence supports ACTIVE SPREAD\n")
+  cat("\nRecommended management: CONTAINMENT\n")
+} else {
+  cat("Evidence supports STRESS-TRIGGERED emergence\n")
+  cat("\nRecommended management: STRESS REDUCTION\n")
+}
+```
+
+---
+
+# Part 9: Management Recommendations
+
+## Actionable outputs
+
+Based on the analysis, we can provide specific management guidance:
+
+```{r management-table}
+# Create management priority table
+management_zones <- pred_grid %>%
+  mutate(
+    current_infection = sapply(1:nrow(pred_grid), function(i) {
+      dists <- sqrt((oak_data$x[oak_data$infected == 1] - pred_grid$x[i])^2 + 
+                    (oak_data$y[oak_data$infected == 1] - pred_grid$y[i])^2)
+      if (length(dists) == 0) return(NA)
+      min(dists)
+    }),
+    zone = case_when(
+      risk > 0.6 & current_infection < 0.3 ~ "Containment Zone",
+      risk > 0.6 ~ "High Risk - Monitor",
+      risk > 0.3 ~ "Moderate Risk",
+      TRUE ~ "Lower Risk"
+    )
+  )
+
+# Summary
+cat("\n=== Management Zone Summary ===\n")
+table(management_zones$zone)
+```
+
+```{r management-map, fig.cap="Management zones based on infection risk and proximity to current infections."}
+ggplot(management_zones, aes(x = x, y = y, fill = zone)) +
+  geom_tile(alpha = 0.7) +
+  geom_point(data = oak_data[oak_data$infected == 1, ],
+             aes(fill = NULL), color = "black", size = 2, shape = 4) +
+  scale_fill_manual(values = c("Containment Zone" = "firebrick",
+                                "High Risk - Monitor" = "orange",
+                                "Moderate Risk" = "yellow",
+                                "Lower Risk" = "lightgreen"),
+                    name = "Management\nZone") +
+  labs(title = "Management Priority Zones",
+       subtitle = "X marks = current infections",
+       x = "Easting (km)", y = "Northing (km)") +
+  coord_equal() +
+  theme_minimal()
+```
+
+---
+
+# Part 10: Reporting
+
+## Sample methods and results
+
+### Methods
+
+> We investigated the spatial epidemiology of *Biscogniauxia* canker in Emory oak to distinguish between stress-triggered disease emergence and active spatial spread. We mapped 500 trees across a 25 km² study area, recording infection status, drought stress index (derived from soil moisture and vapor pressure deficit), and diameter at breast height. We tested for spatial clustering using join count statistics and Moran's I, first on raw infection status and then on residuals from a logistic regression model including environmental predictors. To detect evidence of local transmission, we fit an autologistic regression including the proportion of infected neighbors within 500 m. Temporal spread was assessed by regressing year of first detection against distance from putative infection foci. All spatial analyses used k=8 nearest neighbors and row-standardized weights. Risk surfaces were generated by predicting infection probability across a 100 m resolution grid. Analyses were conducted using the spdep, spatstat, and sf packages in R version 4.3.1.
+
+### Results
+
+> Of 500 surveyed Emory oaks, 187 (37.4%) showed *Biscogniauxia* infection. Infection was significantly clustered (join count test: p < 0.001), with three distinct infection foci identified in the study area (**Fig. 1**). Drought stress was a significant predictor of infection (OR = 4.2, 95% CI: 2.8–6.3, p < 0.001), supporting the stress-triggered hypothesis. However, significant residual spatial autocorrelation remained after accounting for environment (Moran's I = 0.24, p < 0.001), and the proportion of infected neighbors was a significant predictor in the autologistic model (OR = 2.8, 95% CI: 1.4–5.6, p = 0.003), supporting local transmission. Year of detection increased significantly with distance from infection foci (β = 0.8 years/km, p < 0.001), consistent with spatial spread at approximately 1.2 km/year (**Fig. 2**). These results suggest both mechanisms operate: drought stress predisposes trees to infection, and the disease spreads locally from infected individuals. We identified 47 high-risk uninfected trees (predicted probability > 0.6) for priority monitoring, concentrated in drought-stressed areas within 500 m of current infections (**Fig. 3**).
+
+---
+
+## Key takeaways
+
+1. **Test residual autocorrelation** — The key diagnostic for distinguishing stress vs spread
+
+2. **Autologistic regression** — Neighbor infection term tests for local transmission
+
+3. **Temporal patterns matter** — Spreading disease should show distance-time relationship
+
+4. **Both mechanisms can operate** — Stress creates susceptibility AND transmission occurs
+
+5. **Generate actionable outputs** — Risk maps, priority trees, management zones
+
+6. **Multiple lines of evidence** — Don't rely on a single test; triangulate
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. You find significant spatial clustering of infection, but no residual autocorrelation after accounting for environment. What does this suggest about the disease?
+
+2. Why is the autologistic model useful for distinguishing spread from environmental correlation?
+
+3. Your analysis shows strong drought effects AND strong neighbor effects. What management approach would you recommend?
+
+### Part 2: Applied analysis
+
+Using your own disease/disturbance data (or the simulated data above):
+
+1. Map the spatial distribution of affected individuals
+2. Test for spatial clustering (join count or Moran's I)
+3. Fit an environmental model and test residuals for autocorrelation
+4. Add a neighbor effect (autologistic) and interpret
+5. Create a risk prediction map
+6. Identify high-priority monitoring locations
+
+### Part 3: Temporal analysis
+
+If you have detection dates:
+
+1. Map temporal progression
+2. Test for relationship between detection time and distance from foci
+3. Estimate spread velocity
+4. Predict future expansion
+
+### Part 4: Report
+
+Write a 1-page management recommendation based on your analysis that:
+- States which hypothesis is supported
+- Identifies specific high-risk areas
+- Recommends management actions
+- Acknowledges uncertainty

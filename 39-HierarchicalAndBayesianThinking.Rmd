@@ -1,0 +1,847 @@
+# Hierarchical and Bayesian Thinking
+
+You measure plant growth in 15 plots across 5 sites. Each site has different soils, microclimates, and histories. Should you analyze all 300 plants as independent observations? Should you average within sites and analyze just 5 data points? Neither feels right.
+
+**Hierarchical models** offer a principled middle ground: they recognize that plants within sites share something in common while still using all your data. Combined with **Bayesian inference**, they provide:
+
+- Proper handling of nested/grouped data
+- Natural incorporation of prior knowledge
+- Full uncertainty quantification
+- Principled borrowing of information across groups
+
+This chapter introduces both hierarchical thinking and Bayesian inference, showing how they combine to solve common ecological problems.
+
+## Why this matters for ecologists
+
+Ecological data are almost always hierarchical:
+- Observations within plots within sites within regions
+- Repeated measures on individuals over time
+- Species within communities within ecosystems
+- Studies within meta-analyses
+
+Ignoring this structure leads to:
+- **Pseudoreplication:** Treating non-independent observations as independent
+- **Lost information:** Averaging away within-group variation
+- **Overconfident inference:** Underestimating uncertainty
+
+## Setup
+
+```{r bayes-setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(brms)          # Bayesian regression with Stan
+library(tidybayes)     # Tidy tools for Bayesian models
+library(bayesplot)     # Posterior visualization
+library(rstanarm)      # Alternative Bayesian regression
+library(lme4)          # Frequentist comparison
+
+set.seed(42)
+
+# Set brms options for faster sampling in examples
+options(brms.backend = "cmdstanr")
+```
+
+---
+
+# Part 1: Two Philosophies of Statistics
+
+## Frequentist thinking
+
+The approach you've learned so far:
+
+```{r bayes-frequentist, echo=FALSE}
+cat("
+FREQUENTIST PHILOSOPHY
+═══════════════════════════════════════════════════════════════
+
+Parameters are FIXED but unknown constants.
+Data are RANDOM samples from a population.
+
+Key questions:
+  'If I repeated this experiment infinitely, 
+   what would the sampling distribution look like?'
+
+Inference tools:
+  - P-values: P(data this extreme | H₀ true)
+  - Confidence intervals: 95% of such intervals contain true value
+  - Maximum likelihood: Find parameter that maximizes P(data | θ)
+
+Limitations:
+  - Can't say 'probability parameter is in this range'
+  - No natural way to incorporate prior knowledge
+  - Uncertainty only about sampling, not parameters
+")
+```
+
+## Bayesian thinking
+
+A different philosophy:
+
+```{r bayes-bayesian, echo=FALSE}
+cat("
+BAYESIAN PHILOSOPHY
+═══════════════════════════════════════════════════════════════
+
+Parameters are RANDOM variables with probability distributions.
+Data are FIXED (we observed what we observed).
+
+Key questions:
+  'Given what I observed, what do I believe about the parameter?'
+
+The fundamental equation (Bayes' theorem):
+
+  P(θ | data) = P(data | θ) × P(θ)
+                ─────────────────────
+                     P(data)
+
+  Posterior   =  Likelihood × Prior
+                 ─────────────────
+                   Normalizing constant
+
+What each term means:
+  P(θ)        Prior: What we believed before seeing data
+  P(data | θ) Likelihood: How probable is data given θ
+  P(θ | data) Posterior: What we believe after seeing data
+")
+```
+
+## A simple example
+
+You're studying a rare plant. Before surveying, you estimate ~30% of suitable habitat patches are occupied. You survey 20 patches and find the species in 12.
+
+**Frequentist approach:**
+```{r bayes-freq-example}
+# Proportion and confidence interval
+n <- 20
+successes <- 12
+p_hat <- successes / n
+
+# 95% CI using normal approximation
+se <- sqrt(p_hat * (1 - p_hat) / n)
+ci_freq <- c(p_hat - 1.96 * se, p_hat + 1.96 * se)
+
+cat("Frequentist estimate:", round(p_hat, 3), "\n")
+cat("95% CI:", round(ci_freq, 3), "\n")
+```
+
+**Bayesian approach:**
+```{r bayes-bayes-example}
+# Prior: Beta distribution centered on 0.3
+# Beta(3, 7) has mean = 3/(3+7) = 0.3
+prior_a <- 3
+prior_b <- 7
+
+# Posterior: Beta(prior_a + successes, prior_b + failures)
+post_a <- prior_a + successes
+post_b <- prior_b + (n - successes)
+
+# Posterior mean and 95% credible interval
+post_mean <- post_a / (post_a + post_b)
+ci_bayes <- qbeta(c(0.025, 0.975), post_a, post_b)
+
+cat("Bayesian posterior mean:", round(post_mean, 3), "\n")
+cat("95% credible interval:", round(ci_bayes, 3), "\n")
+```
+
+```{r bayes-comparison-plot, fig.cap="Comparison of prior, likelihood, and posterior. The posterior combines prior knowledge with observed data."}
+# Visualize
+theta <- seq(0, 1, length = 200)
+
+plot_data <- data.frame(
+  theta = rep(theta, 3),
+  density = c(
+    dbeta(theta, prior_a, prior_b),
+    dbeta(theta, successes + 1, n - successes + 1),  # Likelihood (uniform prior)
+    dbeta(theta, post_a, post_b)
+  ),
+  distribution = rep(c("Prior", "Likelihood", "Posterior"), each = length(theta))
+)
+
+ggplot(plot_data, aes(x = theta, y = density, color = distribution)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(values = c("Prior" = "steelblue", 
+                                 "Likelihood" = "gray50",
+                                 "Posterior" = "firebrick")) +
+  labs(x = "Occupancy probability (θ)",
+       y = "Density",
+       title = "Bayesian Updating",
+       subtitle = "Posterior = Prior × Likelihood (normalized)") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+**Key difference:** The Bayesian credible interval is a direct probability statement: "There's a 95% probability the true occupancy is between 0.42 and 0.76." The frequentist CI doesn't mean this!
+
+---
+
+# Part 2: Priors
+
+## What are priors?
+
+Priors encode what you know (or assume) before seeing the data:
+
+```{r bayes-prior-types, echo=FALSE}
+cat("
+TYPES OF PRIORS
+═══════════════════════════════════════════════════════════════
+
+INFORMATIVE PRIORS
+  Based on previous studies, expert knowledge, or constraints
+  Example: Survival probability is probably 0.7-0.9 based on similar species
+
+WEAKLY INFORMATIVE PRIORS
+  Rule out implausible values but remain vague
+  Example: Effect size is probably between -10 and 10 (on some scale)
+
+FLAT/UNIFORM PRIORS
+  All values equally likely (rarely truly appropriate)
+  Example: Uniform(0, 1) for a probability
+
+REGULARIZING PRIORS
+  Pull estimates toward zero to prevent overfitting
+  Example: Normal(0, 1) for regression coefficients
+")
+```
+
+## Choosing priors
+
+```{r bayes-prior-examples, fig.cap="Different priors for a survival probability. Choice should reflect actual prior knowledge."}
+theta <- seq(0, 1, length = 200)
+
+priors_df <- data.frame(
+  theta = rep(theta, 4),
+  density = c(
+    dbeta(theta, 1, 1),      # Flat
+    dbeta(theta, 2, 2),      # Weakly informative (center)
+    dbeta(theta, 8, 2),      # Informative (high survival)
+    dbeta(theta, 2, 8)       # Informative (low survival)
+  ),
+  prior = rep(c("Flat: Beta(1,1)", 
+                "Weakly informative: Beta(2,2)",
+                "Informative (high): Beta(8,2)",
+                "Informative (low): Beta(2,8)"), each = length(theta))
+)
+
+ggplot(priors_df, aes(x = theta, y = density, color = prior)) +
+  geom_line(size = 1.2) +
+  labs(x = "Survival probability",
+       y = "Prior density",
+       title = "Prior Choices for Survival Probability") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+## Prior sensitivity
+
+Good practice: Check if conclusions change with different reasonable priors.
+
+```{r bayes-prior-sensitivity}
+# Test sensitivity of our occupancy example
+priors_to_test <- list(
+  "Flat: Beta(1,1)" = c(1, 1),
+  "Weak: Beta(2,2)" = c(2, 2),
+  "Informative: Beta(3,7)" = c(3, 7),
+  "Strong: Beta(6,14)" = c(6, 14)
+)
+
+sensitivity <- data.frame(
+  Prior = names(priors_to_test),
+  Prior_mean = sapply(priors_to_test, function(x) x[1]/(x[1]+x[2])),
+  Posterior_mean = sapply(priors_to_test, function(x) {
+    (x[1] + successes) / (x[1] + x[2] + n)
+  }),
+  CI_lower = sapply(priors_to_test, function(x) {
+    qbeta(0.025, x[1] + successes, x[2] + n - successes)
+  }),
+  CI_upper = sapply(priors_to_test, function(x) {
+    qbeta(0.975, x[1] + successes, x[2] + n - successes)
+  })
+)
+
+knitr::kable(sensitivity, digits = 3,
+             caption = "Prior sensitivity analysis for occupancy estimation")
+```
+
+With 20 observations, results are reasonably robust to prior choice. With fewer data, priors matter more.
+
+---
+
+# Part 3: Hierarchical Models
+
+## The partial pooling insight
+
+Consider estimating species richness at 8 sites, each surveyed 3 times:
+
+```{r bayes-pooling-simulate}
+# Simulate hierarchical data
+n_sites <- 8
+n_obs_per_site <- 3
+
+# True site-level means (drawn from population)
+true_mu <- 25  # Population mean
+true_sigma_site <- 5  # Between-site SD
+true_sigma_obs <- 3   # Within-site SD
+
+site_means <- rnorm(n_sites, true_mu, true_sigma_site)
+
+# Generate observations
+richness_data <- data.frame(
+  site = rep(1:n_sites, each = n_obs_per_site),
+  obs = rep(1:n_obs_per_site, n_sites),
+  richness = unlist(lapply(site_means, function(m) rnorm(n_obs_per_site, m, true_sigma_obs)))
+)
+
+# Site summaries
+site_summary <- richness_data %>%
+  group_by(site) %>%
+  summarise(
+    mean_richness = mean(richness),
+    sd_richness = sd(richness),
+    n = n()
+  )
+
+print(site_summary)
+```
+
+**Three approaches to estimation:**
+
+```{r bayes-pooling-approaches}
+# Approach 1: Complete pooling (ignore sites)
+complete_pool <- mean(richness_data$richness)
+
+# Approach 2: No pooling (estimate each site separately)
+no_pool <- site_summary$mean_richness
+
+# Approach 3: Partial pooling (hierarchical model)
+library(lme4)
+partial_pool_model <- lmer(richness ~ 1 + (1|site), data = richness_data)
+partial_pool <- coef(partial_pool_model)$site[,1]
+
+# Compare
+comparison <- data.frame(
+  site = 1:n_sites,
+  true = site_means,
+  complete_pooling = complete_pool,
+  no_pooling = no_pool,
+  partial_pooling = partial_pool
+)
+
+knitr::kable(comparison, digits = 2,
+             caption = "Comparison of estimation approaches")
+```
+
+```{r bayes-pooling-plot, fig.cap="Shrinkage in hierarchical models. Partial pooling estimates (red) are pulled toward the grand mean compared to no-pooling estimates (blue)."}
+ggplot(comparison, aes(x = factor(site))) +
+  geom_point(aes(y = true), shape = 4, size = 4, color = "black") +
+  geom_point(aes(y = no_pooling), color = "steelblue", size = 3) +
+  geom_point(aes(y = partial_pooling), color = "firebrick", size = 3) +
+  geom_hline(yintercept = complete_pool, linetype = "dashed", color = "gray50") +
+  labs(x = "Site", y = "Estimated richness",
+       title = "Shrinkage Toward the Grand Mean",
+       subtitle = "× = true, blue = no pooling, red = partial pooling, dashed = complete pooling") +
+  theme_minimal()
+```
+
+**The shrinkage principle:** Partial pooling "shrinks" extreme estimates toward the grand mean. Sites with little data are shrunk more. This reduces overfitting and improves predictions.
+
+## Why hierarchical models work
+
+```{r bayes-hierarchical-concept, echo=FALSE}
+cat("
+HIERARCHICAL MODEL STRUCTURE
+═══════════════════════════════════════════════════════════════
+
+Level 1 (Observations):
+  y_ij ~ Normal(μ_j, σ_within)
+  
+  Each observation i in group j is drawn from group j's distribution
+
+Level 2 (Groups):
+  μ_j ~ Normal(μ_grand, σ_between)
+  
+  Each group's mean comes from a population distribution
+
+WHAT THIS DOES:
+  1. Borrows strength: Small groups borrow information from large groups
+  2. Reduces overfitting: Extreme estimates pulled toward mean
+  3. Quantifies variation: Separates within- vs between-group variance
+  4. Handles imbalance: Works with unequal group sizes
+
+KEY INSIGHT:
+  Groups are not 'fixed' independent estimates.
+  They're drawn from a common distribution.
+  This CONNECTS them and allows information sharing.
+")
+```
+
+---
+
+# Part 4: Bayesian Regression with brms
+
+## A simple Bayesian regression
+
+```{r bayes-brms-simple, cache=TRUE, results='hide', message=FALSE}
+# Simulate data
+n <- 100
+x <- rnorm(n, 10, 2)
+y <- 5 + 2 * x + rnorm(n, 0, 3)
+simple_data <- data.frame(x = x, y = y)
+
+# Fit Bayesian linear regression
+# (Using default priors for demonstration)
+bayes_lm <- brm(
+  y ~ x,
+  data = simple_data,
+  family = gaussian(),
+  chains = 4,
+  iter = 2000,
+  warmup = 1000,
+  seed = 42,
+  silent = 2
+)
+```
+
+```{r bayes-brms-summary}
+# Model summary
+summary(bayes_lm)
+```
+
+## Understanding the output
+
+```{r bayes-brms-interpret}
+# Extract posterior samples
+posterior <- as_draws_df(bayes_lm)
+
+# Summarize slope parameter
+slope_summary <- posterior %>%
+  summarise(
+    mean = mean(b_x),
+    sd = sd(b_x),
+    q2.5 = quantile(b_x, 0.025),
+    q97.5 = quantile(b_x, 0.975),
+    prob_positive = mean(b_x > 0)
+  )
+
+cat("Slope posterior summary:\n")
+print(slope_summary)
+
+cat("\nInterpretation: There's a", round(slope_summary$prob_positive * 100, 1), 
+    "% probability the slope is positive.\n")
+```
+
+## Visualizing posteriors
+
+```{r bayes-posterior-viz, fig.cap="Posterior distributions for regression parameters. The shaded region shows 95% credible interval."}
+# Posterior density plots
+mcmc_areas(bayes_lm, pars = c("b_Intercept", "b_x", "sigma"),
+           prob = 0.95) +
+  labs(title = "Posterior Distributions")
+```
+
+## Posterior predictive checks
+
+```{r bayes-pp-check, fig.cap="Posterior predictive check: Simulated data (light blue) should resemble observed data (dark blue)."}
+# Does the model generate data that looks like our data?
+pp_check(bayes_lm, ndraws = 100) +
+  labs(title = "Posterior Predictive Check")
+```
+
+---
+
+# Part 5: Bayesian Hierarchical Models
+
+## Fitting hierarchical models with brms
+
+```{r bayes-hier-brms, cache=TRUE, results='hide', message=FALSE}
+# Use our richness data
+bayes_hier <- brm(
+  richness ~ 1 + (1|site),
+  data = richness_data,
+  family = gaussian(),
+  chains = 4,
+  iter = 2000,
+  warmup = 1000,
+  seed = 42,
+  silent = 2
+)
+```
+
+```{r bayes-hier-summary}
+summary(bayes_hier)
+```
+
+## Extracting group-level estimates
+
+```{r bayes-hier-ranef}
+# Site-level effects
+site_effects <- rstanarm::ranef(bayes_hier)$site
+print(site_effects)
+
+# Full site-level estimates (intercept + site effect)
+site_estimates <- coef(bayes_hier)$site
+print(site_estimates)
+```
+
+## Comparing to frequentist
+
+```{r bayes-compare-freq}
+# Frequentist version
+freq_hier <- lmer(richness ~ 1 + (1|site), data = richness_data)
+
+# Compare estimates
+comparison_hier <- data.frame(
+  site = 1:n_sites,
+  true = site_means,
+  frequentist = coef(freq_hier)$site[,1],
+  bayesian = site_estimates[, , 1][, "Estimate"]
+)
+
+cat("Comparison of hierarchical model estimates:\n")
+print(comparison_hier, digits = 2)
+```
+
+---
+
+# Part 6: Ecological Example - Species Richness
+
+## A more realistic model
+
+```{r bayes-ecology-data}
+# Simulate a richer dataset
+# Species richness depends on habitat quality, varies by region
+
+n_regions <- 6
+n_sites_per_region <- 8
+n_total <- n_regions * n_sites_per_region
+
+# Region effects
+region_effects <- rnorm(n_regions, 0, 3)
+
+# Generate data
+eco_data <- data.frame(
+  region = factor(rep(1:n_regions, each = n_sites_per_region)),
+  site = 1:n_total,
+  habitat_quality = runif(n_total, 0, 10),
+  area = runif(n_total, 1, 100)
+)
+
+# True model: richness ~ habitat + log(area) + region
+eco_data$richness <- with(eco_data, {
+  15 +                                          # Intercept
+  2.5 * habitat_quality +                       # Habitat effect
+  5 * log(area) +                               # Area effect
+  region_effects[as.numeric(region)] +          # Region random effect
+  rnorm(n_total, 0, 4)                          # Residual
+})
+
+# Make counts
+eco_data$richness <- round(pmax(eco_data$richness, 1))
+
+head(eco_data)
+```
+
+## Setting priors
+
+```{r bayes-set-priors}
+# Check default priors
+get_prior(richness ~ habitat_quality + log(area) + (1|region),
+          data = eco_data, family = gaussian())
+```
+
+```{r bayes-custom-priors, cache=TRUE, results='hide', message=FALSE}
+# Set custom priors
+my_priors <- c(
+  prior(normal(15, 10), class = Intercept),     # Grand mean ~15 species
+  prior(normal(0, 5), class = b),               # Regression coefficients
+  prior(exponential(0.1), class = sd),          # Random effect SD
+  prior(exponential(0.1), class = sigma)        # Residual SD
+)
+
+# Fit model with custom priors
+eco_model <- brm(
+  richness ~ habitat_quality + log(area) + (1|region),
+  data = eco_data,
+  family = gaussian(),
+  prior = my_priors,
+  chains = 4,
+  iter = 2000,
+  warmup = 1000,
+  seed = 42,
+  silent = 2
+)
+```
+
+```{r bayes-eco-summary}
+summary(eco_model)
+```
+
+## Visualizing effects
+
+```{r bayes-eco-effects, fig.cap="Posterior distributions for habitat quality and area effects on species richness."}
+# Conditional effects plots
+plot(conditional_effects(eco_model), points = TRUE)
+```
+
+## Model diagnostics
+
+```{r bayes-diagnostics, fig.cap="MCMC trace plots showing convergence. Chains should mix well and look like 'fuzzy caterpillars'."}
+# Trace plots (should look like "hairy caterpillars")
+mcmc_trace(eco_model, pars = c("b_Intercept", "b_habitat_quality", "b_logarea"))
+```
+
+```{r bayes-rhat}
+# Check R-hat values (should be < 1.01)
+brms::rhat(eco_model)
+```
+
+---
+
+# Part 7: Model Comparison
+
+## Bayesian model comparison
+
+```{r bayes-model-compare, cache=TRUE, results='hide', message=FALSE}
+# Fit alternative models
+model_null <- brm(richness ~ 1 + (1|region), 
+                   data = eco_data, family = gaussian(),
+                   chains = 4, iter = 2000, silent = 2)
+
+model_habitat <- brm(richness ~ habitat_quality + (1|region),
+                      data = eco_data, family = gaussian(),
+                      chains = 4, iter = 2000, silent = 2)
+
+model_area <- brm(richness ~ log(area) + (1|region),
+                   data = eco_data, family = gaussian(),
+                   chains = 4, iter = 2000, silent = 2)
+
+model_full <- eco_model  # Already fit above
+```
+
+```{r bayes-loo}
+# Leave-one-out cross-validation
+loo_null <- rstanarm::loo(model_null)
+loo_habitat <- rstanarm::loo(model_habitat)
+loo_area <- rstanarm::loo(model_area)
+loo_full <- rstanarm::loo(model_full)
+
+# Compare models
+loo_compare(loo_null, loo_habitat, loo_area, loo_full)
+```
+
+**Interpretation:** Lower ELPD (expected log predictive density) difference = better model. The full model is best.
+
+---
+
+# Part 8: Predictions and Uncertainty
+
+## Posterior predictions
+
+```{r bayes-predictions}
+# Predict for new data
+new_data <- data.frame(
+  habitat_quality = c(2, 5, 8),
+  area = c(10, 50, 100),
+  region = factor(rep("1", 3))  # Existing region
+)
+
+# Predictions with uncertainty
+predictions <- posterior_predict(eco_model, newdata = new_data)
+
+# Summarize
+pred_summary <- data.frame(
+  habitat = new_data$habitat_quality,
+  area = new_data$area,
+  mean = colMeans(predictions),
+  lower = apply(predictions, 2, quantile, 0.025),
+  upper = apply(predictions, 2, quantile, 0.975)
+)
+
+knitr::kable(pred_summary, digits = 1,
+             caption = "Predicted species richness with 95% credible intervals")
+```
+
+## Predictions for new groups
+
+```{r bayes-new-group}
+# Predict for a NEW region (not in training data)
+new_region_data <- data.frame(
+  habitat_quality = 5,
+  area = 50,
+  region = factor("new")  # New region
+)
+
+# This uses the estimated between-region variance
+pred_new_region <- posterior_predict(eco_model, 
+                                      newdata = new_region_data,
+                                      allow_new_levels = TRUE)
+
+cat("Prediction for new region:\n")
+cat("Mean:", round(mean(pred_new_region), 1), "\n")
+cat("95% CI:", round(quantile(pred_new_region, c(0.025, 0.975)), 1), "\n")
+```
+
+**Note:** Predictions for new groups have wider uncertainty because we don't know that group's random effect.
+
+---
+
+# Part 9: When to Go Bayesian
+
+## Advantages of Bayesian approach
+
+```{r bayes-advantages, echo=FALSE}
+cat("
+WHEN BAYESIAN METHODS SHINE
+═══════════════════════════════════════════════════════════════
+
+1. PRIOR INFORMATION EXISTS
+   - Previous studies inform expectations
+   - Expert knowledge is relevant
+   - Physical/biological constraints exist
+
+2. COMPLEX HIERARCHICAL STRUCTURES
+   - Nested random effects
+   - Crossed random effects
+   - Non-standard grouping structures
+
+3. SMALL SAMPLE SIZES
+   - Priors provide regularization
+   - Prevents extreme estimates
+   - Better handling of sparse data
+
+4. UNCERTAINTY QUANTIFICATION
+   - Full posterior distributions
+   - Probability statements about parameters
+   - Propagating uncertainty to predictions
+
+5. COMPLEX MODELS
+   - Nonlinear relationships
+   - Custom likelihoods
+   - Multi-response models
+")
+```
+
+## When frequentist is fine
+
+- Large sample sizes with standard designs
+- Simple models with established theory
+- When speed is essential (Bayesian can be slow)
+- When audiences expect frequentist results
+
+## Practical considerations
+
+```{r bayes-practical, echo=FALSE}
+cat("
+PRACTICAL BAYESIAN TIPS
+═══════════════════════════════════════════════════════════════
+
+1. START WITH FREQUENTIST
+   Fit lm/glm/lmer first to understand your data
+
+2. CHECK DEFAULT PRIORS
+   brms defaults are often reasonable, but verify
+
+3. DIAGNOSE CONVERGENCE
+   - R-hat < 1.01
+   - No divergences
+   - Effective sample size adequate
+
+4. DO POSTERIOR PREDICTIVE CHECKS
+   Does the model generate data like yours?
+
+5. SENSITIVITY ANALYSIS
+   Do conclusions change with different priors?
+
+6. REPORT APPROPRIATELY
+   - Posterior means and credible intervals
+   - Not p-values!
+")
+```
+
+---
+
+# Part 10: Reporting Bayesian Analyses
+
+## What to report
+
+1. **Model specification:** Formula, priors, likelihood
+2. **Software:** Package and version (brms, Stan version)
+3. **MCMC settings:** Chains, iterations, warmup
+4. **Convergence diagnostics:** R-hat, divergences, ESS
+5. **Posterior summaries:** Means, SDs, credible intervals
+6. **Model checks:** Posterior predictive checks
+7. **Model comparison:** LOO-CV, WAIC if multiple models
+
+## Sample methods and results
+
+### Methods
+
+> We analyzed species richness using Bayesian hierarchical regression implemented in brms version 2.20.0 (Bürkner 2017), which interfaces with Stan for MCMC sampling. We modeled richness as a function of habitat quality (continuous, 0-10 scale) and log-transformed patch area (ha), with random intercepts for region (n = 6). We specified weakly informative priors: Normal(15, 10) for the intercept reflecting typical richness values in similar systems, Normal(0, 5) for fixed effect coefficients, and Exponential(0.1) for standard deviation parameters. We ran 4 chains for 2000 iterations each (1000 warmup), yielding 4000 posterior samples. Convergence was assessed via R-hat statistics (all < 1.01), trace plots, and absence of divergent transitions. Model fit was evaluated using posterior predictive checks. We compared candidate models using leave-one-out cross-validation (LOO-CV).
+
+### Results
+
+> Species richness increased significantly with both habitat quality (β = 2.42, 95% CI: 2.05–2.79) and log patch area (β = 5.12, 95% CI: 4.21–6.03). The probability that both effects are positive exceeded 99.9%. Regional variation was substantial (SD = 2.89, 95% CI: 1.48–5.73), indicating that regions differ in baseline richness beyond what predictors explain. The model explained 76% of variance in richness (Bayesian R² = 0.76, 95% CI: 0.67–0.83). Posterior predictive checks showed adequate fit, with simulated data closely matching observed richness distributions. LOO-CV strongly favored the full model over reduced alternatives (ΔELPD > 15 for all comparisons).
+
+---
+
+## Key takeaways
+
+1. **Bayesian = probability statements about parameters** — What we actually want!
+
+2. **Hierarchical models handle nested data** — Partial pooling is the middle ground
+
+3. **Priors encode prior knowledge** — Not arbitrary; check sensitivity
+
+4. **Shrinkage improves estimates** — Especially for small groups
+
+5. **brms makes Bayesian accessible** — R formula syntax you know
+
+6. **Always check convergence** — R-hat, trace plots, divergences
+
+7. **Posterior predictive checks** — Does the model fit your data?
+
+8. **Report fully** — Priors, MCMC settings, diagnostics
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. In your own words, explain the difference between a 95% confidence interval and a 95% credible interval.
+
+2. Why does partial pooling (hierarchical modeling) produce better estimates than either complete pooling or no pooling?
+
+3. When would you choose an informative prior over a weakly informative prior? Give an ecological example.
+
+### Part 2: Prior exploration
+
+For a study of survival probability (bounded 0-1):
+
+1. Specify three different Beta priors (informative, weakly informative, flat)
+2. Simulate data with true p = 0.7 and n = 15
+3. Calculate the posterior under each prior
+4. Plot and compare the posteriors
+5. Discuss: How much do priors matter with this sample size?
+
+### Part 3: Fit a Bayesian hierarchical model
+
+Using data of your choice (or simulated data):
+
+1. Fit a frequentist mixed model with lmer
+2. Fit the equivalent Bayesian model with brms
+3. Compare the estimates
+4. Check convergence diagnostics
+5. Generate posterior predictive checks
+
+### Part 4: Model comparison
+
+Using your model from Part 3:
+
+1. Fit at least 2 alternative models
+2. Compare using LOO-CV
+3. Interpret which model is best and why
+4. Discuss whether the "best" model is actually good (check PPCs)
+
+### Part 5: Reporting
+
+Write a complete methods and results section for your Bayesian analysis, following the format in this chapter.
+

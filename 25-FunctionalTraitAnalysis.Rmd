@@ -1,0 +1,788 @@
+# Functional Trait Analysis
+
+Species identity tells you *who* is present. Functional traits tell you *what they do*.
+
+Two communities might have completely different species but similar functional composition—both dominated by fast-growing, drought-tolerant plants with small leaves. Or two communities might share species but differ functionally because those shared species vary in their traits across environments.
+
+**Functional trait analysis** connects community composition to ecosystem processes by asking:
+- What traits characterize this community?
+- How diverse is the community in trait space?
+- How do traits respond to environmental gradients?
+- What traits are associated with particular habitats?
+
+This chapter covers the core methods for analyzing functional traits in community ecology.
+
+## Why traits matter
+
+Traditional community ecology focuses on species—presence, absence, abundance. But species are "black boxes" that don't tell us about ecological mechanisms. Traits provide that mechanistic link:
+
+| Trait | Ecological function | Ecosystem process |
+|-------|---------------------|-------------------|
+| Specific leaf area (SLA) | Resource acquisition strategy | Decomposition rate, nutrient cycling |
+| Seed mass | Dispersal, establishment | Colonization, succession |
+| Root depth | Water acquisition | Drought response, water cycling |
+| Body size | Metabolic rate, diet | Energy flow, food web structure |
+| Wood density | Growth rate, defense | Carbon storage, disturbance response |
+
+By focusing on traits, we can:
+- **Generalize** across regions with different species pools
+- **Predict** ecosystem function from community composition
+- **Understand mechanisms** rather than just patterns
+
+## Setup
+
+```{r setup-traits, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(FD)            # Functional diversity indices
+library(fundiversity)  # Tidyverse-friendly trait metrics
+library(ade4)          # Fourth-corner and RLQ analysis
+library(vegan)         # Community analysis
+library(corrplot)      # Correlation visualization
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Trait Data Structure
+
+## The three matrices
+
+Functional trait analysis typically involves three matrices:
+
+```{r three-matrices, echo=FALSE, fig.cap="The three data matrices in functional trait analysis. L links sites to species; R links sites to environment; Q links species to traits."}
+cat("
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   SPECIES (columns)           TRAITS (columns)                  │
+│   ┌─────────────────┐         ┌─────────────────┐               │
+│   │                 │         │                 │               │
+│ S │   L matrix      │       S │   Q matrix      │               │
+│ I │   (abundance)   │       P │   (trait values)│               │
+│ T │                 │       E │                 │               │
+│ E │  sites × spp    │       C │  spp × traits   │               │
+│ S │                 │       I │                 │               │
+│   │                 │       E │                 │               │
+│   └─────────────────┘       S └─────────────────┘               │
+│           │                           │                         │
+│           │         ┌─────────────────┘                         │
+│           │         │                                           │
+│           ▼         ▼                                           │
+│   ┌─────────────────────────────────────────────────────┐       │
+│   │              FOURTH-CORNER ANALYSIS                 │       │
+│   │         Trait-Environment Relationships             │       │
+│   └─────────────────────────────────────────────────────┘       │
+│                                                                 │
+│   ENVIRONMENT (columns)                                         │
+│   ┌─────────────────┐                                           │
+│   │                 │                                           │
+│ S │   R matrix      │                                           │
+│ I │   (env values)  │                                           │
+│ T │                 │                                           │
+│ E │  sites × env    │                                           │
+│ S │                 │                                           │
+│   │                 │                                           │
+│   └─────────────────┘                                           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+")
+```
+
+- **L matrix (sites × species):** Community composition (abundance or presence/absence)
+- **Q matrix (species × traits):** Trait values for each species
+- **R matrix (sites × environment):** Environmental variables at each site
+
+## Example data
+
+```{r example-data}
+# Create example data: 20 sites, 15 species, 4 traits, 3 env variables
+
+# L matrix: species abundances at sites
+n_sites <- 20
+n_species <- 15
+
+# Simulate community with environmental filtering
+set.seed(123)
+L <- matrix(0, n_sites, n_species)
+rownames(L) <- paste0("Site", 1:n_sites)
+colnames(L) <- paste0("Sp", 1:n_species)
+
+# Environment drives composition
+moisture <- runif(n_sites, 0, 100)
+for (i in 1:n_sites) {
+  # Species have different moisture optima
+  species_probs <- plogis(-2 + 0.04 * moisture[i] * (1:n_species)/n_species)
+  L[i, ] <- rpois(n_species, lambda = 10 * species_probs)
+}
+
+# Q matrix: species traits
+Q <- data.frame(
+  SLA = c(15, 18, 22, 25, 28, 12, 20, 24, 30, 16, 19, 23, 27, 14, 21),
+  Height = c(0.3, 0.5, 1.2, 0.8, 1.5, 0.2, 0.9, 1.1, 2.0, 0.4, 0.7, 1.3, 1.8, 0.3, 1.0),
+  SeedMass = c(2.1, 1.5, 3.2, 2.8, 4.5, 1.2, 2.5, 3.0, 5.2, 1.8, 2.2, 3.5, 4.8, 1.4, 2.7),
+  WoodDensity = c(0.65, 0.55, 0.45, 0.50, 0.40, 0.70, 0.52, 0.48, 0.35, 0.60, 0.54, 0.42, 0.38, 0.68, 0.50)
+)
+rownames(Q) <- colnames(L)
+
+# R matrix: environmental variables
+R <- data.frame(
+  Moisture = moisture,
+  Temperature = rnorm(n_sites, 20, 3),
+  Nutrients = runif(n_sites, 1, 10)
+)
+rownames(R) <- rownames(L)
+
+# View structure
+cat("L matrix (sites × species):\n")
+print(L[1:5, 1:5])
+
+cat("\nQ matrix (species × traits):\n")
+print(head(Q))
+
+cat("\nR matrix (sites × environment):\n")
+print(head(R))
+```
+
+## Handling trait data types
+
+Traits can be continuous, categorical, ordinal, or binary:
+
+```{r trait-types}
+# Mixed trait types
+Q_mixed <- data.frame(
+  SLA = c(15, 18, 22, 25, 28),           # Continuous
+  Nitrogen_fixer = c(0, 1, 0, 1, 0),     # Binary
+  Growth_form = factor(c("herb", "shrub", "tree", "herb", "tree")),  # Categorical
+  Dispersal = ordered(c("local", "regional", "long", "local", "long"),
+                      levels = c("local", "regional", "long"))  # Ordinal
+)
+
+# For FD package, create appropriate distance matrix
+# Gower distance handles mixed types
+trait_dist <- gowdis(Q_mixed)
+```
+
+---
+
+# Part 2: Community-Weighted Means (CWM)
+
+## What is CWM?
+
+The **community-weighted mean** is the average trait value in a community, weighted by species abundance:
+
+$$CWM = \sum_{i=1}^{S} p_i \times t_i$$
+
+where $p_i$ is the relative abundance of species $i$ and $t_i$ is its trait value.
+
+CWM answers: **"What is the typical trait value in this community?"**
+
+## Calculating CWM
+
+```{r cwm-calculation}
+# Using FD package
+cwm_result <- functcomp(Q, L, CWM.type = "all")
+cwm_result
+
+# Manual calculation for one site
+site1_abund <- L[1, ]
+site1_relabund <- site1_abund / sum(site1_abund)
+site1_cwm_sla <- sum(site1_relabund * Q$SLA)
+
+cat("Manual CWM for SLA at Site 1:", round(site1_cwm_sla, 2), "\n")
+cat("From functcomp:", round(cwm_result$SLA[1], 2), "\n")
+```
+
+## CWM along environmental gradients
+
+```{r cwm-gradient, fig.cap="Community-weighted mean SLA increases with soil moisture, suggesting environmental filtering favors high-SLA species in wetter conditions."}
+# Add CWM to environmental data
+trait_env <- cbind(R, cwm_result)
+
+# Plot CWM vs environment
+ggplot(trait_env, aes(x = Moisture, y = SLA)) +
+  geom_point(size = 3, color = "steelblue") +
+  geom_smooth(method = "lm", color = "firebrick") +
+  labs(x = "Soil Moisture (%)", 
+       y = "Community-Weighted Mean SLA",
+       title = "CWM-SLA Response to Moisture") +
+  theme_minimal()
+
+# Statistical test
+cwm_lm <- lm(SLA ~ Moisture, data = trait_env)
+summary(cwm_lm)
+```
+
+## Interpreting CWM
+
+CWM reflects **environmental filtering**:
+- If environment selects for certain trait values, CWM will shift along gradients
+- Strong CWM-environment relationships suggest trait-based habitat filtering
+- CWM captures the "dominant strategy" in the community
+
+**Limitations:**
+- CWM only captures the central tendency, not diversity
+- Two communities with same CWM might have very different trait distributions
+- Sensitive to dominant species (rare species contribute little)
+
+---
+
+# Part 3: Functional Diversity Indices
+
+CWM tells you the *average* trait. Functional diversity indices tell you about *variation* in traits.
+
+## The main indices
+
+| Index | What it measures | Range | Interpretation |
+|-------|-----------------|-------|----------------|
+| **FRic** | Functional richness | 0 to 1 | Volume of trait space occupied |
+| **FEve** | Functional evenness | 0 to 1 | Regularity of spacing in trait space |
+| **FDiv** | Functional divergence | 0 to 1 | How spread from center of trait space |
+| **FDis** | Functional dispersion | 0 to ∞ | Mean distance to centroid |
+| **RaoQ** | Rao's quadratic entropy | 0 to ∞ | Abundance-weighted pairwise distance |
+
+```{r fd-conceptual, echo=FALSE, fig.cap="Conceptual illustration of functional diversity components. FRic = total volume; FEve = regularity of distribution; FDiv = spread from center."}
+# Simple illustration
+par(mfrow = c(1, 3))
+
+# High FRic
+plot(c(1, 9, 5), c(1, 9, 5), xlim = c(0, 10), ylim = c(0, 10),
+     pch = 19, cex = 2, xlab = "Trait 1", ylab = "Trait 2",
+     main = "High FRic\n(large volume)")
+polygon(c(1, 9, 5), c(1, 9, 5), border = "steelblue", lwd = 2)
+
+# High FEve
+theta <- seq(0, 2*pi, length = 7)[-7]
+plot(5 + 3*cos(theta), 5 + 3*sin(theta), xlim = c(0, 10), ylim = c(0, 10),
+     pch = 19, cex = 2, xlab = "Trait 1", ylab = "Trait 2",
+     main = "High FEve\n(evenly spaced)")
+
+# High FDiv
+plot(c(1, 9, 1, 9, 5), c(1, 1, 9, 9, 5), xlim = c(0, 10), ylim = c(0, 10),
+     pch = 19, cex = c(3, 3, 3, 3, 1), xlab = "Trait 1", ylab = "Trait 2",
+     main = "High FDiv\n(spread from center)")
+points(5, 5, pch = 3, cex = 2, col = "firebrick")
+
+par(mfrow = c(1, 1))
+```
+
+## Calculating functional diversity
+
+```{r fd-calculation}
+# Using FD package - calculates multiple indices
+fd_results <- dbFD(Q, L, 
+                    w.abun = TRUE,      # Weight by abundance
+                    calc.FRic = TRUE,
+                    calc.FDiv = TRUE,
+                    calc.CWM = FALSE)   # Already calculated above
+
+# View results
+fd_summary <- data.frame(
+  Site = rownames(L),
+  FRic = fd_results$FRic,
+  FEve = fd_results$FEve,
+  FDiv = fd_results$FDiv,
+  FDis = fd_results$FDis,
+  RaoQ = fd_results$RaoQ
+)
+
+head(fd_summary)
+```
+
+## Using fundiversity (tidyverse-friendly)
+
+```{r fundiversity}
+# fundiversity provides cleaner syntax
+library(fundiversity)
+
+# Calculate indices
+fric <- fd_fric(Q, L)
+fdiv <- fd_fdiv(Q, L)
+feve <- fd_feve(Q, L)
+fdis <- fd_fdis(Q, L)
+raoq <- fd_raoq(Q, L)
+
+# Combine
+fd_tidy <- fric %>%
+  left_join(fdiv, by = "site") %>%
+  left_join(feve, by = "site") %>%
+  left_join(fdis, by = "site") %>%
+  left_join(raoq, by = "site")
+
+head(fd_tidy)
+```
+
+## Functional diversity along gradients
+
+```{r fd-gradient, fig.cap="Functional diversity components along the moisture gradient. Different components may respond differently to environmental change."}
+# Add FD to environmental data
+fd_env <- cbind(R, fd_summary[, -1])
+
+# Plot multiple FD components
+fd_long <- fd_env %>%
+  pivot_longer(cols = c(FRic, FEve, FDiv, FDis),
+               names_to = "Index",
+               values_to = "Value")
+
+ggplot(fd_long, aes(x = Moisture, y = Value)) +
+  geom_point(color = "steelblue") +
+  geom_smooth(method = "lm", color = "firebrick", se = FALSE) +
+  facet_wrap(~ Index, scales = "free_y") +
+  labs(x = "Soil Moisture (%)", y = "Index Value",
+       title = "Functional Diversity Along Moisture Gradient") +
+  theme_minimal()
+```
+
+---
+
+# Part 4: Fourth-Corner Analysis
+
+## The question
+
+CWM and FD indices tell you about trait composition at each site. But what if you want to directly test:
+
+**"Which traits are associated with which environmental conditions?"**
+
+This requires linking traits (Q) to environment (R) through the community matrix (L)—the "fourth corner" problem.
+
+```{r fourthcorner, message=FALSE, warning=FALSE}
+library(ade4)
+
+# Coerce to plain data.frames
+L_df <- as.data.frame(L)  # sites x species
+R_df <- as.data.frame(R)  # sites x environment
+Q_df <- as.data.frame(Q)  # species x traits
+
+# Checks
+stopifnot(nrow(L_df) == nrow(R_df))
+stopifnot(ncol(L_df) == nrow(Q_df))
+if (!all(rownames(L_df) == rownames(R_df))) stop("Row names of L and R must match (sites).")
+if (!all(colnames(L_df) == rownames(Q_df))) stop("Colnames of L must match rownames of Q (species).")
+
+# Required by ade4:
+# - no NAs in R/L/Q
+# - L must be non-negative
+stopifnot(!anyNA(R_df), !anyNA(L_df), !anyNA(Q_df))
+stopifnot(!any(L_df < 0))
+
+# Fourth-corner test (modeltype=6 combines 2 and 4)
+fourth <- ade4::fourthcorner(R_df, L_df, Q_df, modeltype = 6, nrepet = 999)
+
+summary(fourth)
+```
+
+## Interpreting fourth-corner results
+
+```{r fourth-corner-plot, fig.cap="Fourth-corner analysis results showing trait-environment associations. Red = positive association; blue = negative; white = not significant."}
+# Visualize associations
+plot(fourth, alpha = 0.05, stat = "D2")
+```
+
+The plot shows:
+- **Significant positive associations** (red): Trait values increase with environmental variable
+- **Significant negative associations** (blue): Trait values decrease with environmental variable
+- **Non-significant** (white): No detectable relationship
+
+## Adjusting for multiple testing
+
+```{r fourth-corner-adjust}
+# Adjust p-values for multiple comparisons
+fourth_adj <- p.adjust.4thcorner(fourth, p.adjust.method.G = "fdr",
+                                  p.adjust.method.D = "fdr")
+
+# Plot adjusted results
+plot(fourth_adj, alpha = 0.05, stat = "D2")
+```
+
+---
+
+# Part 5: RLQ Analysis
+
+## Beyond fourth-corner
+
+**RLQ analysis** is a multivariate extension of fourth-corner. It performs a simultaneous ordination of all three matrices, revealing the main trait-environment relationships.
+
+Think of it as:
+- PCA of environment (R)
+- CA of community (L)
+- PCA of traits (Q)
+- ...all linked together
+
+```{r rlq-analysis, message=FALSE, warning=FALSE}
+library(ade4)
+
+# --- Coerce to plain data.frames
+L_df <- as.data.frame(L)  # sites x species (>=0)
+R_df <- as.data.frame(R)  # sites x environment
+Q_df <- as.data.frame(Q)  # species x traits
+
+# --- Alignment checks
+stopifnot(nrow(L_df) == nrow(R_df))
+stopifnot(ncol(L_df) == nrow(Q_df))
+if (!all(rownames(L_df) == rownames(R_df))) stop("Row names of L and R must match (sites).")
+if (!all(colnames(L_df) == rownames(Q_df))) stop("Colnames of L must match rownames of Q (species).")
+
+# --- Step 1: CA on L gives canonical row/col weights
+coa_L <- dudi.coa(L_df, scannf = FALSE, nf = 2)
+
+# --- Step 2: Ordinate R and Q using L's weights
+# Use pca for numeric R/Q; if you have factors in R or Q, use dudi.hillsmith()
+pca_R <- dudi.pca(R_df, row.w = coa_L$lw, scannf = FALSE, nf = 2)
+pca_Q <- dudi.pca(Q_df, row.w = coa_L$cw, scannf = FALSE, nf = 2)
+
+# --- Sanity checks (these must be TRUE)
+stopifnot(isTRUE(all.equal(pca_R$lw, coa_L$lw)))
+stopifnot(isTRUE(all.equal(pca_Q$lw, coa_L$cw)))
+
+# --- RLQ
+rlq_obj <- rlq(pca_R, coa_L, pca_Q, scannf = FALSE, nf = 2)
+
+rlq_obj
+```
+
+## Visualizing RLQ
+
+```{r rlq-plot, fig.cap="RLQ ordination showing trait-environment relationships. The first axis captures the primary gradient linking traits to environment."}
+plot(rlq_obj)
+```
+
+```{r rlq-custom, fig.cap="Custom RLQ visualization showing environment, traits, and species scores."}
+# Extract scores for custom plotting
+env_scores <- rlq_obj$lR
+trait_scores <- rlq_obj$lQ
+species_scores <- rlq_obj$lC
+
+# Custom plot
+par(mfrow = c(1, 2))
+
+# Environment-Trait relationship
+plot(rlq_obj$lR[, 1], rlq_obj$lR[, 2], type = "n",
+     xlab = "RLQ Axis 1", ylab = "RLQ Axis 2",
+     main = "Environmental Variables")
+text(rlq_obj$l1[, 1], rlq_obj$l1[, 2], rownames(R_df), col = "steelblue")
+arrows(0, 0, rlq_obj$c1[, 1], rlq_obj$c1[, 2], 
+       length = 0.1, col = "firebrick")
+text(rlq_obj$c1[, 1] * 1.1, rlq_obj$c1[, 2] * 1.1, 
+     rownames(rlq_obj$c1), col = "firebrick")
+
+# Traits
+plot(rlq_obj$lQ[, 1], rlq_obj$lQ[, 2], type = "n",
+     xlab = "RLQ Axis 1", ylab = "RLQ Axis 2",
+     main = "Traits")
+arrows(0, 0, rlq_obj$c1[, 1], rlq_obj$c1[, 2], 
+       length = 0.1, col = "coral")
+text(rlq_obj$c1[, 1] * 1.1, rlq_obj$c1[, 2] * 1.1, 
+     rownames(rlq_obj$c1), col = "coral")
+
+par(mfrow = c(1, 1))
+```
+
+## Testing RLQ significance
+
+```{r rlq-test}
+# Global test of RLQ structure
+rlq_test <- randtest(rlq_obj, nrepet = 999)
+plot(rlq_test)
+```
+
+---
+
+# Part 6: Trait-Based Community Assembly
+
+## Assembly mechanisms
+
+Functional trait analysis can help distinguish assembly mechanisms:
+
+| Mechanism | Prediction | What to measure |
+|-----------|------------|-----------------|
+| **Environmental filtering** | Trait convergence | Low FD, strong CWM-environment |
+| **Competitive exclusion** | Trait divergence | High FD, limiting similarity |
+| **Neutral assembly** | Random trait patterns | FD matches null expectation |
+
+## Null models
+
+To test whether observed FD differs from random, compare to a null model:
+
+```{r null-model}
+# Null model: shuffle traits among species
+n_null <- 999
+null_fdis <- matrix(NA, n_null, n_sites)
+
+for (i in 1:n_null) {
+  # Randomize trait matrix (shuffle species labels)
+  Q_null <- Q[sample(nrow(Q)), ]
+  rownames(Q_null) <- rownames(Q)
+  
+  # Calculate FDis
+  fd_null <- dbFD(Q_null, L, messages = FALSE)
+  null_fdis[i, ] <- fd_null$FDis
+}
+
+# Compare observed to null
+obs_fdis <- fd_results$FDis
+
+# Calculate standardized effect size (SES)
+ses_fdis <- (obs_fdis - colMeans(null_fdis)) / apply(null_fdis, 2, sd)
+
+# Results
+ses_results <- data.frame(
+  Site = rownames(L),
+  Observed = obs_fdis,
+  Null_mean = colMeans(null_fdis),
+  SES = ses_fdis
+)
+
+head(ses_results)
+```
+
+## Interpreting SES
+
+```{r ses-interpret, fig.cap="Standardized Effect Size (SES) for functional dispersion. Negative values suggest trait convergence (environmental filtering); positive values suggest divergence (competition)."}
+# Plot SES
+ggplot(ses_results, aes(x = Site, y = SES)) +
+  geom_col(aes(fill = SES > 0)) +
+  geom_hline(yintercept = c(-1.96, 1.96), linetype = "dashed") +
+  scale_fill_manual(values = c("steelblue", "coral"), guide = "none") +
+  labs(x = "Site", y = "SES (FDis)",
+       title = "Standardized Effect Size of Functional Dispersion",
+       subtitle = "Dashed lines: 95% null expectation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**Interpretation:**
+- **SES < -1.96:** Significantly clustered (environmental filtering)
+- **SES > 1.96:** Significantly overdispersed (competitive exclusion)
+- **-1.96 < SES < 1.96:** Not different from random
+
+---
+
+# Part 7: Intraspecific Trait Variation
+
+## Beyond species means
+
+Most trait analyses use species-level mean traits. But individuals within species vary:
+
+```{r itv-concept, echo=FALSE}
+cat("
+Sources of trait variation:
+├── Among species (interspecific) — traditional focus
+└── Within species (intraspecific)
+    ├── Genetic variation
+    ├── Phenotypic plasticity
+    └── Ontogenetic changes
+
+Ignoring intraspecific variation (ITV) can:
+- Underestimate functional diversity
+- Miss important trait-environment relationships
+- Bias CWM estimates
+")
+```
+
+## Measuring ITV
+
+```{r itv-example}
+# Simulate individual-level trait data
+species <- rep(paste0("Sp", 1:5), each = 20)
+site <- rep(1:4, each = 25)
+sla_mean <- rep(c(15, 20, 25, 30, 35), each = 20)
+sla_individual <- sla_mean + rnorm(100, 0, 3)  # ITV
+
+itv_data <- data.frame(species, site, sla = sla_individual)
+
+# Visualize ITV
+ggplot(itv_data, aes(x = species, y = sla, fill = species)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(x = "Species", y = "SLA",
+       title = "Intraspecific Trait Variation") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+## Partitioning trait variation
+
+```{r itv-partition}
+# Variance partitioning
+trait_anova <- aov(sla ~ species, data = itv_data)
+summary(trait_anova)
+
+# Calculate proportion of variance
+var_among <- summary(trait_anova)[[1]]["species", "Sum Sq"]
+var_within <- summary(trait_anova)[[1]]["Residuals", "Sum Sq"]
+var_total <- var_among + var_within
+
+cat("Among-species variance:", round(var_among/var_total * 100, 1), "%\n")
+cat("Within-species variance (ITV):", round(var_within/var_total * 100, 1), "%\n")
+```
+
+---
+
+# Part 8: Complete Workflow
+
+Let's work through a complete functional trait analysis:
+
+```{r complete-workflow 25}
+# 1. Load/create data (already done above)
+
+# 2. Calculate CWM
+cwm <- functcomp(Q, L, CWM.type = "all")
+
+# 3. Calculate functional diversity
+fd <- dbFD(Q, L, w.abun = TRUE, calc.CWM = FALSE)
+
+# 4. Combine with environment
+results <- cbind(R, cwm, 
+                  FRic = fd$FRic, 
+                  FEve = fd$FEve, 
+                  FDiv = fd$FDiv,
+                  FDis = fd$FDis)
+
+# 5. Analyze CWM-environment relationships
+cat("CWM-Environment relationships:\n")
+for (trait in names(cwm)) {
+  model <- lm(results[[trait]] ~ Moisture + Temperature + Nutrients, data = results)
+  cat("\n", trait, ":\n")
+  print(summary(model)$coefficients)
+}
+```
+
+```{r workflow-fourth}
+# 6. Fourth-corner analysis
+fourth <- fourthcorner(R_df, L_df, Q_df, modeltype = 6, nrepet = 999)
+fourth_adj <- p.adjust.4thcorner(fourth, p.adjust.method.G = "fdr")
+
+cat("\nSignificant trait-environment associations:\n")
+print(fourth_adj$tabD2)
+```
+
+```{r workflow-rlq, message=FALSE, warning=FALSE}
+library(ade4)
+
+# --- Coerce to plain data.frames
+L_df <- as.data.frame(L)  # sites x species
+R_df <- as.data.frame(R)  # sites x env
+Q_df <- as.data.frame(Q)  # species x traits
+
+# --- Alignment checks
+stopifnot(nrow(L_df) == nrow(R_df))
+stopifnot(ncol(L_df) == nrow(Q_df))
+if (!all(rownames(L_df) == rownames(R_df))) stop("Row names of L and R must match (sites).")
+if (!all(colnames(L_df) == rownames(Q_df))) stop("Colnames of L must match rownames of Q (species).")
+
+# --- 1) CA on L (this defines the canonical weights)
+coa_L <- dudi.coa(L_df, scannf = FALSE, nf = 2)
+
+# --- 2) Ordinate R and Q using L's weights
+pca_R <- dudi.pca(R_df, row.w = coa_L$lw, scannf = FALSE, nf = 2)
+pca_Q <- dudi.pca(Q_df, row.w = coa_L$cw, scannf = FALSE, nf = 2)
+
+# --- Sanity checks (fail fast if anything is off)
+stopifnot(isTRUE(all.equal(pca_R$lw, coa_L$lw)))
+stopifnot(isTRUE(all.equal(pca_Q$lw, coa_L$cw)))
+
+# --- 3) RLQ
+rlq_object <- rlq(pca_R, coa_L, pca_Q, scannf = FALSE, nf = 2)
+
+# Inspect + plot
+rlq_object
+plot(rlq_object)
+
+# Test significance (use rlq_object, not rlq_result)
+rlq_test <- randtest(rlq_object, nrepet = 999)
+cat("\nRLQ global test p-value:", rlq_test$pvalue, "\n")
+```
+
+---
+
+# Part 9: Reporting
+
+## What to report
+
+1. **Trait selection:** Which traits and why (ecological relevance)
+2. **Trait data source:** Measured, database (TRY, etc.), literature
+3. **CWM patterns:** How do mean traits vary with environment?
+4. **FD patterns:** How does functional diversity vary?
+5. **Trait-environment tests:** Fourth-corner or RLQ results
+6. **Null model results:** If testing assembly mechanisms
+
+## Sample methods and results
+
+### Methods
+
+> We analyzed functional trait composition across 20 sites along a soil moisture gradient. For each of 15 plant species, we obtained trait values for specific leaf area (SLA, mm²/mg), plant height (m), seed mass (mg), and wood density (g/cm³) from field measurements and the TRY database. We calculated community-weighted mean (CWM) trait values using species relative abundances and tested CWM-environment relationships using linear regression. We quantified functional diversity using functional richness (FRic), evenness (FEve), divergence (FDiv), and dispersion (FDis) calculated with the FD package (Laliberté et al. 2014). We tested trait-environment associations using fourth-corner analysis with model 6 (permutation of both sites and species) and 999 permutations, adjusting p-values for false discovery rate. RLQ analysis provided a multivariate ordination linking traits to environmental gradients. Analyses were conducted in R version 4.3.1.
+
+### Results
+
+> Community-weighted mean SLA increased significantly with soil moisture (β = 0.12, SE = 0.03, p < 0.001; **Fig. X**), indicating a shift toward more acquisitive leaf strategies in wetter conditions. Functional dispersion showed no significant relationship with moisture (p = 0.34), suggesting similar functional diversity across the gradient. Fourth-corner analysis revealed significant positive associations between SLA and moisture (r = 0.42, adjusted p = 0.003) and negative associations between wood density and moisture (r = -0.38, adjusted p = 0.008; **Fig. Y**). RLQ analysis identified a primary axis (explaining 67% of cross-covariance) linking high moisture and nutrients to species with high SLA and low wood density (p = 0.001, 999 permutations). These results suggest strong environmental filtering favoring fast-growth strategies in resource-rich microsites.
+
+---
+
+## Key takeaways
+
+1. **Traits bridge pattern and process** — They explain *why* species occur where they do
+
+2. **CWM captures the dominant strategy** — Average trait value weighted by abundance
+
+3. **FD captures trait diversity** — Multiple indices measure different aspects
+
+4. **Fourth-corner links traits to environment** — Tests specific associations
+
+5. **RLQ provides multivariate synthesis** — Ordination of all three matrices together
+
+6. **Null models test assembly mechanisms** — Distinguish filtering from competition
+
+7. **ITV matters** — Within-species variation can be substantial
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. What is the difference between CWM and functional diversity? When would each be more informative?
+
+2. In a fourth-corner analysis, you find that leaf nitrogen content is positively associated with soil nitrogen. What does this suggest about community assembly?
+
+3. Your null model analysis shows that FDis is significantly lower than expected by chance. What assembly mechanism does this suggest?
+
+### Part 2: CWM analysis
+
+Using the built-in `dune` and `dune.env` data from vegan, combined with trait data:
+
+```{r assignment-cwm}
+data(dune)
+data(dune.env)
+
+# Simulated traits for dune species
+dune_traits <- data.frame(
+  SLA = runif(ncol(dune), 10, 40),
+  Height = runif(ncol(dune), 0.1, 1.5),
+  SeedMass = runif(ncol(dune), 0.1, 5)
+)
+rownames(dune_traits) <- colnames(dune)
+```
+
+1. Calculate CWM for all traits
+2. Test whether CWM-SLA differs among management types
+3. Plot CWM-Height against moisture
+4. Interpret the patterns
+
+### Part 3: Functional diversity
+
+Using the same data:
+
+1. Calculate FRic, FEve, FDiv, and FDis
+2. Test whether FDis differs among management types
+3. Plot FD indices against moisture
+4. Which index shows the strongest environmental relationship?
+
+### Part 4: Fourth-corner analysis
+
+1. Run fourth-corner analysis on the dune data
+2. Adjust for multiple testing
+3. Identify significant trait-environment associations
+4. Create a visualization
+5. Write a results paragraph
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why functional trait analysis might be more useful than species-based analysis for predicting community responses to climate change.

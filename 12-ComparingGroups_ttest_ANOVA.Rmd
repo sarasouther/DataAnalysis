@@ -1,0 +1,792 @@
+# Comparing Groups: t-tests and ANOVA
+
+When your research question is "Do these groups differ?", you need a method for comparing means. This chapter covers the two workhorses of group comparisons: **t-tests** (for two groups) and **ANOVA** (for three or more groups).
+
+These tests share the same underlying logic: they ask whether the differences *between* groups are larger than the variation *within* groups. If groups differ more than we'd expect from random variation alone, we conclude the group membership matters.
+
+## The big picture: Partitioning variance
+
+Every observation in your data varies from the overall mean. This total variation can be split into two components:
+
+1. **Between-group variance**: Differences due to group membership (treatment effects)
+2. **Within-group variance**: Differences among individuals within the same group (noise, individual variation)
+
+```{r partition-concept, echo=FALSE, fig.cap="Partitioning variance: Total variation equals between-group variation plus within-group variation. When between-group variance is large relative to within-group variance, we conclude that groups differ."}
+set.seed(42)
+# Create example data
+group_a <- rnorm(15, mean = 10, sd = 2)
+group_b <- rnorm(15, mean = 15, sd = 2)
+
+# Grand mean
+grand_mean <- mean(c(group_a, group_b))
+
+# Plot
+par(mfrow = c(1, 1))
+plot(c(rep(1, 15), rep(2, 15)), c(group_a, group_b),
+     xlim = c(0.5, 2.5), ylim = c(5, 20),
+     xlab = "Group", ylab = "Value", xaxt = "n",
+     pch = 16, col = c(rep("steelblue", 15), rep("coral", 15)),
+     main = "Partitioning Variance")
+axis(1, at = c(1, 2), labels = c("Group A", "Group B"))
+
+# Grand mean line
+abline(h = grand_mean, lty = 2, col = "gray40", lwd = 2)
+text(2.4, grand_mean, "Grand mean", cex = 0.8)
+
+# Group means
+points(c(1, 2), c(mean(group_a), mean(group_b)), pch = 18, cex = 2, col = c("darkblue", "darkred"))
+
+# Arrows showing between-group variance
+arrows(1.1, grand_mean, 1.1, mean(group_a), col = "darkblue", lwd = 2, length = 0.1, code = 3)
+arrows(1.9, grand_mean, 1.9, mean(group_b), col = "darkred", lwd = 2, length = 0.1, code = 3)
+text(0.7, (grand_mean + mean(group_a))/2, "Between", cex = 0.7, col = "darkblue")
+```
+
+The key insight: **If groups are truly different, the between-group variance should be large relative to the within-group variance.**
+
+Both t-tests and ANOVA formalize this comparison. The t-test does it for two groups; ANOVA extends the logic to any number of groups.
+
+## Setup
+
+```{r setup-comparing, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(car)           # Levene's test
+library(emmeans)       # Post-hoc comparisons
+library(effectsize)    # Effect size calculations
+library(multcomp)
+library(multcompView)
+
+set.seed(42)
+```
+
+---
+
+# Part 1: t-tests
+
+The t-test compares means between two groups. There are three flavors:
+
+| Type | Use when... |
+|------|-------------|
+| **One-sample t-test** | Comparing a sample mean to a known/hypothesized value |
+| **Two-sample t-test** | Comparing means of two independent groups |
+| **Paired t-test** | Comparing means of two related measurements (same subjects) |
+
+## One-sample t-test
+
+### The question
+
+"Is the mean of my sample different from a specific value?"
+
+### Ecological example
+
+Historical records indicate that ponderosa pine seedlings at your site averaged 25 cm in height during their first year. After a recent restoration treatment, you want to know if current seedling heights differ from this historical baseline.
+
+```{r one-sample-data}
+# Current seedling heights (cm)
+current_heights <- c(28.3, 31.2, 26.8, 29.5, 27.1, 32.4, 28.9, 30.1, 
+                     27.6, 29.8, 31.5, 26.4, 28.7, 30.3, 29.2)
+
+# Historical mean
+historical_mean <- 25
+
+# Quick look
+mean(current_heights)
+sd(current_heights)
+```
+
+### Hypotheses
+
+> **H₀:** μ = 25 (current mean equals historical mean)
+> 
+> **H_A:** μ ≠ 25 (current mean differs from historical mean)
+
+### Check assumptions
+
+The one-sample t-test assumes:
+1. **Independence**: Observations are independent
+2. **Normality**: Data are approximately normally distributed (or n is large)
+
+```{r one-sample-assumptions, fig.cap="Checking normality for one-sample t-test. The histogram and QQ plot suggest the data are approximately normal."}
+par(mfrow = c(1, 2))
+hist(current_heights, breaks = 8, col = "lightblue", border = "white",
+     main = "Distribution of Heights", xlab = "Height (cm)")
+qqnorm(current_heights, pch = 16, col = "steelblue")
+qqline(current_heights, col = "firebrick", lwd = 2)
+par(mfrow = c(1, 1))
+
+# Formal test (optional)
+shapiro.test(current_heights)
+```
+
+Data appear approximately normal (Shapiro-Wilk p = 0.85).
+
+### Run the test
+
+```{r one-sample-test}
+t_one <- t.test(current_heights, mu = historical_mean)
+t_one
+```
+
+### Interpret the output
+
+| Component | Value | Meaning |
+|-----------|-------|---------|
+| t | 7.39 | Test statistic: how many SEs the sample mean is from 25 |
+| df | 14 | Degrees of freedom (n - 1) |
+| p-value | 3.1e-06 | Probability of this result if μ truly equals 25 |
+| 95% CI | [27.7, 30.4] | Plausible range for the true population mean |
+| mean of x | 29.1 | Sample mean |
+
+The 95% CI doesn't include 25, consistent with the significant p-value.
+
+### Effect size
+
+For one-sample t-tests, Cohen's d compares the difference from the hypothesized value to the standard deviation:
+
+```{r one-sample-effect}
+d_one <- (mean(current_heights) - historical_mean) / sd(current_heights)
+d_one
+```
+
+### Results statement
+
+> Current seedling heights (mean = 29.1 cm, SD = 1.7) were significantly greater than the historical average of 25 cm (one-sample t-test: t₁₄ = 7.39, p < 0.001, Cohen's d = 2.40). This suggests that restoration treatments have improved early seedling growth.
+
+---
+
+## Two-sample t-test
+
+### The question
+
+"Do the means of two independent groups differ?"
+
+This is the most common t-test in ecology—comparing treatment vs. control, site A vs. site B, species 1 vs. species 2.
+
+### Ecological example
+
+You're investigating whether a native grass (*Bouteloua gracilis*) grows differently in soils from restored vs. degraded rangeland. You collect soil from each site type, grow seedlings in a greenhouse, and measure aboveground biomass after 8 weeks.
+
+```{r two-sample-data}
+# Biomass (g) of seedlings grown in different soil types
+restored_soil <- c(2.34, 2.67, 2.45, 2.89, 2.51, 2.73, 2.62, 2.41, 
+                   2.78, 2.55, 2.69, 2.48, 2.83, 2.59, 2.71)
+degraded_soil <- c(1.89, 2.12, 1.95, 2.23, 1.87, 2.05, 2.18, 1.92,
+                   2.08, 1.98, 2.15, 1.84, 2.21, 2.02, 1.91)
+
+# Combine into data frame
+biomass_data <- data.frame(
+  biomass = c(restored_soil, degraded_soil),
+  soil_type = factor(rep(c("Restored", "Degraded"), each = 15))
+)
+
+# Summary statistics
+biomass_data %>%
+  group_by(soil_type) %>%
+  summarise(
+    n = n(),
+    mean = mean(biomass),
+    sd = sd(biomass),
+    se = sd / sqrt(n)
+  )
+```
+
+### Hypotheses
+
+> **H₀:** μ_restored = μ_degraded (no difference in biomass between soil types)
+> 
+> **H_A:** μ_restored ≠ μ_degraded (biomass differs between soil types)
+
+### Check assumptions
+
+The two-sample t-test assumes:
+1. **Independence**: Observations are independent (both within and between groups)
+2. **Normality**: Data in each group are approximately normal
+3. **Equal variance** (for Student's t-test): Groups have similar spread
+
+```{r two-sample-assumptions, fig.cap="Checking assumptions for two-sample t-test. Both groups appear approximately normal with similar spread."}
+# Visual check
+par(mfrow = c(1, 2))
+
+# Boxplot for spread comparison
+boxplot(biomass ~ soil_type, data = biomass_data,
+        col = c("coral", "forestgreen"),
+        main = "Biomass by Soil Type",
+        ylab = "Biomass (g)")
+
+# QQ plot for both groups
+qqnorm(restored_soil, pch = 16, col = "forestgreen", main = "QQ Plots")
+qqline(restored_soil, col = "forestgreen")
+points(qqnorm(degraded_soil, plot.it = FALSE), pch = 16, col = "coral")
+qqline(degraded_soil, col = "coral")
+legend("topleft", c("Restored", "Degraded"), 
+       col = c("forestgreen", "coral"), pch = 16, cex = 0.8)
+par(mfrow = c(1, 1))
+
+# Formal tests
+shapiro.test(restored_soil)
+shapiro.test(degraded_soil)
+leveneTest(biomass ~ soil_type, data = biomass_data)
+```
+
+Both groups appear normal (Shapiro p > 0.05), and variances are similar (Levene's p = 0.95).
+
+### Run the test
+
+```{r two-sample-test}
+# Student's t-test (assumes equal variance)
+t_two <- t.test(biomass ~ soil_type, data = biomass_data, var.equal = TRUE)
+t_two
+
+# Welch's t-test (does not assume equal variance) - safer default
+t_welch <- t.test(biomass ~ soil_type, data = biomass_data, var.equal = FALSE)
+t_welch
+```
+
+**Which to use?**
+- **Student's t-test** (`var.equal = TRUE`): Slightly more powerful when variances are truly equal
+- **Welch's t-test** (`var.equal = FALSE`): Robust to unequal variances; the safer default
+
+In this case, results are nearly identical because variances are similar.
+
+### Interpret the output
+
+The negative t-value indicates that the first group alphabetically (Degraded) has a lower mean. The confidence interval shows the difference between group means.
+
+```{r two-sample-interpret}
+# Mean difference
+mean(restored_soil) - mean(degraded_soil)
+
+# This matches the CI interpretation
+t_two$conf.int
+```
+
+The 95% CI for the difference [0.42, 0.71] doesn't include zero, confirming significance.
+
+### Effect size
+
+```{r two-sample-effect}
+# Cohen's d using the effectsize package
+cohens_d(biomass ~ soil_type, data = biomass_data)
+
+# Or manually
+pooled_sd <- sqrt((var(restored_soil) + var(degraded_soil)) / 2)
+d_manual <- (mean(restored_soil) - mean(degraded_soil)) / pooled_sd
+d_manual
+```
+
+Cohen's d = 2.6 is a very large effect.
+
+### Visualize
+
+```{r two-sample-plot, fig.cap="Figure 1. Aboveground biomass of *Bouteloua gracilis* seedlings grown in restored versus degraded soils. Points show individual measurements; diamonds indicate means ± SE. Seedlings grown in restored soil produced significantly greater biomass (p < 0.001)."}
+# Summary for plotting
+biomass_summary <- biomass_data %>%
+  group_by(soil_type) %>%
+  summarise(mean = mean(biomass), se = sd(biomass)/sqrt(n()))
+
+ggplot(biomass_data, aes(x = soil_type, y = biomass, color = soil_type)) +
+  geom_jitter(width = 0.1, alpha = 0.6, size = 2.5) +
+  geom_point(data = biomass_summary, aes(y = mean), 
+             shape = 18, size = 5) +
+  geom_errorbar(data = biomass_summary,
+                aes(y = mean, ymin = mean - se, ymax = mean + se),
+                width = 0.1, linewidth = 1) +
+  scale_color_manual(values = c("coral", "forestgreen")) +
+  labs(x = "Soil Type",
+       y = "Aboveground Biomass (g)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### Sample methods and results
+
+**Methods:**
+
+> We compared aboveground biomass of *Bouteloua gracilis* seedlings grown in soils collected from restored (n = 15) and degraded (n = 15) rangeland sites. Seedlings were grown in a greenhouse for 8 weeks under controlled conditions before harvest. We tested for differences in biomass between soil types using a two-sample t-test after confirming normality (Shapiro-Wilk test) and homogeneity of variance (Levene's test). Effect size was calculated as Cohen's d. All analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> Seedlings grown in restored soil produced significantly greater aboveground biomass than those grown in degraded soil (two-sample t-test: t₂₈ = 7.06, p < 0.001; **Fig. 1**). Mean biomass was 2.62 ± 0.04 g (mean ± SE) in restored soil compared to 2.03 ± 0.03 g in degraded soil, representing a 29% increase. The effect size was large (Cohen's d = 2.58).
+
+---
+
+## Paired t-test
+
+### The question
+
+"Do two related measurements differ?"
+
+Use this when observations are naturally paired: same subjects measured twice (before/after), matched pairs, or split-plot designs.
+
+### Ecological example
+
+You're testing whether a foliar fertilizer increases leaf chlorophyll content. You measure chlorophyll on each plant before treatment and again 2 weeks after treatment.
+
+```{r paired-data}
+# Chlorophyll content (SPAD units) before and after treatment
+# Each row is one plant
+plant_id <- 1:12
+before <- c(32.1, 35.4, 29.8, 38.2, 31.5, 36.7, 33.9, 30.2, 37.1, 34.6, 32.8, 35.9)
+after <-  c(36.8, 40.2, 34.5, 42.1, 35.8, 41.3, 38.7, 35.1, 42.6, 39.4, 37.2, 40.8)
+
+chlorophyll <- data.frame(plant_id, before, after)
+
+# Calculate the difference for each plant
+chlorophyll$difference <- chlorophyll$after - chlorophyll$before
+
+# Look at the differences
+chlorophyll
+mean(chlorophyll$difference)
+```
+
+The key: we analyze the *differences*, not the raw values. Each plant serves as its own control.
+
+### Why paired tests are more powerful
+
+```{r paired-visual, fig.cap="Paired data structure. Lines connect measurements from the same plant. Despite variation among plants in baseline chlorophyll, all plants showed an increase after treatment."}
+# Reshape for plotting
+chlorophyll_long <- chlorophyll %>%
+  pivot_longer(cols = c(before, after), 
+               names_to = "time", 
+               values_to = "chlorophyll") %>%
+  mutate(time = factor(time, levels = c("before", "after")))
+
+ggplot(chlorophyll_long, aes(x = time, y = chlorophyll, group = plant_id)) +
+  geom_line(alpha = 0.5) +
+  geom_point(aes(color = time), size = 3) +
+  scale_color_manual(values = c("steelblue", "coral")) +
+  labs(x = "Time", y = "Chlorophyll Content (SPAD)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Notice that plants vary considerably in baseline chlorophyll (29.8 to 38.2), but *every* plant increased. The paired design removes between-plant variation, making it easier to detect the treatment effect.
+
+### Hypotheses
+
+> **H₀:** μ_difference = 0 (no change from before to after)
+> 
+> **H_A:** μ_difference ≠ 0 (chlorophyll changed after treatment)
+
+### Check assumptions
+
+For paired t-tests, we check normality of the *differences*:
+
+```{r paired-assumptions}
+# Check normality of differences
+shapiro.test(chlorophyll$difference)
+
+# Visual check
+qqnorm(chlorophyll$difference, pch = 16, col = "steelblue",
+       main = "QQ Plot of Differences")
+qqline(chlorophyll$difference, col = "firebrick", lwd = 2)
+```
+
+### Run the test
+
+```{r paired-test}
+# Paired t-test
+t_paired <- t.test(chlorophyll$after, chlorophyll$before, paired = TRUE)
+t_paired
+
+# Equivalent: test if mean difference differs from zero
+t.test(chlorophyll$difference, mu = 0)
+```
+
+### Effect size
+
+For paired designs, Cohen's d uses the standard deviation of the differences:
+
+```{r paired-effect}
+d_paired <- mean(chlorophyll$difference) / sd(chlorophyll$difference)
+d_paired
+```
+
+### Results statement
+
+> Foliar fertilizer significantly increased leaf chlorophyll content (paired t-test: t₁₁ = 18.52, p < 0.001, Cohen's d = 5.35). Chlorophyll increased by an average of 4.65 SPAD units (95% CI: 4.10–5.21) from before (mean = 34.0, SD = 2.7) to after treatment (mean = 38.7, SD = 2.8).
+
+---
+
+## When assumptions are violated
+
+| Assumption | If violated... |
+|------------|----------------|
+| **Normality** | Use Wilcoxon rank-sum test (two-sample) or Wilcoxon signed-rank test (paired) |
+| **Equal variance** | Use Welch's t-test (default in R) |
+| **Independence** | Use mixed models or other approaches (see later chapters) |
+
+```{r nonparametric}
+# Wilcoxon rank-sum test (non-parametric alternative to two-sample t-test)
+wilcox.test(biomass ~ soil_type, data = biomass_data)
+
+# Wilcoxon signed-rank test (non-parametric alternative to paired t-test)
+wilcox.test(chlorophyll$after, chlorophyll$before, paired = TRUE)
+```
+
+---
+
+# Part 2: ANOVA
+
+## From t-test to ANOVA
+
+What if you have three or more groups? You might think: "I'll just do multiple t-tests!" 
+
+**Don't do this.** Here's why:
+
+With 3 groups (A, B, C), you'd need 3 comparisons: A vs. B, A vs. C, B vs. C. Each test has a 5% false positive rate. The probability of at least one false positive is:
+
+$$P(\text{at least one Type I error}) = 1 - (1 - 0.05)^3 = 0.14$$
+
+With 5 groups, this jumps to 40%. This is called the **multiple comparisons problem**.
+
+**ANOVA** (Analysis of Variance) solves this by testing all groups simultaneously with a single test, maintaining the overall Type I error rate at α = 0.05.
+
+## The logic of ANOVA
+
+ANOVA compares:
+- **Between-group variance**: How much do the group means differ from each other?
+- **Within-group variance**: How much do individuals vary within groups?
+
+These are combined into the **F-ratio**:
+
+$$F = \frac{\text{Between-group variance}}{\text{Within-group variance}} = \frac{MS_{between}}{MS_{within}}$$
+
+If groups are truly different, F will be large. If groups are similar, F will be close to 1.
+
+## One-way ANOVA
+
+### The question
+
+"Do the means of three or more groups differ?"
+
+### Ecological example
+
+You're studying how fire severity affects post-fire tree regeneration. You measure seedling density (seedlings per m²) in plots that experienced low, moderate, or high severity fire.
+
+```{r anova-data 1}
+# Seedling density (per m²) by fire severity
+low_severity <- c(12.3, 14.1, 11.8, 13.5, 12.7, 15.2, 13.1, 11.9, 14.5, 12.4)
+mod_severity <- c(8.2, 9.5, 7.8, 10.1, 8.9, 9.2, 8.5, 10.3, 7.6, 9.8)
+high_severity <- c(3.4, 4.8, 2.9, 5.2, 3.7, 4.1, 5.5, 3.2, 4.6, 3.9)
+
+# Combine into data frame
+seedling_density <- data.frame(
+  density = c(low_severity, mod_severity, high_severity),
+  severity = factor(rep(c("Low", "Moderate", "High"), each = 10),
+                    levels = c("Low", "Moderate", "High"))
+)
+
+# Summary
+seedling_density %>%
+  group_by(severity) %>%
+  summarise(
+    n = n(),
+    mean = mean(density),
+    sd = sd(density),
+    se = sd / sqrt(n)
+  )
+```
+
+### Hypotheses
+
+> **H₀:** μ_low = μ_moderate = μ_high (all group means are equal)
+> 
+> **H_A:** At least one group mean differs from the others
+
+Note: The alternative is vague. ANOVA tells us *whether* groups differ, not *which* groups differ. That requires post-hoc tests.
+
+### Check assumptions
+
+ANOVA assumes:
+1. **Independence**: Observations are independent
+2. **Normality**: Residuals are approximately normal (or n is large)
+3. **Homogeneity of variance**: Groups have similar spread (homoscedasticity)
+
+```{r anova-assumptions 1, fig.cap="Checking ANOVA assumptions. Left: Boxplots show similar spread across groups. Right: Residuals vs. fitted plot shows no obvious patterns."}
+# Visual check
+par(mfrow = c(1, 2))
+
+# Boxplots for spread
+boxplot(density ~ severity, data = seedling_density,
+        col = c("forestgreen", "orange", "firebrick"),
+        main = "Density by Fire Severity",
+        ylab = "Seedling Density (per m²)")
+
+# Fit model first to check residuals
+anova_model <- aov(density ~ severity, data = seedling_density)
+
+# Residuals vs fitted
+plot(fitted(anova_model), residuals(anova_model),
+     pch = 16, col = "steelblue",
+     xlab = "Fitted Values", ylab = "Residuals",
+     main = "Residuals vs Fitted")
+abline(h = 0, lty = 2, col = "firebrick")
+par(mfrow = c(1, 1))
+
+# Formal tests
+# Levene's test for homogeneity of variance
+leveneTest(density ~ severity, data = seedling_density)
+
+# Shapiro-Wilk on residuals
+shapiro.test(residuals(anova_model))
+```
+
+Assumptions are met: residuals are normal (Shapiro p = 0.97) and variances are homogeneous (Levene's p = 0.92).
+
+### Run the test
+
+```{r anova-test}
+# One-way ANOVA
+anova_model <- aov(density ~ severity, data = seedling_density)
+summary(anova_model)
+```
+
+### Interpret the ANOVA table
+
+| Column | Meaning |
+|--------|---------|
+| **Df** | Degrees of freedom: (k-1) for groups, (N-k) for residuals |
+| **Sum Sq** | Sum of squares: variance attributed to each source |
+| **Mean Sq** | Sum Sq / Df: variance per degree of freedom |
+| **F value** | MS_between / MS_within: the test statistic |
+| **Pr(>F)** | p-value |
+
+**Interpretation:** F₂,₂₇ = 194.5, p < 0.001. At least one fire severity level differs significantly from the others.
+
+### Effect size
+
+For ANOVA, **eta-squared (η²)** measures the proportion of variance explained by the grouping factor:
+
+```{r anova-effect 1}
+# Calculate eta-squared
+ss_between <- summary(anova_model)[[1]]["severity", "Sum Sq"]
+ss_total <- sum(summary(anova_model)[[1]][, "Sum Sq"])
+eta_squared <- ss_between / ss_total
+eta_squared
+
+# Using effectsize package
+eta_squared(anova_model)
+
+# Omega-squared (less biased estimate)
+omega_squared(anova_model)
+```
+
+η² = 0.94 means fire severity explains 94% of the variance in seedling density—an enormous effect.
+
+**Interpretation benchmarks:**
+- η² = 0.01: Small effect
+- η² = 0.06: Medium effect
+- η² = 0.14: Large effect
+
+### Post-hoc tests: Which groups differ?
+
+A significant ANOVA tells us groups differ, but not which ones. **Post-hoc tests** make pairwise comparisons while controlling the overall Type I error rate.
+
+**Tukey's HSD (Honestly Significant Difference)** is the most common:
+
+```{r posthoc-tukey}
+# Tukey's HSD
+tukey_result <- TukeyHSD(anova_model)
+tukey_result
+
+# Plot the results
+plot(tukey_result, col = "steelblue")
+```
+
+**Reading Tukey output:**
+- `diff`: Difference between group means
+- `lwr`, `upr`: 95% confidence interval for the difference
+- `p adj`: p-value adjusted for multiple comparisons
+
+All three pairwise comparisons are significant (all p adj < 0.001).
+
+**Alternative: emmeans package** (more flexible)
+
+```{r posthoc-emmeans}
+# Estimated marginal means
+emm <- emmeans(anova_model, ~ severity)
+emm
+
+# Pairwise comparisons
+pairs(emm)
+
+# Compact letter display (for figures)
+cld(emm, Letters = letters)
+```
+
+### Visualize
+
+```{r anova-plot 1, fig.cap="Figure 2. Seedling density decreases with increasing fire severity. Different letters indicate significant differences (Tukey's HSD, p < 0.05). Points show individual plot measurements; bars show means ± SE."}
+# Get compact letter display
+cld_result <- cld(emm, Letters = letters)
+cld_df <- as.data.frame(cld_result)
+
+# Summary for error bars
+density_summary <- seedling_density %>%
+  group_by(severity) %>%
+  summarise(mean = mean(density), se = sd(density)/sqrt(n()))
+
+ggplot(seedling_density, aes(x = severity, y = density, fill = severity)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.6, size = 2) +
+  geom_text(data = cld_df, aes(x = severity, y = emmean + 2, label = .group),
+            size = 5, fontface = "bold") +
+  scale_fill_manual(values = c("forestgreen", "orange", "firebrick")) +
+  labs(x = "Fire Severity",
+       y = expression("Seedling Density (per m"^2*")")) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### Sample methods and results
+
+**Methods:**
+
+> We assessed the effect of fire severity on post-fire seedling regeneration by measuring seedling density (seedlings per m²) in plots (n = 10 per severity class) that experienced low, moderate, or high severity fire during the 2020 fire season. Plots were established one year post-fire using a stratified random design. We compared seedling density among fire severity classes using one-way ANOVA after confirming normality of residuals (Shapiro-Wilk test: W = 0.98, p = 0.97) and homogeneity of variance (Levene's test: F₂,₂₇ = 0.08, p = 0.92). Effect size was estimated as eta-squared. Post-hoc pairwise comparisons were conducted using Tukey's HSD with a family-wise error rate of α = 0.05. All analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> Seedling density differed significantly among fire severity classes (one-way ANOVA: F₂,₂₇ = 194.5, p < 0.001, η² = 0.94; **Fig. 2**). Post-hoc comparisons revealed that all severity classes differed significantly from one another (Tukey's HSD, all p < 0.001). Low-severity plots had the highest seedling density (mean = 13.15 ± 0.37 seedlings/m², mean ± SE), followed by moderate-severity (8.99 ± 0.29) and high-severity plots (4.13 ± 0.27). Seedling density in high-severity plots was 69% lower than in low-severity plots.
+
+---
+
+## Beyond one-way ANOVA
+
+### Two-way ANOVA (Factorial designs)
+
+What if you have two categorical predictors? **Two-way ANOVA** tests:
+1. Main effect of factor A
+2. Main effect of factor B  
+3. Interaction between A and B
+
+```{r two-way-example, eval=FALSE}
+# Example: Effects of fire severity AND herbivore exclusion on seedling density
+two_way_model <- aov(density ~ severity * herbivore_treatment, data = factorial_data)
+summary(two_way_model)
+
+# Post-hoc for significant effects
+emmeans(two_way_model, pairwise ~ severity | herbivore_treatment)
+```
+
+We'll cover factorial designs in more depth in later chapters.
+
+### ANCOVA (Continuous covariate)
+
+What if you want to compare groups while controlling for a continuous variable? **ANCOVA** combines ANOVA with regression.
+
+```{r ancova-example, eval=FALSE}
+# Example: Compare seedling density by severity, controlling for elevation
+ancova_model <- aov(density ~ elevation + severity, data = seedling_data)
+summary(ancova_model)
+```
+
+---
+
+## The connection to linear models
+
+Here's an important insight: **t-tests and ANOVA are special cases of linear regression**.
+
+```{r lm-connection}
+# ANOVA using aov()
+summary(aov(density ~ severity, data = seedling_density))
+
+# Same analysis using lm()
+summary(lm(density ~ severity, data = seedling_density))
+```
+
+Notice that:
+- The lm() output shows coefficients comparing each group to a reference (Low severity)
+- The F-statistic and p-value match the ANOVA output
+- The R² from lm() equals η² from ANOVA
+
+This connection becomes crucial in the GLM chapter, where we unify all these approaches.
+
+---
+
+## Summary: t-tests vs. ANOVA
+
+| Situation | Test | R function |
+|-----------|------|------------|
+| Sample mean vs. known value | One-sample t-test | `t.test(x, mu = value)` |
+| Two independent groups | Two-sample t-test | `t.test(y ~ group, data)` |
+| Two related measurements | Paired t-test | `t.test(after, before, paired = TRUE)` |
+| Three+ independent groups | One-way ANOVA | `aov(y ~ group, data)` |
+| Two+ factors | Two-way ANOVA | `aov(y ~ A * B, data)` |
+| Groups + continuous covariate | ANCOVA | `aov(y ~ covariate + group, data)` |
+
+## Key assumptions and alternatives
+
+| Assumption | Check with | If violated |
+|------------|------------|-------------|
+| Normality | QQ plot, Shapiro-Wilk | Wilcoxon (t-test), Kruskal-Wallis (ANOVA) |
+| Equal variance | Boxplot, Levene's test | Welch's t-test, Welch's ANOVA, or transform |
+| Independence | Study design | Mixed models |
+
+## Key takeaways
+
+1. **t-tests and ANOVA share the same logic**: comparing between-group variance to within-group variance
+
+2. **Choose based on your design**: t-test for 2 groups, ANOVA for 3+
+
+3. **Always check assumptions** before interpreting results
+
+4. **ANOVA tests overall difference**: use post-hoc tests to identify which groups differ
+
+5. **Report effect sizes**: η² for ANOVA, Cohen's d for t-tests
+
+6. **These are all linear models**: Understanding this prepares you for GLMs
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Explain in your own words why running multiple t-tests is problematic when comparing more than two groups.
+
+2. An ANOVA gives F₃,₃₆ = 3.45, p = 0.027. What can you conclude? What can you *not* conclude without additional tests?
+
+3. When would you use a paired t-test instead of a two-sample t-test? Give an ecological example.
+
+### Part 2: t-test analysis
+
+Use the following data on nectar volume (μL) from flowers at two sites:
+
+```{r assignment-ttest-data}
+site_meadow <- c(4.2, 5.1, 3.8, 4.7, 5.3, 4.5, 3.9, 4.8, 5.0, 4.3,
+                 4.6, 5.2, 4.1, 4.9, 4.4)
+site_forest <- c(3.1, 3.8, 2.9, 3.5, 4.0, 3.3, 2.7, 3.6, 3.9, 3.2,
+                 3.4, 3.7, 3.0, 3.8, 3.3)
+```
+
+Complete the following:
+1. State hypotheses
+2. Check assumptions (with plots)
+3. Run the appropriate t-test
+4. Calculate effect size
+5. Create a publication-quality figure
+6. Write methods and results sections following the templates in this chapter
+
+### Part 3: ANOVA analysis
+
+Use the following data on pollinator visit duration (seconds) across three plant species:
+
+```{r assignment-anova-data}
+species_a <- c(12, 15, 11, 14, 13, 16, 12, 14, 15, 13)
+species_b <- c(18, 22, 19, 21, 20, 23, 19, 21, 22, 20)
+species_c <- c(8, 10, 7, 9, 11, 8, 10, 9, 7, 10)
+```
+
+Complete the following:
+1. State hypotheses
+2. Check assumptions
+3. Run one-way ANOVA
+4. Run post-hoc tests and interpret
+5. Calculate effect size
+6. Create a figure with significance letters
+7. Write methods and results sections
+
+### Part 4: Reflection
+
+In 2-3 sentences, explain how understanding that t-tests and ANOVA are both forms of linear regression might help you learn more advanced statistical methods.

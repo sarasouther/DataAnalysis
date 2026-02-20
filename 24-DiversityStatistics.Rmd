@@ -1,0 +1,628 @@
+# Diversity Statistics
+
+Sara add in information from Diversity Statistics old
+
+How do we describe the variety of life in a community? Simple species counts—species richness—have been used for centuries. But richness alone misses important information: Are species equally abundant, or does one species dominate? Did we sample enough to detect all species present?
+
+Modern diversity statistics address these limitations by:
+- Incorporating **evenness** (relative abundance) alongside richness
+- Using **rarefaction and extrapolation** to account for sampling effort
+- Expressing diversity as **Hill numbers** for meaningful comparisons
+
+This chapter covers the theory and practice of measuring diversity, with emphasis on the `iNEXT` framework that unifies these approaches.
+
+## The challenge of measuring diversity
+
+Diversity seems simple: count the species. But consider two communities:
+
+| Community | Species A | Species B | Species C | Species D | Richness |
+|-----------|-----------|-----------|-----------|-----------|----------|
+| **Community 1** | 97 | 1 | 1 | 1 | 4 |
+| **Community 2** | 25 | 25 | 25 | 25 | 4 |
+
+Both have richness = 4, but they feel different. Community 1 is dominated by one species; Community 2 has equal representation. We need metrics that capture this difference.
+
+Additionally, **sampling effort matters**. The more you look, the more species you find. A community sampled with 100 traps will appear more diverse than one sampled with 10 traps—even if true diversity is identical.
+
+## Setup
+
+```{r setup-diversity, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(iNEXT)
+library(vegan)
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Types of Diversity Data
+
+Before calculating diversity, you must understand what type of data you have. This determines which methods are appropriate.
+
+## Abundance data
+
+**Abundance data** includes counts or measures of how many individuals of each species are present.
+
+**Examples:**
+- Number of individuals per species from pitfall traps
+- Counts of birds at point counts
+- Percent cover of plant species in quadrats
+
+**Format:** Species × site matrix with abundance values
+
+```{r abundance-example}
+# Example abundance data: spider counts from two treatments
+data("spider")
+spider
+```
+
+In abundance data, the **sampling unit is an individual**. Rarefaction works by randomly removing individuals.
+
+## Incidence (presence/absence) data
+
+**Incidence data** records only whether a species was detected (1) or not (0) in each sampling unit—no abundance information.
+
+**Examples:**
+- Species presence/absence in quadrats
+- Detection/non-detection across survey visits
+- Species lists from multiple sites
+
+**Why use incidence instead of abundance?**
+
+When individuals within a sampling unit are **not independent** (e.g., plants in a quadrat share soil conditions), treating abundance data as independent counts violates statistical assumptions. Converting to incidence data (present/absent per quadrat) addresses this.
+
+**Format:** Species × sampling unit matrix with 0/1 values
+
+```{r incidence-example}
+# Example incidence data: ciliates in coastal dunes
+data("ciliates")
+str(ciliates)
+# Each element is a species × plot matrix for one habitat
+```
+
+## Incidence frequency data
+
+A compact form of incidence data that summarizes **how many sampling units contained each species**.
+
+**Format:** First value = total number of sampling units; subsequent values = frequency of each species
+
+```{r incidence-freq-example}
+# Example: ant data from different elevations
+data("ant")
+str(ant)
+# First number is total traps; rest are species frequencies
+ant$h50m[1:10]  # 599 traps, then species frequencies
+```
+
+## Choosing between data types
+
+```{r data-type-table, echo=FALSE}
+data_types <- data.frame(
+  `Your data` = c(
+    "Counts of individuals, independently sampled",
+    "Counts within plots/quadrats (individuals not independent)",
+    "Presence/absence across sampling units",
+    "Species lists from multiple surveys"
+  ),
+  `Data type` = c(
+    "Abundance",
+    "Convert to incidence",
+    "Incidence (raw)",
+    "Incidence (frequency)"
+  ),
+  `iNEXT datatype` = c(
+    '"abundance"',
+    '"incidence_raw"',
+    '"incidence_raw"',
+    '"incidence_freq"'
+  ),
+  check.names = FALSE
+)
+knitr::kable(data_types, caption = "Choosing the appropriate data type for diversity analysis")
+```
+
+**Key principle:** The sampling unit for rarefaction should be the level at which observations are independent. For quadrat-based plant surveys, this is usually the quadrat (incidence), not the individual plant (abundance).
+
+---
+
+# Part 2: Diversity Metrics and Hill Numbers
+
+## Classic diversity indices
+
+### Species richness (S)
+
+The simplest metric: count of species present.
+
+- **Pros:** Intuitive, widely understood
+- **Cons:** Ignores abundance, highly sensitive to sampling effort
+
+### Shannon diversity index (H')
+
+Incorporates both richness and evenness:
+
+$$H' = -\sum_{i=1}^{S} p_i \ln(p_i)$$
+
+where $p_i$ is the proportion of individuals belonging to species $i$.
+
+- **Pros:** Weights species by abundance
+- **Cons:** Not intuitive (what does H' = 2.3 mean?), doesn't follow "doubling rule"
+
+### Simpson diversity index (D)
+
+Probability that two randomly selected individuals belong to different species:
+
+$$D = 1 - \sum_{i=1}^{S} p_i^2$$
+
+- **Pros:** Less sensitive to rare species
+- **Cons:** Also not intuitive, bounded between 0 and 1
+
+## The problem with indices
+
+These indices don't behave intuitively. If you double the number of equally-common species, Shannon's H' doesn't double—it increases by ln(2) ≈ 0.69. This makes comparisons difficult.
+
+**Example:**
+
+```{r index-problem}
+# Two communities
+comm_a <- c(50, 50)  # 2 species, equal abundance
+comm_b <- c(25, 25, 25, 25)  # 4 species, equal abundance
+
+# Shannon indices
+H_a <- -sum((comm_a/sum(comm_a)) * log(comm_a/sum(comm_a)))
+H_b <- -sum((comm_b/sum(comm_b)) * log(comm_b/sum(comm_b)))
+
+cat("Community A (2 species): H' =", round(H_a, 3), "\n")
+cat("Community B (4 species): H' =", round(H_b, 3), "\n")
+cat("Ratio:", round(H_b/H_a, 3), "(should be 2 if doubling rule held)\n")
+```
+
+## Hill numbers: The solution
+
+**Hill numbers** (also called "effective number of species") convert diversity indices to a common, interpretable scale:
+
+$$^qD = \left(\sum_{i=1}^{S} p_i^q\right)^{1/(1-q)}$$
+
+The parameter **q** determines sensitivity to rare species:
+
+| q | Name | Interpretation | Sensitive to |
+|---|------|----------------|--------------|
+| 0 | Richness | Number of species | All species equally |
+| 1 | Shannon diversity | Effective number of common species | Species weighted by frequency |
+| 2 | Simpson diversity | Effective number of dominant species | Mainly common species |
+
+**The key insight:** Hill numbers follow the **doubling rule**. A community with 8 equally-common species has diversity = 8. Double the species (to 16), and diversity doubles to 16.
+
+```{r hill-numbers}
+# Hill numbers for our example communities
+# q = 0 (richness)
+q0_a <- length(comm_a)
+q0_b <- length(comm_b)
+
+# q = 1 (exp of Shannon)
+q1_a <- exp(H_a)
+q1_b <- exp(H_b)
+
+# q = 2 (inverse Simpson)
+p_a <- comm_a/sum(comm_a)
+p_b <- comm_b/sum(comm_b)
+q2_a <- 1/sum(p_a^2)
+q2_b <- 1/sum(p_b^2)
+
+cat("Community A - q0:", q0_a, ", q1:", round(q1_a, 2), ", q2:", round(q2_a, 2), "\n")
+cat("Community B - q0:", q0_b, ", q1:", round(q1_b, 2), ", q2:", round(q2_b, 2), "\n")
+cat("Ratio (B/A) - q0:", q0_b/q0_a, ", q1:", round(q1_b/q1_a, 2), ", q2:", round(q2_b/q2_a, 2), "\n")
+```
+
+With Hill numbers, the ratio is exactly 2—doubling species doubles diversity!
+
+## Interpreting Hill numbers
+
+Think of Hill numbers as answering: "How many equally-common species would give the same diversity?"
+
+- **q = 0:** Counts all species, regardless of abundance
+- **q = 1:** Weights by abundance; rare species count less
+- **q = 2:** Mainly reflects dominant species
+
+A community with $^1D = 10$ has the same Shannon diversity as a community of 10 equally-common species.
+
+---
+
+# Part 3: The Sampling Problem
+
+## You never find all the species
+
+The more you sample, the more species you detect. This creates two problems:
+
+1. **Observed richness underestimates true richness**
+2. **Communities sampled with different effort can't be compared fairly**
+
+```{r accumulation-concept, fig.cap="Species accumulation curve: observed richness increases with sampling effort. The curve approaches but never reaches the true richness (dashed line)."}
+# Simulate species accumulation
+set.seed(123)
+true_richness <- 50
+individuals <- 500
+
+# Community with log-series abundance distribution
+abundances <- ceiling(100 * exp(-0.1 * 1:true_richness))
+abundances <- abundances[abundances > 0]
+species_pool <- rep(1:length(abundances), abundances)
+
+# Sample and accumulate
+samples <- sample(species_pool, individuals, replace = TRUE)
+accumulation <- sapply(1:individuals, function(n) length(unique(samples[1:n])))
+
+plot(1:individuals, accumulation, type = "l", lwd = 2, col = "steelblue",
+     xlab = "Number of individuals sampled",
+     ylab = "Species observed",
+     main = "Species Accumulation Curve")
+abline(h = length(abundances), lty = 2, col = "firebrick")
+text(400, length(abundances) + 2, "True richness", col = "firebrick")
+```
+
+## Rarefaction: Standardizing by sample size
+
+**Rarefaction** asks: "If I had sampled fewer individuals, how many species would I expect to see?"
+
+By down-sampling larger samples to match smaller ones, we can compare communities fairly.
+
+```{r rarefaction-concept, fig.cap="Rarefaction allows fair comparison by standardizing sample size. The rarefied estimate (blue point) shows expected richness at the smaller sample size."}
+# Two samples of different sizes
+sample_large <- sample(species_pool, 400, replace = TRUE)
+sample_small <- sample(species_pool, 100, replace = TRUE)
+
+# Observed richness
+obs_large <- length(unique(sample_large))
+obs_small <- length(unique(sample_small))
+
+# Rarefy large sample to size of small sample
+rarefied <- rarefy(table(sample_large), sample = 100)
+
+cat("Large sample (n=400): observed =", obs_large, "species\n")
+cat("Small sample (n=100): observed =", obs_small, "species\n")
+cat("Large sample rarefied to n=100:", round(rarefied, 1), "species\n")
+```
+
+## Extrapolation: Predicting unseen diversity
+
+**Extrapolation** extends the accumulation curve beyond your sample to estimate true richness.
+
+This uses information about **rare species**—species seen only once or twice—to estimate how many species remain undetected. (This approach was developed by Alan Turing while breaking the Enigma code!)
+
+## Sample coverage: A better standardization
+
+**Sample coverage** measures what fraction of the community's individuals belong to detected species:
+
+$$\hat{C} = 1 - \frac{f_1}{n}$$
+
+where $f_1$ is the number of singleton species (seen once) and $n$ is total individuals.
+
+Coverage tells you how **complete** your sample is. A sample with 95% coverage has detected species representing 95% of individuals in the community.
+
+**Coverage-based standardization** compares communities at equal coverage rather than equal sample size—often more meaningful ecologically.
+
+---
+
+# Part 4: The iNEXT Framework
+
+`iNEXT` (iNterpolation and EXTrapolation) provides a unified framework for diversity estimation that:
+
+1. Calculates Hill numbers (q = 0, 1, 2)
+2. Generates rarefaction/extrapolation curves
+3. Standardizes by sample size OR coverage
+4. Provides confidence intervals via bootstrapping
+
+## Basic workflow
+
+```{r inext-basic}
+# Load spider abundance data
+data("spider")
+spider
+
+# Run iNEXT for Hill numbers q = 0, 1, 2
+spider_inext <- iNEXT(spider, q = c(0, 1, 2), datatype = "abundance")
+
+# View asymptotic estimates
+spider_inext$AsyEst
+```
+
+### Understanding the output
+
+The `$AsyEst` table shows:
+
+- **Observed:** Diversity in your sample
+- **Estimator:** Asymptotic estimate (extrapolated true diversity)
+- **s.e.:** Standard error of estimate
+- **LCL/UCL:** 95% confidence interval
+
+## Visualizing rarefaction/extrapolation curves
+
+```{r inext-plot, fig.cap="Rarefaction/extrapolation curves for spider communities under two treatments. Solid lines show rarefaction (interpolation); dashed lines show extrapolation. Shaded regions are 95% confidence intervals."}
+# Plot R/E curves
+ggiNEXT(spider_inext, type = 1, facet.var = "Assemblage") +
+  theme_minimal() +
+  labs(title = "Spider Diversity: Girdled vs. Logged Treatments")
+```
+
+**Reading the plot:**
+- **Solid portion:** Rarefaction (observed data)
+- **Dashed portion:** Extrapolation (predicted)
+- **Shading:** 95% confidence interval
+- **Point:** Your actual sample
+
+## Sample size-based vs. coverage-based comparison
+
+```{r inext-coverage, fig.cap="Coverage-based R/E curves standardize by sample completeness rather than sample size, often providing more ecologically meaningful comparisons."}
+# Plot by sample coverage
+ggiNEXT(spider_inext, type = 3, facet.var = "Order.q") +
+  theme_minimal() +
+  labs(title = "Diversity by Sample Coverage")
+```
+
+## Comparing at standardized coverage
+
+Use `estimateD()` to get diversity estimates at a specified coverage level:
+
+```{r estimate-coverage}
+# Compare at 95% coverage
+estimateD(spider, datatype = "abundance", base = "coverage", 
+          level = 0.95, conf = 0.95)
+```
+
+## Working with incidence data
+
+```{r inext-incidence}
+# Ant data: incidence frequencies from 5 elevations
+data("ant")
+str(ant)
+
+# Run iNEXT for incidence data
+ant_inext <- iNEXT(ant, q = c(0, 1, 2), datatype = "incidence_freq")
+
+# Plot
+ggiNEXT(ant_inext, type = 1, facet.var = "Order.q") +
+  theme_minimal() +
+  labs(title = "Ant Diversity Across Elevations")
+```
+
+---
+
+# Part 5: Data Preparation for iNEXT
+
+Getting your data into the right format is often the hardest part. Here are common scenarios:
+
+## From a site × species matrix (abundance)
+
+```{r prep-abundance}
+# Example: convert wide matrix to iNEXT list format
+# Suppose you have a site × species matrix
+site_species <- matrix(
+  c(10, 5, 3, 0, 2,
+    8, 12, 0, 4, 1,
+    15, 3, 7, 2, 0),
+  nrow = 3, byrow = TRUE,
+  dimnames = list(
+    c("SiteA", "SiteB", "SiteC"),
+    c("Sp1", "Sp2", "Sp3", "Sp4", "Sp5")
+  )
+)
+
+site_species
+
+# Convert to list (each element = one site's abundances)
+abundance_list <- lapply(1:nrow(site_species), function(i) {
+  x <- site_species[i, ]
+  x[x > 0]  # Remove zeros
+})
+names(abundance_list) <- rownames(site_species)
+
+abundance_list
+```
+
+## From a site × species matrix (incidence)
+
+```{r prep-incidence}
+# For incidence data: need species × sampling unit matrices
+# Example: 3 treatments, multiple plots per treatment
+
+# Simulate data
+set.seed(42)
+treatment_A <- matrix(rbinom(50, 1, 0.3), nrow = 10, ncol = 5,
+                      dimnames = list(paste0("Sp", 1:10), paste0("Plot", 1:5)))
+treatment_B <- matrix(rbinom(50, 1, 0.5), nrow = 10, ncol = 5,
+                      dimnames = list(paste0("Sp", 1:10), paste0("Plot", 1:5)))
+
+# Create list for iNEXT
+incidence_list <- list(
+  Treatment_A = treatment_A,
+  Treatment_B = treatment_B
+)
+
+# Run with incidence_raw
+# iNEXT(incidence_list, q = 0, datatype = "incidence_raw")
+```
+
+## From long-format data
+
+```{r prep-long}
+# Common format: one row per observation
+long_data <- data.frame(
+  Site = rep(c("Control", "Treatment"), each = 50),
+  Species = c(
+    sample(c("Sp1", "Sp2", "Sp3", "Sp4"), 50, replace = TRUE, 
+           prob = c(0.4, 0.3, 0.2, 0.1)),
+    sample(c("Sp1", "Sp2", "Sp3", "Sp4", "Sp5"), 50, replace = TRUE, 
+           prob = c(0.2, 0.2, 0.2, 0.2, 0.2))
+  )
+)
+
+head(long_data)
+
+# Convert to abundance list
+abundance_from_long <- long_data %>%
+  group_by(Site, Species) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  pivot_wider(names_from = Species, values_from = Count, values_fill = 0)
+
+# To list format
+sites <- unique(long_data$Site)
+inext_list <- lapply(sites, function(s) {
+  counts <- long_data %>%
+    filter(Site == s) %>%
+    count(Species) %>%
+    pull(n)
+  counts
+})
+names(inext_list) <- sites
+
+inext_list
+```
+
+---
+
+# Part 6: Experimental Design for Diversity Studies
+
+Your sampling design affects what diversity metrics you can calculate and how you should analyze them.
+
+## Key design considerations
+
+### 1. What is your sampling unit?
+
+| Sampling approach | Sampling unit | Data type |
+|-------------------|---------------|-----------|
+| Point counts (one per site) | Individual | Abundance |
+| Quadrats within sites | Quadrat | Incidence |
+| Repeated visits to same site | Visit | Incidence |
+| Pitfall traps (pooled per site) | Individual | Abundance |
+
+### 2. How many sampling units do you need?
+
+For reliable extrapolation, you need:
+- **Enough samples to characterize the community** (capture common species)
+- **Some rare species** (singletons/doubletons inform extrapolation)
+- **Sample coverage > 50%** (ideally > 80%) for reliable estimates
+
+### 3. Replication for statistical comparison
+
+To test whether diversity differs between treatments/sites:
+- You need **replicate sites** (not just replicate quadrats within one site)
+- Rarefaction accounts for sampling effort, but **not for site-level replication**
+- For statistical tests, use the **site** as the unit of replication
+
+## Example: Comparing diversity between treatments
+
+```{r design-example}
+# Scenario: 3 control plots, 3 treatment plots
+# 5 quadrats per plot, presence/absence data
+
+# This is a nested design:
+# - Treatment (fixed effect)
+# - Plot (random effect, nested in treatment)
+# - Quadrat (sampling unit for diversity estimation)
+
+# For diversity estimation: combine quadrats within each plot
+# For statistical comparison: plots are the replicates (n = 3 per treatment)
+
+# DON'T: Compare rarefied diversity using quadrats as replicates (pseudoreplication)
+# DO: Calculate diversity per plot, then compare plots between treatments
+```
+
+## Workflow for comparing treatments
+
+1. **Calculate diversity per replicate site/plot** using iNEXT
+2. **Extract diversity estimates** at standardized coverage
+3. **Use standard statistical tests** (t-test, ANOVA) on site-level diversity values
+
+```{r compare-diversity}
+# Example: diversity estimates from 6 sites (3 per treatment)
+diversity_data <- data.frame(
+  Treatment = rep(c("Control", "Fertilized"), each = 3),
+  Site = paste0("Site", 1:6),
+  q0 = c(12, 14, 11, 18, 22, 19),  # Richness estimates
+  q1 = c(8.2, 9.1, 7.8, 12.4, 14.1, 11.8)  # Shannon diversity
+)
+
+# Statistical comparison
+t.test(q0 ~ Treatment, data = diversity_data)
+t.test(q1 ~ Treatment, data = diversity_data)
+```
+
+---
+
+# Part 7: Reporting Diversity Results
+
+## What to report
+
+1. **Data type** and sampling design
+2. **Which Hill numbers** you calculated (q = 0, 1, 2)
+3. **Standardization method** (sample size or coverage)
+4. **Observed vs. estimated** diversity (with confidence intervals)
+5. **Sample completeness** (coverage)
+6. **Figure** showing R/E curves
+
+## Sample methods and results
+
+### Methods
+
+> We quantified plant species diversity in grazed and ungrazed grasslands using the iNEXT framework (Chao et al. 2014). At each of 12 sites (6 per treatment), we recorded species presence/absence in 10 randomly placed 1-m² quadrats. We calculated Hill numbers of order q = 0 (species richness), q = 1 (Shannon diversity), and q = 2 (Simpson diversity) for each site. Because quadrats within sites are not independent sampling units, we used incidence-based methods with quadrats as sampling units. We generated rarefaction/extrapolation curves and standardized comparisons at 90% sample coverage. Confidence intervals were calculated using 200 bootstrap replicates. Site-level diversity estimates were compared between treatments using Welch's t-tests. Analyses were conducted using the iNEXT package in R version 4.3.1.
+
+### Results
+
+> Ungrazed sites had significantly higher species richness than grazed sites when standardized to 90% sample coverage (ungrazed: 24.3 ± 2.1 species, grazed: 17.8 ± 1.8 species, mean ± SE; t₁₀ = 3.42, p = 0.007; **Fig. X**). Shannon diversity showed a similar pattern (ungrazed: $^1D$ = 18.2 ± 1.6, grazed: $^1D$ = 12.4 ± 1.3; t₁₀ = 4.12, p = 0.002), while Simpson diversity did not differ significantly (ungrazed: $^2D$ = 12.1 ± 1.2, grazed: $^2D$ = 10.2 ± 1.1; t₁₀ = 1.82, p = 0.10). Rarefaction/extrapolation curves indicated that sample coverage exceeded 85% at all sites (**Fig. X**), suggesting adequate sampling for diversity estimation.
+
+---
+
+## Key takeaways
+
+1. **Know your data type** — Abundance vs. incidence determines your analytical approach
+
+2. **Use Hill numbers** — They're interpretable, comparable, and follow the doubling rule
+
+3. **Rarefaction standardizes, extrapolation estimates** — Together they enable fair comparisons
+
+4. **Coverage-based standardization** is often more meaningful than size-based
+
+5. **Your sampling unit matters** — Quadrats within sites should usually be treated as incidence data
+
+6. **Don't pseudoreplicate** — Sites (not quadrats within sites) are typically your replicates for statistical comparison
+
+7. **Report both observed and estimated diversity** with confidence intervals
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. A colleague reports Shannon index values of H' = 2.1 for Site A and H' = 2.8 for Site B. Why might converting these to Hill numbers ($^1D$) be more useful for comparison?
+
+2. You sampled 100 individuals and detected 25 species with 80% sample coverage. Your colleague sampled 500 individuals and detected 40 species with 95% coverage. Can you directly compare these richness values? What would you do instead?
+
+3. You collected plant cover data in 20 quadrats per site across 5 sites. Should you use abundance or incidence data for iNEXT analysis? Why?
+
+### Part 2: iNEXT analysis
+
+Using the built-in `spider` data:
+
+```{r assignment-inext}
+data("spider")
+```
+
+1. Run iNEXT for all three Hill numbers (q = 0, 1, 2)
+2. Create R/E curves (type = 1) and interpret them
+3. Compare diversity at 95% sample coverage using `estimateD()`
+4. Create a publication-quality figure
+5. Write a results paragraph
+
+### Part 3: Data preparation
+
+Create a mock dataset with the following structure and format it for iNEXT:
+
+- 2 treatments (Control, Burned)
+- 3 sites per treatment
+- 8 quadrats per site
+- 15 species total, with different detection frequencies
+
+### Part 4: Reflection
+
+In 2-3 sentences, explain why the concept of "effective number of species" (Hill numbers) is more useful than raw diversity indices for ecological interpretation.

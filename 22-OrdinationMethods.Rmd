@@ -1,2 +1,454 @@
-# Ordination station
+# Ordination Methods
+
+Community ecology data are inherently **high-dimensional**. If you sample 50 species across 30 sites, you have a 30 × 50 matrix—far too complex to visualize directly. How do you see patterns in this cloud of data?
+
+**Ordination** reduces this complexity by projecting high-dimensional data onto a few interpretable axes. Sites that are similar in species composition appear close together; dissimilar sites appear far apart. The result is a plot where you can literally *see* community patterns.
+
+This chapter covers the most common ordination techniques in ecology:
+
+- **NMDS (Non-metric Multidimensional Scaling):** The workhorse for community data
+- **PCA (Principal Components Analysis):** Best for environmental gradients
+- **CA/DCA:** For unimodal species responses (briefly)
+
+We'll focus on NMDS, as it's the most widely used and flexible approach for ecological community data.
+
+## The core idea
+
+Imagine you've measured the abundance of every species at each of your sites. Each site can be placed in a multi-dimensional space, with one axis for each species:
+
+- **1 species:** Sites vary along a single axis
+- **2 species:** Sites exist in a 2D plane
+- **3 species:** Sites occupy 3D space
+- **50 species:** Sites live in 50-dimensional space (impossible to visualize!)
+
+Ordination finds the **best low-dimensional representation** of this high-dimensional structure. It answers: "If I could only show you 2 axes, which 2 axes would best preserve the distances between sites?"
+
+## Setup
+
+```{r setup-ordination, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(vegan)         # The main community ecology package
+library(ggvegan)       # ggplot2 compatibility for vegan
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Visualizing Ordination Logic
+
+Let's build intuition for what ordination does using a simple example.
+
+## One species
+
+With one species, comparing sites is easy—just compare abundances:
+
+```{r one-species, fig.cap="With one species, sites vary along a single dimension."}
+# One species: Linum lewisii abundance at 2 sites
+plot(0:10, rep(0, 11), type = "n", axes = FALSE, 
+     xlab = "Abundance of Linum lewisii", ylab = "")
+axis(1)
+points(1, 0, pch = 19, cex = 2, col = "coral")
+points(5, 0, pch = 19, cex = 2, col = "steelblue")
+text(1, 0.3, "Dryland", cex = 0.9)
+text(5, 0.3, "Wetland", cex = 0.9)
+```
+
+## Two species
+
+Adding a second species creates a 2D space:
+
+```{r two-species, fig.cap="With two species, sites exist in 2D space. The distance between points reflects community dissimilarity."}
+# Two species
+plot(0:10, 0:10, type = "n",
+     xlab = "Linum lewisii abundance",
+     ylab = "Juglans arizonica abundance")
+points(1, 0, pch = 19, cex = 2, col = "coral")
+points(5, 5, pch = 19, cex = 2, col = "steelblue")
+text(1.5, 0.5, "Dryland", cex = 0.9)
+text(5.5, 5.5, "Wetland", cex = 0.9)
+
+# Show distance
+segments(1, 0, 5, 5, lty = 2, col = "gray50")
+```
+
+## Three species... and beyond
+
+```{r three-species, fig.cap="With three species, we need 3D visualization. With more species, we can't visualize directly—we need ordination."}
+library(scatterplot3d)
+
+# Three species
+s3d <- scatterplot3d(0:10, 0:10, 0:10, type = "n",
+                     xlab = "Linum", ylab = "Juglans", zlab = "Quercus",
+                     main = "Three Species Space")
+s3d$points3d(1, 0, 3, pch = 19, cex = 2, col = "coral")
+s3d$points3d(5, 5, 9, pch = 19, cex = 2, col = "steelblue")
+```
+
+With 50 species, you'd have 50 axes—impossible to visualize. Ordination finds the **best 2D projection** of this high-dimensional cloud.
+
+---
+
+# Part 2: NMDS (Non-metric Multidimensional Scaling)
+
+## What makes NMDS different?
+
+Most ordination methods use **Euclidean distance** (straight-line distance). But Euclidean distance often misrepresents ecological data because:
+
+1. Double-zeros are ambiguous (two sites lacking a species might be similar OR completely different)
+2. Species relationships are rarely linear
+3. Rare species have undue influence
+
+NMDS solves this by:
+- Using **any dissimilarity measure** (typically Bray-Curtis for community data)
+- Preserving **rank order** of distances, not actual distances
+- Being **non-metric**—only the ordering matters
+
+## How NMDS works
+
+1. **Calculate dissimilarity** between all pairs of sites (Bray-Curtis, Jaccard, etc.)
+2. **Start with a random configuration** of sites in 2D (or your chosen number of dimensions)
+3. **Iteratively adjust** site positions to better match the dissimilarity ranks
+4. **Calculate stress:** How well does the 2D configuration preserve the rank order of the original dissimilarities?
+5. **Repeat** until stress is minimized
+
+**Stress interpretation:**
+- < 0.05: Excellent representation
+- < 0.10: Great
+- < 0.20: Good (acceptable)
+- > 0.30: Poor (consider more dimensions or different approach)
+
+## NMDS in practice
+
+Let's work with the `dune` dataset—vegetation at 20 Dutch dune meadow sites:
+
+```{r nmds-example}
+# Load data
+data(dune)      # Species abundances
+data(dune.env)  # Environmental variables
+
+# Look at the data
+dim(dune)  # 20 sites, 30 species
+head(dune[, 1:6])
+```
+
+### Data transformation
+
+Before NMDS, consider transforming your data:
+
+```{r transformation}
+# Wisconsin double standardization:
+# - Divide each value by species maximum (standardize across species)
+# - Then divide by site total (standardize across sites)
+# This equalizes emphasis among species
+
+dune_std <- wisconsin(dune)
+
+# Compare raw vs transformed
+dune[1, 1:5]
+dune_std[1, 1:5]
+```
+
+### Run NMDS
+
+```{r nmds-run}
+# Run NMDS with Bray-Curtis dissimilarity
+# k = 2 dimensions; trymax = number of random starts
+nmds <- metaMDS(dune_std, distance = "bray", k = 2, trymax = 100)
+
+# Check results
+nmds
+```
+
+### Interpret stress
+
+```{r stress-plot, fig.cap="Shepard plot showing fit between original distances and ordination distances. Points close to the line indicate good fit; stress < 0.2 is acceptable."}
+# Shepard plot: original dissimilarity vs ordination distance
+stressplot(nmds)
+```
+
+The Shepard plot shows:
+- **x-axis:** Original Bray-Curtis dissimilarities
+- **y-axis:** Distances in the NMDS ordination
+- **Points near line:** Good preservation of rank order
+- **R²:** How well ordination distances explain original dissimilarities
+
+### Basic NMDS plot
+
+```{r nmds-basic-plot, fig.cap="Basic NMDS plot showing sites (circles) and species (crosses) in ordination space."}
+# Base R plotting
+ordiplot(nmds, type = "t")  # "t" for text labels
+```
+
+### Better visualization with ggplot
+
+```{r nmds-ggplot, fig.cap="NMDS ordination of dune meadow vegetation. Sites are positioned such that similar communities are close together. Environmental variables can be overlaid to interpret axes."}
+# Extract scores for ggplot
+site_scores <- as.data.frame(scores(nmds, display = "sites"))
+site_scores$Management <- dune.env$Management
+
+species_scores <- as.data.frame(scores(nmds, display = "species"))
+species_scores$Species <- rownames(species_scores)
+
+# Create plot
+ggplot() +
+  # Add species as gray text
+  geom_text(data = species_scores, 
+            aes(x = NMDS1, y = NMDS2, label = Species),
+            color = "gray60", size = 2.5, alpha = 0.7) +
+  # Add sites colored by management
+  geom_point(data = site_scores,
+             aes(x = NMDS1, y = NMDS2, color = Management),
+             size = 3, alpha = 0.8) +
+  # Add axes
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray40") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray40") +
+  # Labels
+  labs(title = "NMDS: Dune Meadow Vegetation",
+       subtitle = paste("Stress =", round(nmds$stress, 3))) +
+  theme_minimal() +
+  coord_equal()
+```
+
+## Interpreting NMDS axes
+
+NMDS axes have **no inherent meaning**—they just represent gradients in community composition. To interpret them:
+
+1. **Overlay environmental variables** using `envfit()`
+2. **Look at species positions** to understand what characterizes each end of an axis
+3. **Color/shape sites by factors** to see group separation
+
+```{r envfit, fig.cap="Environmental vectors overlaid on NMDS. Vector length indicates correlation strength; direction shows the gradient."}
+# Fit environmental variables
+env_fit <- envfit(nmds, dune.env[, c("A1", "Moisture")], permutations = 999)
+env_fit
+
+# Plot with environmental vectors
+plot(nmds, display = "sites", type = "n")
+points(nmds, display = "sites", pch = 19, col = "steelblue")
+plot(env_fit, col = "firebrick", lwd = 2)
+```
+
+**Reading environmental vectors:**
+- **Direction:** Points toward higher values of that variable
+- **Length:** Longer vectors are more strongly correlated with ordination axes
+- **p-value:** Tests whether correlation is stronger than random
+
+---
+
+# Part 3: Other Ordination Methods
+
+## PCA (Principal Components Analysis)
+
+PCA is best for:
+- **Environmental data** (continuous variables)
+- **Linear relationships** between variables
+- When you want **interpretable axes** (loadings show variable contributions)
+
+```{r pca-example, fig.cap="PCA of environmental variables from dune meadows. Arrows show how each variable contributes to the principal components."}
+library(vegan)
+
+env_numeric <- dune.env[, c("A1", "Moisture")]
+
+# Moisture is an ordered factor; convert its level codes to numbers (1,2,4,5)
+env_numeric$Moisture <- as.numeric(as.character(env_numeric$Moisture))
+
+pca <- rda(env_numeric, scale = TRUE)
+biplot(pca, scaling = 2, main = "PCA of Environmental Variables")
+```
+
+**PCA vs NMDS:**
+
+| Feature | PCA | NMDS |
+|---------|-----|------|
+| Best for | Environmental data | Community data |
+| Distance metric | Euclidean | Any (Bray-Curtis, etc.) |
+| Axes meaning | Interpretable loadings | No inherent meaning |
+| Assumes | Linear relationships | No assumption |
+| Stress diagnostic | Eigenvalues (% variance) | Stress value |
+
+## CA and DCA
+
+**Correspondence Analysis (CA)** and **Detrended CA (DCA)** are alternatives to NMDS that assume **unimodal species responses** (species peak at optimal conditions and decline on either side).
+
+```{r dca-example, eval=FALSE}
+# DCA example (not run)
+dca <- decorana(dune)
+plot(dca)
+```
+
+CA/DCA are less commonly used now because NMDS is more flexible. Consider them when:
+- You have strong environmental gradients
+- Species clearly show unimodal responses
+- You want to interpret axes as gradient lengths (DCA)
+
+---
+
+# Part 4: Practical Considerations
+
+## Choosing the right dissimilarity
+
+| Dissimilarity | Best for | In R |
+|---------------|----------|------|
+| **Bray-Curtis** | Abundance data | `"bray"` |
+| **Jaccard** | Presence/absence | `"jaccard"` |
+| **Sørensen** | Similar to Jaccard | `"bray"` on binary |
+| **Euclidean** | Environmental data | `"euclidean"` |
+
+```{r dissimilarity-calc}
+# Calculate dissimilarity matrix
+bray_dist <- vegdist(dune, method = "bray")
+
+# View first few values
+as.matrix(bray_dist)[1:4, 1:4]
+```
+
+## Handling stress
+
+If stress is too high (> 0.2):
+
+1. **Increase dimensions:** Try k = 3 (harder to visualize but better fit)
+2. **Remove outlier sites:** Check if one weird site is distorting the ordination
+3. **Transform data:** Stronger transformation (square root, log, presence/absence)
+4. **Try different dissimilarity:** Jaccard instead of Bray-Curtis
+
+```{r high-stress-solutions, eval=FALSE}
+# Try 3 dimensions
+nmds_3d <- metaMDS(dune_std, k = 3, trymax = 100)
+
+# Try presence/absence
+dune_pa <- decostand(dune, method = "pa")
+nmds_pa <- metaMDS(dune_pa, distance = "jaccard", trymax = 100)
+```
+
+## Visualizing groups
+
+```{r nmds-groups, fig.cap="NMDS with sites grouped by management type. Ellipses show 95% confidence regions for each group centroid."}
+# Add grouping variable to scores
+site_scores$Management <- dune.env$Management
+
+# Plot with group ellipses
+ggplot(site_scores, aes(x = NMDS1, y = NMDS2, color = Management)) +
+  geom_point(size = 3) +
+  stat_ellipse(level = 0.95, linetype = 2) +
+  labs(title = "NMDS by Management Type",
+       subtitle = paste("Stress =", round(nmds$stress, 3))) +
+  theme_minimal() +
+  coord_equal()
+```
+
+## Creating publication-quality figures
+
+```{r nmds-publication, fig.cap="Publication-quality NMDS ordination showing community composition differences among management treatments. Points represent sites; ellipses show 95% confidence intervals around group centroids."}
+# Two-panel figure: sites and species
+library(gridExtra)
+
+# Panel 1: Sites only
+p1 <- ggplot(site_scores, aes(x = NMDS1, y = NMDS2, color = Management)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
+  stat_ellipse(level = 0.95, linetype = 2, linewidth = 0.5) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_brewer(palette = "Set2") +
+  labs(title = "Sites") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  coord_equal()
+
+# Panel 2: Species only
+p2 <- ggplot(species_scores, aes(x = NMDS1, y = NMDS2)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_segment(aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2),
+               arrow = arrow(length = unit(0.2, "cm")),
+               color = "gray40", alpha = 0.5) +
+  geom_text(aes(label = Species), size = 2.5, color = "gray20") +
+  labs(title = "Species") +
+  theme_minimal() +
+  coord_equal()
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+---
+
+# Part 5: Reporting Ordination Results
+
+## What to report
+
+1. **Ordination method** and why you chose it
+2. **Data transformation** (if any)
+3. **Dissimilarity measure**
+4. **Number of dimensions** and final stress
+5. **How you interpreted axes** (environmental fitting, species positions)
+6. **Figure** with stress value noted
+
+## Sample methods and results
+
+### Methods
+
+> We visualized community composition using Non-metric Multidimensional Scaling (NMDS) with Bray-Curtis dissimilarity. Prior to ordination, abundance data were transformed using Wisconsin double standardization to equalize emphasis among species. We used two dimensions (k = 2) and ran the ordination with 100 random starts to find a stable solution. We assessed ordination quality using stress values, targeting stress < 0.2 as acceptable. Environmental variables were fitted to the ordination using the envfit() function with 999 permutations. Analyses were conducted using the vegan package (Oksanen et al. 2022) in R version 4.3.1.
+
+### Results
+
+> NMDS ordination revealed clear separation of dune meadow vegetation by management type (stress = 0.118; **Fig. X**). Sites with biological management clustered separately from those under hobby farming and nature conservation management along NMDS axis 1. Environmental fitting showed that soil moisture was significantly correlated with ordination axes (r² = 0.45, p = 0.003), with wetter sites positioned at higher NMDS2 values. Species characteristic of wet meadows (*Juncus*, *Caltha*) were positioned toward the high-moisture end of this gradient, while dry-meadow species (*Lolium*, *Poa*) occupied the opposite region of ordination space.
+
+---
+
+## Key takeaways
+
+1. **Ordination reduces dimensions** — It finds the best 2D view of high-dimensional community data
+
+2. **NMDS is most flexible** — Works with any dissimilarity measure, no distribution assumptions
+
+3. **Stress indicates fit** — Target stress < 0.2; lower is better
+
+4. **Axes have no inherent meaning** — Interpret using environmental vectors and species positions
+
+5. **Transform before ordinating** — Wisconsin standardization is common for community data
+
+6. **Use appropriate dissimilarity** — Bray-Curtis for abundances, Jaccard for presence/absence
+
+7. **Ordination visualizes; other tests quantify** — Use PERMANOVA (next chapter) to statistically test group differences
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Why is Bray-Curtis dissimilarity preferred over Euclidean distance for community data?
+
+2. Your NMDS has stress = 0.25. What options do you have to improve this?
+
+3. What is the difference between what NMDS shows you and what PERMANOVA tests?
+
+### Part 2: NMDS analysis
+
+Using the built-in `BCI` dataset (tree abundances on Barro Colorado Island):
+
+```{r assignment-bci}
+data(BCI)
+dim(BCI)  # 50 sites, 225 species
+```
+
+1. Apply appropriate transformation
+2. Run NMDS with Bray-Curtis dissimilarity
+3. Check and report stress
+4. Create a visualization showing site positions
+5. Identify which species are most associated with different regions of ordination space
+
+### Part 3: Environmental interpretation
+
+Using the `dune` and `dune.env` datasets:
+
+1. Run NMDS
+2. Fit environmental variables using `envfit()`
+3. Create a figure showing both sites (colored by Management) and environmental vectors
+4. Interpret what ecological gradients the NMDS axes represent
+
+### Part 4: Reflection
+
+In 2-3 sentences, explain why ordination is a complement to, rather than a replacement for, statistical hypothesis testing in community ecology.
+
 

@@ -18,31 +18,45 @@ rmd_files:
   - 08-ExperimentalDesign.Rmd
   - 09-PowerAnalysis.Rmd
 
-  # Choosing and Running Statistical Tests
+  # Core Modeling Spine
   - 10-SelectingStatisticalTests.Rmd
   - 11-BasicStatisticalTests.Rmd
-  - 12-GeneralizedLinearModels.Rmd
-  - 13-MixedEffectsModels.Rmd
-  - 14-ModelSelectionAndInformationCriteria.Rmd
+  - 12-ComparingGroups_ttest_ANOVA.Rmd
+  - 13-TestingRelationships_Regression.Rmd
+  - 14-CategoricalData_ChiSquare.Rmd
+  - 15-GeneralizedLinearModels.Rmd
+  - 16-ZeroInflatedAndHurdleModels.Rmd
+  - 17-MixedEffectsModels.Rmd
+  - 18-GeneralizedAdditiveModels_GAMs.Rmd
+  - 19-ResamplingMethodsAndUncertainty.Rmd
+  - 20-ModelSelectionAndRegularization.Rmd
+  - 21-TimeSeriesAndForecasting.Rmd
 
-  # Special Designs and Resampling
-  - 15-SpecialDesigns_BACI.Rmd
-  - 16-SpecialDesigns_TimeSeriesAnalysis.Rmd
-  - 17-BootstrappingAndResampling.Rmd
-  - 18-PermutationBasedMethods.Rmd
-
-  # Spatial and Applied Ecological Modeling
-  - 19-WorkingWithSpatialData.Rmd
-  - 20-SpeciesDistributionModeling.Rmd
-
-  # Community and Diversity
-  - 21-IntroductionToDiversityStatistics.Rmd
+  # Community and Interaction Ecology Track
   - 22-OrdinationMethods.Rmd
+  - 23-PermutationBasedMethods_PERMANOVA.Rmd
+  - 24-DiversityStatistics.Rmd
+  - 25-FunctionalTraitAnalysis.Rmd
+  - 26-NetworkAnalysisInEcology.Rmd
+  - 27-NullModelsAndCommunityAssembly.Rmd
 
-  # Population and Demographic Modeling
-  - 23-PopulationEcologyModels.Rmd
-  - 24-IntegralProjectionModels.Rmd
+  # Spatial and Predictive Ecology Track
+  - 28-WorkingWithSpatialData.Rmd
+  - 29-WorkingWithLongTermAndSyntheticData.Rmd
+  - 30-SpatialAutocorrelationAndSpatialModels.Rmd
+  - 31-SpatialDiseaseEcology.Rmd
+  - 32-MachineLearningForEcology.Rmd
+  - 33-SpeciesDistributionModeling.Rmd
+  - 34-OccupancyModelsAndDetectability.Rmd
 
-  # Systems Thinking
-  - 25-StructuralEquationModelsI.Rmd
-  - 26-StructuralEquationModelsII.Rmd
+  # Systems and Causal Modeling Track
+  - 35-StructuralEquationModelsI.Rmd
+  - 36-StructuralEquationModelsII.Rmd
+  - 37-StructuralEquationModelsIII.Rmd
+  - 38-CausalInferenceAndDirectedAcyclicGraphs.Rmd
+  - 39-HierarchicalAndBayesianThinking.Rmd
+
+  # Population and Demographic Modeling Track
+  - 40-PopulationEcologyModels.Rmd
+  - 41-IntegralProjectionModels.Rmd
+  - 42-StochasticPopulationDynamics.Rmd

@@ -1,0 +1,698 @@
+# Testing Relationships: Regression
+
+When your research question is "Is there a relationship between these variables?" or "Can I predict Y from X?", you need regression. While t-tests and ANOVA compare groups, regression examines continuous relationships—how one variable changes as another increases or decreases.
+
+This chapter covers the foundations of regression analysis: fitting lines to data, interpreting coefficients, checking assumptions, and making predictions. These concepts are essential preparation for the Generalized Linear Models chapter, where we extend regression to handle non-normal data.
+
+## The core idea
+
+Regression asks: **How does the response variable (Y) change as the predictor variable (X) changes?**
+
+We answer this by fitting a line (or curve) through our data that captures the systematic relationship between X and Y. The equation of this line lets us:
+
+1. **Describe** the relationship (direction and strength)
+2. **Test** whether the relationship is statistically significant
+3. **Predict** Y values for new X values
+4. **Quantify** how much variation in Y is explained by X
+
+## The regression equation
+
+For simple linear regression (one predictor), the model is:
+
+$$Y = \beta_0 + \beta_1 X + \epsilon$$
+
+Where:
+- **Y** = Response variable (what we're trying to predict)
+- **X** = Predictor variable (what we're using to predict)
+- **β₀** = Intercept (value of Y when X = 0)
+- **β₁** = Slope (change in Y for each unit increase in X)
+- **ε** = Error (residual variation not explained by the model)
+
+The goal of regression is to estimate β₀ and β₁ from our data.
+
+## Setup
+
+```{r setup-regression, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(car)           # Diagnostic tests
+library(performance)   # Model diagnostics
+library(effectsize)    # Effect sizes
+library(broom)         # Tidy model output
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Simple Linear Regression
+
+## Ecological example: Tree growth and light availability
+
+You're studying how light availability affects tree seedling growth. At 30 forest plots, you measured canopy openness (% of sky visible) and the average height growth (cm/year) of oak seedlings.
+
+**Research question:** Does seedling growth rate increase with light availability?
+
+```{r regression-data 1}
+# Simulated data: canopy openness and seedling growth
+canopy_openness <- c(12, 18, 25, 8, 32, 15, 28, 22, 35, 10,
+                     20, 38, 14, 30, 26, 42, 16, 24, 33, 19,
+                     45, 11, 29, 21, 37, 13, 27, 40, 17, 34)
+
+# Growth increases with light, plus random variation
+growth_rate <- 5 + 0.4 * canopy_openness + rnorm(30, 0, 2.5)
+
+# Combine into data frame
+tree_data <- data.frame(canopy_openness, growth_rate)
+
+# Quick look
+head(tree_data)
+summary(tree_data)
+```
+
+### Visualize first: Always plot your data
+
+Before running any statistics, plot the relationship:
+
+```{r regression-explore 1, fig.cap="Scatterplot of seedling growth rate versus canopy openness. There appears to be a positive linear relationship—seedlings grow faster in more open canopy conditions."}
+ggplot(tree_data, aes(x = canopy_openness, y = growth_rate)) +
+  geom_point(size = 3, alpha = 0.7, color = "forestgreen") +
+  labs(x = "Canopy Openness (%)",
+       y = "Height Growth Rate (cm/year)",
+       title = "Seedling Growth vs. Light Availability") +
+  theme_minimal()
+```
+
+The scatterplot suggests a positive linear relationship: as canopy openness increases, growth rate tends to increase. But is this relationship statistically significant? How strong is it? What's the equation of the line?
+
+### Hypotheses
+
+> **H₀:** β₁ = 0 (no relationship; the slope is zero)
+> 
+> **H_A:** β₁ ≠ 0 (there is a relationship; the slope is not zero)
+
+Note: We're testing whether the slope differs from zero. A slope of zero means X has no effect on Y—the line would be flat.
+
+### Fit the model
+
+```{r regression-fit 1}
+# Fit simple linear regression
+growth_model <- lm(growth_rate ~ canopy_openness, data = tree_data)
+
+# View the results
+summary(growth_model)
+```
+
+### Interpret the output
+
+Let's break down each part of the summary:
+
+#### Coefficients table
+
+```{r coefficients-explain 1, echo=FALSE}
+coef_table <- data.frame(
+  Term = c("(Intercept)", "canopy_openness"),
+  Estimate = c(4.99, 0.41),
+  `Std. Error` = c(1.14, 0.04),
+  `t value` = c(4.38, 9.54),
+  `p-value` = c("< 0.001", "< 0.001"),
+  check.names = FALSE
+)
+knitr::kable(coef_table, caption = "Regression coefficients")
+```
+
+**Intercept (β₀ = 4.99):** The predicted growth rate when canopy openness = 0%. This is where the regression line crosses the Y-axis. In this case, seedlings in complete shade would be predicted to grow about 5 cm/year.
+
+**Slope (β₁ = 0.41):** For every 1% increase in canopy openness, growth rate increases by 0.41 cm/year on average. This is the key biological finding.
+
+**Standard errors:** Measure uncertainty in each estimate. Smaller is better.
+
+**t-values:** Each coefficient divided by its standard error. Tests whether the coefficient differs from zero.
+
+**p-values:** Probability of seeing a coefficient this large if the true value were zero.
+
+#### The regression equation
+
+We can now write the fitted model:
+
+$$\hat{Y} = 4.99 + 0.41 \times X$$
+
+or more specifically:
+
+$$\text{Growth Rate} = 4.99 + 0.41 \times \text{Canopy Openness}$$
+
+The hat (^) over Y indicates these are *predicted* values, not observed values.
+
+```{r equation-explicit 1}
+# Extract coefficients
+coef(growth_model)
+
+# Write the equation
+cat("Growth Rate =", round(coef(growth_model)[1], 2), "+", 
+    round(coef(growth_model)[2], 2), "× Canopy Openness\n")
+```
+
+#### R-squared: How much variation is explained?
+
+```{r r-squared 1}
+# R-squared from summary
+summary(growth_model)$r.squared
+
+# Adjusted R-squared (penalizes for number of predictors)
+summary(growth_model)$adj.r.squared
+```
+
+**R² = 0.76** means that 76% of the variation in seedling growth rate is explained by canopy openness. The remaining 24% is due to other factors not in our model (soil nutrients, competition, genetics, measurement error, etc.).
+
+**Interpretation benchmarks for R² in ecology:**
+- R² < 0.1: Weak relationship
+- R² = 0.1–0.3: Moderate relationship
+- R² = 0.3–0.5: Substantial relationship
+- R² > 0.5: Strong relationship
+
+Our R² of 0.76 indicates a very strong relationship—unusual in ecology, where many factors influence most outcomes.
+
+#### F-statistic: Overall model significance
+
+The F-statistic tests whether the model as a whole explains significant variation. For simple regression, this is equivalent to testing whether the slope differs from zero.
+
+```{r f-stat 1}
+# F-statistic and p-value
+summary(growth_model)$fstatistic
+```
+
+F₁,₂₈ = 91.1, p < 0.001. The model is highly significant.
+
+### Visualize with fitted line
+
+```{r regression-fitted 1, fig.cap="Seedling growth rate increases significantly with canopy openness. The blue line shows the fitted regression; shaded area indicates the 95% confidence interval for the mean response."}
+ggplot(tree_data, aes(x = canopy_openness, y = growth_rate)) +
+  geom_point(size = 3, alpha = 0.7, color = "forestgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "steelblue", fill = "lightblue") +
+  labs(x = "Canopy Openness (%)",
+       y = "Height Growth Rate (cm/year)",
+       title = "Seedling Growth vs. Light Availability") +
+  theme_minimal()
+```
+
+### Check assumptions
+
+Regression makes four key assumptions. **Always check these before interpreting results.**
+
+1. **Linearity:** The relationship between X and Y is linear
+2. **Independence:** Observations are independent of each other
+3. **Homoscedasticity:** Variance of residuals is constant across all X values
+4. **Normality:** Residuals are normally distributed
+
+#### Diagnostic plots
+
+```{r regression-diagnostics 1, fig.cap="Diagnostic plots for linear regression. Top left: Residuals vs. Fitted checks linearity and homoscedasticity. Top right: QQ plot checks normality. Bottom left: Scale-Location checks homoscedasticity. Bottom right: Residuals vs. Leverage identifies influential points."}
+par(mfrow = c(2, 2))
+plot(growth_model)
+par(mfrow = c(1, 1))
+```
+
+**How to read each plot:**
+
+| Plot | What to look for | Problem signs |
+|------|------------------|---------------|
+| Residuals vs Fitted | Random scatter around zero | Curved pattern = non-linearity; funnel shape = heteroscedasticity |
+| Normal QQ | Points on diagonal line | Systematic deviation from line = non-normality |
+| Scale-Location | Flat line, random spread | Upward trend = variance increases with fitted values |
+| Residuals vs Leverage | No points in upper/lower right | Points beyond Cook's distance lines = influential outliers |
+
+**Our assessment:** The diagnostic plots look good. Residuals are randomly scattered, approximately normal, and show no obvious patterns. No highly influential points.
+
+#### Formal tests (optional)
+
+```{r assumption-tests 1}
+# Test normality of residuals
+shapiro.test(residuals(growth_model))
+
+# Test homoscedasticity (Breusch-Pagan test)
+ncvTest(growth_model)
+```
+
+Both tests are non-significant, confirming our visual assessment that assumptions are met.
+
+### Confidence and prediction intervals
+
+We can use the regression to make predictions, but we need to quantify uncertainty:
+
+**Confidence interval:** Uncertainty about the *mean* response at a given X value
+**Prediction interval:** Uncertainty about an *individual* observation at a given X value
+
+Prediction intervals are always wider because they include both uncertainty about the mean AND individual variation.
+
+```{r intervals 1}
+# Create new data for prediction
+new_data <- data.frame(canopy_openness = c(20, 30, 40))
+
+# Confidence interval (for the mean)
+predict(growth_model, newdata = new_data, interval = "confidence")
+
+# Prediction interval (for individual observations)
+predict(growth_model, newdata = new_data, interval = "prediction")
+```
+
+**Interpretation:** At 30% canopy openness:
+- We're 95% confident the *mean* growth rate is between 15.6 and 17.6 cm/year
+- We're 95% confident an *individual* seedling would grow between 12.0 and 21.2 cm/year
+
+```{r intervals-plot 1, fig.cap="Regression line with confidence interval (dark band) and prediction interval (light band). The prediction interval is wider because it accounts for individual variation around the mean."}
+# Generate predictions across the range of X
+pred_data <- data.frame(canopy_openness = seq(8, 45, by = 0.5))
+pred_data <- cbind(pred_data, 
+                   predict(growth_model, newdata = pred_data, interval = "confidence"))
+names(pred_data)[2:4] <- c("fit", "ci_lower", "ci_upper")
+
+pred_int <- predict(growth_model, newdata = pred_data, interval = "prediction")
+pred_data$pi_lower <- pred_int[, "lwr"]
+pred_data$pi_upper <- pred_int[, "upr"]
+
+ggplot() +
+  # Prediction interval
+  geom_ribbon(data = pred_data, 
+              aes(x = canopy_openness, ymin = pi_lower, ymax = pi_upper),
+              fill = "lightblue", alpha = 0.4) +
+  # Confidence interval
+  geom_ribbon(data = pred_data,
+              aes(x = canopy_openness, ymin = ci_lower, ymax = ci_upper),
+              fill = "steelblue", alpha = 0.5) +
+  # Fitted line
+  geom_line(data = pred_data, aes(x = canopy_openness, y = fit),
+            color = "darkblue", linewidth = 1) +
+  # Observed points
+  geom_point(data = tree_data, aes(x = canopy_openness, y = growth_rate),
+             size = 3, alpha = 0.7, color = "forestgreen") +
+  labs(x = "Canopy Openness (%)",
+       y = "Height Growth Rate (cm/year)",
+       title = "Regression with Confidence and Prediction Intervals") +
+  theme_minimal()
+```
+
+### Sample methods and results
+
+**Methods:**
+
+> We examined the relationship between canopy openness and oak seedling height growth using simple linear regression. Canopy openness (%) was measured at 30 forest plots using hemispherical photography, and mean annual height growth (cm/year) was calculated from two years of repeated height measurements on tagged seedlings (n = 10 per plot). We assessed model assumptions by examining residual plots for linearity and homoscedasticity, and tested normality of residuals using the Shapiro-Wilk test. Model fit was evaluated using R². All analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> Seedling height growth rate increased significantly with canopy openness (linear regression: F₁,₂₈ = 91.1, p < 0.001, R² = 0.76; **Fig. 1**). For every 1% increase in canopy openness, growth rate increased by 0.41 cm/year (95% CI: 0.32–0.50). Seedlings in plots with 40% canopy openness were predicted to grow 21.4 cm/year (95% CI: 20.1–22.7), compared to 9.1 cm/year (95% CI: 7.5–10.7) in plots with 10% openness. The strong positive relationship suggests that light limitation is a primary constraint on seedling growth in this system.
+
+---
+
+# Part 2: When things go wrong
+
+Not all data follow a nice linear pattern. Here's how to detect and address common problems.
+
+## Problem 1: Non-linear relationships
+
+### Detection
+
+```{r nonlinear-example 1}
+# Example: Enzyme activity vs. temperature (unimodal relationship)
+temperature <- seq(10, 50, by = 2)
+# True relationship is curved (quadratic)
+enzyme_activity <- -0.05 * (temperature - 30)^2 + 20 + rnorm(21, 0, 1.5)
+
+enzyme_data <- data.frame(temperature, enzyme_activity)
+
+# Fit linear model (inappropriate!)
+linear_wrong <- lm(enzyme_activity ~ temperature, data = enzyme_data)
+```
+
+```{r nonlinear-diagnostic 1, fig.cap="Left: A linear fit to curved data misses the pattern entirely. Right: The residuals vs. fitted plot shows a clear U-shape, indicating non-linearity."}
+par(mfrow = c(1, 2))
+
+# The bad fit
+plot(enzyme_activity ~ temperature, data = enzyme_data, pch = 16, col = "coral",
+     main = "Linear fit to curved data")
+abline(linear_wrong, col = "steelblue", lwd = 2)
+
+# Residual plot reveals the problem
+plot(fitted(linear_wrong), residuals(linear_wrong), pch = 16, col = "coral",
+     xlab = "Fitted values", ylab = "Residuals",
+     main = "Residuals show U-shape")
+abline(h = 0, lty = 2)
+par(mfrow = c(1, 1))
+```
+
+### Solution: Polynomial regression
+
+Add a quadratic term to capture the curvature:
+
+```{r polynomial-fit 1}
+# Fit quadratic model
+quadratic_model <- lm(enzyme_activity ~ temperature + I(temperature^2), 
+                       data = enzyme_data)
+summary(quadratic_model)
+```
+
+```{r polynomial-plot 1, fig.cap="A quadratic model captures the curved relationship between temperature and enzyme activity. Activity peaks around 30°C and declines at temperature extremes."}
+# Predict with quadratic model
+pred_temp <- data.frame(temperature = seq(10, 50, by = 0.5))
+pred_temp$activity <- predict(quadratic_model, newdata = pred_temp)
+
+ggplot(enzyme_data, aes(x = temperature, y = enzyme_activity)) +
+  geom_point(size = 3, alpha = 0.7, color = "coral") +
+  geom_line(data = pred_temp, aes(y = activity), 
+            color = "steelblue", linewidth = 1.2) +
+  labs(x = "Temperature (°C)",
+       y = "Enzyme Activity",
+       title = "Quadratic Regression: Enzyme Activity vs. Temperature") +
+  theme_minimal()
+```
+
+## Problem 2: Heteroscedasticity (unequal variance)
+
+### Detection
+
+When variance in Y increases (or decreases) with X, you have heteroscedasticity. The classic "funnel" pattern:
+
+```{r heteroscedasticity-example}
+# Example: Variance increases with X
+x_het <- seq(1, 50, length.out = 100)
+y_het <- 2 + 0.5 * x_het + rnorm(100, 0, 0.3 * x_het)  # SD increases with x
+
+het_data <- data.frame(x = x_het, y = y_het)
+het_model <- lm(y ~ x, data = het_data)
+```
+
+```{r heteroscedasticity-plot, fig.cap="Heteroscedasticity: The scatter increases with X (left panel), creating a funnel pattern in the residuals vs. fitted plot (right panel)."}
+par(mfrow = c(1, 2))
+plot(y ~ x, data = het_data, pch = 16, col = "purple",
+     main = "Funnel-shaped scatter")
+abline(het_model, col = "steelblue", lwd = 2)
+
+plot(fitted(het_model), residuals(het_model), pch = 16, col = "purple",
+     main = "Funnel in residuals", xlab = "Fitted", ylab = "Residuals")
+abline(h = 0, lty = 2)
+par(mfrow = c(1, 1))
+```
+
+### Solutions
+
+1. **Transform the response variable** (log, square root)
+2. **Use weighted least squares**
+3. **Use a GLM with appropriate variance function** (covered in GLM chapter)
+
+```{r log-transform 13}
+# Log transformation often stabilizes variance
+het_data$log_y <- log(het_data$y)
+log_model <- lm(log_y ~ x, data = het_data)
+
+# Check if it helped
+par(mfrow = c(1, 2))
+plot(fitted(log_model), residuals(log_model), pch = 16, col = "forestgreen",
+     main = "After log transform", xlab = "Fitted", ylab = "Residuals")
+abline(h = 0, lty = 2)
+par(mfrow = c(1, 1))
+```
+
+## Problem 3: Influential points
+
+Some points have excessive influence on the regression line. These need investigation.
+
+### Detection: Cook's Distance
+
+**Cook's distance** measures how much the regression would change if each point were removed. Values > 4/n or > 1 warrant attention.
+
+```{r influential-example}
+# Add an influential point to our tree data
+tree_data_outlier <- tree_data
+tree_data_outlier[31, ] <- c(50, 5)  # High X, low Y
+
+# Fit model
+outlier_model <- lm(growth_rate ~ canopy_openness, data = tree_data_outlier)
+```
+
+```{r influential-plot, fig.cap="An influential point can substantially alter the regression line. Left: The outlier pulls the line down at high X values. Right: Cook's distance identifies point 31 as influential."}
+par(mfrow = c(1, 2))
+
+# Plot with influential point
+plot(growth_rate ~ canopy_openness, data = tree_data_outlier, pch = 16,
+     col = c(rep("forestgreen", 30), "red"),
+     main = "Influential point (red)")
+abline(outlier_model, col = "firebrick", lwd = 2)
+abline(growth_model, col = "steelblue", lwd = 2, lty = 2)
+legend("topleft", c("With outlier", "Without outlier"), 
+       col = c("firebrick", "steelblue"), lty = c(1, 2), lwd = 2, cex = 0.8)
+
+# Cook's distance
+plot(cooks.distance(outlier_model), type = "h", 
+     main = "Cook's Distance",
+     ylab = "Cook's Distance", xlab = "Observation")
+abline(h = 4/31, lty = 2, col = "firebrick")
+par(mfrow = c(1, 1))
+```
+
+### What to do
+
+1. **Investigate:** Is it a data entry error? Measurement problem? Different population?
+2. **Don't automatically delete:** Document your decision transparently
+3. **Run sensitivity analysis:** Report results with and without the point
+4. **Consider robust regression:** Methods that down-weight outliers
+
+---
+
+# Part 3: Multiple Regression
+
+What if you have multiple predictor variables? **Multiple regression** extends simple regression to include two or more predictors:
+
+$$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_p X_p + \epsilon$$
+
+## Ecological example: Predicting tree growth
+
+Seedling growth likely depends on multiple factors. Let's add soil nitrogen to our model:
+
+```{r multiple-data}
+# Add soil nitrogen as a second predictor
+soil_nitrogen <- runif(30, 0.5, 3.5)  # % nitrogen
+tree_data$soil_nitrogen <- soil_nitrogen
+
+# Growth now depends on both light and nitrogen
+tree_data$growth_rate2 <- 2 + 0.35 * tree_data$canopy_openness + 
+                           2.5 * tree_data$soil_nitrogen + 
+                           rnorm(30, 0, 2)
+
+# Fit multiple regression
+multi_model <- lm(growth_rate2 ~ canopy_openness + soil_nitrogen, data = tree_data)
+summary(multi_model)
+```
+
+### Interpret the coefficients
+
+In multiple regression, each coefficient represents the effect of that variable **holding all other variables constant** (partial effect).
+
+```{r multi-interpret}
+# Coefficients
+coef(multi_model)
+```
+
+- **Intercept (2.85):** Predicted growth when both canopy openness AND soil nitrogen equal zero
+- **canopy_openness (0.34):** For each 1% increase in canopy openness, growth increases by 0.34 cm/year, *holding soil nitrogen constant*
+- **soil_nitrogen (2.35):** For each 1% increase in soil nitrogen, growth increases by 2.35 cm/year, *holding canopy openness constant*
+
+### Visualizing multiple regression
+
+With two predictors, we're fitting a plane through 3D space:
+
+```{r multi-plot, fig.cap="Partial regression plots show the relationship between each predictor and the response, controlling for other predictors. Both canopy openness and soil nitrogen have significant positive effects on growth."}
+# Partial regression plots (added-variable plots)
+avPlots(multi_model, col = "steelblue", col.lines = "firebrick", lwd = 2)
+```
+
+**Partial regression plots** show the relationship between each predictor and Y after removing the effect of other predictors. Both variables show positive relationships with growth.
+
+### Comparing models: Which predictors matter?
+
+```{r model-comparison 13}
+# Compare simple vs. multiple regression
+simple_model <- lm(growth_rate2 ~ canopy_openness, data = tree_data)
+nitrogen_model <- lm(growth_rate2 ~ soil_nitrogen, data = tree_data)
+
+# R-squared comparison
+cat("R² for canopy only:", round(summary(simple_model)$r.squared, 3), "\n")
+cat("R² for nitrogen only:", round(summary(nitrogen_model)$r.squared, 3), "\n")
+cat("R² for both:", round(summary(multi_model)$r.squared, 3), "\n")
+
+# Compare models with ANOVA
+anova(simple_model, multi_model)
+```
+
+Adding soil nitrogen significantly improves the model (F-test p < 0.001). The combined model explains more variance than either predictor alone.
+
+### Multicollinearity: When predictors are correlated
+
+If predictors are highly correlated with each other, it becomes difficult to separate their effects. This is **multicollinearity**.
+
+**Check with Variance Inflation Factor (VIF):**
+
+```{r vif}
+# Check VIF
+vif(multi_model)
+```
+
+**VIF interpretation:**
+- VIF = 1: No correlation with other predictors
+- VIF > 5: Moderate concern
+- VIF > 10: Serious multicollinearity problem
+
+Our VIF values are close to 1, so multicollinearity is not a concern here.
+
+---
+
+# Part 4: Reporting regression results
+
+## What to include
+
+A complete regression analysis should report:
+
+1. **Model specification:** What was the response? What were the predictors?
+2. **Sample size**
+3. **Assumption checks:** Brief statement that assumptions were verified
+4. **Coefficients:** With standard errors or confidence intervals
+5. **Model fit:** R² (and adjusted R² for multiple regression)
+6. **Statistical significance:** F-statistic and p-value
+7. **Figure:** Scatterplot with fitted line
+
+## Results statement templates
+
+### Simple regression
+
+> [Response] showed a significant [positive/negative] relationship with [predictor] (linear regression: F₁,df = [value], p = [value], R² = [value]; **Fig. X**). For every [unit] increase in [predictor], [response] [increased/decreased] by [slope] [units] (95% CI: [lower]–[upper]).
+
+### Multiple regression
+
+> [Response] was significantly predicted by [predictor 1] and [predictor 2] (multiple regression: F₂,df = [value], p = [value], R² = [value]). [Predictor 1] had a [positive/negative] effect (β = [value], SE = [value], p = [value]), and [predictor 2] had a [positive/negative] effect (β = [value], SE = [value], p = [value]). The model explained [X]% of the variance in [response].
+
+## Complete example
+
+**Methods:**
+
+> We examined the effects of canopy openness and soil nitrogen on oak seedling growth using multiple linear regression. Growth rate (cm/year) was measured as the mean annual height increment across 30 forest plots. Canopy openness (%) was measured using hemispherical photography, and soil nitrogen (%) was determined from composite soil samples. We assessed multicollinearity using variance inflation factors (VIF) and verified model assumptions through residual diagnostics. Model fit was evaluated using adjusted R². All analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> Seedling growth rate was significantly predicted by both canopy openness and soil nitrogen (multiple regression: F₂,₂₇ = 58.3, p < 0.001, adjusted R² = 0.80; **Table 1, Fig. 2**). Growth increased with canopy openness (β = 0.34, SE = 0.05, p < 0.001) and soil nitrogen (β = 2.35, SE = 0.44, p < 0.001). For every 1% increase in canopy openness, growth rate increased by 0.34 cm/year, holding soil nitrogen constant. For every 1% increase in soil nitrogen, growth rate increased by 2.35 cm/year, holding canopy openness constant. Together, light and nitrogen availability explained 80% of the variation in seedling growth.
+
+---
+
+## Connection to linear models and GLMs
+
+A key insight: **Regression, t-tests, and ANOVA are all linear models**.
+
+```{r connection}
+# Regression
+summary(lm(growth_rate ~ canopy_openness, data = tree_data))$coefficients
+
+# ANOVA can be written as regression with categorical predictors
+# The factor creates "dummy variables" (0/1 indicators)
+```
+
+This unification matters because:
+
+1. **Same assumptions** (linearity, normality, homoscedasticity, independence)
+2. **Same diagnostic tools** (residual plots, influence measures)
+3. **Same extension to GLMs** (change the error distribution and link function)
+
+In the GLM chapter, you'll see how to handle:
+- **Count data** (Poisson regression)
+- **Binary outcomes** (logistic regression)
+- **Proportions** (binomial regression)
+- **Skewed positive data** (Gamma regression)
+
+All use the same regression framework—just with different assumptions about the errors.
+
+---
+
+## Summary table
+
+| Situation | Model | R syntax |
+|-----------|-------|----------|
+| One continuous predictor | Simple linear regression | `lm(y ~ x)` |
+| Multiple continuous predictors | Multiple regression | `lm(y ~ x1 + x2)` |
+| Continuous + categorical predictors | ANCOVA | `lm(y ~ x + factor)` |
+| Interaction between predictors | Interaction model | `lm(y ~ x1 * x2)` |
+| Curved relationship | Polynomial regression | `lm(y ~ x + I(x^2))` |
+
+## Key assumptions and checks
+
+| Assumption | Check with | If violated |
+|------------|------------|-------------|
+| Linearity | Residuals vs. fitted plot | Transform X, add polynomial, or use GAM |
+| Normality | QQ plot, Shapiro-Wilk | Transform Y or use GLM |
+| Homoscedasticity | Scale-location plot, ncvTest | Transform Y, use weighted regression, or GLM |
+| Independence | Study design | Use mixed models |
+| No influential outliers | Cook's distance | Investigate, run sensitivity analysis |
+| No multicollinearity | VIF | Remove redundant predictors, use PCA |
+
+## Key takeaways
+
+1. **Regression describes relationships** between continuous variables and enables prediction
+
+2. **R² quantifies explanatory power** — how much variation is explained by the model
+
+3. **Always visualize first** — plot your data before running statistics
+
+4. **Always check assumptions** — diagnostic plots reveal problems that summary statistics miss
+
+5. **Multiple regression controls for confounders** — each coefficient is a partial effect
+
+6. **Regression is a linear model** — the same framework underlies t-tests, ANOVA, and GLMs
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Explain the difference between a confidence interval and a prediction interval. When would you use each?
+
+2. You fit a regression and get R² = 0.95 with p < 0.001. Your colleague says "Canopy openness explains 95% of seedling growth, so nothing else matters." What's wrong with this interpretation?
+
+3. In multiple regression, the coefficient for soil nitrogen is 2.35. What does this number mean? Be specific about what's being held constant.
+
+### Part 2: Simple regression analysis
+
+Analyze the relationship between precipitation and plant cover:
+
+```{r assignment-simple}
+# Annual precipitation (mm) and vegetation cover (%)
+precipitation <- c(150, 200, 250, 180, 320, 280, 220, 350, 190, 270,
+                   300, 175, 230, 290, 340, 210, 260, 195, 310, 240)
+vegetation_cover <- c(12, 18, 28, 15, 52, 42, 22, 58, 17, 38,
+                      48, 14, 25, 45, 55, 20, 35, 16, 50, 30)
+```
+
+Complete the following:
+1. Create a scatterplot and describe the relationship
+2. State hypotheses
+3. Fit a linear regression model
+4. Check all assumptions with appropriate plots
+5. Interpret the slope, intercept, and R²
+6. Calculate and interpret the 95% CI for the slope
+7. Predict vegetation cover at 275 mm precipitation (with confidence interval)
+8. Create a publication-quality figure
+9. Write complete methods and results sections
+
+### Part 3: Multiple regression (optional challenge)
+
+Add a second predictor (temperature) to the above model:
+
+```{r assignment-multiple}
+# Add mean annual temperature
+temperature <- c(18, 22, 20, 19, 24, 23, 21, 25, 19, 22,
+                 24, 18, 20, 23, 25, 20, 22, 19, 24, 21)
+```
+
+1. Fit a model with both precipitation and temperature as predictors
+2. Check for multicollinearity (VIF)
+3. Compare R² between the simple and multiple regression models
+4. Interpret both coefficients
+5. Write a results statement for the multiple regression
+
+### Part 4: Reflection
+
+In 2-3 sentences, explain why visualizing data before running a regression is essential. What problems might you catch that wouldn't be obvious from the statistical output alone?

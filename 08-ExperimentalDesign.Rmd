@@ -251,7 +251,7 @@ axis(2, at = n_blocks:1, labels = paste("Block", 1:n_blocks), las = 1, tick = FA
 
 **Statistical model:** The block is included as an additive term but is not the focus of inference. We are not interested in *whether* blocks differ; we know they do. We include blocks to remove that variation from the error term.
 
-```{r rcbd-model, eval=FALSE}
+```{r rcbd-model 08, eval=FALSE}
 # RCBD analysis: treatment is the focus, block removes known variation
 model <- lm(response ~ treatment + block, data = my_data)
 anova(model)
@@ -331,7 +331,7 @@ cat("NOT 60 plants.\n")
 
 **Statistical model:** Nested designs are analyzed with mixed effects models, which we will cover in detail later. The key is recognizing the nesting in your design *before* you analyze the data.
 
-```{r nested-model, eval=FALSE}
+```{r nested-model 08, eval=FALSE}
 # Nested design analyzed with mixed model
 library(lme4)
 model <- lmer(growth ~ site + (1 | site:plot), data = my_data)
@@ -466,7 +466,7 @@ legend("topright", legend = c("Control", "Impact"),
 
 ### Statistical model for BACI
 
-```{r baci-model, eval=FALSE}
+```{r baci-model 08, eval=FALSE}
 # Basic BACI: the interaction is the test of impact
 model <- lm(response ~ period * site_type, data = my_data)
 

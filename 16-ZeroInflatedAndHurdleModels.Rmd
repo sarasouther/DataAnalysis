@@ -1,0 +1,629 @@
+# Zero-Inflated and Hurdle Models
+
+You count pollinators visiting flowers. Most flowers get zero visits. You survey streams for fish. Many reaches have no fish. You measure seed production—half your plants set zero seeds.
+
+Welcome to **zero-inflation**, one of the most common features of ecological count data.
+
+Standard count models (Poisson, negative binomial) expect *some* zeros, but ecological data often have far more zeros than these distributions predict. When you fit a Poisson model to zero-inflated data, you get:
+
+- Poor model fit
+- Biased parameter estimates
+- Misleading p-values
+- Residual plots that scream "something is wrong"
+
+This chapter teaches you to recognize zero-inflation, understand its ecological meaning, and model it appropriately using **zero-inflated** and **hurdle** models.
+
+## Why so many zeros?
+
+Zeros in ecological data often arise from **two different processes**:
+
+1. **Structural zeros:** The species/event *cannot* occur (unsuitable habitat, wrong season, outside range)
+2. **Sampling zeros:** The species/event *could* occur but wasn't detected (low abundance, imperfect detection, bad luck)
+
+A standard Poisson model assumes all zeros come from one process—low expected counts. But if some zeros are "true zeros" (the organism simply cannot be there), you need a model that accounts for both processes.
+
+## Setup
+
+```{r setup-zi, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(glmmTMB)      # Flexible models including ZI and hurdle
+library(DHARMa)       # Diagnostics for complex models
+library(pscl)         # ZIP and ZINB models (alternative)
+library(performance)  # Model comparison
+library(emmeans)      # Marginal means
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Recognizing Zero-Inflation
+
+## What does zero-inflation look like?
+
+Let's simulate data with and without zero-inflation:
+
+```{r simulate-zi, fig.cap="Comparing regular Poisson data (left) with zero-inflated data (right). Zero-inflated data have a spike at zero beyond what the Poisson predicts."}
+# Regular Poisson data
+set.seed(123)
+regular_poisson <- rpois(500, lambda = 2)
+
+# Zero-inflated data: 40% structural zeros + Poisson
+zi_data <- ifelse(runif(500) < 0.4, 0, rpois(500, lambda = 3))
+
+# Compare distributions
+par(mfrow = c(1, 2))
+hist(regular_poisson, breaks = seq(-0.5, max(regular_poisson) + 0.5, 1),
+     main = "Regular Poisson (λ = 2)",
+     xlab = "Count", col = "steelblue")
+
+hist(zi_data, breaks = seq(-0.5, max(zi_data) + 0.5, 1),
+     main = "Zero-Inflated Data",
+     xlab = "Count", col = "coral")
+par(mfrow = c(1, 1))
+```
+
+The telltale sign: a **spike at zero** that's taller than the model predicts.
+
+## Testing for zero-inflation
+
+Compare observed zeros to expected zeros under your model:
+
+```{r test-zi}
+# Fit Poisson to the ZI data
+pois_fit <- glm(zi_data ~ 1, family = poisson)
+
+# Expected zeros under Poisson
+lambda_hat <- exp(coef(pois_fit))
+expected_zeros <- length(zi_data) * dpois(0, lambda_hat)
+observed_zeros <- sum(zi_data == 0)
+
+cat("Expected zeros (Poisson):", round(expected_zeros), "\n")
+cat("Observed zeros:", observed_zeros, "\n")
+cat("Ratio (observed/expected):", round(observed_zeros/expected_zeros, 2), "\n")
+```
+
+If observed zeros >> expected zeros, you likely have zero-inflation.
+
+## Formal test with DHARMa
+
+```{r dharma-zi-test, fig.cap="DHARMa diagnostic for zero-inflation. The test compares observed zeros to simulated expectations."}
+# Simulate residuals
+sim_res <- simulateResiduals(pois_fit)
+
+# Test for zero-inflation
+testZeroInflation(sim_res)
+```
+
+A significant test (p < 0.05) indicates more zeros than expected.
+
+---
+
+# Part 2: The Conceptual Framework
+
+## Two processes, one dataset
+
+Zero-inflated models assume your data arise from a **mixture of two processes**:
+
+1. **Binomial process:** Determines whether the count is a "structural zero" (probability π) or comes from a count distribution (probability 1-π)
+
+2. **Count process:** For non-structural zeros, generates the count (Poisson or negative binomial)
+
+```{r zi-diagram, echo=FALSE, fig.cap="Conceptual diagram of a zero-inflated model. Each observation first passes through a binomial filter (zero vs. potential count), then non-zeros are generated from a count distribution."}
+# Simple diagram using base R
+plot(0:10, 0:10, type = "n", axes = FALSE, xlab = "", ylab = "",
+     xlim = c(0, 10), ylim = c(0, 8))
+
+# Boxes
+rect(1, 6, 4, 7.5, col = "lightblue")
+text(2.5, 6.75, "Observation", cex = 0.9)
+
+rect(1, 3, 4, 4.5, col = "coral")
+text(2.5, 3.75, "Zero?\n(Binomial)", cex = 0.8)
+
+rect(6, 4.5, 9, 6, col = "lightgreen")
+text(7.5, 5.25, "Structural\nZero", cex = 0.8)
+
+rect(6, 1.5, 9, 3, col = "lightyellow")
+text(7.5, 2.25, "Count\n(Poisson/NB)", cex = 0.8)
+
+# Arrows
+arrows(2.5, 6, 2.5, 4.7, length = 0.1)
+arrows(4.2, 4, 5.8, 5, length = 0.1)
+arrows(4.2, 3.5, 5.8, 2.5, length = 0.1)
+
+text(5, 5, "π", cex = 0.9)
+text(5, 2.7, "1-π", cex = 0.9)
+```
+
+### Ecological interpretation
+
+Think about pollinator visits:
+
+- **Structural zeros:** Some flowers are in deep shade, have no nectar, or bloom at the wrong time—pollinators *cannot* visit them
+- **Sampling zeros:** Other flowers are perfectly suitable but happened to receive zero visits during your observation window—pollinators *could* have visited
+
+A zero-inflated model lets you estimate:
+- What predicts whether a flower is "available" to pollinators (binomial part)
+- What predicts how many visits available flowers receive (count part)
+
+---
+
+# Part 3: Zero-Inflated Models
+
+## Example: Pollinator visits to flowers
+
+```{r pollinator-data}
+# Simulate pollinator visit data
+n <- 200
+
+# Predictors
+flower_size <- runif(n, 5, 25)            # mm
+shade <- runif(n, 0, 1)                    # 0 = full sun, 1 = deep shade
+nectar <- runif(n, 0, 10)                  # nectar volume (μL)
+
+# Zero-inflation probability (structural zeros)
+# Flowers in deep shade are more likely to be "unavailable"
+logit_zi <- -1 + 3 * shade                 # More shade → more likely to be structural zero
+prob_zi <- plogis(logit_zi)
+
+# Count process (for available flowers)
+log_lambda <- 0.5 + 0.05 * flower_size + 0.1 * nectar
+lambda <- exp(log_lambda)
+
+# Generate data
+is_structural_zero <- rbinom(n, 1, prob_zi)
+visits <- ifelse(is_structural_zero == 1, 0, rpois(n, lambda))
+
+# Combine into data frame
+pollinator_data <- data.frame(
+  visits, flower_size, shade, nectar
+)
+
+# Check distribution
+table(pollinator_data$visits)
+cat("Proportion zeros:", mean(visits == 0), "\n")
+```
+
+## Fitting a zero-inflated Poisson (ZIP)
+
+```{r zip-model}
+# Zero-inflated Poisson using glmmTMB
+# Formula structure: response ~ count_predictors, zi = ~ zi_predictors
+zip_model <- glmmTMB(visits ~ flower_size + nectar,
+                      ziformula = ~ shade,
+                      family = poisson,
+                      data = pollinator_data)
+
+summary(zip_model)
+```
+
+### Interpreting ZIP output
+
+The summary has **two parts**:
+
+**Conditional model (count process):**
+- Coefficients on log scale (like regular Poisson)
+- Interpretation: For each 1-unit increase in predictor, log(count) changes by β
+
+**Zero-inflation model:**
+- Coefficients on logit scale
+- Interpretation: For each 1-unit increase in predictor, log-odds of being a *structural zero* changes by β
+- **Positive coefficient = MORE likely to be a structural zero**
+
+```{r zip-interpret}
+# Count model: effect of flower size
+# exp(coefficient) = multiplicative effect on count
+exp(fixef(zip_model)$cond["flower_size"])
+# Each 1mm increase in flower size multiplies visits by 1.05 (5% increase)
+
+# Zero-inflation model: effect of shade
+# exp(coefficient) = odds ratio for being a structural zero
+exp(fixef(zip_model)$zi["shade"])
+# Moving from full sun to full shade multiplies odds of structural zero by ~17
+```
+
+## Zero-inflated negative binomial (ZINB)
+
+If your count data are also overdispersed, use negative binomial instead of Poisson:
+
+```{r zinb-model}
+# Zero-inflated negative binomial
+zinb_model <- glmmTMB(visits ~ flower_size + nectar,
+                       ziformula = ~ shade,
+                       family = nbinom2,  # NB with variance = μ + μ²/θ
+                       data = pollinator_data)
+
+summary(zinb_model)
+```
+
+## Comparing models
+
+```{r compare-zi}
+# Compare Poisson, ZIP, NB, ZINB
+pois_model <- glmmTMB(visits ~ flower_size + nectar, 
+                       family = poisson, data = pollinator_data)
+nb_model <- glmmTMB(visits ~ flower_size + nectar, 
+                     family = nbinom2, data = pollinator_data)
+
+# AIC comparison
+AIC(pois_model, nb_model, zip_model, zinb_model)
+```
+
+Lower AIC = better fit. The zero-inflated model should fit substantially better if zero-inflation is present.
+
+---
+
+# Part 4: Hurdle Models
+
+## How hurdle models differ
+
+**Hurdle models** also handle excess zeros, but with a different structure:
+
+| Model | Zero source | Count source |
+|-------|-------------|--------------|
+| **Zero-inflated** | Structural zeros + count zeros | Poisson/NB (including its zeros) |
+| **Hurdle** | ALL zeros from one process | Truncated Poisson/NB (no zeros) |
+
+In a hurdle model:
+1. **Hurdle part:** Binary model predicts zero vs. non-zero (did you cross the "hurdle"?)
+2. **Count part:** Truncated count model predicts the positive counts
+
+### When to use each
+
+| Use Zero-Inflated when... | Use Hurdle when... |
+|---------------------------|---------------------|
+| Zeros come from two distinct processes | All zeros represent the same process |
+| Some zeros are "true absences," others are "failed detection" | Being present/absent is a meaningful first step |
+| You want to model probability of structural zeros | You want to model probability of presence |
+
+**Ecological examples for hurdle:**
+- Species occupancy: First, is the species present? Then, how abundant?
+- Reproduction: Did the plant reproduce? If yes, how many seeds?
+- Foraging: Did the animal forage? If yes, how many items consumed?
+
+## Fitting a hurdle model
+
+```{r hurdle-model}
+# Hurdle model in glmmTMB
+# Use truncated Poisson (or truncated NB) for count part
+hurdle_model <- glmmTMB(visits ~ flower_size + nectar,
+                         ziformula = ~ shade,
+                         family = truncated_poisson,
+                         data = pollinator_data)
+
+summary(hurdle_model)
+```
+
+### Interpreting hurdle output
+
+**Conditional model:** Effects on count *given that count > 0* (truncated distribution)
+
+**Zero-inflation model:** Despite the name, this is actually modeling the probability of **zero** (the hurdle). Interpretation is reversed:
+- Positive coefficient = MORE zeros = LESS likely to cross hurdle
+- To interpret as "probability of presence," flip the sign mentally
+
+```{r hurdle-interpret}
+# Probability of crossing hurdle (having any visits)
+# The zi formula models P(zero), so we want 1 - P(zero)
+# At shade = 0 (full sun):
+logit_zero_fullsun <- fixef(hurdle_model)$zi["(Intercept)"]
+prob_zero_fullsun <- plogis(logit_zero_fullsun)
+prob_present_fullsun <- 1 - prob_zero_fullsun
+
+cat("P(any visits) in full sun:", round(prob_present_fullsun, 2), "\n")
+
+# At shade = 1 (full shade):
+logit_zero_shade <- fixef(hurdle_model)$zi["(Intercept)"] + 
+                    fixef(hurdle_model)$zi["shade"]
+prob_zero_shade <- plogis(logit_zero_shade)
+prob_present_shade <- 1 - prob_zero_shade
+
+cat("P(any visits) in full shade:", round(prob_present_shade, 2), "\n")
+```
+
+---
+
+# Part 5: Choosing Between Approaches
+
+## Decision flowchart
+
+```{r decision-flowchart, echo=FALSE}
+cat("
+COUNT DATA WITH MANY ZEROS
+           │
+           ▼
+┌──────────────────────────────┐
+│ Test for overdispersion      │
+│ (variance > mean?)           │
+└──────────────────────────────┘
+           │
+     ┌─────┴─────┐
+     No          Yes
+     │           │
+     ▼           ▼
+  Poisson    Neg. Binomial
+     │           │
+     └─────┬─────┘
+           │
+           ▼
+┌──────────────────────────────┐
+│ Test for zero-inflation      │
+│ (more zeros than expected?)  │
+└──────────────────────────────┘
+           │
+     ┌─────┴─────┐
+     No          Yes
+     │           │
+     ▼           ▼
+   Done!   Zero-inflated or
+           Hurdle model
+                │
+                ▼
+┌──────────────────────────────┐
+│ Are zeros from two processes │
+│ or one process?              │
+└──────────────────────────────┘
+           │
+     ┌─────┴─────┐
+    Two         One
+     │           │
+     ▼           ▼
+   ZIP/      Hurdle
+   ZINB      model
+")
+```
+
+## Practical comparison
+
+```{r 16 model-comparison-table, echo=FALSE}
+comparison <- data.frame(
+  Feature = c(
+    "Zero process",
+    "Count process",
+    "Zeros in count part?",
+    "Best when...",
+    "Interpretation"
+  ),
+  `Zero-Inflated` = c(
+    "P(structural zero)",
+    "Poisson or NB",
+    "Yes (can be zero)",
+    "Two sources of zeros",
+    "P(unavailable) and count"
+  ),
+  Hurdle = c(
+    "P(zero vs non-zero)",
+    "Truncated Poisson/NB",
+    "No (always > 0)",
+    "One source of zeros",
+    "P(presence) and count|present"
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(comparison, caption = "Comparison of zero-inflated and hurdle models")
+```
+
+---
+
+# Part 6: Diagnostics
+
+## DHARMa for zero-inflated models
+
+DHARMa works beautifully for diagnosing ZI and hurdle models:
+
+```{r dharma-zi-diagnostics, fig.cap="DHARMa residual diagnostics for the zero-inflated model. Residuals should be uniform; deviations indicate model misspecification."}
+# Simulate residuals for ZI model
+sim_res_zi <- simulateResiduals(zip_model)
+
+# Standard diagnostic plots
+plot(sim_res_zi)
+```
+
+## Check zero-inflation
+
+```{r dharma-check-zi}
+# After fitting ZI model, zeros should no longer be inflated
+testZeroInflation(sim_res_zi)
+```
+
+A non-significant test after fitting a ZI model suggests you've adequately accounted for zero-inflation.
+
+## Check dispersion
+
+```{r dharma-dispersion}
+# Check for over/underdispersion
+testDispersion(sim_res_zi)
+```
+
+## Compare observed vs predicted
+
+```{r rootogram, fig.cap="Rootogram comparing observed frequencies (bars) to predicted frequencies (red line). Bars hanging below the line indicate underprediction; above the line indicates overprediction."}
+# Rootogram: visual comparison of observed vs expected frequencies
+# Using base functions since rootogram isn't always available
+observed <- table(factor(pollinator_data$visits, levels = 0:max(pollinator_data$visits)))
+predicted <- predict(zip_model, type = "response")
+
+# Simple comparison
+barplot(observed, main = "Observed Count Distribution", 
+        xlab = "Visits", ylab = "Frequency", col = "steelblue")
+```
+
+---
+
+# Part 7: Complete Example with Mixed Effects
+
+Real ecological data often have hierarchical structure. `glmmTMB` handles zero-inflation with random effects:
+
+```{r zi-mixed, fig.cap="Zero-inflated model with random effects for site. Each site has its own baseline for both the count and zero-inflation processes."}
+# Simulate hierarchical data
+n_sites <- 15
+n_per_site <- 20
+n_total <- n_sites * n_per_site
+
+# Site random effects
+site <- rep(1:n_sites, each = n_per_site)
+site_effect_count <- rep(rnorm(n_sites, 0, 0.5), each = n_per_site)
+site_effect_zi <- rep(rnorm(n_sites, 0, 0.3), each = n_per_site)
+
+# Fixed effects
+treatment <- rep(c("Control", "Fertilized"), length.out = n_total)
+treatment_effect <- ifelse(treatment == "Fertilized", 0.5, 0)
+
+# Generate data
+log_lambda <- 1 + treatment_effect + site_effect_count
+prob_zi <- plogis(-0.5 + site_effect_zi - 0.8 * (treatment == "Fertilized"))
+
+is_zero <- rbinom(n_total, 1, prob_zi)
+counts <- ifelse(is_zero, 0, rpois(n_total, exp(log_lambda)))
+
+hierarchical_data <- data.frame(
+  counts, 
+  treatment = factor(treatment),
+  site = factor(site)
+)
+
+# Fit zero-inflated mixed model
+zi_mixed <- glmmTMB(counts ~ treatment + (1|site),
+                     ziformula = ~ treatment + (1|site),
+                     family = poisson,
+                     data = hierarchical_data)
+
+summary(zi_mixed)
+```
+
+## Extract variance components
+
+```{r zi-variance}
+# Random effects variance
+VarCorr(zi_mixed)
+```
+
+## Estimated marginal means
+
+```{r zi-emmeans}
+# Marginal means from the count model
+emmeans(zi_mixed, ~ treatment, type = "response")
+```
+
+---
+
+# Part 8: Reporting
+
+## What to report
+
+1. **Why you used ZI/hurdle:** Proportion of zeros, test for zero-inflation
+2. **Model structure:** Distribution family, predictors in each part
+3. **Both model components:** Results for count AND zero-inflation parts
+4. **Model fit:** AIC comparison, residual diagnostics
+5. **Effect sizes:** On appropriate scale (rate ratios for count, odds ratios for ZI)
+
+## Sample methods and results
+
+### Methods
+
+> We modeled pollinator visit counts using a zero-inflated Poisson regression to account for excess zeros in our data (observed zeros: 45%, expected under Poisson: 18%). The conditional (count) model included flower size and nectar volume as predictors. The zero-inflation model included shade as a predictor, reflecting our hypothesis that shaded flowers are less likely to be available to pollinators. Models were fit using glmmTMB (Brooks et al. 2017) with model selection based on AIC. Residual diagnostics were assessed using DHARMa (Hartig 2022). For comparison, we also fit standard Poisson, negative binomial, and hurdle models.
+
+### Results
+
+> The zero-inflated Poisson model fit substantially better than alternatives (ΔAIC > 15 vs. Poisson and negative binomial). In the count component, both flower size (β = 0.051, SE = 0.008, p < 0.001) and nectar volume (β = 0.098, SE = 0.021, p < 0.001) were positively associated with visit frequency. Each 1-mm increase in flower size was associated with a 5.2% increase in visits (rate ratio = 1.052, 95% CI: 1.036–1.068). In the zero-inflation component, shade significantly increased the probability of a flower being unavailable to pollinators (β = 2.86, SE = 0.45, p < 0.001). Flowers in full shade had 17.4 times the odds (95% CI: 7.2–42.1) of being in the "structural zero" state compared to flowers in full sun (**Fig. X**). DHARMa diagnostics indicated adequate model fit with no residual zero-inflation (p = 0.42).
+
+---
+
+## Common mistakes to avoid
+
+1. **Adding 1 and log-transforming:** This biases estimates and doesn't address zero-inflation
+   
+2. **Using Poisson when overdispersed AND zero-inflated:** May need ZINB, not just ZIP
+
+3. **Same predictors in both parts by default:** Think about what predicts *presence* vs. *abundance*
+
+4. **Ignoring the zero-inflation coefficients:** The ZI part often has important biological meaning
+
+5. **Not checking if ZI was resolved:** Use DHARMa to confirm the model adequately handles zeros
+
+---
+
+## Key takeaways
+
+1. **Zero-inflation is biological** — It often reflects two processes: availability and abundance
+
+2. **Test for it** — Compare observed zeros to expected; use DHARMa's testZeroInflation
+
+3. **ZIP vs ZINB** — Choose based on overdispersion in the count part
+
+4. **ZI vs Hurdle** — ZI for two zero-generating processes; hurdle for one
+
+5. **Interpret both parts** — The zero-inflation model has biological meaning
+
+6. **glmmTMB is your friend** — Handles ZI, hurdle, mixed effects, and more
+
+7. **Validate with DHARMa** — Check that your model resolved the zero-inflation
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. What's the difference between a "structural zero" and a "sampling zero"? Give an ecological example of each.
+
+2. You fit a ZIP model and the zero-inflation coefficient for temperature is positive. What does this mean biologically?
+
+3. When would you choose a hurdle model over a zero-inflated model? Describe a specific ecological scenario.
+
+### Part 2: Recognizing zero-inflation
+
+Using this simulated dataset:
+
+```{r assignment-recognize}
+set.seed(456)
+mystery_data <- data.frame(
+  counts = c(rpois(150, 3), rep(0, 100)),  # Mixed data
+  predictor = rnorm(250)
+)
+```
+
+1. Calculate the proportion of zeros
+2. Fit a Poisson model and compare expected vs. observed zeros
+3. Use DHARMa to test for zero-inflation
+4. What do you conclude?
+
+### Part 3: Model fitting
+
+Using this dataset of seed counts per plant:
+
+```{r assignment-fit}
+set.seed(789)
+n <- 180
+herbivory <- runif(n, 0, 10)
+plant_size <- rnorm(n, 50, 10)
+
+# True model: herbivory increases zeros, plant size increases counts
+prob_zero <- plogis(-2 + 0.4 * herbivory)
+lambda <- exp(1 + 0.02 * plant_size)
+is_zero <- rbinom(n, 1, prob_zero)
+seeds <- ifelse(is_zero, 0, rpois(n, lambda))
+
+seed_data <- data.frame(seeds, herbivory, plant_size)
+```
+
+1. Fit a standard Poisson model
+2. Fit a zero-inflated Poisson with herbivory predicting ZI and plant_size predicting counts
+3. Compare models using AIC
+4. Interpret the coefficients from both parts of the ZI model
+5. Check diagnostics with DHARMa
+
+### Part 4: Model comparison
+
+Fit both a ZIP and a hurdle model to the seed data:
+
+1. Compare AIC
+2. Compare coefficient estimates
+3. Which model would you choose, and why?
+4. Write a results paragraph for your chosen model
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why simply removing zeros or transforming the data (log + 1) is problematic compared to using a zero-inflated model.

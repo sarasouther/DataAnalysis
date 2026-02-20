@@ -1,177 +1,824 @@
-# Selecting statistical tests  
+# Selecting Statistical Tests
 
-## A foray into statistics  
+We've covered data types, descriptive statistics, and the logic of hypothesis testing. Now it's time to put these pieces together and actually run statistical analyses. This chapter is your practical guide to choosing and executing the right test for your data.
 
-We've talked about data types, describing data, and basic hypothesis testing. This week we are applying these concepts to run a statistical analysis. When conducting an analysis, a dataset will contain one or more **response variables** (aka *y-variables*, dependent variables) and one or more **explanatory variables** (aka *x-variables*, independent variables). Explanatory variables are used to explain variation in response variables.  
+The core principle is simple: **the data types of your variables determine which statistical test to use**. Get this right, and the rest follows logically.
 
-**The data type of both the explanatory and response variables determines which statistical test we use**. Selecting the right test is important because it ensures that we’re asking a question our data can actually answer.  
+## Response and explanatory variables
 
-## Pick the explanatory and response variable  
+Every statistical analysis involves at least two types of variables:
 
-Imagine that we want to identify areas that support high numbers of plants from the genus *Mitella*. We hypothesize that *Mitella* occurrence is positively related to water supply (i.e., the number of *Mitella* plants goes up as water availability increases).  
+**Response variable** (Y, dependent variable): The outcome you're trying to explain or predict. This is what you measured as your result.
 
-In this example the:
+**Explanatory variable** (X, independent variable, predictor): The factor you think influences the response. This might be a treatment you applied, a condition you observed, or a measurement you took.
 
-1. **Response Variable (Y)** is the number of *Mitella* plants in a specific area (continuous count data).  
-2. **Explanatory Variable (X)** is the Water availability (continuous).  
+Here's an example: You hypothesize that *Mitella* plants are more abundant in wetter areas. 
 
-In this case, both the explanatory and response variables are continuous, so we might test their relationship using **regression**.  
+- **Response (Y)**: Number of *Mitella* plants per plot (count)
+- **Explanatory (X)**: Soil moisture (continuous)
 
-## Variable types refresher  
+Once you've identified your variables, the next step is classifying their data types.
 
-| Variable Type | Examples | Notes |
-|---------------|----------|-------|
-| **Categorical (nominal)** | Species identity, treatment group (control vs. watered) | Categories with no natural order |
-| **Categorical (ordinal)** | Low/medium/high shade | Ordered categories |
-| **Continuous** | Height, biomass, rainfall (measured on a scale) | Quantitative, can take on many values |
-| **Count** | Number of seedlings, number of visits by a pollinator | Discrete values (0, 1, 2, …), often treated separately in statistics |  
+## Variable types refresher
 
-## More examples  
+| Type | Description | Examples |
+|------|-------------|----------|
+| **Categorical (nominal)** | Unordered categories | Species, treatment group, site name |
+| **Categorical (ordinal)** | Ordered categories | Low/medium/high, Likert scales |
+| **Continuous** | Measured on a scale, can take any value | Height, biomass, temperature |
+| **Count** | Discrete integers ≥ 0 | Number of seedlings, pollinator visits |
+| **Binary** | Special case: two categories | Alive/dead, present/absent |
 
-**Example 1**: Categorical explanatory → continuous response  
-- **Question**: Do soil nitrogen levels differ between burned vs. unburned plots?  
-- **Test**: *ANOVA* (a one way ANOVA is basically equivalent to a two-sample *t-test*, which we discussed in the chapter on basic statistical testing) 
+**Important note on counts**: Count data are technically discrete, not continuous. While we sometimes analyze them with continuous methods (especially for large counts), they often require specialized approaches like Poisson regression. We'll address this in the GLM chapter.
 
-**Example 2**: Categorical explanatory → categorical response  
-- **Question**: Is survival (alive vs. dead) related to treatment (control vs. watered)?  
-- **Test**: *G-test* (a type of *Chi-square test*)  
+## The decision matrix
 
-**Example 3**: Continuous explanatory → continuous response  
-- **Question**: Does plant biomass increase with light availability?  
-- **Test**: *Regression*.  
+The intersection of your explanatory and response variable types points you to the appropriate test:
 
-**Example 4**: Continuous explanatory → categorical response   
-- **Question**: Does plant biomass increase survivorship of duckweed?  
-- **Test**: *Logistic regression*.  
+| | **Categorical Response** | **Continuous Response** | **Count Response** |
+|---|---|---|---|
+| **Categorical Explanatory (2 groups)** | Chi-square / G-test | t-test | Poisson regression* |
+| **Categorical Explanatory (3+ groups)** | Chi-square / G-test | ANOVA | Poisson regression* |
+| **Continuous Explanatory** | Logistic regression | Linear regression | Poisson regression* |
+| **Multiple Explanatory** | Logistic regression | Multiple regression / ANCOVA | Poisson regression* |
 
-## The decision matrix  
+*Count data are covered in the GLM chapter.
 
-Below is a simple decision matrix for selecting statistical analyses.  
+**How to use this matrix:**
 
-![](images/04-selectingstatisticaltests/DecisionMatrix.png)  
+1. Identify your response variable and its type
+2. Identify your explanatory variable(s) and type(s)
+3. Find the intersection
+4. Verify assumptions are met (see Data Exploration chapter)
+5. Run the test and interpret
 
-**How to use it:**  
+Let's work through each major test with complete R code and interpretation.
 
-1. Identify your explanatory and response variables.  
-2. Decide whether each is categorical, continuous, or count.  
-3. Follow the matrix to the test.  
+## Setup
 
-*Example*: Students conducted an experiment by manipulating three levels of competition: low, medium, and high, and evaluated the growth of a species of native pea. Since the explanatory variable is categorical and the response variable is continuous, you would perform an ANOVA.  
+```{r setup-stats, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(car)        # For Levene's test and Type II ANOVA
+library(emmeans)    # For post-hoc comparisons
+library(DescTools)  # For G-test
 
-## A note on assumptions  
-
-Choosing a test is only step one. Most tests also have **assumptions** (e.g., data are normally distributed, groups have equal variance, observations are independent). If assumptions are not met, we either transform the data or use a non-parametric alternative. We won't perform transformations here, but it is important to understand that this is important when conducting statistics for peer-reviewed research.
-
-## Learning goals  
-
-By the end of this module, you should be able to:  
-
-- Correctly identify explanatory and response variables.  
-- Match data types to the appropriate statistical test.  
-- Run a statistical test 
-
-## Downloads for this class
-
-- [Download the R file](https://drive.google.com/uc?export=download&id=14tBsHZx8ZBXV-Gf1sxKG_jiNAXwu94dm)
-- Completing your species interactions final project and need more help? 
-  - [Watch the YouTube tutorial here](https://youtu.be/ZQz770Uzvyo)
-
-## In-class practice
-
-Let's practice these statistical tests in R (these examples are preloaded in your R file)!  
-
-**G-test (Categorical Response and Categorical Explanatory Variable)**
-
-Scenario: You are studying bird nest preferences in a forest. You want to know if birds prefer nesting in different tree species (oak, pine, or maple).
-
-- Response variable: Nest presence (Yes/No)
-- Explanatory variable: Tree species (oak, pine, maple)
-	
-Run the code in R.
-
-**t-test and ANOVA (Continuous Response and Categorical Explanatory Variable)**
-
-**t-test**
-Scenario: You want to compare the weight of two species of frogs (Species A and Species B) to see if there’s a significant difference in weight between them.
-
-- Response variable: Frog weight (grams)
-- Explanatory variable: Species (A or B)
-	
-**ANOVA** (Continuous Response and Categorical Explanatory Variable with More Than Two Categories)
-
-Scenario: You are studying the growth of plants in three different habitats: Desert, Forest, and Wetland. You want to compare plant height across these habitats.
-
-- Response variable: Plant height (cm)
-- Explanatory variable: Habitat (Desert, Forest, Wetland)
-
-**Linear Regression** (Continuous Response and Continuous Explanatory Variable)
-
-Scenario: You are studying how the number of fish in a river changes with water temperature. You want to model the relationship between water temperature (°C) and fish count.
-
-- Response variable: Fish count
-- Explanatory variable: Water temperature (°C)
-	
-**Logistic Regression** (Categorical Response and Continuous Explanatory Variable)
-
-Scenario: You want to study the probability of a specific bird species’ presence in different areas based on elevation. The response is whether the bird is present or absent.
-
-- Response variable: Bird presence (Yes/No)
-- Explanatory variable: Elevation (meters)
+# Set a seed for reproducibility
+set.seed(42)
+```
 
 ---
 
-**Skip this section** if you are using this chapter to run your analyses for your species interaction project.
+## Chi-square and G-tests
 
-## Assignment: Choosing and Running the Right Test
+**Use when:** Both explanatory AND response variables are categorical
 
-Next, let's practice on your own.
+**Question type:** Is there an association between two categorical variables?
 
-For each scenario:
+### The scenario
 
-1.	Read the description carefully.
-2.	Decide which statistical test is most appropriate.
-3.	Modify the code from the examples we’ve covered in class to run the test in R.
-4.	Interpret the output using proper results statements.
+You're studying bird nesting preferences. You surveyed 150 trees of three species (oak, pine, maple) and recorded whether each tree contained a bird nest (yes/no). Do birds prefer certain tree species for nesting?
 
-**Scenario 1**: Comparing Two Groups
+- **Response**: Nest presence (categorical: yes/no)
+- **Explanatory**: Tree species (categorical: oak/pine/maple)
 
-A biologist measures the leaf nitrogen content (%) in plants from two different habitats: Sunny vs. Shady. 
+### Create the data
 
-- Question: What test should you use to compare nitrogen between habitats?
+```{r chisq-data}
+# Observed counts in a contingency table
+# Rows: nest presence, Columns: tree species
+nest_data <- matrix(c(25, 15, 10,   # Nests present
+                      25, 35, 40),  # No nests
+                    nrow = 2, byrow = TRUE,
+                    dimnames = list(Nest = c("Yes", "No"),
+                                   Species = c("Oak", "Pine", "Maple")))
+nest_data
 
-**Scenario 2**: More Than Two Groups
+# Convert to data frame for some analyses
+nest_df <- as.data.frame(as.table(nest_data))
+names(nest_df) <- c("Nest", "Species", "Count")
+nest_df
+```
 
-An ecologist measures the average number of pollinator visits to flowers of three species: Aster, Goldenrod, and Sunflower.
+### Run the test
 
-- Question: What test should you use to compare mean visits among these three species?
+Both Chi-square and G-tests assess whether observed frequencies differ from expected frequencies under the null hypothesis of no association. They usually give similar results; the G-test is slightly preferred for smaller samples.
 
-**Scenario 3**: Relationship Between Two Variables
+```{r chisq-test}
+# Chi-square test
+chisq_result <- chisq.test(nest_data)
+chisq_result
 
-A forester records tree diameter (cm) and age (years) for a sample of trees.
+# G-test (likelihood ratio test)
+g_result <- GTest(nest_data)
+g_result
+```
 
-- Question: What test should you use to test whether tree diameter predicts age?
+### Interpret the output
 
-**Scenario 4**: Categorical Data
+**Key elements to examine:**
 
-A conservationist records whether birds are Present or Absent at two sites: Restored and Unrestored.
+1. **Test statistic** (X-squared or G): Measures how much observed frequencies deviate from expected
+2. **Degrees of freedom**: (rows - 1) × (columns - 1) = (2-1) × (3-1) = 2
+3. **p-value**: Probability of seeing this much deviation if there's no real association
 
-- Question: What test should you use to see if bird presence differs between restored and unrestored sites?
+```{r chisq-interpret}
+# Look at expected values (what we'd see if no association)
+chisq_result$expected
 
-### Deliverables 
+# Look at residuals (where are the biggest deviations?)
+chisq_result$residuals
+```
 
-For each of the 4 scenarios above, run the appropriate statistical test, and provide:
+**Reading the residuals:** Positive residuals mean more observations than expected; negative means fewer. Here, oaks have more nests than expected (+2.2), while maple has fewer (-2.0).
 
-1. Results statements including:
+### Calculate effect size
 
-- The correct test statistics
+For Chi-square tests, **Cramér's V** measures effect size (0 = no association, 1 = perfect association):
 
-2. Associated figures with correct figure legends.
+```{r cramer-v}
+# Cramér's V
+n <- sum(nest_data)
+chi_sq <- chisq_result$statistic
+min_dim <- min(nrow(nest_data), ncol(nest_data)) - 1
+cramers_v <- sqrt(chi_sq / (n * min_dim))
+names(cramers_v) <- "Cramér's V"
+cramers_v
+
+# Interpretation: V < 0.1 = negligible, 0.1-0.3 = small, 0.3-0.5 = medium, > 0.5 = large
+```
+
+### Visualize
+
+```{r chisq-plot, fig.cap="Proportion of trees with bird nests by tree species. Error bars show 95% confidence intervals for proportions."}
+# Calculate proportions and confidence intervals
+nest_summary <- data.frame(
+  Species = c("Oak", "Pine", "Maple"),
+  Nests = c(25, 15, 10),
+  Total = c(50, 50, 50)
+)
+nest_summary$Proportion <- nest_summary$Nests / nest_summary$Total
+nest_summary$SE <- sqrt(nest_summary$Proportion * (1 - nest_summary$Proportion) / nest_summary$Total)
+nest_summary$Lower <- nest_summary$Proportion - 1.96 * nest_summary$SE
+nest_summary$Upper <- nest_summary$Proportion + 1.96 * nest_summary$SE
+
+ggplot(nest_summary, aes(x = Species, y = Proportion, fill = Species)) +
+  geom_col(width = 0.6) +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper), width = 0.2) +
+  scale_fill_manual(values = c("forestgreen", "steelblue", "coral")) +
+  scale_y_continuous(limits = c(0, 0.7), labels = scales::percent) +
+  labs(x = "Tree Species",
+       y = "Proportion with Nests",
+       title = "Bird Nesting Preferences by Tree Species") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### Write the results
+
+**Template:**
+
+> We tested whether bird nesting was associated with tree species using a [chi-square test / G-test]. [State result]. [Describe pattern].
+
+**Example:**
+
+> Bird nesting frequency differed significantly among tree species (χ² = 9.0, df = 2, p = 0.011, Cramér's V = 0.24). Oaks had the highest proportion of nests (50%), followed by pine (30%) and maple (20%) (**Fig. X**).
 
 ---
 
-Start here again if using this chapter to analyze data for your species interaction lab
+## t-test
 
-## Statistical analyses for your species interaction lab
+**Use when:** Explanatory is categorical (2 groups), response is continuous
 
-Using the statistical tests provided here, select your statistical test based on the data type for your response and explanatory variable, run a statistical test, record your results, and create a figure!
+**Question type:** Do the means of two groups differ?
 
+### The scenario
+
+You measured leaf nitrogen content (%) in plants from sunny vs. shady habitats. Does nitrogen differ between habitats?
+
+- **Response**: Leaf nitrogen (%) — continuous
+- **Explanatory**: Habitat (sunny/shady) — categorical, 2 groups
+
+### Create the data
+
+```{r ttest-data}
+# Simulated leaf nitrogen data
+sunny <- c(2.1, 2.4, 2.3, 2.6, 2.2, 2.5, 2.3, 2.4, 2.1, 2.5,
+           2.3, 2.6, 2.4, 2.2, 2.5)
+shady <- c(2.8, 3.1, 2.9, 3.0, 2.7, 3.2, 2.9, 3.1, 3.0, 2.8,
+           3.1, 2.9, 3.0, 3.2, 2.8)
+
+# Combine into data frame
+nitrogen <- data.frame(
+  nitrogen_pct = c(sunny, shady),
+  habitat = rep(c("Sunny", "Shady"), each = 15)
+)
+
+# Quick summary
+nitrogen %>%
+  group_by(habitat) %>%
+  summarise(
+    n = n(),
+    mean = mean(nitrogen_pct),
+    sd = sd(nitrogen_pct),
+    se = sd / sqrt(n)
+  )
+```
+
+### Check assumptions
+
+Before running a t-test, check:
+
+1. **Independence**: Observations are independent (study design)
+2. **Normality**: Data within each group are approximately normal
+3. **Equal variance**: Groups have similar spread (for Student's t-test)
+
+```{r ttest-assumptions, fig.cap="Checking normality with boxplots and QQ plots. Data appear approximately normal with similar spread."}
+# Visual check
+par(mfrow = c(1, 2))
+boxplot(nitrogen_pct ~ habitat, data = nitrogen, 
+        main = "Nitrogen by Habitat", ylab = "Nitrogen (%)")
+
+# QQ plot for each group
+qqnorm(sunny, main = "QQ Plot: Sunny"); qqline(sunny)
+```
+
+```{r ttest-assumptions2}
+# Formal tests (optional - visual checks usually sufficient)
+# Shapiro-Wilk for normality
+shapiro.test(sunny)
+shapiro.test(shady)
+
+# Levene's test for equal variance
+leveneTest(nitrogen_pct ~ habitat, data = nitrogen)
+```
+
+Both groups appear normal, and variances are similar (Levene's test p > 0.05). We can proceed with a standard t-test.
+
+### Run the test
+
+```{r ttest-run}
+# Two-sample t-test (assuming equal variances)
+t_result <- t.test(nitrogen_pct ~ habitat, data = nitrogen, var.equal = TRUE)
+t_result
+
+# If variances are unequal, use Welch's t-test (the default)
+# t.test(nitrogen_pct ~ habitat, data = nitrogen, var.equal = FALSE)
+```
+
+### Interpret the output
+
+**Key elements:**
+
+1. **t-statistic**: How many standard errors apart the means are
+2. **df**: Degrees of freedom (n₁ + n₂ - 2 for pooled variance)
+3. **p-value**: Probability of seeing this difference if null is true
+4. **95% CI**: Confidence interval for the difference in means
+5. **Sample means**: Listed at the bottom
+
+The 95% CI for the difference (-0.76 to -0.51) doesn't include zero, consistent with the significant p-value.
+
+### Calculate effect size
+
+```{r ttest-effect}
+# Cohen's d
+mean_diff <- mean(shady) - mean(sunny)
+pooled_sd <- sqrt((sd(sunny)^2 + sd(shady)^2) / 2)
+cohens_d <- mean_diff / pooled_sd
+cohens_d
+
+# Interpretation: d = 0.2 small, 0.5 medium, 0.8 large
+```
+
+### Visualize
+
+```{r ttest-plot, fig.cap="Leaf nitrogen content by habitat. Points show individual measurements; bars show means ± SE. Shady habitat had significantly higher nitrogen content."}
+# Calculate summary statistics
+nitrogen_summary <- nitrogen %>%
+  group_by(habitat) %>%
+  summarise(
+    mean = mean(nitrogen_pct),
+    se = sd(nitrogen_pct) / sqrt(n())
+  )
+
+ggplot(nitrogen, aes(x = habitat, y = nitrogen_pct, color = habitat)) +
+  geom_jitter(width = 0.1, alpha = 0.5, size = 2) +
+  geom_point(data = nitrogen_summary, aes(y = mean), 
+             size = 4, shape = 18) +
+  geom_errorbar(data = nitrogen_summary, 
+                aes(y = mean, ymin = mean - se, ymax = mean + se),
+                width = 0.1, linewidth = 1) +
+  scale_color_manual(values = c("coral", "forestgreen")) +
+  labs(x = "Habitat",
+       y = "Leaf Nitrogen (%)",
+       title = "Leaf Nitrogen Content by Habitat") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### Write the results
+
+**Template:**
+
+> We compared [response] between [group 1] and [group 2] using a [two-sample / paired / Welch's] t-test. [State result]. [Describe direction and magnitude].
+
+**Example:**
+
+> Leaf nitrogen content differed significantly between habitats (t = -9.35, df = 28, p < 0.001, Cohen's d = 3.4). Plants in shady habitats had higher nitrogen (mean = 2.95%, SE = 0.04) than those in sunny habitats (mean = 2.36%, SE = 0.04) (**Fig. X**).
+
+---
+
+## ANOVA
+
+**Use when:** Explanatory is categorical (3+ groups), response is continuous
+
+**Question type:** Do the means of three or more groups differ?
+
+### The scenario
+
+You measured plant height (cm) across three habitat types: Desert, Forest, and Wetland. Does height differ among habitats?
+
+- **Response**: Plant height (cm) — continuous  
+- **Explanatory**: Habitat (desert/forest/wetland) — categorical, 3 groups
+
+### Create the data
+
+```{r anova-data}
+# Simulated plant height data
+desert <- c(12, 15, 11, 14, 13, 10, 16, 12, 14, 13)
+forest <- c(25, 28, 24, 27, 26, 29, 23, 25, 27, 26)
+wetland <- c(35, 38, 32, 36, 34, 37, 33, 35, 36, 34)
+
+# Combine into data frame
+height_data <- data.frame(
+  height = c(desert, forest, wetland),
+  habitat = factor(rep(c("Desert", "Forest", "Wetland"), each = 10),
+                   levels = c("Desert", "Forest", "Wetland"))
+)
+
+# Summary
+height_data %>%
+  group_by(habitat) %>%
+  summarise(
+    n = n(),
+    mean = mean(height),
+    sd = sd(height),
+    se = sd / sqrt(n)
+  )
+```
+
+### Check assumptions
+
+ANOVA assumes:
+
+1. **Independence**: Observations are independent
+2. **Normality**: Residuals are approximately normal
+3. **Homogeneity of variance**: Groups have similar spread
+
+```{r anova-assumptions}
+# Visual check of distributions
+boxplot(height ~ habitat, data = height_data,
+        main = "Plant Height by Habitat",
+        ylab = "Height (cm)")
+
+# Levene's test for equal variance
+leveneTest(height ~ habitat, data = height_data)
+```
+
+Variances appear similar across groups (Levene's p > 0.05).
+
+### Run the test
+
+```{r anova-run}
+# Fit ANOVA model
+anova_model <- aov(height ~ habitat, data = height_data)
+summary(anova_model)
+```
+
+### Interpret the output
+
+**Key elements of the ANOVA table:**
+
+| Column | Meaning |
+|--------|---------|
+| Df | Degrees of freedom (groups - 1 for habitat; total - groups for residuals) |
+| Sum Sq | Variation explained by habitat vs. unexplained |
+| Mean Sq | Sum Sq / Df |
+| F value | Ratio of between-group to within-group variance |
+| Pr(>F) | p-value |
+
+A significant F-test tells you that **at least two groups differ**, but not which ones. For that, you need post-hoc tests.
+
+### Post-hoc comparisons
+
+When ANOVA is significant, use post-hoc tests to determine which specific groups differ:
+
+```{r posthoc}
+# Tukey's HSD (Honestly Significant Difference)
+tukey_result <- TukeyHSD(anova_model)
+tukey_result
+
+# Or using emmeans (more flexible)
+emmeans_result <- emmeans(anova_model, pairwise ~ habitat)
+emmeans_result$contrasts
+```
+
+**Reading Tukey output:**
+
+- `diff`: Difference between group means
+- `lwr`, `upr`: 95% confidence interval for the difference
+- `p adj`: Adjusted p-value (corrected for multiple comparisons)
+
+All three pairwise comparisons are significant (all p adj < 0.001).
+
+### Calculate effect size
+
+For ANOVA, **eta-squared (η²)** measures the proportion of variance explained:
+
+```{r anova-effect}
+# Eta-squared
+ss_habitat <- summary(anova_model)[[1]]["habitat", "Sum Sq"]
+ss_total <- sum(summary(anova_model)[[1]][, "Sum Sq"])
+eta_sq <- ss_habitat / ss_total
+eta_sq
+
+# Interpretation: η² = 0.01 small, 0.06 medium, 0.14 large
+```
+
+### Visualize
+
+```{r anova-plot, fig.cap="Plant height across habitat types. Letters indicate significant differences (Tukey's HSD, p < 0.05). All habitats differed significantly from each other."}
+# Calculate summary
+height_summary <- height_data %>%
+  group_by(habitat) %>%
+  summarise(
+    mean = mean(height),
+    se = sd(height) / sqrt(n())
+  )
+
+ggplot(height_data, aes(x = habitat, y = height, fill = habitat)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+  geom_jitter(width = 0.1, alpha = 0.5) +
+  scale_fill_manual(values = c("sandybrown", "forestgreen", "steelblue")) +
+  labs(x = "Habitat",
+       y = "Plant Height (cm)",
+       title = "Plant Height Across Habitat Types") +
+  # Add significance letters
+  annotate("text", x = 1:3, y = c(18, 31, 40), 
+           label = c("a", "b", "c"), size = 5, fontface = "bold") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### Write the results
+
+**Template:**
+
+> We compared [response] among [groups] using one-way ANOVA [with post-hoc test]. [State overall result]. [Describe pattern with post-hoc results].
+
+**Example:**
+
+> Plant height differed significantly among habitat types (F₂,₂₇ = 320.3, p < 0.001, η² = 0.96). Post-hoc comparisons (Tukey's HSD) revealed that all habitats differed from each other (all p < 0.001): wetland plants were tallest (mean = 35.0 cm, SE = 0.56), followed by forest (mean = 26.0 cm, SE = 0.58) and desert (mean = 13.0 cm, SE = 0.56) (**Fig. X**).
+
+---
+
+## Linear Regression
+
+**Use when:** Both explanatory AND response variables are continuous
+
+**Question type:** Is there a relationship between two continuous variables? Can we predict Y from X?
+
+### The scenario
+
+You measured water temperature (°C) and fish count at 20 river sites. Does fish abundance relate to temperature?
+
+- **Response**: Fish count — continuous (treating as continuous for now)
+- **Explanatory**: Water temperature (°C) — continuous
+
+### Create the data
+
+```{r regression-data}
+# Simulated fish-temperature data
+temperature <- c(12, 14, 15, 16, 17, 18, 19, 20, 21, 22,
+                 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
+fish_count <- c(45, 52, 55, 60, 62, 68, 72, 75, 80, 85,
+                82, 78, 74, 70, 65, 58, 52, 45, 38, 30)
+
+# Add some noise
+set.seed(123)
+fish_count <- fish_count + rnorm(20, 0, 5)
+
+fish_data <- data.frame(temperature, fish_count)
+
+# Quick look
+head(fish_data)
+```
+
+### Explore the relationship first
+
+```{r regression-explore, fig.cap="Scatterplot of fish count vs. water temperature. The relationship appears curved, not linear."}
+ggplot(fish_data, aes(x = temperature, y = fish_count)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(x = "Water Temperature (°C)",
+       y = "Fish Count",
+       title = "Fish Abundance vs. Water Temperature") +
+  theme_minimal()
+```
+
+**Important observation:** This relationship looks curved (unimodal), not linear! Fish abundance peaks at intermediate temperatures and declines at extremes. A simple linear regression would miss this pattern.
+
+For teaching purposes, let's proceed with linear regression to show how to detect this problem, then discuss solutions.
+
+### Run the test
+
+```{r regression-run}
+# Simple linear regression
+lm_model <- lm(fish_count ~ temperature, data = fish_data)
+summary(lm_model)
+```
+
+### Interpret the output
+
+**Key elements:**
+
+| Component | Meaning |
+|-----------|---------|
+| Estimate (Intercept) | Predicted Y when X = 0 |
+| Estimate (temperature) | Slope: change in Y per unit change in X |
+| Std. Error | Uncertainty in coefficient estimate |
+| t value | Coefficient / Std. Error |
+| Pr(>\|t\|) | p-value for each coefficient |
+| R-squared | Proportion of variance explained (0-1) |
+| F-statistic | Overall model significance |
+
+Here, the slope is not significant (p = 0.66), and R² is essentially zero. Does this mean there's no relationship? **No!** It means there's no *linear* relationship.
+
+### Check assumptions with diagnostic plots
+
+```{r regression-diagnostics, fig.cap="Diagnostic plots for linear regression. The curved pattern in residuals vs. fitted indicates the relationship is not linear."}
+par(mfrow = c(2, 2))
+plot(lm_model)
+```
+
+**What the residual plot reveals:** There's a clear U-shape in the residuals vs. fitted plot—the model systematically under-predicts at the extremes and over-predicts in the middle. This confirms the relationship is not linear.
+
+### The solution: Polynomial regression
+
+```{r regression-poly}
+# Add a quadratic term
+lm_poly <- lm(fish_count ~ temperature + I(temperature^2), data = fish_data)
+summary(lm_poly)
+```
+
+Now both terms are significant, and R² = 0.93! The quadratic model captures the curved relationship.
+
+### Visualize
+
+```{r regression-plot-final, fig.cap="Fish abundance shows a unimodal relationship with water temperature. The quadratic model (curved line) fits much better than a linear model would."}
+# Create prediction data
+pred_data <- data.frame(temperature = seq(12, 32, by = 0.5))
+pred_data$predicted <- predict(lm_poly, newdata = pred_data)
+
+ggplot(fish_data, aes(x = temperature, y = fish_count)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_line(data = pred_data, aes(y = predicted), 
+            color = "firebrick", linewidth = 1.2) +
+  labs(x = "Water Temperature (°C)",
+       y = "Fish Count",
+       title = "Fish Abundance vs. Water Temperature",
+       subtitle = "Quadratic fit: y = β₀ + β₁x + β₂x²") +
+  theme_minimal()
+```
+
+### Write the results
+
+**Template for simple regression:**
+
+> We examined the relationship between [X] and [Y] using linear regression. [State result]. [Describe relationship].
+
+**Example (for our quadratic model):**
+
+> Fish abundance showed a significant unimodal relationship with water temperature (quadratic regression: F₂,₁₇ = 116.3, p < 0.001, R² = 0.93). Abundance peaked at intermediate temperatures (~22°C) and declined toward both thermal extremes (**Fig. X**).
+
+---
+
+## Logistic Regression
+
+**Use when:** Response is binary (categorical with 2 levels), explanatory is continuous
+
+**Question type:** Does the probability of an outcome change with a continuous predictor?
+
+### The scenario
+
+You surveyed bird presence/absence at 50 sites across an elevation gradient. Does the probability of finding the bird change with elevation?
+
+- **Response**: Bird presence (1) / absence (0) — binary
+- **Explanatory**: Elevation (m) — continuous
+
+### Create the data
+
+```{r logistic-data 1}
+# Simulated presence/absence data
+set.seed(42)
+elevation <- seq(500, 2500, length.out = 50)
+# True probability decreases with elevation
+true_prob <- plogis(2 - 0.002 * elevation)
+presence <- rbinom(50, 1, true_prob)
+
+bird_data <- data.frame(elevation, presence)
+
+# Summary
+table(bird_data$presence)
+```
+
+### Visualize raw data
+
+```{r logistic-explore, fig.cap="Bird presence (1) and absence (0) across an elevation gradient. Points are jittered vertically to show overlapping observations."}
+ggplot(bird_data, aes(x = elevation, y = presence)) +
+  geom_jitter(height = 0.05, width = 0, alpha = 0.7, size = 2) +
+  labs(x = "Elevation (m)",
+       y = "Bird Presence (1) / Absence (0)",
+       title = "Bird Occurrence Across Elevation") +
+  theme_minimal()
+```
+
+### Run the test
+
+Logistic regression uses the `glm()` function with `family = binomial`:
+
+```{r logistic-run}
+# Logistic regression
+logistic_model <- glm(presence ~ elevation, data = bird_data, family = binomial)
+summary(logistic_model)
+```
+
+### Interpret the output
+
+Logistic regression coefficients are on the **log-odds scale**, which isn't intuitive. Let's convert:
+
+```{r logistic-interpret}
+# Coefficients are log-odds
+coef(logistic_model)
+
+# Convert to odds ratios
+exp(coef(logistic_model))
+
+# For every 1m increase in elevation, odds of presence are multiplied by 0.997
+# (i.e., odds decrease by 0.3%)
+
+# More interpretable: effect per 100m
+exp(coef(logistic_model)["elevation"] * 100)
+# For every 100m increase, odds of presence multiply by 0.76 (decrease by 24%)
+```
+
+### Test significance
+
+```{r logistic-test 10}
+# Likelihood ratio test (preferred over Wald test from summary)
+null_model <- glm(presence ~ 1, data = bird_data, family = binomial)
+anova(null_model, logistic_model, test = "Chisq")
+```
+
+### Visualize with fitted probability curve
+
+```{r logistic-plot 10, fig.cap="Probability of bird presence decreases significantly with elevation. Points show observed presence/absence; curve shows fitted probability from logistic regression."}
+# Create prediction data
+pred_elev <- data.frame(elevation = seq(500, 2500, by = 10))
+pred_elev$prob <- predict(logistic_model, newdata = pred_elev, type = "response")
+
+ggplot(bird_data, aes(x = elevation, y = presence)) +
+  geom_jitter(height = 0.03, width = 0, alpha = 0.5, size = 2) +
+  geom_line(data = pred_elev, aes(y = prob), 
+            color = "firebrick", linewidth = 1.2) +
+  labs(x = "Elevation (m)",
+       y = "Probability of Presence",
+       title = "Bird Occurrence Probability vs. Elevation") +
+  scale_y_continuous(limits = c(-0.05, 1.05)) +
+  theme_minimal()
+```
+
+### Write the results
+
+**Template:**
+
+> We modeled the probability of [outcome] as a function of [predictor] using logistic regression. [State result]. [Describe direction and magnitude].
+
+**Example:**
+
+> The probability of bird presence decreased significantly with elevation (logistic regression: χ² = 8.94, df = 1, p = 0.003). For every 100 m increase in elevation, the odds of presence decreased by 24% (OR = 0.76, 95% CI: 0.63–0.92) (**Fig. X**).
+
+---
+
+## Summary: Choosing the right test
+
+| Your Question | Explanatory (X) | Response (Y) | Test |
+|---------------|-----------------|--------------|------|
+| Are these two variables associated? | Categorical | Categorical | Chi-square / G-test |
+| Do these two groups differ? | Categorical (2 groups) | Continuous | t-test |
+| Do these 3+ groups differ? | Categorical (3+ groups) | Continuous | ANOVA + post-hoc |
+| Is there a relationship? | Continuous | Continuous | Regression |
+| Does probability change with X? | Continuous | Binary | Logistic regression |
+| Do counts change with treatment? | Categorical | Count | Poisson regression (GLM chapter) |
+
+## What if assumptions aren't met?
+
+We've emphasized checking assumptions throughout this chapter. Here's a quick reference for what to do when things go wrong:
+
+| Assumption | How to check | If violated |
+|------------|--------------|-------------|
+| Normality (t-test, ANOVA) | QQ plot, Shapiro-Wilk | Use Wilcoxon / Kruskal-Wallis |
+| Equal variance | Levene's test, boxplots | Use Welch's t-test or Games-Howell |
+| Linearity (regression) | Residual plot | Transform data or use polynomial |
+| Independence | Study design | Use mixed models |
+| Expected counts > 5 (Chi-square) | Check expected values | Use Fisher's exact test |
+
+For more details, see the **Data Exploration and Assumption Checking** chapter.
+
+## Looking ahead: Generalized Linear Models
+
+This chapter covered the "classic" tests. But what about:
+
+- Count data (number of offspring, pollinator visits)?
+- Proportions (germination rate, survival probability)?
+- Highly skewed continuous data?
+
+The next chapter on **Generalized Linear Models (GLMs)** provides a unified framework for all these situations. The tests in this chapter are actually special cases of GLMs:
+
+| This chapter | GLM equivalent |
+|--------------|----------------|
+| t-test / ANOVA | GLM with Gaussian family |
+| Logistic regression | GLM with binomial family |
+| (Poisson regression) | GLM with Poisson family |
+
+Understanding the tests in this chapter makes GLMs much easier to learn.
+
+---
+
+## Assignment
+
+### Part 1: Identify the test
+
+For each scenario, identify the appropriate statistical test:
+
+**Scenario 1**: A biologist measures nectar volume (μL) in flowers from two populations.
+
+**Scenario 2**: An ecologist counts the number of bird species at 40 sites and measures vegetation density at each site.
+
+**Scenario 3**: A botanist categorizes plant health (healthy/stressed/dying) and wants to know if it's related to soil type (clay/sand/loam).
+
+**Scenario 4**: A wildlife biologist records whether elk are present or absent at camera traps and wants to know if presence relates to distance from water.
+
+### Part 2: Run and interpret
+
+Choose **two** of the scenarios below (or use your own project data). For each:
+
+1. Create or import the data
+2. Check assumptions with appropriate plots
+3. Run the statistical test
+4. Calculate effect size
+5. Create a publication-quality figure
+6. Write a complete results statement
+
+**Scenario A**: Compare pollinator visits to three flower species
+
+```{r assignment-data-a, eval=FALSE}
+# Sample data for Scenario A
+set.seed(123)
+aster <- rpois(15, lambda = 8)
+goldenrod <- rpois(15, lambda = 12)
+sunflower <- rpois(15, lambda = 15)
+
+pollinator_data <- data.frame(
+  visits = c(aster, goldenrod, sunflower),
+  species = rep(c("Aster", "Goldenrod", "Sunflower"), each = 15)
+)
+```
+
+**Scenario B**: Test relationship between tree diameter and age
+
+```{r assignment-data-b, eval=FALSE}
+# Sample data for Scenario B
+set.seed(456)
+tree_data <- data.frame(
+  diameter_cm = seq(10, 80, length.out = 25) + rnorm(25, 0, 5),
+  age_years = seq(10, 80, length.out = 25) * 1.2 + rnorm(25, 0, 8)
+)
+```
+
+**Scenario C**: Bird presence at restored vs. unrestored sites
+
+```{r assignment-data-c, eval=FALSE}
+# Sample data for Scenario C
+bird_sites <- data.frame(
+  site_type = c(rep("Restored", 30), rep("Unrestored", 30)),
+  bird_present = c(rbinom(30, 1, 0.7), rbinom(30, 1, 0.3))
+)
+```
+
+### Deliverables
+
+For each analysis, submit:
+
+1. R code (annotated with comments)
+2. Assumption check plots with brief interpretation
+3. Results figure with proper caption
+4. Written results statement (2-3 sentences following the templates in this chapter)

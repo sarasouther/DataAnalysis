@@ -1,0 +1,716 @@
+# Analyzing Categorical Data: Chi-square and Related Tests
+
+When both your response and explanatory variables are categorical, you need methods designed for counts and proportions. This chapter covers the chi-square family of tests—tools for asking whether categorical variables are associated with each other, or whether observed frequencies match expected patterns.
+
+These tests are fundamentally different from t-tests and regression: instead of comparing means or fitting lines, we compare **observed counts** to **expected counts**. If what we observe differs substantially from what we'd expect under the null hypothesis, we conclude there's an association.
+
+## The core question
+
+Chi-square tests ask: **Are these categorical variables independent, or are they associated?**
+
+Independence means that knowing one variable tells you nothing about the other. Association means that the categories of one variable are linked to the categories of the other.
+
+**Example:** Is bird nest success (successful/failed) independent of habitat type (forest/grassland/wetland)? If independent, the proportion of successful nests should be similar across all habitats. If associated, success rates differ by habitat.
+
+## Types of chi-square tests
+
+| Test | Question | Data structure |
+|------|----------|----------------|
+| **Chi-square test of independence** | Are two categorical variables associated? | Contingency table (rows × columns) |
+| **Chi-square goodness of fit** | Do observed frequencies match expected frequencies? | One categorical variable |
+| **G-test** | Same as chi-square (alternative calculation) | Either structure |
+| **Fisher's exact test** | Same as independence test (for small samples) | 2×2 or small tables |
+
+## Setup
+
+```{r setup-categorical, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(DescTools)    # For G-test, Cramér's V
+library(vcd)          # For mosaic plots
+library(epitools)     # For odds ratios
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Chi-square Test of Independence
+
+## The question
+
+"Are these two categorical variables associated, or are they independent?"
+
+## Ecological example: Nest success and habitat type
+
+You're studying songbird nest success across three habitat types. You monitored 180 nests and recorded whether each nest successfully fledged young (yes/no) and the habitat type (forest/grassland/wetland).
+
+**Research question:** Does nest success depend on habitat type?
+
+```{r independence-data}
+# Create the contingency table
+# Rows: Outcome (Success/Failure)
+# Columns: Habitat type
+nest_table <- matrix(c(35, 25, 18,    # Successful nests
+                       15, 35, 52),   # Failed nests
+                     nrow = 2, byrow = TRUE,
+                     dimnames = list(
+                       Outcome = c("Success", "Failure"),
+                       Habitat = c("Forest", "Grassland", "Wetland")))
+nest_table
+
+# Convert to data frame for some visualizations
+nest_df <- as.data.frame(as.table(nest_table))
+names(nest_df) <- c("Outcome", "Habitat", "Count")
+nest_df
+```
+
+Let's calculate the success rates in each habitat:
+
+```{r success-rates}
+# Success rate by habitat
+success_rates <- data.frame(
+  Habitat = c("Forest", "Grassland", "Wetland"),
+  Success = c(35, 25, 18),
+  Total = c(50, 60, 70),
+  Rate = c(35/50, 25/60, 18/70)
+)
+success_rates$Percent <- round(success_rates$Rate * 100, 1)
+success_rates
+```
+
+Forest has 70% nest success, grassland 42%, and wetland only 26%. These look different—but could this pattern arise by chance?
+
+### Hypotheses
+
+> **H₀:** Nest success is independent of habitat type (success rates are equal across habitats)
+> 
+> **H_A:** Nest success is associated with habitat type (success rates differ among habitats)
+
+### The logic: Observed vs. expected
+
+Chi-square tests compare what we **observed** to what we'd **expect** if the null hypothesis were true.
+
+Under independence, we expect the success rate to be the same in all habitats. The overall success rate is:
+
+```{r overall-rate}
+total_success <- sum(nest_table["Success", ])
+total_nests <- sum(nest_table)
+overall_rate <- total_success / total_nests
+overall_rate
+```
+
+Overall, 43.3% of nests succeeded. If habitat doesn't matter, we'd expect 43.3% success in forest, grassland, AND wetland.
+
+**Expected counts** are calculated as:
+
+$$E_{ij} = \frac{(\text{Row total}_i) \times (\text{Column total}_j)}{\text{Grand total}}$$
+
+```{r expected-counts}
+# Calculate expected counts manually
+row_totals <- rowSums(nest_table)
+col_totals <- colSums(nest_table)
+grand_total <- sum(nest_table)
+
+expected <- outer(row_totals, col_totals) / grand_total
+expected
+```
+
+Compare observed to expected:
+- Forest: Observed 35 successes, expected 21.7 (more than expected!)
+- Wetland: Observed 18 successes, expected 30.3 (fewer than expected!)
+
+### The chi-square statistic
+
+The chi-square statistic measures the total discrepancy between observed and expected:
+
+$$\chi^2 = \sum \frac{(O - E)^2}{E}$$
+
+Large values indicate observed counts deviate substantially from expected.
+
+```{r chi-square-manual}
+# Calculate chi-square manually
+chi_sq_manual <- sum((nest_table - expected)^2 / expected)
+chi_sq_manual
+```
+
+### Run the test
+
+```{r chi-square-test}
+# Chi-square test of independence
+chi_result <- chisq.test(nest_table)
+chi_result
+```
+
+### Interpret the output
+
+| Component | Value | Meaning |
+|-----------|-------|---------|
+| X-squared | 19.73 | Chi-square statistic |
+| df | 2 | Degrees of freedom: (rows-1) × (cols-1) = (2-1) × (3-1) |
+| p-value | 5.2e-05 | Probability of this result if variables were independent |
+
+**Conclusion:** p < 0.001, so we reject H₀. Nest success is significantly associated with habitat type.
+
+### Examine the pattern: Which cells drive the result?
+
+The overall test tells us there's an association, but not where. **Residuals** show which cells deviate most from expected:
+
+```{r residuals}
+# Standardized residuals (Pearson residuals)
+chi_result$residuals
+
+# Standardized residuals > |2| indicate significant deviation
+```
+
+**Reading residuals:**
+- **Positive residual:** More observations than expected
+- **Negative residual:** Fewer observations than expected
+- **|Residual| > 2:** This cell contributes substantially to the chi-square
+
+**Interpretation:**
+- Forest has more successful nests than expected (+2.9) and fewer failures (-2.4)
+- Wetland has fewer successful nests than expected (-2.2) and more failures (+1.9)
+- Grassland is close to expected
+
+### Check assumptions
+
+Chi-square tests assume:
+
+1. **Independence:** Observations are independent (each nest counted once)
+2. **Expected cell counts ≥ 5:** All expected values should be at least 5
+
+```{r check-expected}
+# Check expected counts
+chi_result$expected
+```
+
+All expected counts are > 5, so the assumption is met.
+
+**If expected counts are too small:** Use Fisher's exact test (covered below) or combine categories.
+
+### Effect size: Cramér's V
+
+Statistical significance doesn't tell us how strong the association is. **Cramér's V** measures effect size for chi-square tests:
+
+$$V = \sqrt{\frac{\chi^2}{n \times (k - 1)}}$$
+
+where k is the minimum of rows or columns.
+
+```{r cramers-v}
+# Cramér's V
+CramerV(nest_table)
+
+# Or manually
+n <- sum(nest_table)
+k <- min(nrow(nest_table), ncol(nest_table))
+cramers_v <- sqrt(chi_result$statistic / (n * (k - 1)))
+names(cramers_v) <- "Cramér's V"
+cramers_v
+```
+
+**Interpretation of Cramér's V:**
+- V < 0.1: Negligible association
+- V = 0.1–0.3: Small association
+- V = 0.3–0.5: Medium association
+- V > 0.5: Large association
+
+Our V = 0.33 indicates a medium-strength association between habitat and nest success.
+
+### Visualize
+
+#### Bar plot
+
+```{r chi-barplot, fig.cap="Figure 1. Nest success rates differ significantly among habitat types (χ² = 19.7, p < 0.001). Forest had the highest success rate (70%), while wetland had the lowest (26%)."}
+ggplot(success_rates, aes(x = Habitat, y = Percent, fill = Habitat)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = paste0(Percent, "%")), vjust = -0.5, size = 4) +
+  scale_fill_manual(values = c("forestgreen", "goldenrod", "steelblue")) +
+  scale_y_continuous(limits = c(0, 85), expand = c(0, 0)) +
+  labs(x = "Habitat Type",
+       y = "Nest Success Rate (%)",
+       title = "Nest Success by Habitat") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+#### Mosaic plot
+
+Mosaic plots show both proportions AND sample sizes:
+
+```{r mosaic-plot, fig.cap="Mosaic plot of nest success by habitat. Tile width represents sample size (more nests monitored in wetland); tile height represents proportion in each outcome category. Shading indicates residuals (blue = more than expected, red = fewer)."}
+# Using vcd package
+mosaic(nest_table, shade = TRUE, legend = TRUE,
+       main = "Nest Success by Habitat",
+       labeling = labeling_border(rot_labels = c(0, 0, 0, 0)))
+```
+
+### Sample methods and results
+
+**Methods:**
+
+> We tested whether nest success was associated with habitat type using a chi-square test of independence. We monitored nests (n = 180) across three habitat types (forest, n = 50; grassland, n = 60; wetland, n = 70) and recorded whether each nest successfully fledged at least one young. We verified that all expected cell counts exceeded 5 and calculated Cramér's V as a measure of effect size. Standardized residuals were examined to identify which habitat types deviated from expected patterns. All analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> Nest success was significantly associated with habitat type (χ² = 19.7, df = 2, p < 0.001, Cramér's V = 0.33; **Fig. 1**). Forest had the highest nest success rate (70%), followed by grassland (42%) and wetland (26%). Standardized residuals indicated that forest had significantly more successful nests than expected (residual = +2.9), while wetland had significantly fewer (residual = −2.2). These results suggest that habitat type is an important predictor of reproductive success in this system.
+
+---
+
+# Part 2: Chi-square Goodness of Fit
+
+## The question
+
+"Do observed frequencies match expected frequencies based on theory, prior data, or hypothesized proportions?"
+
+This test involves **one categorical variable** and compares observed counts to specified expected proportions.
+
+## Ecological example: Seed dispersal distances
+
+You're studying seed dispersal by wind. Based on a dispersal kernel model, you predict that seeds should land in four distance classes with the following proportions: 0–5m (50%), 5–10m (30%), 10–20m (15%), >20m (5%).
+
+You collected 200 seeds and recorded their distances:
+
+```{r goodness-data}
+# Observed counts
+observed <- c(120, 48, 24, 8)
+distance_class <- c("0-5m", "5-10m", "10-20m", ">20m")
+names(observed) <- distance_class
+
+# Expected proportions (from model)
+expected_prop <- c(0.50, 0.30, 0.15, 0.05)
+
+observed
+```
+
+**Research question:** Do observed dispersal distances match the predicted distribution?
+
+### Hypotheses
+
+> **H₀:** Observed frequencies match expected proportions (model is correct)
+> 
+> **H_A:** Observed frequencies differ from expected proportions (model needs revision)
+
+### Run the test
+
+```{r goodness-test}
+# Chi-square goodness of fit
+gof_result <- chisq.test(observed, p = expected_prop)
+gof_result
+
+# Compare observed to expected
+data.frame(
+  Distance = distance_class,
+  Observed = observed,
+  Expected = gof_result$expected,
+  Residual = round(gof_result$residuals, 2)
+)
+```
+
+### Interpret
+
+χ² = 9.6, df = 3, p = 0.022
+
+The observed distribution differs significantly from the model prediction. Looking at residuals:
+- 0–5m: Observed 120, expected 100 (+2.0 residual) — more short-distance dispersal than predicted
+- 5–10m: Observed 48, expected 60 (−1.5 residual) — somewhat fewer
+- 10–20m: Observed 24, expected 30 (−1.1 residual) — somewhat fewer
+- >20m: Observed 8, expected 10 (−0.6 residual) — close to expected
+
+### Visualize
+
+```{r goodness-plot, fig.cap="Observed seed dispersal distances compared to model predictions. Observed frequencies (bars) deviate significantly from expected (line), with more short-distance dispersal than predicted."}
+gof_df <- data.frame(
+  Distance = factor(distance_class, levels = distance_class),
+  Observed = observed,
+  Expected = gof_result$expected
+)
+
+ggplot(gof_df, aes(x = Distance)) +
+  geom_col(aes(y = Observed), fill = "steelblue", alpha = 0.7, width = 0.6) +
+  geom_point(aes(y = Expected), color = "firebrick", size = 4) +
+  geom_line(aes(y = Expected, group = 1), color = "firebrick", linewidth = 1) +
+  labs(x = "Distance Class",
+       y = "Number of Seeds",
+       title = "Observed vs. Expected Seed Dispersal",
+       subtitle = "Bars = observed, points/line = expected from model") +
+  theme_minimal()
+```
+
+### Results statement
+
+> Observed seed dispersal distances differed significantly from model predictions (χ² = 9.6, df = 3, p = 0.022). Seeds were more concentrated in the 0–5 m class than expected (observed: 60%, expected: 50%), suggesting the dispersal kernel may underestimate short-distance dispersal.
+
+---
+
+# Part 3: Alternative Tests
+
+## G-test (Likelihood Ratio Test)
+
+The **G-test** is an alternative to chi-square that uses the log-likelihood ratio:
+
+$$G = 2 \sum O \times \ln\left(\frac{O}{E}\right)$$
+
+G-tests and chi-square tests usually give similar results. G-tests are slightly preferred for:
+- Smaller sample sizes
+- When you want to decompose complex tables
+- Consistency with other likelihood-based methods
+
+```{r g-test}
+# G-test for our nest data
+GTest(nest_table)
+
+# Compare to chi-square
+chisq.test(nest_table)
+```
+
+Results are very similar: both highly significant.
+
+## Fisher's Exact Test
+
+When expected cell counts are small (< 5), chi-square approximations may be unreliable. **Fisher's exact test** calculates exact probabilities without relying on approximations.
+
+### Example: Rare species occurrence
+
+You're studying whether a rare orchid is associated with a specific mycorrhizal fungus. You surveyed 25 sites:
+
+```{r fisher-data}
+# Small sample contingency table
+orchid_table <- matrix(c(8, 2,    # Fungus present: orchid present/absent
+                         3, 12),  # Fungus absent: orchid present/absent
+                       nrow = 2, byrow = TRUE,
+                       dimnames = list(
+                         Fungus = c("Present", "Absent"),
+                         Orchid = c("Present", "Absent")))
+orchid_table
+```
+
+```{r fisher-check}
+# Check expected counts
+chisq.test(orchid_table)$expected
+```
+
+Some expected counts are below 5, so chi-square may not be reliable.
+
+```{r fisher-test}
+# Fisher's exact test
+fisher.test(orchid_table)
+```
+
+### Interpret Fisher's output
+
+| Component | Value | Meaning |
+|-----------|-------|---------|
+| p-value | 0.0028 | Exact probability of this (or more extreme) association |
+| odds ratio | 14.1 | Odds of orchid presence are 14× higher when fungus is present |
+| 95% CI | [2.0, 144.7] | Confidence interval for odds ratio |
+
+**Conclusion:** Orchid presence is significantly associated with fungus presence (p = 0.003). The wide confidence interval reflects the small sample size.
+
+---
+
+# Part 4: 2×2 Tables and Odds Ratios
+
+For 2×2 contingency tables, the **odds ratio** is a particularly useful measure of effect size.
+
+## Understanding odds and odds ratios
+
+**Odds** = probability of event / probability of non-event = p / (1-p)
+
+**Odds ratio** = odds in group 1 / odds in group 2
+
+```{r odds-ratio}
+# Our orchid-fungus table
+orchid_table
+
+# Calculate odds ratio manually
+# Odds of orchid when fungus present: 8/2 = 4
+# Odds of orchid when fungus absent: 3/12 = 0.25
+# Odds ratio: 4 / 0.25 = 16
+
+# Using epitools
+oddsratio(orchid_table)
+```
+
+**Interpretation of odds ratios:**
+- OR = 1: No association (odds are equal)
+- OR > 1: Odds are higher in the first group (positive association)
+- OR < 1: Odds are lower in the first group (negative association)
+
+Our OR = 16 means orchids are 16 times more likely (in terms of odds) to be present when the fungus is present than when absent.
+
+### Visualize 2×2 tables
+
+```{r odds-plot, fig.cap="Association between mycorrhizal fungus presence and orchid occurrence. Sites with the fungus present have much higher orchid occurrence (80%) than sites without (20%)."}
+orchid_df <- as.data.frame(as.table(orchid_table))
+names(orchid_df) <- c("Fungus", "Orchid", "Count")
+
+# Calculate proportions
+orchid_summary <- orchid_df %>%
+  group_by(Fungus) %>%
+  mutate(Total = sum(Count),
+         Proportion = Count / Total) %>%
+  filter(Orchid == "Present")
+
+ggplot(orchid_summary, aes(x = Fungus, y = Proportion * 100, fill = Fungus)) +
+  geom_col(width = 0.5) +
+  geom_text(aes(label = paste0(round(Proportion * 100), "%")), 
+            vjust = -0.5, size = 5) +
+  scale_fill_manual(values = c("coral", "forestgreen")) +
+  scale_y_continuous(limits = c(0, 100), expand = c(0, 0)) +
+  labs(x = "Mycorrhizal Fungus",
+       y = "Orchid Occurrence (%)",
+       title = "Orchid-Fungus Association") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+---
+
+# Part 5: Common Pitfalls and Solutions
+
+## Pitfall 1: Low expected counts
+
+**Problem:** Chi-square approximation fails when expected counts < 5.
+
+**Solutions:**
+1. Use Fisher's exact test (for 2×2 tables)
+2. Combine categories to increase counts
+3. Use exact tests or simulation-based p-values
+
+```{r simulation-pvalue}
+# Simulation-based p-value (works for any table size)
+chisq.test(orchid_table, simulate.p.value = TRUE, B = 10000)
+```
+
+## Pitfall 2: Non-independent observations
+
+**Problem:** Same individual counted multiple times, or hierarchical data structure.
+
+**Example:** Counting behaviors from 10 birds, with 50 observations per bird. You have 500 observations, but only 10 independent units.
+
+**Solutions:**
+1. Use individual as the sampling unit (summarize per individual first)
+2. Use mixed models with individual as random effect
+3. Use generalized estimating equations (GEE)
+
+## Pitfall 3: Confusing proportions with counts
+
+**Problem:** Chi-square tests require counts, not proportions or percentages.
+
+**Wrong:**
+```{r wrong-input, eval=FALSE}
+# DON'T DO THIS - proportions instead of counts
+wrong_data <- c(0.70, 0.42, 0.26)  # Success rates
+chisq.test(wrong_data)
+```
+
+**Right:**
+```{r right-input, eval=FALSE}
+# DO THIS - actual counts
+right_data <- matrix(c(35, 25, 18, 15, 35, 52), nrow = 2)
+chisq.test(right_data)
+```
+
+## Pitfall 4: Testing the wrong hypothesis
+
+Chi-square test of independence asks: "Are the variables associated?"
+
+It does NOT ask:
+- "Which groups differ?" (need post-hoc tests or pairwise comparisons)
+- "How much do they differ?" (need effect sizes like Cramér's V or odds ratio)
+- "Is the association causal?" (observational data cannot establish causation)
+
+---
+
+# Part 6: Connection to GLMs
+
+Chi-square tests for 2×2 tables are closely related to **logistic regression**. Both ask whether a binary outcome depends on a categorical predictor.
+
+```{r glm-connection}
+# Our nest success data as individual observations
+set.seed(123)
+nest_individual <- data.frame(
+  habitat = rep(c("Forest", "Grassland", "Wetland"), c(50, 60, 70)),
+  success = c(rep(c(1, 0), c(35, 15)),    # Forest
+              rep(c(1, 0), c(25, 35)),    # Grassland
+              rep(c(1, 0), c(18, 52)))    # Wetland
+)
+
+# Logistic regression
+logistic_model <- glm(success ~ habitat, data = nest_individual, family = binomial)
+summary(logistic_model)
+
+# Compare to chi-square
+# Likelihood ratio test
+anova(logistic_model, test = "Chisq")
+```
+
+The logistic regression gives essentially the same result as the chi-square test, but with more flexibility:
+- Can include continuous predictors
+- Can include multiple predictors
+- Provides coefficients (log-odds) for each level
+
+We'll explore logistic regression fully in the GLM chapter.
+
+---
+
+# Part 7: Summary
+
+## Which test to use?
+
+| Situation | Test | R function |
+|-----------|------|------------|
+| Two categorical variables (adequate sample) | Chi-square test of independence | `chisq.test(table)` |
+| Two categorical variables (small expected counts) | Fisher's exact test | `fisher.test(table)` |
+| One categorical variable vs. expected proportions | Chi-square goodness of fit | `chisq.test(x, p = expected)` |
+| Alternative to chi-square | G-test | `GTest(table)` (DescTools) |
+| 2×2 table effect size | Odds ratio | `oddsratio(table)` (epitools) |
+| Any table effect size | Cramér's V | `CramerV(table)` (DescTools) |
+
+## Assumptions checklist
+
+| Assumption | Check | If violated |
+|------------|-------|-------------|
+| Independence | Study design | Analyze at appropriate level |
+| Expected counts ≥ 5 | `chisq.test()$expected` | Use Fisher's exact or combine categories |
+| Random sampling | Study design | Be cautious about generalization |
+
+## Reporting checklist
+
+Include:
+1. Sample size (total and per category)
+2. Test used and why (chi-square, G-test, or Fisher's)
+3. Test statistic, df, and p-value
+4. Effect size (Cramér's V or odds ratio)
+5. Description of the pattern (which categories differ?)
+6. Figure showing proportions or counts
+
+---
+
+## Sample methods and results templates
+
+### Chi-square test of independence
+
+**Methods:**
+
+> We tested whether [variable 1] was associated with [variable 2] using a chi-square test of independence. We recorded [variable 1] (categories: ...) and [variable 2] (categories: ...) for [n] observations. We verified that all expected cell counts exceeded 5 and calculated Cramér's V as a measure of effect size. [Alternative: We used Fisher's exact test because some expected counts were below 5.] Analyses were performed in R version 4.3.1.
+
+**Results:**
+
+> [Variable 1] was significantly associated with [variable 2] (χ² = [value], df = [value], p = [value], Cramér's V = [value]; **Fig. X**). [Describe pattern: which categories showed higher/lower proportions than expected]. Standardized residuals indicated that [specific cells with |residual| > 2] deviated significantly from expected values.
+
+### Goodness of fit
+
+**Methods:**
+
+> We tested whether observed frequencies of [variable] matched expected proportions using a chi-square goodness-of-fit test. Expected proportions were [source: theory/prior study/hypothesis].
+
+**Results:**
+
+> Observed frequencies differed significantly from expected proportions (χ² = [value], df = [value], p = [value]). [Describe pattern: which categories were over/under-represented].
+
+### Fisher's exact test with odds ratio
+
+**Methods:**
+
+> We tested whether [binary outcome] was associated with [binary predictor] using Fisher's exact test due to low expected cell counts. We calculated the odds ratio with 95% confidence interval.
+
+**Results:**
+
+> [Outcome] was significantly associated with [predictor] (Fisher's exact test: p = [value]). The odds of [outcome] were [X] times higher when [predictor condition] (OR = [value], 95% CI: [lower]–[upper]).
+
+---
+
+## Key takeaways
+
+1. **Chi-square tests compare observed to expected counts** — they ask whether patterns deviate from what chance would predict
+
+2. **Test of independence** for two categorical variables; **goodness of fit** for one variable against expected proportions
+
+3. **Always check expected cell counts** — use Fisher's exact test if any are below 5
+
+4. **Effect sizes matter**: Cramér's V (general) or odds ratio (2×2 tables) quantify association strength
+
+5. **Residuals reveal the pattern** — they show which cells drive significant results
+
+6. **Chi-square connects to logistic regression** — both analyze categorical outcomes, but GLMs offer more flexibility
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Explain the difference between a chi-square test of independence and a chi-square goodness-of-fit test. When would you use each?
+
+2. You run a chi-square test and get p = 0.03 with Cramér's V = 0.08. What do you conclude? Is this result scientifically meaningful?
+
+3. Your contingency table has an expected count of 3.2 in one cell. What should you do?
+
+### Part 2: Test of independence
+
+A botanist studied whether flower color polymorphism (white/pink/purple) varies between two populations:
+
+```{r assignment-independence}
+# Flower color counts by population
+flower_table <- matrix(c(45, 30, 25,    # Population A
+                         20, 35, 45),   # Population B
+                       nrow = 2, byrow = TRUE,
+                       dimnames = list(
+                         Population = c("Pop_A", "Pop_B"),
+                         Color = c("White", "Pink", "Purple")))
+flower_table
+```
+
+Complete the following:
+1. State null and alternative hypotheses
+2. Check expected cell counts
+3. Run the chi-square test
+4. Calculate Cramér's V
+5. Examine residuals to identify which cells drive the result
+6. Create a publication-quality figure
+7. Write complete methods and results sections
+
+### Part 3: Goodness of fit
+
+According to Mendelian genetics, a cross should produce offspring in a 9:3:3:1 phenotypic ratio. A researcher observed the following counts:
+
+```{r assignment-gof}
+# Observed offspring phenotypes
+observed_phenotypes <- c(315, 108, 101, 32)
+names(observed_phenotypes) <- c("A_B_", "A_bb", "aaB_", "aabb")
+observed_phenotypes
+
+# Expected ratio
+expected_ratio <- c(9, 3, 3, 1) / 16
+```
+
+1. State hypotheses
+2. Run the goodness-of-fit test
+3. Compare observed to expected counts
+4. Interpret: Do the data support Mendelian expectations?
+5. Write a results statement
+
+### Part 4: Small sample analysis
+
+An ecologist studied predation on marked prey items:
+
+```{r assignment-fisher}
+# Predation by prey coloration (small sample)
+predation_table <- matrix(c(2, 8,     # Cryptic: eaten/survived
+                            9, 3),    # Conspicuous: eaten/survived
+                          nrow = 2, byrow = TRUE,
+                          dimnames = list(
+                            Coloration = c("Cryptic", "Conspicuous"),
+                            Fate = c("Eaten", "Survived")))
+predation_table
+```
+
+1. Check expected counts and explain why Fisher's exact test is needed
+2. Run Fisher's exact test
+3. Calculate and interpret the odds ratio
+4. Write a results statement including the odds ratio
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why effect sizes (like Cramér's V or odds ratios) are important to report alongside p-values in chi-square analyses. What information do they provide that p-values don't?

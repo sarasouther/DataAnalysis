@@ -1,0 +1,989 @@
+# Stochastic Population Dynamics
+
+The deterministic IPM in Chapter 18 tells us: *if conditions remain constant*, λ = 0.95 means the population will decline by 5% per year. But conditions never remain constant. Drought years hammer survival. Wet years boost reproduction. Fire eliminates half the population in an instant.
+
+**Stochastic population models** incorporate this variability, answering questions that deterministic models cannot:
+
+- What's the *probability* of extinction within 50 years?
+- How does environmental variability affect long-term growth?
+- Which life stages buffer populations against bad years?
+- Does temporal variation in vital rates change optimal management?
+
+This chapter extends the IPM framework to include stochasticity, connecting directly to the *Silene lanceolata* case study from Chapter 18.
+
+## Why stochasticity matters
+
+```{r stoch-why-matters, echo=FALSE}
+cat("
+DETERMINISTIC vs STOCHASTIC POPULATION DYNAMICS
+═══════════════════════════════════════════════════════════════
+
+DETERMINISTIC MODEL:
+  - Same λ every year
+  - Population trajectory is a smooth curve
+  - Extinction occurs only if λ < 1 indefinitely
+  - Same starting conditions → same outcome
+
+STOCHASTIC MODEL:
+  - λ varies among years (good years, bad years)
+  - Population trajectory is jagged, unpredictable
+  - Extinction can occur even if mean(λ) > 1
+  - Same starting conditions → different outcomes each simulation
+  
+KEY INSIGHT:
+  Arithmetic mean of λ ≠ long-term growth rate
+  
+  Example: Two years with λ = 0.5 and λ = 2.0
+    Arithmetic mean: (0.5 + 2.0)/2 = 1.25 (suggests growth!)
+    Geometric mean: √(0.5 × 2.0) = 1.0 (actual: no growth)
+    
+  Variability itself reduces long-term growth.
+")
+```
+
+## Types of stochasticity
+
+| Type | Source | Effect | Matters when... |
+|------|--------|--------|-----------------|
+| **Demographic** | Random birth/death events | Individual fates differ even with identical rates | Population is small |
+| **Environmental** | Year-to-year variation in vital rates | All individuals experience same good/bad year | Any population size |
+| **Catastrophic** | Rare, severe events (fire, disease) | Sudden large mortality | Discrete events possible |
+| **Sampling** | Measurement error in estimating vital rates | Parameter uncertainty | Small sample sizes |
+
+## Setup
+
+```{r stoch-setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ipmr)          # For stochastic IPMs
+library(popbio)        # Matrix population tools
+library(diagram)       # Flow diagrams
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Stochastic Matrix Models
+
+Before diving into stochastic IPMs, let's build intuition with simpler matrix models.
+
+## Deterministic baseline
+
+```{r stoch-matrix-deterministic}
+# Simple 3-stage matrix (seed, juvenile, adult)
+# Based loosely on a perennial plant
+
+A <- matrix(c(
+  0.0,  0.0,  5.0,   # Seeds produced by adults
+  0.1,  0.0,  0.0,   # Seed germination → juvenile
+  0.0,  0.3,  0.8    # Juvenile growth + adult survival
+), nrow = 3, byrow = TRUE)
+
+rownames(A) <- colnames(A) <- c("Seed", "Juvenile", "Adult")
+
+# Dominant eigenvalue = λ
+lambda_det <- eigen(A)$values[1] |> Re()
+cat("Deterministic λ:", round(lambda_det, 4), "\n")
+
+# Project population deterministically
+n0 <- c(100, 20, 10)  # Initial population
+years <- 50
+N_det <- matrix(NA, years + 1, 3)
+N_det[1, ] <- n0
+
+for (t in 1:years) {
+  N_det[t + 1, ] <- A %*% N_det[t, ]
+}
+
+total_det <- rowSums(N_det)
+```
+
+## Adding environmental stochasticity
+
+Now let's create multiple environment-specific matrices representing "good" and "bad" years:
+
+```{r stoch-matrix-env}
+# Good year matrix (20% higher fecundity, 10% higher survival)
+A_good <- matrix(c(
+  0.0,  0.0,  6.0,   # Higher fecundity
+  0.12, 0.0,  0.0,   # Higher germination
+  0.0,  0.35, 0.85   # Higher survival
+), nrow = 3, byrow = TRUE)
+
+# Bad year matrix (30% lower fecundity, 15% lower survival)
+A_bad <- matrix(c(
+  0.0,  0.0,  3.5,   # Lower fecundity
+  0.08, 0.0,  0.0,   # Lower germination
+  0.0,  0.25, 0.70   # Lower survival
+), nrow = 3, byrow = TRUE)
+
+# Check individual lambdas
+lambda_good <- eigen(A_good)$values[1] |> Re()
+lambda_bad <- eigen(A_bad)$values[1] |> Re()
+
+cat("λ in good years:", round(lambda_good, 4), "\n")
+cat("λ in bad years:", round(lambda_bad, 4), "\n")
+cat("Arithmetic mean:", round((lambda_good + lambda_bad) / 2, 4), "\n")
+```
+
+## Stochastic simulation
+
+```{r stoch-matrix-simulate}
+# Simulate with random environment (50% good, 50% bad years)
+n_sims <- 100
+years <- 50
+
+# Store results
+N_stoch <- array(NA, dim = c(years + 1, 3, n_sims))
+environments <- matrix(NA, years, n_sims)
+
+for (sim in 1:n_sims) {
+  N_stoch[1, , sim] <- n0
+  
+  for (t in 1:years) {
+    # Random environment
+    env <- sample(c("good", "bad"), 1)
+    environments[t, sim] <- env
+    
+    A_t <- if (env == "good") A_good else A_bad
+    N_stoch[t + 1, , sim] <- A_t %*% N_stoch[t, , sim]
+  }
+}
+
+# Total population over time
+total_stoch <- apply(N_stoch, c(1, 3), sum)
+```
+
+```{r stoch-trajectories-plot, fig.cap="Stochastic population trajectories (gray) compared to deterministic projection (red). Even with mean λ > 1, some trajectories decline due to variance."}
+# Plot trajectories
+plot_data <- data.frame(
+  year = rep(0:years, n_sims),
+  total = as.vector(total_stoch),
+  sim = rep(1:n_sims, each = years + 1)
+)
+
+ggplot() +
+  geom_line(data = plot_data, aes(x = year, y = total, group = sim),
+            alpha = 0.2, color = "gray50") +
+  geom_line(data = data.frame(year = 0:years, total = total_det),
+            aes(x = year, y = total), color = "firebrick", size = 1.2) +
+  scale_y_log10() +
+  labs(x = "Year", y = "Total Population (log scale)",
+       title = "Stochastic vs Deterministic Population Trajectories",
+       subtitle = "Gray = stochastic simulations, Red = deterministic") +
+  theme_minimal()
+```
+
+## Stochastic growth rate (log λs)
+
+The **stochastic growth rate** is the long-term average of log(λ):
+
+$$\log \lambda_s = \lim_{T \to \infty} \frac{1}{T} \sum_{t=1}^{T} \log \lambda_t$$
+
+This equals the geometric mean of annual λ values.
+
+```{r stoch-growth-rate}
+# Calculate stochastic growth rate from simulations
+log_lambda_s <- numeric(n_sims)
+
+for (sim in 1:n_sims) {
+  # Annual growth rates
+  N_total <- apply(N_stoch[, , sim], 1, sum)
+  annual_lambda <- N_total[-1] / N_total[-length(N_total)]
+  log_lambda_s[sim] <- mean(log(annual_lambda))
+}
+
+cat("Mean stochastic log(λs):", round(mean(log_lambda_s), 4), "\n")
+cat("Stochastic λs:", round(exp(mean(log_lambda_s)), 4), "\n")
+cat("Deterministic λ:", round(lambda_det, 4), "\n")
+
+# Theoretical approximation
+# log(λs) ≈ log(λ̄) - σ²/2
+sigma_sq <- var(c(log(lambda_good), log(lambda_bad)))
+log_lambda_approx <- log((lambda_good + lambda_bad) / 2) - sigma_sq / 2
+cat("\nApproximate log(λs) [using σ²/2 reduction]:", round(log_lambda_approx, 4), "\n")
+```
+
+**Key insight:** Environmental variance *reduces* long-term growth rate below the arithmetic mean. This is the "variance discount."
+
+---
+
+# Part 2: Demographic Stochasticity
+
+## What is demographic stochasticity?
+
+Even if survival probability is exactly 0.8, some individuals die and some survive—by chance. In small populations, this randomness can push populations to extinction even when expected λ > 1.
+
+```{r stoch-demographic-concept, echo=FALSE}
+cat("
+DEMOGRAPHIC STOCHASTICITY
+═══════════════════════════════════════════════════════════════
+
+Imagine 10 individuals, each with survival p = 0.8
+
+Deterministic prediction: 10 × 0.8 = 8 survivors
+
+Actual possibilities (binomial distribution):
+  P(10 survive) = 0.107
+  P(9 survive)  = 0.268
+  P(8 survive)  = 0.302
+  P(7 survive)  = 0.201
+  ...
+  P(0 survive)  = 0.0000001
+
+With 10 individuals, variance is manageable.
+With 3 individuals, extinction by chance becomes likely.
+
+RULE OF THUMB:
+  Demographic stochasticity matters when N < 50-100
+")
+```
+
+## Simulating demographic stochasticity
+
+```{r stoch-demographic-simulate}
+# Compare deterministic vs demographic stochastic projections
+# for small populations
+
+simulate_demography <- function(n0, A, years, stochastic = TRUE) {
+  N <- matrix(NA, years + 1, length(n0))
+  N[1, ] <- n0
+  
+  for (t in 1:years) {
+    if (stochastic) {
+      # Each transition is a random draw
+      # Seeds produced (Poisson for reproduction)
+      seeds_from_adults <- rpois(1, A[1, 3] * N[t, 3])
+      
+      # Seed germination (binomial)
+      new_juveniles <- rbinom(1, round(N[t, 1]), A[2, 1])
+      
+      # Juvenile to adult (binomial)
+      new_adults_from_juv <- rbinom(1, round(N[t, 2]), A[3, 2])
+      
+      # Adult survival (binomial)
+      surviving_adults <- rbinom(1, round(N[t, 3]), A[3, 3])
+      
+      N[t + 1, ] <- c(seeds_from_adults, 
+                       new_juveniles, 
+                       new_adults_from_juv + surviving_adults)
+    } else {
+      N[t + 1, ] <- A %*% N[t, ]
+    }
+    
+    # Check for extinction
+    if (sum(N[t + 1, ]) < 1) {
+      N[(t + 1):(years + 1), ] <- 0
+      break
+    }
+  }
+  return(N)
+}
+
+# Small population starting conditions
+n0_small <- c(20, 5, 3)  # Only 28 total individuals
+
+# Run many simulations
+n_sims <- 200
+years <- 100
+
+results_small <- array(NA, dim = c(years + 1, 3, n_sims))
+extinction_year <- numeric(n_sims)
+
+for (sim in 1:n_sims) {
+  results_small[, , sim] <- simulate_demography(n0_small, A, years, stochastic = TRUE)
+  total <- rowSums(results_small[, , sim])
+  if (any(total == 0)) {
+    extinction_year[sim] <- min(which(total == 0)) - 1
+  } else {
+    extinction_year[sim] <- NA
+  }
+}
+
+# Extinction probability
+p_extinct <- mean(!is.na(extinction_year))
+cat("Extinction probability (100 years):", round(p_extinct, 3), "\n")
+cat("Mean time to extinction (if extinct):", 
+    round(mean(extinction_year, na.rm = TRUE), 1), "years\n")
+```
+
+```{r stoch-demographic-plot, fig.cap="Demographic stochasticity in small populations. Many trajectories go extinct despite mean λ > 1."}
+total_small <- apply(results_small, c(1, 3), sum)
+
+plot_data_small <- data.frame(
+  year = rep(0:years, n_sims),
+  total = as.vector(total_small),
+  sim = rep(1:n_sims, each = years + 1)
+)
+
+ggplot(plot_data_small, aes(x = year, y = total + 1, group = sim)) +
+  geom_line(alpha = 0.15, color = "steelblue") +
+  scale_y_log10() +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "firebrick") +
+  labs(x = "Year", y = "Total Population (log scale)",
+       title = "Demographic Stochasticity in Small Populations",
+       subtitle = paste0(round(p_extinct * 100), "% of simulations went extinct")) +
+  theme_minimal()
+```
+
+---
+
+# Part 3: Extinction Risk Analysis
+
+## Quasi-extinction thresholds
+
+Rather than asking about true extinction (N = 0), managers often use **quasi-extinction thresholds**—population sizes below which recovery is unlikely or genetic diversity is lost.
+
+```{r stoch-quasi-extinction}
+# Calculate quasi-extinction probability for different thresholds
+thresholds <- c(1, 5, 10, 20, 50)
+years_eval <- c(25, 50, 100)
+
+quasi_extinct_prob <- expand.grid(
+  threshold = thresholds,
+  years = years_eval,
+  prob = NA
+)
+
+for (i in 1:nrow(quasi_extinct_prob)) {
+  thresh <- quasi_extinct_prob$threshold[i]
+  yr <- quasi_extinct_prob$years[i]
+  
+  # Count simulations below threshold by that year
+  total_at_year <- total_small[yr + 1, ]
+  quasi_extinct_prob$prob[i] <- mean(total_at_year < thresh)
+}
+
+# Display as table
+quasi_table <- quasi_extinct_prob %>%
+  pivot_wider(names_from = years, values_from = prob, 
+              names_prefix = "Year_")
+
+knitr::kable(quasi_table, digits = 3,
+             caption = "Quasi-extinction probability by threshold and time horizon")
+```
+
+## Cumulative extinction curves
+
+```{r stoch-extinction-curves, fig.cap="Cumulative probability of quasi-extinction over time for different population thresholds."}
+# Calculate cumulative extinction curves
+cum_extinct <- data.frame(
+  year = 0:years,
+  extinct_1 = cumsum(table(factor(extinction_year, levels = 0:years))) / n_sims
+)
+
+# For threshold = 10
+quasi_extinct_10 <- sapply(0:years, function(yr) {
+  mean(total_small[yr + 1, ] < 10)
+})
+
+cum_extinct$quasi_10 <- quasi_extinct_10
+
+# For threshold = 20
+quasi_extinct_20 <- sapply(0:years, function(yr) {
+  mean(total_small[yr + 1, ] < 20)
+})
+
+cum_extinct$quasi_20 <- quasi_extinct_20
+
+# Plot
+cum_extinct_long <- cum_extinct %>%
+  pivot_longer(-year, names_to = "threshold", values_to = "prob") %>%
+  mutate(threshold = case_when(
+    threshold == "extinct_1" ~ "True extinction (N < 1)",
+    threshold == "quasi_10" ~ "Quasi-extinction (N < 10)",
+    threshold == "quasi_20" ~ "Quasi-extinction (N < 20)"
+  ))
+
+ggplot(cum_extinct_long, aes(x = year, y = prob, color = threshold)) +
+  geom_line(size = 1.2) +
+  labs(x = "Year", y = "Cumulative Probability",
+       title = "Extinction Risk Over Time",
+       color = "Threshold") +
+  scale_color_viridis_d() +
+  ylim(0, 1) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+---
+
+# Part 4: Stochastic IPMs
+
+## Why IPMs for stochasticity?
+
+IPMs capture how vital rates vary continuously with size. Adding stochasticity means:
+
+1. **Environmental stochasticity:** Vital rate parameters vary among years
+2. **Demographic stochasticity:** Individual fates vary given their size-specific rates
+3. **Parameter uncertainty:** We're uncertain about true parameter values
+
+## Building a stochastic IPM with ipmr
+
+```{r stoch-ipm-setup}
+# We'll create a simplified stochastic IPM
+# Based on the Silene lanceolata structure from Chapter 18
+
+# Define parameter distributions (means and year-to-year variation)
+# These represent environmental stochasticity
+
+# Survival parameters (logistic regression)
+surv_int_mean <- -1.5
+surv_int_sd <- 0.3
+surv_slope_mean <- 1.2
+surv_slope_sd <- 0.1
+
+# Growth parameters (linear regression)
+grow_int_mean <- 0.5
+grow_int_sd <- 0.2
+grow_slope_mean <- 0.8
+grow_slope_sd <- 0.05
+grow_sd_mean <- 0.5  # Residual SD
+
+# Reproduction parameters
+repr_int_mean <- -3
+repr_int_sd <- 0.4
+repr_slope_mean <- 1.5
+repr_slope_sd <- 0.2
+
+# Fecundity (seeds per reproducing individual)
+fec_mean <- 50
+fec_sd <- 20
+
+# Recruitment (establishment probability)
+recruit_prob <- 0.01
+recruit_size_mean <- 1.0
+recruit_size_sd <- 0.3
+
+# Size bounds
+L <- 0
+U <- 5
+n_mesh <- 100
+```
+
+## Simulating year-specific vital rates
+
+```{r stoch-ipm-simulate-years}
+# Generate year-specific parameters for 30 years
+n_years <- 30
+
+year_params <- data.frame(
+  year = 1:n_years,
+  surv_int = rnorm(n_years, surv_int_mean, surv_int_sd),
+  surv_slope = rnorm(n_years, surv_slope_mean, surv_slope_sd),
+  grow_int = rnorm(n_years, grow_int_mean, grow_int_sd),
+  grow_slope = rnorm(n_years, grow_slope_mean, grow_slope_sd),
+  repr_int = rnorm(n_years, repr_int_mean, repr_int_sd),
+  repr_slope = rnorm(n_years, repr_slope_mean, repr_slope_sd),
+  fec = rnorm(n_years, fec_mean, fec_sd)
+)
+
+# Ensure positive fecundity
+year_params$fec <- pmax(year_params$fec, 10)
+
+head(year_params)
+```
+
+## Building year-specific kernels
+
+```{r stoch-ipm-kernels}
+# Function to build IPM kernel for a given year
+build_kernel <- function(params, L, U, n_mesh) {
+  
+  # Mesh points
+  h <- (U - L) / n_mesh
+  mesh <- L + (1:n_mesh - 0.5) * h
+  
+  # Survival function
+  s_z <- function(z) {
+    plogis(params$surv_int + params$surv_slope * z)
+  }
+  
+  # Growth function (mean size next year)
+  g_mean <- function(z) {
+    params$grow_int + params$grow_slope * z
+  }
+  
+  # Growth kernel (probability density of size z' given size z)
+  g_zz <- function(z_prime, z) {
+    dnorm(z_prime, mean = g_mean(z), sd = grow_sd_mean)
+  }
+  
+  # Reproduction probability
+  p_repr <- function(z) {
+    plogis(params$repr_int + params$repr_slope * z)
+  }
+  
+  # Fecundity (seeds per reproducing plant)
+  f_z <- params$fec
+  
+  # Recruit size distribution
+  c_z <- function(z_prime) {
+    dnorm(z_prime, mean = recruit_size_mean, sd = recruit_size_sd)
+  }
+  
+  # Build P kernel (survival × growth)
+  P <- outer(mesh, mesh, function(z_prime, z) {
+    s_z(z) * g_zz(z_prime, z) * h
+  })
+  
+  # Build F kernel (reproduction)
+  F_kern <- outer(mesh, mesh, function(z_prime, z) {
+    p_repr(z) * f_z * recruit_prob * c_z(z_prime) * h
+  })
+  
+  # Full kernel
+  K <- P + F_kern
+  
+  # Return kernel and mesh
+  list(K = K, P = P, F = F_kern, mesh = mesh)
+}
+
+# Build kernels for each year
+kernels <- lapply(1:n_years, function(yr) {
+  build_kernel(year_params[yr, ], L, U, n_mesh)
+})
+
+# Calculate lambda for each year
+lambdas <- sapply(kernels, function(k) {
+  Re(eigen(k$K)$values[1])
+})
+
+cat("Range of annual λ:", round(min(lambdas), 3), "-", round(max(lambdas), 3), "\n")
+cat("Mean λ:", round(mean(lambdas), 3), "\n")
+cat("Geometric mean λ:", round(exp(mean(log(lambdas))), 3), "\n")
+```
+
+## Stochastic IPM simulation
+
+```{r stoch-ipm-simulate}
+# Initialize population distribution
+h <- (U - L) / n_mesh
+mesh <- L + (1:n_mesh - 0.5) * h
+
+# Start with 100 individuals, normally distributed
+n0_ipm <- dnorm(mesh, mean = 2, sd = 0.5)
+n0_ipm <- n0_ipm / sum(n0_ipm) * 100  # Scale to 100 individuals
+
+# Simulate stochastic dynamics
+n_sims_ipm <- 50
+years_ipm <- 100
+
+# Store population size over time
+N_ipm <- matrix(NA, years_ipm + 1, n_sims_ipm)
+N_ipm[1, ] <- sum(n0_ipm)
+
+# Store full size distributions for one simulation
+n_dist <- matrix(NA, n_mesh, years_ipm + 1)
+n_dist[, 1] <- n0_ipm
+
+for (sim in 1:n_sims_ipm) {
+  n_t <- n0_ipm
+  
+  for (t in 1:years_ipm) {
+    # Random year selection (sampling with replacement)
+    yr <- sample(1:n_years, 1)
+    K_t <- kernels[[yr]]$K
+    
+    # Project
+    n_t <- K_t %*% n_t
+    
+    # Store total
+    N_ipm[t + 1, sim] <- sum(n_t)
+    
+    # Store distribution for first sim
+    if (sim == 1) {
+      n_dist[, t + 1] <- n_t
+    }
+  }
+}
+
+# Calculate stochastic growth rate
+log_lambdas_sim <- apply(N_ipm, 2, function(N) {
+  mean(diff(log(N)))
+})
+
+cat("\nStochastic growth rates across simulations:\n")
+cat("Mean log(λs):", round(mean(log_lambdas_sim), 4), "\n")
+cat("SD of log(λs):", round(sd(log_lambdas_sim), 4), "\n")
+cat("Mean λs:", round(exp(mean(log_lambdas_sim)), 4), "\n")
+```
+
+```{r stoch-ipm-plot, fig.cap="Stochastic IPM projections showing population size over time under environmental stochasticity."}
+# Plot IPM trajectories
+ipm_plot_data <- data.frame(
+  year = rep(0:years_ipm, n_sims_ipm),
+  N = as.vector(N_ipm),
+  sim = rep(1:n_sims_ipm, each = years_ipm + 1)
+)
+
+ggplot(ipm_plot_data, aes(x = year, y = N, group = sim)) +
+  geom_line(alpha = 0.3, color = "steelblue") +
+  scale_y_log10() +
+  labs(x = "Year", y = "Population Size (log scale)",
+       title = "Stochastic IPM Population Projections") +
+  theme_minimal()
+```
+
+## Visualizing size distribution dynamics
+
+```{r stoch-size-dist, fig.cap="Evolution of the size distribution over time in a stochastic IPM. Colors represent different time points."}
+# Plot size distribution at different times
+times_to_plot <- c(1, 10, 25, 50, 100)
+
+dist_data <- data.frame(
+  size = rep(mesh, length(times_to_plot)),
+  density = as.vector(n_dist[, times_to_plot + 1]),
+  year = rep(times_to_plot, each = n_mesh)
+)
+
+ggplot(dist_data, aes(x = size, y = density, color = factor(year))) +
+  geom_line(size = 1) +
+  scale_color_viridis_d(name = "Year") +
+  labs(x = "Size (log cm)", y = "Density",
+       title = "Size Distribution Over Time") +
+  theme_minimal()
+```
+
+---
+
+# Part 5: Catastrophes and Bonanzas
+
+## Incorporating rare events
+
+Some years aren't just "bad"—they're catastrophic (fire, disease outbreak). Others are bonanzas (exceptional recruitment year).
+
+```{r stoch-catastrophe}
+# Add fire catastrophe: 80% mortality, occurs with 5% probability
+# Add bonanza: 300% reproduction, occurs with 10% probability
+
+simulate_with_catastrophe <- function(n0, years, kernels, p_catastrophe = 0.05,
+                                       p_bonanza = 0.10, catastrophe_surv = 0.2,
+                                       bonanza_mult = 3) {
+  N <- numeric(years + 1)
+  N[1] <- sum(n0)
+  n_t <- n0
+  
+  events <- character(years)
+  
+  for (t in 1:years) {
+    # Check for catastrophe
+    if (runif(1) < p_catastrophe) {
+      n_t <- n_t * catastrophe_surv
+      events[t] <- "catastrophe"
+    }
+    # Check for bonanza (only if not catastrophe)
+    else if (runif(1) < p_bonanza) {
+      # Boost reproduction
+      yr <- sample(1:n_years, 1)
+      K_t <- kernels[[yr]]$K * bonanza_mult
+      n_t <- K_t %*% n_t
+      events[t] <- "bonanza"
+    }
+    # Normal year
+    else {
+      yr <- sample(1:n_years, 1)
+      K_t <- kernels[[yr]]$K
+      n_t <- K_t %*% n_t
+      events[t] <- "normal"
+    }
+    
+    N[t + 1] <- sum(n_t)
+  }
+  
+  list(N = N, events = events)
+}
+
+# Run simulations with catastrophes
+n_sims_cat <- 100
+N_cat <- matrix(NA, years_ipm + 1, n_sims_cat)
+
+for (sim in 1:n_sims_cat) {
+  result <- simulate_with_catastrophe(n0_ipm, years_ipm, kernels)
+  N_cat[, sim] <- result$N
+}
+```
+
+```{r stoch-catastrophe-plot, fig.cap="Population trajectories with rare catastrophic events (fire). The jagged drops show catastrophe years."}
+# Plot trajectories with catastrophes
+cat_plot_data <- data.frame(
+  year = rep(0:years_ipm, n_sims_cat),
+  N = as.vector(N_cat),
+  sim = rep(1:n_sims_cat, each = years_ipm + 1)
+)
+
+ggplot(cat_plot_data, aes(x = year, y = N + 1, group = sim)) +
+  geom_line(alpha = 0.2, color = "firebrick") +
+  scale_y_log10() +
+  labs(x = "Year", y = "Population Size (log scale)",
+       title = "Population Dynamics with Catastrophes (Fire)",
+       subtitle = "5% annual probability of 80% mortality") +
+  theme_minimal()
+```
+
+```{r stoch-catastrophe-comparison}
+# Compare extinction risk with and without catastrophes
+# (using quasi-extinction threshold of N < 10)
+
+extinct_no_cat <- apply(N_ipm, 2, function(N) any(N < 10))
+extinct_with_cat <- apply(N_cat, 2, function(N) any(N < 10))
+
+cat("Quasi-extinction probability (N < 10):\n")
+cat("Without catastrophes:", round(mean(extinct_no_cat), 3), "\n")
+cat("With catastrophes:", round(mean(extinct_with_cat), 3), "\n")
+```
+
+---
+
+# Part 6: Stochastic Sensitivity Analysis
+
+## Which vital rates matter most under stochasticity?
+
+In deterministic models, elasticity tells us which vital rates most affect λ. Under stochasticity, we ask: which vital rates most affect **log(λs)**?
+
+```{r stoch-sensitivity}
+# Numerical sensitivity: perturb each parameter and measure effect on log(λs)
+
+# Function to calculate log(λs) from simulation
+calc_log_lambda_s <- function(params_list, n_years, n_sims = 20, years = 50) {
+  
+  # Build kernels
+  kernels <- lapply(params_list, function(p) {
+    build_kernel(p, L, U, n_mesh)
+  })
+  
+  # Simulate
+  log_lambdas <- numeric(n_sims)
+  
+  for (sim in 1:n_sims) {
+    n_t <- n0_ipm
+    N <- numeric(years + 1)
+    N[1] <- sum(n_t)
+    
+    for (t in 1:years) {
+      yr <- sample(1:n_years, 1)
+      n_t <- kernels[[yr]]$K %*% n_t
+      N[t + 1] <- sum(n_t)
+    }
+    
+    log_lambdas[sim] <- mean(diff(log(N)))
+  }
+  
+  mean(log_lambdas)
+}
+
+# Baseline log(λs)
+baseline_log_lambda <- calc_log_lambda_s(
+  lapply(1:n_years, function(i) year_params[i, ]),
+  n_years
+)
+
+# Perturbation amount
+delta <- 0.05
+
+# Test sensitivity to survival intercept
+params_perturbed <- lapply(1:n_years, function(i) {
+  p <- year_params[i, ]
+  p$surv_int <- p$surv_int + delta
+  p
+})
+sens_surv_int <- (calc_log_lambda_s(params_perturbed, n_years) - baseline_log_lambda) / delta
+
+# Test sensitivity to growth slope
+params_perturbed <- lapply(1:n_years, function(i) {
+  p <- year_params[i, ]
+  p$grow_slope <- p$grow_slope + delta
+  p
+})
+sens_grow_slope <- (calc_log_lambda_s(params_perturbed, n_years) - baseline_log_lambda) / delta
+
+# Test sensitivity to fecundity
+params_perturbed <- lapply(1:n_years, function(i) {
+  p <- year_params[i, ]
+  p$fec <- p$fec + delta * 100  # Different scale
+  p
+})
+sens_fec <- (calc_log_lambda_s(params_perturbed, n_years) - baseline_log_lambda) / (delta * 100)
+
+cat("Stochastic sensitivities (effect of +0.05 perturbation on log λs):\n")
+cat("Survival intercept:", round(sens_surv_int, 4), "\n")
+cat("Growth slope:", round(sens_grow_slope, 4), "\n")
+cat("Fecundity (per seed):", round(sens_fec, 6), "\n")
+```
+
+---
+
+# Part 7: Application to *Silene lanceolata*
+
+## Connecting to Chapter 18
+
+The deterministic IPM in Chapter 18 estimated λ for *S. lanceolata*. Now we ask: **How does environmental variation in vital rates affect extinction risk?**
+
+```{r stoch-silene-concept, echo=FALSE}
+cat("
+STOCHASTIC ANALYSIS FOR SILENE LANCEOLATA
+═══════════════════════════════════════════════════════════════
+
+From Chapter 18:
+  - Deterministic λ ≈ 0.95 (population declining)
+  - Most sensitive to adult survival and growth
+  
+Stochastic questions:
+  1. How much does drought variability affect extinction risk?
+  2. What's the 50-year extinction probability?
+  3. Does fire (catastrophe) dramatically increase risk?
+  4. How large must populations be to buffer against stochasticity?
+
+Management implications:
+  - If survival variance is high: prioritize stress reduction
+  - If catastrophes dominate risk: prioritize fire prevention
+  - Minimum viable population size for conservation targets
+")
+```
+
+## Minimum viable population analysis
+
+```{r stoch-mvp}
+# How large must a population be to have <5% extinction risk in 100 years?
+
+starting_sizes <- c(10, 25, 50, 100, 200, 500)
+n_sims_mvp <- 100
+years_mvp <- 100
+
+extinction_by_size <- data.frame(
+  N0 = starting_sizes,
+  p_extinct = NA
+)
+
+for (i in seq_along(starting_sizes)) {
+  N0 <- starting_sizes[i]
+  
+  # Initialize at this population size
+  n0_scaled <- n0_ipm / sum(n0_ipm) * N0
+  
+  extinctions <- 0
+  
+  for (sim in 1:n_sims_mvp) {
+    n_t <- n0_scaled
+    
+    for (t in 1:years_mvp) {
+      yr <- sample(1:n_years, 1)
+      K_t <- kernels[[yr]]$K
+      n_t <- K_t %*% n_t
+      
+      # Add demographic stochasticity for small populations
+      if (sum(n_t) < 50) {
+        n_t <- n_t * rbinom(1, round(sum(n_t)), 0.8) / (sum(n_t) * 0.8)
+      }
+      
+      if (sum(n_t) < 1) {
+        extinctions <- extinctions + 1
+        break
+      }
+    }
+  }
+  
+  extinction_by_size$p_extinct[i] <- extinctions / n_sims_mvp
+}
+
+knitr::kable(extinction_by_size, digits = 3,
+             caption = "Extinction probability by starting population size (100-year horizon)")
+```
+
+```{r stoch-mvp-plot, fig.cap="Minimum viable population analysis: extinction probability decreases with initial population size."}
+ggplot(extinction_by_size, aes(x = N0, y = p_extinct)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  geom_point(size = 3, color = "steelblue") +
+  geom_hline(yintercept = 0.05, linetype = "dashed", color = "firebrick") +
+  annotate("text", x = 400, y = 0.08, label = "5% extinction threshold",
+           color = "firebrick") +
+  labs(x = "Initial Population Size",
+       y = "100-Year Extinction Probability",
+       title = "Minimum Viable Population Analysis") +
+  scale_x_log10() +
+  theme_minimal()
+```
+
+---
+
+# Part 8: Reporting Stochastic Models
+
+## What to report
+
+1. **Type of stochasticity:** Demographic, environmental, catastrophic
+2. **Parameter distributions:** Means and variances for vital rates
+3. **Stochastic growth rate:** log(λs) with confidence intervals
+4. **Extinction risk:** By time horizon and threshold
+5. **Minimum viable population:** If relevant
+6. **Comparison to deterministic:** How much does variance matter?
+
+## Sample methods and results
+
+### Methods
+
+> We extended the deterministic IPM to incorporate environmental stochasticity by allowing vital rate parameters to vary among years according to estimated interannual variability. We estimated year-to-year variance in survival, growth, and fecundity parameters from 5 years of demographic monitoring, modeling each parameter as normally distributed around its mean. We also incorporated catastrophic fire events with 5% annual probability and 80% mortality based on observed fire return intervals and post-fire survival. We estimated the stochastic growth rate (log λs) from 100 simulations of 100 years each, sampling year-specific parameter sets randomly with replacement. Extinction risk was calculated as the proportion of simulations falling below quasi-extinction thresholds (N < 10) at various time horizons. We conducted minimum viable population analysis by varying initial population size and calculating extinction probability over 100 years. All analyses were conducted in R using the ipmr package.
+
+### Results
+
+> The stochastic growth rate was lower than the deterministic growth rate (log λs = -0.08 ± 0.03, λs = 0.92 vs deterministic λ = 0.95), reflecting the variance discount from environmental stochasticity. The 100-year extinction probability was 0.23 for a population starting at N = 50, increasing to 0.68 when catastrophic fire was included. Minimum viable population analysis indicated that populations required N > 150 individuals for <5% extinction risk over 100 years without fire, and N > 350 with fire included. Stochastic elasticity analysis showed that log λs was most sensitive to adult survival (elasticity = 0.45) and least sensitive to fecundity (elasticity = 0.12), consistent with deterministic results but with survival becoming relatively more important under stochasticity. These results suggest that maintaining populations above 200 individuals and reducing fire frequency are critical for *S. lanceolata* persistence.
+
+---
+
+## Key takeaways
+
+1. **Variability reduces growth** — Stochastic λs < arithmetic mean λ
+
+2. **Demographic stochasticity matters for small populations** — Random extinction even with λ > 1
+
+3. **Environmental stochasticity affects all populations** — Good and bad years average geometrically
+
+4. **Catastrophes dominate risk** — Rare but severe events may matter most
+
+5. **Stochastic elasticities differ from deterministic** — Survival often becomes relatively more important
+
+6. **MVP analysis guides conservation** — How many individuals needed to persist?
+
+7. **Report both deterministic AND stochastic** — They answer different questions
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Why is the geometric mean of annual λ values the appropriate measure of long-term growth, rather than the arithmetic mean?
+
+2. A population has deterministic λ = 1.05 but λs = 0.98. Explain how this is possible and what it implies for management.
+
+3. Distinguish between demographic and environmental stochasticity. Which matters more for a population of 500 individuals?
+
+### Part 2: Stochastic matrix model
+
+Using a simple 2-stage or 3-stage matrix:
+
+1. Create "good year" and "bad year" matrices
+2. Simulate 100 stochastic trajectories over 50 years
+3. Calculate log(λs) and compare to deterministic λ
+4. Plot trajectories and identify the range of outcomes
+
+### Part 3: Extinction risk analysis
+
+Using your simulations:
+
+1. Calculate extinction probability at various time horizons
+2. Plot cumulative extinction curves
+3. Add a catastrophe event and recalculate
+4. Discuss management implications
+
+### Part 4: Stochastic IPM
+
+Extend the IPM from Chapter 18:
+
+1. Estimate interannual variance in vital rate parameters
+2. Simulate stochastic dynamics
+3. Calculate minimum viable population size
+4. Compare stochastic vs deterministic elasticities
+
+### Part 5: Reporting
+
+Write a complete methods and results section for a stochastic population viability analysis, following the format in this chapter.

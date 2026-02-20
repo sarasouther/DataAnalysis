@@ -1,0 +1,858 @@
+# Time Series Analysis and Forecasting
+
+Ecology happens through time. Populations rise and fall. Seasons cycle. Climate shifts. Phenology advances. Understanding these temporal patterns—and predicting future states—requires specialized tools that account for a fundamental property of time series data: **observations close in time are not independent**.
+
+Standard regression assumes independence. But today's population size depends on yesterday's. This month's temperature correlates with last month's. Ignoring this **autocorrelation** leads to overconfident conclusions and poor predictions.
+
+This chapter introduces time series thinking and the core methods for analyzing and forecasting ecological time series.
+
+## What is a time series?
+
+A **time series** is a sequence of observations measured at regular intervals through time:
+
+- Annual population counts (1990, 1991, 1992, ...)
+- Monthly precipitation totals
+- Daily stream temperatures
+- Weekly disease incidence
+- Phenological timing across years
+
+The key feature: **observations are ordered**, and that order matters.
+
+## Why time series analysis matters in ecology
+
+| Goal | Method |
+|------|--------|
+| Detect long-term trends | Decomposition, regression |
+| Understand seasonal cycles | Seasonal decomposition |
+| Forecast future states | ARIMA, exponential smoothing |
+| Identify regime shifts | Change-point analysis |
+| Separate signal from noise | Smoothing, filtering |
+
+## Setup
+
+```{r setup-ts, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(forecast)      # Time series modeling and forecasting
+library(tseries)       # Stationarity tests
+library(zoo)           # Irregular time series
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Time Series Structure
+
+## Components of a time series
+
+Most ecological time series can be decomposed into three components:
+
+```{r ts-components, echo=FALSE}
+cat("
+TIME SERIES = TREND + SEASONALITY + NOISE
+═══════════════════════════════════════════════════════════════
+
+TREND (T)
+  Long-term increase or decrease
+  Example: Population declining over decades
+
+SEASONALITY (S)
+  Regular periodic fluctuations
+  Example: Abundance peaks every summer
+
+NOISE (ε)
+  Random variation around the pattern
+  Example: Year-to-year fluctuations due to weather
+
+Additive model:    Y = T + S + ε
+Multiplicative:    Y = T × S × ε
+")
+```
+
+## Example: Simulating a time series
+
+```{r simulate-ts, fig.cap="Simulated ecological time series with trend, seasonality, and noise components."}
+# Create a time series with known components
+n_years <- 20
+n_months <- n_years * 12
+
+# Time index
+time_index <- 1:n_months
+
+# Trend: gradual increase
+trend <- 50 + 0.1 * time_index
+
+# Seasonality: annual cycle (peak in summer)
+seasonality <- 15 * sin(2 * pi * time_index / 12)
+
+# Noise: random variation
+noise <- rnorm(n_months, 0, 5)
+
+# Combined series
+abundance <- trend + seasonality + noise
+abundance <- pmax(abundance, 0)  # No negative abundance
+
+# Create ts object (time series)
+abundance_ts <- ts(abundance, start = c(2004, 1), frequency = 12)
+
+# Plot
+autoplot(abundance_ts) +
+  labs(x = "Year", y = "Abundance",
+       title = "Simulated Monthly Abundance Data") +
+  theme_minimal()
+```
+
+## Creating time series objects in R
+
+```{r ts-object}
+# The ts() function creates a time series object
+# Key arguments:
+#   data: the observations
+#   start: when the series begins (year, period)
+#   frequency: observations per year (12 = monthly, 4 = quarterly, 1 = annual)
+
+# Monthly data starting January 2010
+monthly_ts <- ts(rnorm(60), start = c(2010, 1), frequency = 12)
+
+# Quarterly data
+quarterly_ts <- ts(rnorm(20), start = c(2015, 1), frequency = 4)
+
+# Annual data
+annual_ts <- ts(rnorm(30), start = 1990, frequency = 1)
+
+# Check properties
+cat("Monthly series:\n")
+print(window(monthly_ts, start = c(2010, 1), end = c(2010, 6)))
+cat("\nFrequency:", frequency(monthly_ts), "\n")
+cat("Start:", start(monthly_ts), "\n")
+cat("End:", end(monthly_ts), "\n")
+```
+
+---
+
+# Part 2: Exploratory Data Analysis
+
+## Visualizing time series
+
+```{r ts-plots, fig.cap="Multiple views of a time series: the raw series (top), seasonal subseries (middle), and lag plot (bottom)."}
+# Use built-in AirPassengers data (monthly airline passengers 1949-1960)
+data("AirPassengers")
+
+# Basic time plot
+autoplot(AirPassengers) +
+  labs(title = "Monthly Airline Passengers",
+       x = "Year", y = "Passengers (thousands)") +
+  theme_minimal()
+```
+
+```{r seasonal-plot, fig.cap="Seasonal plot showing patterns within each year. Each line is one year; consistent patterns across years indicate seasonality."}
+# Seasonal plot
+ggseasonplot(AirPassengers, year.labels = TRUE) +
+  labs(title = "Seasonal Plot: Airline Passengers",
+       y = "Passengers (thousands)") +
+  theme_minimal()
+```
+
+```{r subseries-plot, fig.cap="Seasonal subseries plot. Each panel shows all observations for one month; horizontal lines show monthly means."}
+# Seasonal subseries plot
+ggsubseriesplot(AirPassengers) +
+  labs(title = "Seasonal Subseries Plot",
+       y = "Passengers (thousands)") +
+  theme_minimal()
+```
+
+## Autocorrelation
+
+**Autocorrelation** measures the correlation between a time series and lagged versions of itself.
+
+```{r acf-concept, echo=FALSE}
+cat("
+AUTOCORRELATION
+═══════════════════════════════════════════════════════════════
+
+Lag 1:  Correlation between Y(t) and Y(t-1)
+Lag 2:  Correlation between Y(t) and Y(t-2)
+...
+Lag k:  Correlation between Y(t) and Y(t-k)
+
+High autocorrelation at lag 1 → Adjacent values are similar
+High autocorrelation at lag 12 (monthly data) → Annual seasonality
+")
+```
+
+```{r acf-plot, fig.cap="Autocorrelation function (ACF) showing correlation at different lags. Spikes at lag 12, 24, etc. indicate annual seasonality."}
+# ACF plot
+ggAcf(AirPassengers, lag.max = 36) +
+  labs(title = "Autocorrelation Function (ACF)") +
+  theme_minimal()
+```
+
+## Partial autocorrelation (PACF)
+
+**PACF** shows the correlation at lag k after removing the effects of shorter lags.
+
+```{r pacf-plot, fig.cap="Partial autocorrelation function (PACF). Significant spikes indicate direct relationships at those lags."}
+# PACF plot
+ggPacf(AirPassengers, lag.max = 36) +
+  labs(title = "Partial Autocorrelation Function (PACF)") +
+  theme_minimal()
+```
+
+**Reading ACF and PACF:**
+
+| Pattern | ACF | PACF | Suggests |
+|---------|-----|------|----------|
+| Slow decay | Significant lags | Cuts off | AR process |
+| Cuts off | Few significant | Slow decay | MA process |
+| Seasonal spikes | Lags 12, 24, ... | Lag 12 | Seasonality |
+
+---
+
+# Part 3: Stationarity
+
+## What is stationarity?
+
+A **stationary** time series has constant statistical properties over time:
+
+- Constant mean
+- Constant variance
+- Autocorrelation depends only on lag, not time
+
+Most time series methods (ARIMA) require stationarity.
+
+```{r stationarity-viz, fig.cap="Non-stationary series (left) with changing mean and variance. Stationary series (right) with constant properties."}
+par(mfrow = c(1, 2))
+
+# Non-stationary: trend + increasing variance
+nonstat <- cumsum(rnorm(200)) + seq(0, 10, length = 200)
+plot(nonstat, type = "l", main = "Non-stationary", ylab = "Value")
+
+# Stationary: constant mean and variance
+stat <- arima.sim(model = list(ar = 0.7), n = 200)
+plot(stat, type = "l", main = "Stationary", ylab = "Value")
+
+par(mfrow = c(1, 1))
+```
+
+## Testing for stationarity
+
+```{r adf-test}
+# Augmented Dickey-Fuller test
+# H0: Series has a unit root (non-stationary)
+# Low p-value → reject H0 → stationary
+
+adf.test(AirPassengers)
+
+# This series is non-stationary (p = 0.99)
+# We fail to reject the null of non-stationarity
+```
+## Making a series stationary
+
+### Differencing
+
+**Differencing** removes trends by computing the change between consecutive observations:
+
+$$Y'_t = Y_t - Y_{t-1}$$
+
+```{r differencing, fig.cap="Original series (top) and differenced series (bottom). Differencing removes the trend, making the series more stationary."}
+# First difference
+air_diff <- diff(AirPassengers)
+
+# Plot comparison
+par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
+plot(AirPassengers, main = "Original Series")
+plot(air_diff, main = "First Difference")
+par(mfrow = c(1, 1))
+
+# Test differenced series
+adf.test(air_diff)
+```
+
+### Seasonal differencing
+
+For seasonal patterns, use **seasonal differencing**:
+
+$$Y'_t = Y_t - Y_{t-12}$$
+
+```{r seasonal-diff}
+# Seasonal difference (lag = 12 for monthly data)
+air_sdiff <- diff(AirPassengers, lag = 12)
+
+# Often need both regular and seasonal differencing
+air_both <- diff(diff(AirPassengers, lag = 12))
+
+# Check stationarity
+adf.test(air_both)
+```
+
+### Log transformation
+
+For series with increasing variance, log transformation helps:
+
+```{r log-transform 21, fig.cap="Log transformation stabilizes variance when fluctuations grow with the level."}
+# Log transformation
+air_log <- log(AirPassengers)
+
+par(mfrow = c(1, 2))
+plot(AirPassengers, main = "Original")
+plot(air_log, main = "Log-transformed")
+par(mfrow = c(1, 1))
+```
+
+---
+
+# Part 4: Decomposition
+
+## Classical decomposition
+
+Decomposition separates a time series into trend, seasonal, and remainder components.
+
+```{r decomposition, fig.cap="Classical decomposition of airline passenger data showing the extracted trend, seasonal pattern, and random remainder."}
+# Multiplicative decomposition (appropriate when seasonality grows with level)
+decomp <- stats::decompose(AirPassengers, type = "multiplicative")
+
+# Plot
+autoplot(decomp) +
+  labs(title = "Classical Decomposition") +
+  theme_minimal()
+```
+
+## STL decomposition
+
+**STL (Seasonal and Trend decomposition using Loess)** is more flexible:
+
+```{r stl-decomp, fig.cap="STL decomposition provides more robust seasonal extraction and handles outliers better than classical methods."}
+# STL decomposition (requires additive model, so log-transform first)
+air_stl <- stl(log(AirPassengers), s.window = "periodic")
+
+autoplot(air_stl) +
+  labs(title = "STL Decomposition (log scale)") +
+  theme_minimal()
+```
+
+## Extracting components
+
+```{r extract-components}
+# Extract trend
+trend_component <- air_stl$time.series[, "trend"]
+
+# Extract seasonal
+seasonal_component <- air_stl$time.series[, "seasonal"]
+
+# Extract remainder
+remainder <- air_stl$time.series[, "remainder"]
+
+# Seasonally adjusted series
+seasonally_adjusted <- air_stl$time.series[, "trend"] + air_stl$time.series[, "remainder"]
+```
+
+---
+
+# Part 5: ARIMA Models
+
+## The ARIMA framework
+
+**ARIMA** combines three components:
+
+| Component | Meaning | Parameter |
+|-----------|---------|-----------|
+| **AR** (Autoregressive) | Current value depends on past values | p |
+| **I** (Integrated) | Differencing to achieve stationarity | d |
+| **MA** (Moving Average) | Current value depends on past errors | q |
+
+An ARIMA(p, d, q) model:
+
+$$Y'_t = c + \phi_1 Y'_{t-1} + ... + \phi_p Y'_{t-p} + \theta_1 \varepsilon_{t-1} + ... + \theta_q \varepsilon_{t-q} + \varepsilon_t$$
+
+where $Y'_t$ is the differenced series.
+
+## Understanding AR and MA
+
+```{r ar-ma-concept, echo=FALSE}
+cat("
+AUTOREGRESSIVE (AR) — Past values predict current
+═══════════════════════════════════════════════════════════════
+AR(1): Y(t) = c + φ₁·Y(t-1) + ε(t)
+  'Tomorrow's abundance depends on today's abundance'
+
+AR(2): Y(t) = c + φ₁·Y(t-1) + φ₂·Y(t-2) + ε(t)
+  'Depends on the last two time points'
+
+
+MOVING AVERAGE (MA) — Past errors predict current
+═══════════════════════════════════════════════════════════════
+MA(1): Y(t) = c + ε(t) + θ₁·ε(t-1)
+  'Incorporates yesterday's unexpected shock'
+
+MA(2): Y(t) = c + ε(t) + θ₁·ε(t-1) + θ₂·ε(t-2)
+  'Incorporates shocks from last two periods'
+")
+```
+
+## Seasonal ARIMA (SARIMA)
+
+For seasonal data, add seasonal AR, I, and MA terms:
+
+**ARIMA(p, d, q)(P, D, Q)[m]**
+
+where:
+- (p, d, q) = non-seasonal terms
+- (P, D, Q) = seasonal terms
+- [m] = seasonal period (12 for monthly, 4 for quarterly)
+
+## Fitting ARIMA with auto.arima()
+
+```{r auto-arima}
+# Automatic ARIMA selection
+air_arima <- auto.arima(AirPassengers, 
+                         seasonal = TRUE,
+                         stepwise = FALSE,  # Try all models
+                         approximation = FALSE)
+
+# Summary
+summary(air_arima)
+```
+
+### Interpreting the output
+
+```{r arima-interpret}
+# The model is ARIMA(2,1,1)(0,1,0)[12]
+# This means:
+#   - AR(2): depends on 2 past values
+#   - I(1): first differencing applied
+#   - MA(1): one lagged error term
+#   - Seasonal I(1): seasonal differencing
+#   - [12]: monthly seasonality
+
+# Coefficients
+cat("AR coefficients:", coef(air_arima)[grep("ar", names(coef(air_arima)))], "\n")
+cat("MA coefficients:", coef(air_arima)[grep("ma", names(coef(air_arima)))], "\n")
+```
+
+## Checking residuals
+
+Good model residuals should:
+- Have no autocorrelation (white noise)
+- Be approximately normally distributed
+- Have constant variance
+
+```{r residual-check, fig.cap="Residual diagnostics for ARIMA model. Good fit shows: no patterns in residuals, no significant ACF spikes, and approximately normal distribution."}
+checkresiduals(air_arima)
+```
+
+The **Ljung-Box test** tests for remaining autocorrelation:
+- H0: Residuals are white noise (no autocorrelation)
+- p > 0.05 → Good (fail to reject, residuals are white noise)
+
+---
+
+# Part 6: Forecasting
+
+## Generating forecasts
+
+```{r forecast, fig.cap="ARIMA forecast for airline passengers. Blue line is point forecast; shaded regions show 80% and 95% prediction intervals."}
+# Forecast 24 months ahead
+air_forecast <- forecast(air_arima, h = 24)
+
+# Plot
+autoplot(air_forecast) +
+  labs(title = "Airline Passengers Forecast",
+       x = "Year", y = "Passengers (thousands)") +
+  theme_minimal()
+```
+
+## Understanding prediction intervals
+
+```{r pred-intervals}
+# Extract forecasts
+print(air_forecast)
+
+# Point forecast with intervals
+forecast_df <- data.frame(
+  Month = time(air_forecast$mean),
+  Forecast = as.numeric(air_forecast$mean),
+  Lo80 = as.numeric(air_forecast$lower[, 1]),
+  Hi80 = as.numeric(air_forecast$upper[, 1]),
+  Lo95 = as.numeric(air_forecast$lower[, 2]),
+  Hi95 = as.numeric(air_forecast$upper[, 2])
+)
+
+head(forecast_df)
+```
+
+**Important:** Prediction intervals widen over time because uncertainty accumulates.
+
+## Evaluating forecast accuracy
+
+### Train/test split
+
+```{r train-test}
+# Split data: train on first part, test on last 24 months
+train <- window(AirPassengers, end = c(1958, 12))
+test <- window(AirPassengers, start = c(1959, 1))
+
+# Fit model on training data
+train_arima <- auto.arima(train)
+
+# Forecast for test period
+train_forecast <- forecast(train_arima, h = length(test))
+
+# Compare to actual
+forecast::accuracy(train_forecast, test)
+```
+
+### Error metrics
+
+| Metric | Formula | Interpretation |
+|--------|---------|----------------|
+| **MAE** | Mean Absolute Error | Average error magnitude |
+| **RMSE** | Root Mean Squared Error | Penalizes large errors |
+| **MAPE** | Mean Absolute Percentage Error | Percentage error |
+| **MASE** | Mean Absolute Scaled Error | Scale-independent |
+
+```{r accuracy-viz, fig.cap="Forecast accuracy: comparing predicted values (blue) to actual test data (black)."}
+# Plot forecast vs actual
+autoplot(train_forecast) +
+  autolayer(test, series = "Actual") +
+  labs(title = "Forecast vs Actual",
+       x = "Year", y = "Passengers") +
+  theme_minimal()
+```
+
+---
+
+# Part 7: Ecological Case Studies
+
+## Case Study 1: Population trends
+
+```{r case-pop, fig.cap="Annual wolf population counts showing trend and interannual variation."}
+# Simulate wolf population data
+years <- 1980:2020
+n <- length(years)
+
+# Population with density dependence and environmental stochasticity
+set.seed(123)
+pop <- numeric(n)
+pop[1] <- 50
+K <- 200  # Carrying capacity
+
+for (t in 2:n) {
+  # Logistic growth with noise
+  r <- 0.15
+  growth <- r * pop[t-1] * (1 - pop[t-1]/K)
+  pop[t] <- max(1, pop[t-1] + growth + rnorm(1, 0, 8))
+}
+
+wolf_ts <- ts(pop, start = 1980, frequency = 1)
+
+# Plot
+autoplot(wolf_ts) +
+  labs(title = "Wolf Population, 1980-2020",
+       x = "Year", y = "Population Size") +
+  theme_minimal()
+```
+
+```{r case-pop-analysis}
+# Check stationarity
+adf.test(wolf_ts)
+
+# Fit ARIMA
+wolf_arima <- auto.arima(wolf_ts)
+summary(wolf_arima)
+
+# Forecast
+wolf_forecast <- forecast(wolf_arima, h = 10)
+autoplot(wolf_forecast) +
+  labs(title = "Wolf Population Forecast",
+       x = "Year", y = "Population Size") +
+  theme_minimal()
+
+# Check residuals
+checkresiduals(wolf_arima)
+```
+
+## Case Study 2: Seasonal climate data
+
+```{r case-climate, fig.cap="Monthly precipitation with clear seasonal pattern."}
+# Simulate monthly precipitation
+n_years <- 25
+months <- n_years * 12
+
+# Seasonal pattern + trend + noise
+time_idx <- 1:months
+precip <- 80 + 
+  0.05 * time_idx +  # Slight increasing trend
+  40 * sin(2 * pi * time_idx / 12 - pi/2) +  # Peak in winter
+  rnorm(months, 0, 15)
+precip <- pmax(precip, 0)
+
+precip_ts <- ts(precip, start = c(1998, 1), frequency = 12)
+
+# Seasonal plot
+ggseasonplot(precip_ts) +
+  labs(title = "Monthly Precipitation by Year",
+       y = "Precipitation (mm)") +
+  theme_minimal()
+```
+
+```{r case-climate-analysis}
+# Decomposition
+precip_stl <- stl(precip_ts, s.window = "periodic")
+autoplot(precip_stl) +
+  labs(title = "Precipitation Decomposition") +
+  theme_minimal()
+
+# Fit seasonal ARIMA
+precip_arima <- auto.arima(precip_ts)
+summary(precip_arima)
+
+# Forecast next 2 years
+precip_forecast <- forecast(precip_arima, h = 24)
+autoplot(precip_forecast) +
+  labs(title = "Precipitation Forecast",
+       x = "Year", y = "Precipitation (mm)") +
+  theme_minimal()
+```
+
+## Case Study 3: Phenological timing
+
+```{r case-phenology, fig.cap="First flowering date advancing over time, consistent with climate warming."}
+# Simulate first flowering date (day of year)
+years <- 1970:2023
+n <- length(years)
+
+# Advancing phenology (earlier each year) with noise
+set.seed(456)
+flowering_doy <- 120 - 0.3 * (years - 1970) + rnorm(n, 0, 5)
+
+phenology_ts <- ts(flowering_doy, start = 1970, frequency = 1)
+
+# Plot
+autoplot(phenology_ts) +
+  labs(title = "First Flowering Date (Day of Year)",
+       x = "Year", y = "Day of Year") +
+  geom_smooth(method = "lm", se = FALSE, color = "firebrick") +
+  theme_minimal()
+```
+
+```{r case-phenology-analysis}
+# Linear trend
+phenology_lm <- lm(flowering_doy ~ years)
+summary(phenology_lm)
+cat("\nFlowering is advancing by", round(abs(coef(phenology_lm)[2]), 2), 
+    "days per year\n")
+
+# ARIMA with drift
+phenology_arima <- auto.arima(phenology_ts, allowdrift = TRUE)
+summary(phenology_arima)
+
+# Forecast
+phenology_forecast <- forecast(phenology_arima, h = 20)
+autoplot(phenology_forecast) +
+  labs(title = "Phenology Forecast",
+       x = "Year", y = "Day of Year") +
+  theme_minimal()
+```
+
+---
+
+# Part 8: Advanced Topics (Brief Introduction)
+
+## State-space models
+
+State-space models separate the **observation process** from the **underlying dynamics**:
+
+```{r state-space-concept, echo=FALSE}
+cat("
+STATE-SPACE MODEL STRUCTURE
+═══════════════════════════════════════════════════════════════
+
+True (hidden) state:    X(t) = f(X(t-1)) + process error
+Observation:            Y(t) = X(t) + observation error
+
+Advantages:
+- Explicit observation error
+- Handle missing data naturally
+- More biologically realistic
+- Can include covariates
+
+R packages: MARSS, dlm, bsts
+")
+```
+
+## Exponential smoothing (ETS)
+
+ETS models handle trend and seasonality with weighted averages:
+
+```{r ets-example}
+# Fit ETS model
+air_ets <- ets(AirPassengers)
+summary(air_ets)
+
+# ETS(M,A,M) = Multiplicative error, Additive trend, Multiplicative season
+```
+
+## Dynamic regression
+
+Include external predictors (covariates) in ARIMA models:
+
+```{r dynamic-reg, eval=FALSE}
+# Example: temperature affects phenology
+# Not run - conceptual
+model <- auto.arima(phenology_ts, xreg = temperature)
+forecast(model, xreg = future_temperature)
+```
+
+---
+
+# Part 9: Practical Tips
+
+## Common pitfalls
+
+| Pitfall | Problem | Solution |
+|---------|---------|----------|
+| Ignoring seasonality | Residual patterns, poor forecasts | Use seasonal models (SARIMA) |
+| Overfitting | Model too complex, poor out-of-sample performance | Use information criteria (AIC), cross-validation |
+| Misinterpreting trends | Confusing autocorrelation with trend | Proper differencing, test stationarity |
+| Short series | Unreliable parameter estimates | Simpler models, wider intervals |
+| Irregular spacing | Standard methods assume regular intervals | Interpolation or specialized methods |
+
+## When to use time series vs regression
+
+| Use time series methods when... | Use regression when... |
+|---------------------------------|------------------------|
+| Temporal autocorrelation is present | Observations are independent |
+| You want to forecast future values | You want to explain relationships |
+| You have a single long series | You have cross-sectional data |
+| Time order matters | Time is just another covariate |
+
+## Dealing with missing data
+
+```{r missing-data}
+# Create series with missing values
+air_missing <- AirPassengers
+air_missing[c(50, 51, 100)] <- NA
+
+# Option 1: Linear interpolation
+air_interp <- na.approx(air_missing)
+
+# Option 2: Spline interpolation  
+air_spline <- na.spline(air_missing)
+
+# Option 3: Kalman smoothing (via forecast package)
+air_kalman <- na.interp(air_missing)
+
+# Compare
+plot(air_missing, main = "Missing Data Handling", lwd = 2)
+lines(air_interp, col = "red", lty = 2)
+lines(air_kalman, col = "blue", lty = 3)
+legend("topleft", c("Missing", "Interpolated", "Kalman"), 
+       col = c("black", "red", "blue"), lty = c(1, 2, 3))
+```
+
+---
+
+# Part 10: Reporting
+
+## What to report
+
+1. **Time series description:** Length, frequency, time span
+2. **Exploratory analysis:** Trends, seasonality, stationarity
+3. **Transformations applied:** Log, differencing
+4. **Model selected:** ARIMA order, why
+5. **Diagnostics:** Residual tests, ACF of residuals
+6. **Forecast accuracy:** Error metrics on held-out data
+7. **Forecasts:** Point estimates with prediction intervals
+
+## Sample methods and results
+
+### Methods
+
+> We analyzed monthly population counts from 1995-2020 using time series methods. After visual inspection and augmented Dickey-Fuller testing (p = 0.23), we determined the series was non-stationary and applied first differencing. Seasonal patterns were evident in the autocorrelation function at lags 12 and 24, so we included seasonal terms. We fit ARIMA models using the auto.arima() function with stepwise = FALSE to search all candidate models, selecting the best model by AICc. Model adequacy was assessed via Ljung-Box tests on residuals and visual inspection of residual ACF. We evaluated forecast accuracy using a train/test split (training: 1995-2017; test: 2018-2020) and calculated RMSE and MAPE. Analyses were conducted using the forecast package (Hyndman & Khandakar 2008) in R version 4.3.1.
+
+### Results
+
+> Population counts showed a significant increasing trend over the 25-year period with strong annual seasonality peaking in August (**Fig. X**). The best-fitting model was ARIMA(1,1,1)(1,0,1)[12] (AICc = 342.5), indicating autoregressive dependence at both non-seasonal and seasonal lags. Residual diagnostics showed no remaining autocorrelation (Ljung-Box test: Q = 15.2, df = 12, p = 0.23) and approximately normal distribution (**Fig. Y**). Out-of-sample forecast accuracy was acceptable (RMSE = 12.4, MAPE = 8.3%). The model forecasts continued population increase, with August 2025 abundance predicted at 156 individuals (95% PI: 128–189).
+
+---
+
+## Key takeaways
+
+1. **Time series data are autocorrelated** — Standard methods assuming independence don't apply
+
+2. **Check stationarity first** — Most methods require it; use differencing if needed
+
+3. **Decomposition reveals structure** — Separate trend, seasonality, and noise
+
+4. **ACF and PACF guide model selection** — Patterns indicate AR vs MA processes
+
+5. **auto.arima() is your friend** — But understand what it's doing
+
+6. **Always check residuals** — Should be white noise (no autocorrelation)
+
+7. **Prediction intervals widen** — Uncertainty grows with forecast horizon
+
+8. **Report accuracy on held-out data** — In-sample fit is overly optimistic
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Why is it important to test for stationarity before fitting an ARIMA model? What problems arise if you fit ARIMA to a non-stationary series without differencing?
+
+2. You observe strong spikes at lags 12, 24, and 36 in your ACF. What does this tell you about your data?
+
+3. Your ARIMA model has excellent in-sample fit (R² = 0.95) but poor out-of-sample forecasts. What might be happening?
+
+### Part 2: Exploratory analysis
+
+Using the built-in `co2` data (monthly atmospheric CO2 at Mauna Loa):
+
+```{r assignment-eda}
+data(co2)
+```
+
+1. Plot the time series
+2. Create seasonal and subseries plots
+3. Describe the trend and seasonal pattern
+4. Generate ACF and PACF plots
+5. Test for stationarity
+
+### Part 3: ARIMA modeling
+
+Using the `co2` data:
+
+1. Apply appropriate transformations/differencing
+2. Fit an ARIMA model using auto.arima()
+3. Check residual diagnostics
+4. Interpret the model coefficients
+
+### Part 4: Forecasting
+
+1. Create a train/test split (train: 1959-1990, test: 1991-1997)
+2. Fit ARIMA on training data
+3. Generate forecasts for the test period
+4. Calculate forecast accuracy (RMSE, MAPE)
+5. Plot forecasts vs actual
+
+### Part 5: Ecological application
+
+Using annual population count data (simulated below):
+
+```{r assignment-ecology}
+set.seed(789)
+years <- 1985:2022
+pop <- 100 * exp(cumsum(rnorm(length(years), 0.02, 0.15)))
+elk_ts <- ts(round(pop), start = 1985, frequency = 1)
+```
+
+1. Explore the time series (plot, ACF, stationarity test)
+2. Fit an appropriate ARIMA model
+3. Forecast 10 years ahead
+4. Write a methods and results paragraph suitable for a report
+
+### Part 6: Reflection
+
+In 2-3 sentences, explain why forecasts from ecological time series models should always include prediction intervals, and why these intervals matter for management decisions.

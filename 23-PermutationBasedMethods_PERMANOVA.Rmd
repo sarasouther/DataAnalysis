@@ -1,0 +1,509 @@
+# Permutation-Based Methods for Community Data
+
+Ordination shows you patterns. But are those patterns *real*, or could they arise by chance? You see that burned sites cluster separately from unburned sites in your NMDS—but is this separation statistically significant?
+
+Traditional parametric tests (ANOVA, t-tests) assume normally distributed data. Community data violate this assumption spectacularly: they're multivariate (many species), often sparse (lots of zeros), and rarely normal. 
+
+**Permutation-based methods** solve this problem by:
+- Using the data themselves to generate null distributions
+- Making no assumptions about underlying distributions
+- Working directly with dissimilarity matrices
+
+This chapter covers the essential permutation methods for community ecology:
+
+- **PERMANOVA:** Test whether groups differ in composition
+- **ANOSIM:** Alternative to PERMANOVA  
+- **Mantel test:** Correlate two distance matrices
+- **envfit:** Relate environmental variables to ordination
+
+## The permutation logic
+
+Instead of assuming a theoretical null distribution (like the F-distribution), permutation tests ask:
+
+> "If there were no treatment effect, how often would I see a result this extreme just by chance?"
+
+The procedure:
+1. Calculate the test statistic from your actual data
+2. Randomly shuffle (permute) group labels
+3. Recalculate the test statistic
+4. Repeat many times (999 or more)
+5. Count how often the permuted statistic exceeds the observed statistic
+6. This proportion is your p-value
+
+```{r permutation-concept, fig.cap="Permutation test logic: The observed test statistic (red line) is compared to the distribution of statistics from permuted data. If the observed value is extreme, p is small."}
+set.seed(42)
+
+# Simulate a true difference
+group1 <- rnorm(20, mean = 10, sd = 2)
+group2 <- rnorm(20, mean = 12, sd = 2)
+observed_diff <- mean(group2) - mean(group1)
+
+# Permutation distribution
+combined <- c(group1, group2)
+n_perm <- 999
+perm_diffs <- numeric(n_perm)
+
+for (i in 1:n_perm) {
+  shuffled <- sample(combined)
+  perm_diffs[i] <- mean(shuffled[21:40]) - mean(shuffled[1:20])
+}
+
+# Visualize
+hist(perm_diffs, breaks = 50, col = "gray80", border = "white",
+     main = "Permutation Distribution",
+     xlab = "Mean Difference (Group2 - Group1)")
+abline(v = observed_diff, col = "firebrick", lwd = 2)
+text(observed_diff + 0.3, 50, paste("Observed =", round(observed_diff, 2)), 
+     col = "firebrick", adj = 0)
+
+# P-value
+p_value <- (sum(abs(perm_diffs) >= abs(observed_diff)) + 1) / (n_perm + 1)
+text(0, 80, paste("p =", round(p_value, 3)), cex = 1.2)
+```
+
+## Setup
+
+```{r setup-permutation, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(vegan)
+library(pairwiseAdonis)  # For pairwise PERMANOVA
+
+set.seed(42)
+```
+
+---
+
+# Part 1: PERMANOVA
+
+## What is PERMANOVA?
+
+**PERMANOVA** (Permutational Multivariate Analysis of Variance) tests whether the centroids of groups differ in multivariate space. It's the multivariate analog of ANOVA, but:
+- Uses any dissimilarity measure
+- No distributional assumptions
+- Works on distance matrices, not raw data
+
+**The question:** Do groups differ in their community composition?
+
+## How PERMANOVA works
+
+PERMANOVA partitions the total sum of squares (based on distances) into:
+- **Among-group variation:** Distances between group centroids
+- **Within-group variation:** Distances of observations to their group centroid
+
+The F-ratio compares these, just like in ANOVA. The p-value comes from permutation.
+
+## PERMANOVA in practice
+
+Using the dune meadow data:
+
+```{r permanova-basic}
+# Load data
+data(dune)
+data(dune.env)
+
+# Calculate Bray-Curtis dissimilarity
+dune_dist <- vegdist(dune, method = "bray")
+
+# PERMANOVA: Does management affect community composition?
+permanova_result <- adonis2(dune_dist ~ Management, data = dune.env, 
+                            permutations = 999)
+permanova_result
+```
+
+### Interpret the output
+
+| Column | Meaning |
+|--------|---------|
+| Df | Degrees of freedom |
+| SumOfSqs | Sum of squares (based on distances) |
+| R² | Proportion of variance explained |
+| F | Pseudo-F statistic |
+| Pr(>F) | P-value from permutation |
+
+**Interpretation:** Management explains 34% of the variation in community composition (R² = 0.34), and this is statistically significant (p = 0.001).
+
+## Using formula interface
+
+PERMANOVA works with formulas, so you can include multiple predictors:
+
+```{r permanova-formula}
+# Multiple predictors
+permanova_multi <- adonis2(dune ~ Management + A1 + Moisture, 
+                            data = dune.env, 
+                            permutations = 999,
+                            method = "bray")
+permanova_multi
+```
+
+**Order matters:** By default, `adonis2` uses Type I (sequential) sums of squares. The first variable is fitted first, then the second accounts for remaining variation, etc.
+
+For Type II SS (each variable adjusted for others), add `by = "margin"`:
+
+```{r permanova-type2}
+# Type II (marginal) sums of squares
+adonis2(dune ~ Management + A1 + Moisture, 
+        data = dune.env, 
+        permutations = 999,
+        method = "bray",
+        by = "margin")
+```
+
+## Testing interactions
+
+```{r permanova-interaction}
+# Interaction term
+adonis2(dune ~ Management * Use, 
+        data = dune.env, 
+        permutations = 999,
+        method = "bray")
+```
+
+## PERMANOVA assumptions
+
+PERMANOVA has fewer assumptions than parametric tests, but still assumes:
+
+1. **Independent observations:** Samples are independent
+2. **Similar dispersion:** Groups have similar within-group variability
+
+### Checking dispersion (homogeneity of variances)
+
+If groups have different dispersions (spread), a significant PERMANOVA might reflect dispersion differences rather than location differences.
+
+```{r betadisper}
+# Test for homogeneity of dispersions
+disp <- betadisper(dune_dist, dune.env$Management)
+disp
+
+# Permutation test for homogeneity of dispersion
+disp_perm <- vegan::permutest(disp, permutations = 999)
+disp_perm
+```
+
+**Interpretation:** 
+- Non-significant p (> 0.05): Dispersions are similar; PERMANOVA results are reliable
+- Significant p: Groups differ in dispersion; interpret PERMANOVA cautiously
+
+```{r betadisper-plot, fig.cap="Testing homogeneity of dispersions. If the dispersions (distances to centroid) differ among groups, PERMANOVA may be detecting dispersion differences rather than location differences."}
+# Visualize dispersions
+plot(disp, main = "Dispersion by Management Type")
+```
+
+---
+
+# Part 2: Pairwise Comparisons
+
+PERMANOVA tells you *whether* groups differ, but not *which* groups differ from which. For pairwise comparisons, use the `pairwiseAdonis` package:
+
+```{r pairwise}
+# Pairwise PERMANOVA
+pairwise_result <- pairwise.adonis(dune, dune.env$Management, 
+                                    sim.method = "bray",
+                                    p.adjust.m = "bonferroni")
+pairwise_result
+```
+
+**Multiple comparison correction:** With many pairwise comparisons, use p-value adjustment:
+- `"bonferroni"`: Most conservative
+- `"holm"`: Less conservative, still controls Type I error
+- `"fdr"` or `"BH"`: Controls false discovery rate
+
+---
+
+# Part 3: ANOSIM
+
+## What is ANOSIM?
+
+**ANOSIM** (Analysis of Similarities) is an older alternative to PERMANOVA. It compares:
+- Average rank dissimilarity **between groups**
+- Average rank dissimilarity **within groups**
+
+```{r anosim}
+# ANOSIM
+anosim_result <- anosim(dune_dist, dune.env$Management, permutations = 999)
+anosim_result
+```
+
+### Interpret ANOSIM output
+
+- **R statistic:** Ranges from -1 to 1
+  - R ≈ 1: Groups are completely different
+  - R ≈ 0: No difference between groups
+  - R < 0: More variation within groups than between (rare)
+  
+- **Significance:** P-value from permutation
+
+## ANOSIM vs PERMANOVA
+
+| Feature | PERMANOVA | ANOSIM |
+|---------|-----------|--------|
+| Uses | F-ratio (variance ratio) | R statistic (rank-based) |
+| Assumptions | More robust | More restrictive |
+| Multiple factors | Yes | No |
+| Power | Generally higher | Generally lower |
+| Recommendation | **Preferred** | Use if specifically needed |
+
+PERMANOVA is generally preferred because it's more powerful and flexible.
+
+---
+
+# Part 4: Mantel Test
+
+## What is the Mantel test?
+
+The **Mantel test** correlates two distance matrices. It asks:
+
+> "Is the pattern in distance matrix A related to the pattern in distance matrix B?"
+
+**Examples:**
+- Are communities more similar at sites that are geographically closer?
+- Is community dissimilarity correlated with environmental dissimilarity?
+- Are genetic distances related to ecological distances?
+
+## Mantel test in practice
+
+```{r mantel}
+# Create environmental distance matrix
+env_dist <- vegdist(scale(dune.env$A1), method = "euclidean")
+
+# Mantel test: community vs environment
+mantel_result <- mantel(dune_dist, env_dist, method = "pearson", permutations = 999)
+mantel_result
+```
+
+### Interpret Mantel output
+
+- **r:** Correlation coefficient between matrices
+- **Significance:** P-value from permutation
+
+**Interpretation:** If r is positive and significant, sites that are more similar in one matrix tend to be more similar in the other.
+
+## Partial Mantel test
+
+Control for a third matrix when testing the correlation between two others:
+
+```{r partial-mantel}
+# Simulate geographic coordinates
+set.seed(123)
+
+coords <- data.frame(
+  x = runif(nrow(dune.env), 0, 100),
+  y = runif(nrow(dune.env), 0, 100)
+)
+
+# Geographic distance matrix
+geo_dist <- vegdist(coords, method = "euclidean")
+
+# Partial Mantel: community vs environment, controlling for geography
+mantel.partial(dune_dist, env_dist, geo_dist, permutations = 999)
+```
+
+---
+
+# Part 5: Fitting Environmental Variables to Ordination
+
+## The envfit function
+
+`envfit()` fits environmental variables to an ordination, showing:
+- How each variable correlates with ordination axes
+- Whether the correlation is significant
+
+```{r envfit-example}
+# Run NMDS first
+nmds <- metaMDS(dune, distance = "bray", k = 2, trymax = 50)
+
+# Fit environmental variables
+env_fit <- envfit(nmds, dune.env[, c("A1", "Moisture", "Manure")], 
+                   permutations = 999)
+env_fit
+```
+
+### Interpret envfit
+
+For continuous variables:
+- **Vectors:** Point in direction of increasing values
+- **r²:** Proportion of variance in variable explained by ordination
+- **Pr(>r):** Significance from permutation
+
+For categorical variables:
+- **Centroids:** Position of group centers in ordination space
+- **r²:** How well groups are separated
+- **Pr(>r):** Significance of separation
+
+```{r envfit-plot, fig.cap="Environmental vectors fitted to NMDS ordination. Vector length indicates correlation strength; direction shows the gradient."}
+# Fit categorical and continuous variables
+env_all <- envfit(nmds, dune.env, permutations = 999)
+
+# Plot
+plot(nmds, display = "sites", type = "n", main = "NMDS with Environmental Fit")
+points(nmds, display = "sites", pch = 19, col = "steelblue")
+
+# Add vectors (continuous variables)
+plot(env_all, p.max = 0.05, col = "firebrick")  # Only significant variables
+```
+
+## Surface fitting
+
+For continuous variables, you can fit smooth surfaces:
+
+```{r ordisurf, fig.cap="Smooth surface fitted for soil A1 horizon thickness. Contours show isolines of equal values."}
+# Fit GAM surface
+surf <- ordisurf(nmds, dune.env$A1, add = FALSE, col = "firebrick")
+```
+
+---
+
+# Part 6: Complete Workflow Example
+
+Let's work through a complete analysis:
+
+```{r complete-workflow 23}
+# 1. Load and examine data
+data(dune)
+data(dune.env)
+
+# 2. Calculate dissimilarity
+dune_dist <- vegdist(dune, method = "bray")
+
+# 3. Run NMDS for visualization
+nmds <- metaMDS(dune, distance = "bray", k = 2, trymax = 100)
+cat("Stress:", nmds$stress, "\n")
+
+# 4. Test group differences with PERMANOVA
+perm <- adonis2(dune_dist ~ Management, data = dune.env, permutations = 999)
+print(perm)
+
+# 5. Check dispersion assumption
+disp <- betadisper(dune_dist, dune.env$Management)
+print(vegan::permutest(disp))
+
+# 6. Pairwise comparisons (if significant)
+pairwise <- pairwise.adonis(dune, dune.env$Management, sim.method = "bray")
+print(pairwise)
+
+# 7. Fit environmental variables
+env_fit <- envfit(nmds, dune.env[, c("A1", "Moisture")], permutations = 999)
+print(env_fit)
+```
+
+```{r complete-figure, fig.cap="Complete community analysis: NMDS ordination showing vegetation composition by management type with environmental vectors overlaid. Groups were significantly different (PERMANOVA: p = 0.001)."}
+# 8. Create publication figure
+site_scores <- as.data.frame(scores(nmds, display = "sites"))
+site_scores$Management <- dune.env$Management
+
+ggplot(site_scores, aes(x = NMDS1, y = NMDS2, color = Management)) +
+  geom_point(size = 3, alpha = 0.8) +
+  stat_ellipse(level = 0.95, linetype = 2) +
+  scale_color_brewer(palette = "Set2") +
+  labs(title = "Dune Meadow Vegetation by Management",
+       subtitle = paste("PERMANOVA: R² = 0.34, p = 0.001 | Stress =", 
+                        round(nmds$stress, 3))) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  coord_equal()
+```
+
+---
+
+# Part 7: Reporting Permutation Results
+
+## What to report
+
+1. **Method:** PERMANOVA, ANOSIM, Mantel
+2. **Dissimilarity measure:** Bray-Curtis, Jaccard, etc.
+3. **Number of permutations**
+4. **Test statistic:** Pseudo-F, R, r
+5. **R² (for PERMANOVA):** Effect size
+6. **P-value**
+7. **Dispersion test results** (for PERMANOVA)
+8. **Pairwise comparisons** (if applicable)
+
+## Sample methods and results
+
+### Methods
+
+> We tested whether plant community composition differed among management types using PERMANOVA with Bray-Curtis dissimilarity and 999 permutations. Prior to analysis, we verified the assumption of homogeneous dispersions using PERMDISP (betadisper function). When PERMANOVA was significant, we conducted pairwise comparisons with Bonferroni correction. We visualized community composition using NMDS and overlaid environmental variables using envfit() to aid interpretation. Analyses were conducted using the vegan package (Oksanen et al. 2022) in R version 4.3.1.
+
+### Results
+
+> Plant community composition differed significantly among management types (PERMANOVA: F₃,₁₆ = 2.74, R² = 0.34, p = 0.001; **Fig. X**). The assumption of homogeneous dispersions was met (PERMDISP: F₃,₁₆ = 1.21, p = 0.32). Pairwise comparisons revealed that biological management sites differed from hobby farming sites (p = 0.006) and nature conservation sites (p = 0.018), while standard farming did not differ significantly from other management types (all p > 0.10). NMDS ordination (stress = 0.118) showed separation of management types along both axes, with soil moisture significantly correlated with ordination structure (r² = 0.45, p = 0.003).
+
+---
+
+## Key takeaways
+
+1. **Permutation tests make no distributional assumptions** — They use your data to generate the null distribution
+
+2. **PERMANOVA tests group differences** — It's ANOVA for multivariate community data
+
+3. **Check dispersion first** — Significant PERMANOVA with unequal dispersions is ambiguous
+
+4. **Use pairwise comparisons** to identify which groups differ
+
+5. **ANOSIM is older and less flexible** — PERMANOVA is generally preferred
+
+6. **Mantel test correlates distance matrices** — Useful for relating community to environment or geography
+
+7. **envfit interprets ordination** — Shows how environmental variables relate to community patterns
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. What does the R² value in PERMANOVA represent? How is it different from a p-value?
+
+2. Your PERMANOVA is significant, but so is your test of dispersion homogeneity. How do you interpret this?
+
+3. What's the difference between PERMANOVA and Mantel test? When would you use each?
+
+### Part 2: PERMANOVA analysis
+
+Using the built-in `BCI` data and simulated environmental groups:
+
+```{r assignment-permanova}
+data(BCI)
+
+# Create grouping variable (simulated forest age classes)
+set.seed(123)
+forest_age <- factor(sample(c("Young", "Mature", "Old"), 50, replace = TRUE,
+                            prob = c(0.3, 0.4, 0.3)))
+```
+
+1. Calculate Bray-Curtis dissimilarity
+2. Run PERMANOVA to test whether composition differs by forest age
+3. Test the dispersion assumption
+4. If significant, run pairwise comparisons
+5. Write a results paragraph
+
+### Part 3: Mantel test
+
+Create an environmental distance matrix and test its correlation with community dissimilarity:
+
+```{r assignment-mantel}
+# Simulated environmental data (2 variables)
+env_data <- data.frame(
+  temp = rnorm(50, mean = 25, sd = 3),
+  precip = rnorm(50, mean = 2000, sd = 500)
+)
+```
+
+1. Create Euclidean distance matrix from environmental data
+2. Run Mantel test against BCI community dissimilarity
+3. Interpret the result
+
+### Part 4: Complete workflow
+
+Using the `dune` data (or your own data):
+
+1. Run NMDS
+2. Run PERMANOVA with at least one factor
+3. Check dispersion assumption
+4. Fit environmental variables
+5. Create a publication-quality figure
+6. Write complete methods and results
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why permutation tests are particularly well-suited to ecological community data compared to traditional parametric tests.
+

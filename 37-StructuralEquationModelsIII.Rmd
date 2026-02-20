@@ -1,0 +1,700 @@
+# Structural Equation Modeling III: Piecewise SEM
+
+Covariance-based SEM (Chapters 23-24) is powerful but demanding: it requires large samples, multivariate normality, and can't easily handle hierarchical data or non-Gaussian responses. When your ecological data violate these assumptions—as field data often do—**piecewise SEM** offers a flexible alternative.
+
+Piecewise SEM decomposes a full SEM into a series of separate regression models, each estimated independently. This allows you to:
+
+- Use **GLMs** for count, binary, or proportion data
+- Include **random effects** for hierarchical/nested designs
+- Work with **smaller sample sizes**
+- Handle **non-normal** distributions
+
+The trade-off: piecewise SEM cannot model latent variables or correlated errors as elegantly as covariance-based SEM.
+
+## When to use piecewise vs covariance-based SEM
+
+| Feature | Covariance-Based (`lavaan`) | Piecewise (`piecewiseSEM`) |
+|---------|------------------------------|----------------------------|
+| Data assumptions | Multivariate normality | Flexible (GLM families) |
+| Model structure | All paths simultaneously | Separate (G)LMs |
+| Fit assessment | χ², RMSEA, CFI, SRMR | D-separation, Fisher's C |
+| Sample size | N > 200 recommended | Works with smaller N |
+| Hierarchical data | Difficult | Easy (mixed models) |
+| Latent variables | ✅ Supported | ❌ Not supported |
+| Non-Gaussian responses | Limited | ✅ Full GLM support |
+
+**Rule of thumb:**
+- Use `lavaan` for large samples, latent variables, measurement models
+- Use `piecewiseSEM` for ecological field data with mixed models, GLMs, or small samples
+
+## Setup
+
+```{r sem3-setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(piecewiseSEM)
+library(lme4)
+library(nlme)
+library(dagitty)
+library(ggdag)
+library(emmeans)
+
+set.seed(42)
+```
+
+---
+
+# Part 1: D-Separation and Model Fit
+
+## The logic of piecewise SEM
+
+Instead of fitting one big covariance matrix, piecewise SEM:
+
+1. Fits each endogenous variable as a separate regression
+2. Tests whether the model's **implied conditional independencies** hold
+3. Combines these tests into an overall fit statistic (Fisher's C)
+
+## What is D-separation?
+
+**D-separation** (directed separation) identifies pairs of variables that should be conditionally independent given your model structure. If your model is correct, these "missing paths" should show no significant relationship.
+
+```{r sem3-dsep-concept, echo=FALSE}
+cat("
+D-SEPARATION LOGIC
+═══════════════════════════════════════════════════════════════
+
+Your DAG implies certain conditional independencies:
+
+    X → M → Y
+
+This DAG implies: X is independent of Y, given M
+Written: X ⊥ Y | M
+
+D-sep test: Regress Y ~ X + M
+  - If X is NOT significant → independence holds → model OK
+  - If X IS significant → independence violated → missing path!
+
+The BASIS SET is all implied independencies.
+Fisher's C combines all d-sep tests into one fit statistic.
+")
+```
+
+## Example: Testing D-separation
+
+```{r sem3-dsep-dag}
+# A model with a testable independence (full mediation)
+mediation_dag <- dagify(
+  y ~ m,
+  m ~ x,
+  exposure = "x",
+  outcome = "y"
+)
+
+# Implied independencies
+impliedConditionalIndependencies(mediation_dag)
+```
+
+This says: "y and x should be independent, given m." If we find a significant direct effect of x on y after controlling for m, our model is wrong.
+
+## Fitting piecewise SEM
+
+```{r sem3-first-psem}
+# Simulate data matching the mediation DAG
+n <- 100
+x <- rnorm(n)
+m <- 0.6 * x + rnorm(n, 0, 0.8)
+y <- 0.7 * m + rnorm(n, 0, 0.7)  # No direct x effect
+
+sim_data <- data.frame(x = x, m = m, y = y)
+
+# Fit piecewise SEM
+psem_model <- psem(
+  lm(m ~ x, data = sim_data),
+  lm(y ~ m, data = sim_data)  # Note: x is NOT included
+)
+
+# Model summary
+summary(psem_model)
+```
+
+## Understanding the output
+
+```{r sem3-dsep-tests}
+# D-separation tests (basis set)
+dSep(psem_model)
+```
+
+```{r sem3-fisherc}
+# Fisher's C statistic
+fisherC(psem_model)
+```
+
+**Interpretation:**
+- **Fisher's C p-value > 0.05:** Model is not rejected; implied independencies hold
+- **Fisher's C p-value < 0.05:** Model is rejected; missing paths may be needed
+
+## Detecting missing paths
+
+```{r sem3-missing-path}
+# Simulate data WITH a direct effect
+y_direct <- 0.7 * m + 0.4 * x + rnorm(n, 0, 0.7)
+sim_data2 <- data.frame(x = x, m = m, y = y_direct)
+
+# Fit the WRONG model (missing the direct path)
+psem_wrong <- psem(
+  lm(m ~ x, data = sim_data2),
+  lm(y ~ m, data = sim_data2)
+)
+
+# Check fit - should show poor fit
+summary(psem_wrong)
+```
+
+The significant d-sep test (p < 0.05) tells us we're missing the x → y path!
+
+```{r sem3-correct-model}
+# Fit the CORRECT model (include direct path)
+psem_correct <- psem(
+  lm(m ~ x, data = sim_data2),
+  lm(y ~ m + x, data = sim_data2)
+)
+
+summary(psem_correct)
+```
+
+---
+
+# Part 2: Working with Real Ecological Data
+
+## Example: Post-fire recovery (Keeley data)
+
+```{r sem3-keeley-load}
+# Load keeley data from piecewiseSEM
+data(keeley)
+
+# Examine structure
+str(keeley)
+```
+
+```{r sem3-keeley-explore}
+head(keeley)
+```
+
+## Building the model
+
+We hypothesize:
+1. Fire severity depends on stand age
+2. Plant cover depends on fire severity and age
+3. Species richness depends on cover, heterogeneity, and abiotic stress
+4. Heterogeneity depends on distance to seed source
+5. Abiotic stress depends on elevation
+
+```{r sem3-keeley-fit}
+# Fit individual models
+mod_firesev <- lm(firesev ~ age, data = keeley)
+mod_cover <- lm(cover ~ firesev + age, data = keeley)
+mod_hetero <- lm(hetero ~ distance, data = keeley)
+mod_abiotic <- lm(abiotic ~ elev, data = keeley)
+mod_rich <- lm(rich ~ cover + hetero + abiotic, data = keeley)
+
+# Combine into piecewise SEM
+keeley_psem <- psem(
+  mod_firesev,
+  mod_cover,
+  mod_hetero,
+  mod_abiotic,
+  mod_rich,
+  data = keeley
+)
+
+# Summary
+summary(keeley_psem)
+```
+
+## Visualizing the model
+
+```{r sem3-keeley-plot, fig.cap="Path diagram from piecewise SEM showing relationships among fire, vegetation, and diversity variables."}
+plot(keeley_psem)
+```
+
+## Extracting results
+
+```{r sem3-keeley-coefs}
+# Standardized coefficients
+coefs(keeley_psem, standardize = "scale")
+```
+
+```{r sem3-keeley-rsq}
+# R-squared for each endogenous variable
+rsquared(keeley_psem)
+```
+
+---
+
+# Part 3: GLMs in Piecewise SEM
+
+## Why GLMs matter
+
+Many ecological responses are non-Gaussian:
+- **Counts:** Species richness, abundance (Poisson, negative binomial)
+- **Binary:** Presence/absence (binomial)
+- **Proportions:** Cover, survival (beta, binomial)
+
+Piecewise SEM handles these naturally.
+
+## Example: Binary response
+
+```{r sem3-glm-binary}
+# Simulate presence/absence data
+n <- 150
+habitat_quality <- rnorm(n)
+connectivity <- rnorm(n)
+local_cover <- 0.5 * habitat_quality + rnorm(n, 0, 0.8)
+
+# Presence depends on cover and connectivity
+presence_prob <- plogis(-1 + 0.8 * local_cover + 0.5 * connectivity)
+presence <- rbinom(n, 1, presence_prob)
+
+glm_data <- data.frame(
+  habitat = habitat_quality,
+  connect = connectivity,
+  cover = local_cover,
+  presence = presence
+)
+
+# Fit piecewise SEM with GLM
+glm_psem <- psem(
+  lm(cover ~ habitat, data = glm_data),
+  glm(presence ~ cover + connect, family = binomial, data = glm_data),
+  data = glm_data
+)
+
+summary(glm_psem)
+```
+
+## Example: Count response
+
+```{r sem3-glm-count}
+# Simulate count data (species richness)
+n <- 150
+productivity <- rnorm(n, 10, 2)
+disturbance <- rnorm(n)
+biomass <- 2 + 0.3 * productivity - 0.5 * disturbance + rnorm(n, 0, 1)
+biomass <- pmax(biomass, 0.1)
+
+# Richness as Poisson count
+richness_lambda <- exp(1 + 0.1 * biomass + 0.05 * productivity)
+richness <- rpois(n, richness_lambda)
+
+count_data <- data.frame(
+  productivity = productivity,
+  disturbance = disturbance,
+  biomass = biomass,
+  richness = richness
+)
+
+# Piecewise SEM with Poisson GLM
+count_psem <- psem(
+  lm(biomass ~ productivity + disturbance, data = count_data),
+  glm(richness ~ biomass + productivity, family = poisson, data = count_data),
+  data = count_data
+)
+
+summary(count_psem)
+```
+
+## Standardizing GLM coefficients
+
+```{r sem3-glm-coefs}
+# Default: uses Latent Theoretic (LT) approach
+coefs(count_psem, standardize = "scale")
+```
+
+---
+
+# Part 4: Mixed Models in Piecewise SEM
+
+## Handling hierarchical data
+
+Ecological data are often nested: plots within sites, observations within individuals. Mixed models account for this non-independence.
+
+```{r sem3-mixed-simulate}
+# Simulate hierarchical data
+n_sites <- 15
+n_plots <- 6
+n_total <- n_sites * n_plots
+
+# Site-level random effects
+site_id <- rep(1:n_sites, each = n_plots)
+site_effect <- rep(rnorm(n_sites, 0, 1), each = n_plots)
+
+# Fixed effects
+treatment <- rep(c(0, 1), length.out = n_total)
+soil_moisture <- rnorm(n_total)
+
+# Response with site random effect
+plant_cover <- 30 + 10 * treatment + 5 * soil_moisture + 
+               site_effect + rnorm(n_total, 0, 5)
+
+mixed_data <- data.frame(
+  site = factor(site_id),
+  treatment = factor(treatment),
+  soil = soil_moisture,
+  cover = plant_cover
+)
+```
+
+## Fitting mixed models in psem
+
+```{r sem3-mixed-psem, message=FALSE, warning=FALSE}
+stopifnot(requireNamespace("nlme", quietly = TRUE))
+stopifnot(exists("mixed_data"))
+
+mixed_data$site <- as.factor(mixed_data$site)
+
+m1 <- nlme::lme(
+  fixed  = cover ~ treatment + soil,
+  random = ~ 1 | site,
+  data   = mixed_data,
+  na.action = na.exclude
+)
+
+cat("\n=== Model overview ===\n")
+print(m1)
+
+cat("\n=== Path coefficients (fixed effects) ===\n")
+sm <- summary(m1)
+print(sm$tTable)
+```
+
+## Understanding R² for mixed models
+
+```{r sem3-mixed-rsq}
+# R-squared decomposition
+rsquared(mixed_psem)
+```
+
+**Interpretation:**
+- **Marginal R²:** Variance explained by fixed effects only
+- **Conditional R²:** Variance explained by fixed + random effects
+
+---
+
+# Part 5: Nonlinearity and Interactions
+
+## Polynomial terms
+
+Many ecological relationships are nonlinear:
+
+```{r sem3-nonlinear-data}
+# Simulate unimodal response to nitrogen
+n <- 100
+nitrogen <- runif(n, 0, 10)
+productivity <- 5 + 3 * nitrogen - 0.3 * nitrogen^2 + rnorm(n, 0, 1)
+herbivory <- 0.5 * productivity + rnorm(n, 0, 0.5)
+
+nonlin_data <- data.frame(
+  N = nitrogen,
+  prod = productivity,
+  herb = herbivory
+)
+
+# Center to reduce collinearity
+nonlin_data$N_c <- scale(nonlin_data$N, scale = FALSE)[,1]
+nonlin_data$N2_c <- nonlin_data$N_c^2
+
+# Check correlation before and after centering
+cat("Correlation N vs N²:", round(cor(nonlin_data$N, nonlin_data$N^2), 3), "\n")
+cat("Correlation N_c vs N²_c:", round(cor(nonlin_data$N_c, nonlin_data$N2_c), 3), "\n")
+```
+
+```{r sem3-nonlinear-psem}
+# Fit nonlinear piecewise SEM
+nonlin_psem <- psem(
+  lm(prod ~ N_c + N2_c, data = nonlin_data),
+  lm(herb ~ prod, data = nonlin_data),
+  N_c %~~% N2_c,
+  data = nonlin_data
+)
+
+summary(nonlin_psem)
+```
+
+## Interaction terms
+
+```{r sem3-interaction}
+# Center predictors for interaction
+keeley$age_c <- scale(keeley$age, scale = FALSE)[,1]
+keeley$firesev_c <- scale(keeley$firesev, scale = FALSE)[,1]
+
+# Piecewise SEM with interaction
+int_psem <- psem(
+  lm(firesev_c ~ age_c, data = keeley),
+  lm(cover ~ firesev_c * age_c, data = keeley),
+  data = keeley
+)
+
+summary(int_psem)
+```
+
+---
+
+# Part 6: Categorical Predictors
+
+## Treatment effects in SEM
+
+```{r sem3-categorical-data}
+# Simulate experiment with 4 treatment levels
+n <- 120
+treatment <- factor(rep(c("Control", "Low", "Medium", "High"), each = 30))
+
+# Effects
+trt_effects <- c(Control = 0, Low = 2, Medium = 5, High = 8)
+plant_biomass <- 20 + trt_effects[treatment] + rnorm(n, 0, 3)
+insect_abundance <- 10 + 0.5 * plant_biomass + rnorm(n, 0, 2)
+
+cat_data <- data.frame(
+  treatment = treatment,
+  biomass = plant_biomass,
+  insects = insect_abundance
+)
+```
+
+```{r sem3-categorical-psem}
+# Fit piecewise SEM with categorical predictor
+cat_psem <- psem(
+  lm(biomass ~ treatment, data = cat_data),
+  lm(insects ~ biomass, data = cat_data),
+  data = cat_data
+)
+
+summary(cat_psem)
+```
+
+## Post-hoc comparisons
+
+```{r sem3-emmeans}
+# Extract the biomass model
+biomass_mod <- cat_psem[[1]]
+
+# Estimated marginal means
+emmeans(biomass_mod, specs = ~ treatment)
+```
+
+```{r sem3-pairwise}
+# Pairwise comparisons
+pairs(emmeans(biomass_mod, specs = ~ treatment))
+```
+
+---
+
+# Part 7: Complete Ecological Example
+
+## Case study: Vegetation management and pollinators
+
+```{r sem3-ivm-data}
+# Simulate IVM dataset
+set.seed(123)
+n <- 80
+
+# Experimental design
+treatment <- factor(rep(c("Control", "Herbicide", "Mechanical", "Combined"), 
+                        each = 20))
+soil_type <- factor(sample(c("Sandy", "Clay", "Loam"), n, replace = TRUE))
+cattle_present <- rbinom(n, 1, 0.3)
+
+# Treatment effects on plant community
+trt_rich <- c(Control = 0, Herbicide = -3, Mechanical = -2, Combined = -4)
+trt_cover <- c(Control = 0, Herbicide = -15, Mechanical = -10, Combined = -20)
+
+plant_richness <- 25 + trt_rich[treatment] + 
+                  ifelse(soil_type == "Loam", 3, 0) +
+                  -2 * cattle_present + rnorm(n, 0, 3)
+
+plant_cover <- 70 + trt_cover[treatment] +
+               ifelse(soil_type == "Clay", -5, 0) +
+               -5 * cattle_present + rnorm(n, 0, 8)
+
+plant_height <- 40 + 0.3 * plant_cover + rnorm(n, 0, 5)
+
+# Pollinator responses
+poll_rich <- rpois(n, exp(1.5 + 0.02 * plant_richness + 0.01 * plant_cover))
+poll_abund <- rpois(n, exp(2 + 0.015 * plant_cover + 0.01 * plant_height))
+
+ivm_data <- data.frame(
+  treatment = treatment,
+  soil = soil_type,
+  cattle = cattle_present,
+  plant_rich = plant_richness,
+  plant_cover = plant_cover,
+  plant_height = plant_height,
+  poll_rich = poll_rich,
+  poll_abund = poll_abund
+)
+```
+
+## Build and fit the SEM
+
+```{r sem3-ivm-dag, fig.cap="Hypothesized DAG for pollinator response to vegetation management."}
+# Define the DAG
+ivm_dag <- dagify(
+  plant_rich ~ treatment + soil + cattle,
+  plant_cover ~ treatment + soil + cattle,
+  plant_height ~ plant_cover + treatment,
+  poll_rich ~ plant_rich + plant_cover,
+  poll_abund ~ plant_cover + plant_height,
+  exposure = "treatment",
+  outcome = "poll_abund"
+)
+
+ggdag(ivm_dag, text = TRUE) +
+  theme_dag() +
+  labs(title = "IVM Effects on Pollinators")
+```
+
+```{r sem3-ivm-fit}
+# Fit piecewise SEM
+ivm_psem <- psem(
+  lm(plant_rich ~ treatment + soil + cattle, data = ivm_data),
+  lm(plant_cover ~ treatment + soil + cattle, data = ivm_data),
+  lm(plant_height ~ plant_cover + treatment, data = ivm_data),
+  glm(poll_rich ~ plant_rich + plant_cover, family = poisson, data = ivm_data),
+  glm(poll_abund ~ plant_cover + plant_height, family = poisson, data = ivm_data),
+  data = ivm_data
+)
+
+summary(ivm_psem)
+```
+
+
+```{r sem-path-diagram, message=FALSE, warning=FALSE}
+# Clean coefficient table
+ctab_clean <- ctab %>%
+  dplyr::mutate(
+    Estimate_num = suppressWarnings(as.numeric(Estimate)),
+    P_num        = suppressWarnings(as.numeric(P.Value))
+  ) %>%
+  dplyr::filter(!is.na(Estimate_num))
+
+# significance stars
+sigstars <- function(p){
+  ifelse(p < 0.001, "***",
+  ifelse(p < 0.01,  "**",
+  ifelse(p < 0.05,  "*", "")))
+}
+
+edges <- transform(
+  ctab_clean,
+  label = sprintf("%.2f%s", Estimate_num, sigstars(P_num))
+)
+
+dot <- paste0(
+  "digraph psem {\n",
+  "rankdir=LR;\n",
+  "node [shape=box, style=rounded];\n",
+  paste0(
+    "  \"", edges$Predictor, "\" -> \"", edges$Response,
+    "\" [label=\"", edges$label, "\"];\n",
+    collapse = ""
+  ),
+  "}\n"
+)
+
+DiagrammeR::grViz(dot)
+```
+
+## Extract key results
+
+```{r sem3-ivm-results}
+# Standardized coefficients
+coefs(ivm_psem, standardize = "scale")
+```
+
+```{r sem3-ivm-rsq}
+# R-squared values
+rsquared(ivm_psem)
+```
+
+---
+
+# Part 8: Reporting Piecewise SEM
+
+## What to report
+
+1. **Model specification:** Path diagram or equations
+2. **Sample size** and data structure
+3. **Model types:** lm, glm, lme for each equation
+4. **D-separation tests:** Basis set results
+5. **Fisher's C:** Statistic, df, p-value
+6. **Path coefficients:** Standardized with p-values
+7. **R²:** For each endogenous variable
+
+## Sample methods and results
+
+### Methods
+
+> We used piecewise structural equation modeling to test hypothesized pathways linking vegetation management treatments to pollinator communities through plant community mediators. The model structure was specified a priori based on ecological theory (**Fig. X**). Plant community variables (richness, cover, height) were modeled with linear regression including treatment, soil type, and cattle presence as predictors. Pollinator richness and abundance were modeled with Poisson GLMs given their count distribution. Model fit was assessed using Shipley's test of directed separation (d-sep), with Fisher's C statistic used to evaluate overall model fit. Standardized path coefficients were calculated using the latent-theoretic approach. We considered Fisher's C p > 0.05 as indicating acceptable model fit. Analyses were conducted using piecewiseSEM version 2.3.0 (Lefcheck 2016) in R version 4.3.1.
+
+### Results
+
+> The piecewise SEM showed good fit to the data (Fisher's C = 8.4, df = 6, p = 0.21), indicating that the hypothesized path structure adequately captured the relationships among variables. Vegetation management significantly affected plant community composition: combined mechanical + herbicide treatment reduced plant species richness by 4.2 species (β = -0.38, p < 0.001) and cover by 18% (β = -0.42, p < 0.001) compared to controls (**Table X**). These plant community changes propagated to pollinators: plant richness positively predicted pollinator richness (β = 0.35, p = 0.002), while plant cover positively predicted pollinator abundance (β = 0.41, p < 0.001). The model explained 45% of variance in pollinator richness and 52% in pollinator abundance. Post-hoc comparisons revealed that all active treatments significantly reduced plant cover relative to controls, with combined treatment showing the strongest effects (Tukey HSD, all p < 0.01).
+
+---
+
+## Key takeaways
+
+1. **Piecewise SEM = flexibility** — GLMs, mixed models, small samples
+
+2. **D-separation tests missing paths** — Fisher's C combines into overall fit
+
+3. **p > 0.05 means good fit** — Model structure is supported
+
+4. **Use GLMs for non-normal data** — Counts, binary, proportions
+
+5. **Mixed models for hierarchical data** — Random effects handled naturally
+
+6. **Center polynomials and interactions** — Reduces collinearity
+
+7. **No latent variables** — Use lavaan if you need them
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. What does Fisher's C test? How is it different from the chi-square test in covariance-based SEM?
+
+2. You fit a piecewise SEM and get Fisher's C = 15.2, df = 4, p = 0.004. What does this tell you?
+
+3. When would you choose piecewise SEM over lavaan? Give three specific scenarios.
+
+### Part 2: Basic piecewise SEM
+
+Using the keeley data:
+
+1. Propose a different path structure than the one in this chapter
+2. Fit the model with psem()
+3. Check d-sep tests and Fisher's C
+4. Extract standardized coefficients
+5. Plot the path diagram
+
+### Part 3: GLM in piecewise SEM
+
+Using simulated or real data with a count response:
+
+1. Create a piecewise SEM with at least one Poisson GLM
+2. Check model fit
+3. Interpret the standardized coefficients
+4. Discuss how interpretation differs from linear models
+
+### Part 4: Mixed model SEM
+
+Using hierarchical data (simulated or real):
+
+1. Fit a piecewise SEM with random effects using lme()
+2. Compare marginal vs conditional R²
+3. Discuss what the random effects capture
+
+### Part 5: Reporting
+
+Write a complete methods and results paragraph for your model from Part 2, following the format in this chapter.

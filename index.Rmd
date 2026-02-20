@@ -24,7 +24,41 @@ output:
 ---
 
 ```{r setup-global, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+options(na.action = "na.exclude")
+
+library(magrittr)
+`%>%` <- magrittr::`%>%`
+
+library(tidyverse)
+library(conflicted)
+
+conflict_prefer("select", "dplyr")
+conflict_prefer("filter", "dplyr")
+conflict_prefer("rename", "dplyr")
+conflict_prefer("lag", "dplyr")
+
+conflict_prefer("mosaic", "vcd")
+conflict_prefer("auc", "pROC")
+
+# prevent GAM formula conflict if brms is loaded
+conflict_prefer("s", "mgcv")
+
+if (requireNamespace("lmerTest", quietly = TRUE)) {
+  conflict_prefer("lmer", "lmerTest")
+}
+if (requireNamespace("effectsize", quietly = TRUE)) {
+  conflict_prefer("oddsratio", "effectsize")
+}
+if (requireNamespace("car", quietly = TRUE)) {
+  conflict_prefer("vif", "car")
+}
+
+conflict_prefer("qqnorm", "stats")
+conflict_prefer("qqline", "stats")
+
+# FIX: your last line was wrong
+conflict_prefer("order", "base")
 ```
 
 # Introduction 

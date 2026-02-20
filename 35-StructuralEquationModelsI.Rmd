@@ -1,0 +1,679 @@
+# Structural Equation Modeling I: Foundations and Path Analysis
+
+Ecological systems are complex. Species richness depends on habitat quality, which depends on disturbance, which depends on management—and management might also directly affect richness. These cascading, interconnected relationships can't be captured in a single regression equation.
+
+**Structural Equation Modeling (SEM)** provides a framework for modeling entire systems of relationships simultaneously. It allows you to:
+
+- Test hypothesized causal pathways
+- Estimate direct AND indirect effects
+- Incorporate latent (unmeasured) variables
+- Assess how well your conceptual model fits the data
+
+This chapter covers the foundations: causal thinking, path diagrams, and fitting basic SEMs in R.
+
+## When should you use SEM?
+
+Use SEM when:
+
+- You have **multiple dependent variables** that influence one another
+- You want to estimate **direct and indirect effects**
+- Your system includes **mediating variables** (A → B → C)
+- You're testing a **theoretical model** with multiple pathways
+- You need to separate **measurement error** from true relationships
+
+> SEM is ideal when a single regression model is too simplistic to capture the interdependent relationships in your system.
+
+## How is SEM different from multiple regression?
+ 
+| Feature | Multiple Regression | SEM |
+|---------|---------------------|-----|
+| Number of equations | One | Many simultaneously |
+| Latent variables | Not allowed | Allowed |
+| Indirect effects | Manual calculation | Modeled explicitly |
+| Measurement error | Ignored | Can be modeled |
+| Model fit assessment | R², AIC | Chi-square, RMSEA, CFI |
+
+## Setup
+
+```{r setup-sem, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lavaan)        # Core SEM package
+library(semPlot)       # SEM visualization
+library(dagitty)       # DAG specification
+library(ggdag)         # DAG visualization
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Causal Thinking and DAGs
+
+## What is causality?
+
+Causality means understanding the *directional effect* one variable has on another. In SEM, we explicitly model causal relationships—unlike regression where causality is implied but not specified.
+
+**Judea Pearl's Ladder of Causation:**
+
+1. **Observation** — "What is?" (association)
+2. **Intervention** — "What if I do?" (action)
+3. **Counterfactual** — "What if I had done differently?" (imagination)
+
+We ascend the ladder by incorporating causal assumptions into our models.
+
+## Directed Acyclic Graphs (DAGs)
+
+A **DAG** is a visual representation of your causal assumptions:
+
+- **Nodes** = variables
+- **Arrows** = causal relationships (cause → effect)
+- **Acyclic** = no feedback loops (arrows can't circle back)
+
+```{r simple-dag, fig.cap="A simple DAG showing fire frequency affecting canopy cover, which affects soil moisture."}
+# Define a simple causal chain
+chain_dag <- dagify(
+  SoilMoisture ~ CanopyCover,
+  CanopyCover ~ Fire,
+  labels = c(
+    Fire = "Fire\nFrequency", 
+    CanopyCover = "Canopy\nCover", 
+    SoilMoisture = "Soil\nMoisture"
+  ),
+  exposure = "Fire", 
+  outcome = "SoilMoisture"
+)
+
+ggdag(chain_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Causal Chain (Mediation)")
+```
+
+## Three fundamental structures
+
+Every DAG is built from three basic structures. Understanding them is essential for knowing what to control for.
+
+### 1. Chains (Mediation)
+
+**Structure:** Cause → Mediator → Effect
+
+The mediator transmits the effect from cause to outcome.
+
+```{r chain-dag, fig.cap="Chain structure: Fire affects soil moisture through canopy cover."}
+ggdag(chain_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Chain: Fire → Canopy → Soil Moisture")
+```
+
+**Key insight:** If you control for the mediator, you block the indirect path and underestimate the total effect.
+
+### 2. Forks (Confounding)
+
+**Structure:** Common Cause → Variable A, Common Cause → Variable B
+
+A confounder creates spurious correlation between two variables.
+
+```{r fork-dag, fig.cap="Fork structure: Soil type confounds the relationship between invasive cover and native richness."}
+fork_dag <- dagify(
+  InvasiveCover ~ SoilType,
+  NativeRichness ~ SoilType,
+  labels = c(
+    SoilType = "Soil Type", 
+    InvasiveCover = "Invasive\nCover", 
+    NativeRichness = "Native\nRichness"
+  ),
+  exposure = "InvasiveCover", 
+  outcome = "NativeRichness"
+)
+
+ggdag(fork_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Fork: Soil Type Confounds Invasive-Native Relationship")
+```
+
+**Key insight:** Control for the confounder to block the spurious path.
+
+### 3. Colliders
+
+**Structure:** Cause1 → Collider ← Cause2
+
+A collider is influenced by two causes. Controlling for it *opens* a spurious path.
+
+```{r collider-dag, fig.cap="Collider structure: Plant growth is affected by both soil nitrogen and pathogens."}
+collider_dag <- dagify(
+  PlantGrowth ~ SoilNitrogen + PathogenLoad,
+  labels = c(
+    SoilNitrogen = "Soil N", 
+    PathogenLoad = "Pathogens", 
+    PlantGrowth = "Plant\nGrowth"
+  ),
+  exposure = "SoilNitrogen", 
+  outcome = "PathogenLoad"
+)
+
+ggdag(collider_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Collider: Don't Control for Plant Growth!")
+```
+
+**Key insight:** Never control for a collider—it creates bias where none existed.
+
+## Summary: What to control for
+
+| Structure | Control for it? | Why |
+|-----------|-----------------|-----|
+| Chain (mediator) | ❌ (if estimating total effect) | Blocks indirect path |
+| Fork (confounder) | ✅ | Blocks spurious path |
+| Collider | ❌ | Opens spurious path |
+
+---
+
+# Part 2: Building a Conceptual Model
+
+## Meta-modeling your system
+
+Before touching data, build a conceptual model:
+
+### 1. Define your purpose
+
+- **Discovery:** Exploring patterns for the first time
+- **Hypothesis testing:** Evaluating specific predictions
+- **Prediction:** Forecasting under new conditions
+
+### 2. Identify variable roles
+
+- **Drivers:** Variables that initiate change (treatments, environment)
+- **Mediators:** Variables that transmit effects
+- **Responses:** Outcome variables of interest
+
+### 3. Determine scope
+
+- **Site-specific:** Targeted insights for one location
+- **Generalizable:** Testing broad ecological principles
+
+> **Make sure the pieces of your model are causal!** Don't throw in all variables just because you measured them—each should have a theorized role.
+
+## Case study: Pollinator response to vegetation management
+
+Let's build a DAG for a real ecological question: How do different vegetation management treatments affect pollinators?
+
+**Context:** A utility company manages vegetation under powerlines using:
+- Mechanical removal
+- Herbicide application
+- Combined treatment
+- Untreated controls
+
+**Question:** Are treatment effects on pollinators mediated through plant community changes, or are there direct effects?
+
+```{r ivm-dag, fig.cap="Conceptual DAG for pollinator response to integrated vegetation management. Treatment effects may be direct or mediated through plant community variables."}
+# Define the DAG
+ivm_dag <- dagify(
+  # Treatment affects plant community
+  PlantRichness ~ Treatment + Soil,
+  PlantCover ~ Treatment + Soil,
+  WoodyDebris ~ Treatment,
+  
+  # Context variables
+  Treatment ~ Soil,
+  
+  # Pollinators respond to plants (and maybe treatment directly?)
+  PollinatorAbund ~ PlantRichness + PlantCover + WoodyDebris,
+  PollinatorRich ~ PlantRichness + PlantCover + WoodyDebris,
+  
+  # Labels for display
+  labels = c(
+    Treatment = "Treatment",
+    Soil = "Soil Type",
+    PlantRichness = "Plant\nRichness",
+    PlantCover = "Plant\nCover",
+    WoodyDebris = "Woody\nDebris",
+    PollinatorAbund = "Pollinator\nAbundance",
+    PollinatorRich = "Pollinator\nRichness"
+  ),
+  exposure = "Treatment",
+  outcome = "PollinatorAbund"
+)
+
+# Create node categories for coloring
+node_data <- data.frame(
+  name = c("Treatment", "Soil", "PlantRichness", "PlantCover", 
+           "WoodyDebris", "PollinatorAbund", "PollinatorRich"),
+  category = c("Treatment", "Context", "Plant", "Plant", 
+               "Plant", "Pollinator", "Pollinator")
+)
+
+# Plot with categories
+ggdag(ivm_dag, text = FALSE, use_labels = "label") +
+  theme_dag() +
+  labs(title = "Hypothesized DAG: Pollinator Response to Vegetation Management")
+```
+
+## Finding adjustment sets
+
+An **adjustment set** is the set of variables you must control for to estimate a causal effect without bias.
+
+```{r adjustment-sets}
+# What do we need to control for to estimate Treatment → Pollinator Abundance?
+adjustmentSets(ivm_dag, exposure = "Treatment", outcome = "PollinatorAbund")
+```
+
+**Interpretation:** To estimate the total effect of Treatment on Pollinator Abundance, we need to adjust for Soil (a confounder). We should NOT adjust for plant variables if we want the total effect (they're mediators).
+
+---
+
+# Part 3: Path Analysis with lavaan
+
+## Example data: Post-fire plant recovery
+
+We'll use simulated data based on Keeley et al.'s study of chaparral recovery after fire.
+
+```{r create-keeley-data}
+# Simulate Keeley-like data
+n <- 90
+
+# Exogenous variables
+age <- runif(n, 1, 60)           # Stand age (years since fire)
+distance <- runif(n, 0.1, 10)    # Distance to seed source (km)
+elev <- runif(n, 100, 1500)      # Elevation (m)
+abiotic <- 0.5 * elev/100 + rnorm(n, 0, 1)  # Abiotic stress index
+
+# Fire severity depends on age (older = more fuel = more severe)
+firesev <- 2 + 0.08 * age + rnorm(n, 0, 1)
+firesev <- pmax(firesev, 0)
+
+# Plant cover depends on fire severity and age
+cover <- 80 - 3 * firesev + 0.5 * age + rnorm(n, 0, 8)
+cover <- pmin(pmax(cover, 5), 100)
+
+# Heterogeneity depends on distance
+hetero <- 3 - 0.2 * distance + rnorm(n, 0, 0.5)
+hetero <- pmax(hetero, 0.5)
+
+# Species richness depends on cover, heterogeneity, abiotic
+rich <- 20 + 0.3 * cover + 5 * hetero - 2 * abiotic + rnorm(n, 0, 5)
+rich <- pmax(round(rich), 1)
+
+# Combine into data frame
+keeley <- data.frame(
+  age = age,
+  distance = distance,
+  elev = elev,
+  abiotic = abiotic,
+  firesev = firesev,
+  cover = cover,
+  hetero = hetero,
+  rich = rich
+)
+
+# Quick look
+head(keeley)
+summary(keeley)
+```
+
+## The lavaan package
+
+**lavaan** (Latent Variable Analysis) is the primary R package for SEM. Its syntax is similar to regression formulas:
+
+```{r lavaan-syntax, echo=FALSE}
+cat("
+LAVAAN MODEL SYNTAX
+═══════════════════════════════════════════════════════════════
+
+Regression paths:       y ~ x1 + x2     (y regressed on x1 and x2)
+Covariances:            x1 ~~ x2        (covariance between x1 and x2)
+Latent variables:       f =~ y1 + y2    (factor f measured by y1 and y2)
+Labeled parameters:     y ~ b1*x1       (coefficient labeled 'b1')
+Defined parameters:     ind := a * b    (indirect effect)
+")
+```
+
+## Step 1: Start simple
+
+Let's begin with a simple regression as SEM:
+
+```{r sem-simple}
+# Simple model: cover depends on age
+model1 <- 'cover ~ age'
+
+# Fit the model
+fit1 <- sem(model1, data = keeley)
+
+# Summary
+summary(fit1, standardized = TRUE, rsquare = TRUE)
+```
+
+**Reading the output:**
+
+- **Estimate:** Unstandardized coefficient (on original scale)
+- **Std.Err:** Standard error
+- **z-value:** Test statistic
+- **P(>|z|):** P-value
+- **Std.lv / Std.all:** Standardized coefficients
+
+## Step 2: Visualize the model
+
+```{r sem-plot1, fig.cap="Path diagram showing the simple regression model."}
+semPaths(fit1, 
+         whatLabels = "std",   # Show standardized estimates
+         edge.label.cex = 1.2,
+         sizeMan = 10,
+         style = "ram")
+```
+
+## Step 3: Add mediation
+
+Now let's test whether fire severity mediates the effect of age on cover:
+
+```{r sem-mediation}
+# Mediation model
+model2 <- '
+  firesev ~ age
+  cover ~ firesev + age
+'
+
+fit2 <- sem(model2, data = keeley)
+summary(fit2, standardized = TRUE, rsquare = TRUE, fit.measures = TRUE)
+```
+
+```{r sem-plot2, fig.cap="Path diagram showing the mediation model: age affects cover both directly and indirectly through fire severity."}
+semPaths(fit2, 
+         whatLabels = "std",
+         edge.label.cex = 1.2,
+         sizeMan = 10,
+         style = "ram",
+         layout = "tree")
+```
+
+## Step 4: Calculate indirect effects
+
+```{r indirect-effects}
+# Label paths to calculate indirect effects
+model3 <- '
+  # Direct paths (labeled)
+  firesev ~ a*age
+  cover ~ b*firesev + c*age
+  
+  # Defined parameters
+  indirect := a * b       # Indirect effect through firesev
+  total := c + (a * b)    # Total effect
+'
+
+fit3 <- sem(model3, data = keeley)
+
+# Get standardized solution with indirect effects
+standardizedSolution(fit3) %>%
+  filter(op == ":=") %>%
+  select(lhs, est.std, se, pvalue)
+```
+
+**Interpretation:**
+- **Direct effect (c):** Age → Cover, controlling for fire severity
+- **Indirect effect (a×b):** Age → Fire Severity → Cover
+- **Total effect:** Direct + Indirect
+
+---
+
+# Part 4: Model Fit Assessment
+
+## Why assess fit?
+
+Unlike regression, SEM tests whether your *entire model structure* fits the data. A poor fit means your hypothesized causal structure may be wrong.
+
+## Key fit indices
+
+```{r fit-indices}
+# Get fit measures
+fitMeasures(fit2, c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr"))
+```
+
+| Index | Good fit | Interpretation |
+|-------|----------|----------------|
+| **Chi-square p-value** | > 0.05 | Model not significantly different from data |
+| **CFI** | > 0.95 | Comparative fit index |
+| **TLI** | > 0.95 | Tucker-Lewis index |
+| **RMSEA** | < 0.06 | Root mean square error of approximation |
+| **SRMR** | < 0.08 | Standardized root mean square residual |
+
+**Note:** Just-identified models (df = 0) can't be tested for fit—there's no room for misfit!
+
+## Modification indices
+
+If fit is poor, modification indices suggest where the model might be improved:
+
+```{r mod-indices}
+# Check modification indices
+modificationIndices(fit2, sort. = TRUE, minimum.value = 3)
+```
+
+**Caution:** Only add paths that make theoretical sense—don't let statistics override ecology!
+
+---
+
+# Part 5: A Complete Example
+
+Let's build a more complex model of species richness:
+
+```{r complex-model, fig.cap="Complete path model showing multiple pathways affecting plant species richness after fire."}
+# Complex model with multiple pathways
+model_rich <- '
+  # Structural paths
+  hetero ~ distance
+  abiotic ~ elev
+  firesev ~ age
+  cover ~ firesev + age
+  rich ~ cover + hetero + abiotic + distance
+  
+  # Covariance between exogenous variables
+  distance ~~ elev
+  distance ~~ age
+  elev ~~ age
+'
+
+fit_rich <- sem(model_rich, data = keeley)
+
+# Summary
+summary(fit_rich, standardized = TRUE, rsquare = TRUE, fit.measures = TRUE)
+
+# Visualize
+semPaths(fit_rich, 
+         whatLabels = "std",
+         edge.label.cex = 0.9,
+         sizeMan = 8,
+         style = "ram",
+         layout = "tree2",
+         rotation = 2)
+```
+
+## Interpreting the results
+
+```{r interpret-results}
+# Extract standardized coefficients
+std_solution <- standardizedSolution(fit_rich) %>%
+  filter(op == "~") %>%
+  select(lhs, rhs, est.std, se, pvalue) %>%
+  arrange(lhs, desc(abs(est.std)))
+
+print(std_solution, digits = 3)
+```
+
+**Key findings:**
+- Which pathways are significant?
+- What's the relative importance of direct vs indirect effects?
+- Does the model fit the data well?
+
+---
+
+# Part 6: Comparing Models
+
+## Nested models: Likelihood Ratio Test
+
+When one model is a subset of another (nested), use the likelihood ratio test:
+
+```{r 35 model-comparison-lrt}
+# Full model: direct effect of age on cover
+model_full <- '
+  firesev ~ age
+  cover ~ firesev + age
+'
+fit_full <- sem(model_full, data = keeley)
+
+# Reduced model: fully mediated (no direct age effect)
+model_reduced <- '
+  firesev ~ age
+  cover ~ firesev
+'
+fit_reduced <- sem(model_reduced, data = keeley)
+
+# Compare
+anova(fit_reduced, fit_full)
+```
+
+**Interpretation:** If p > 0.05, the simpler model fits equally well.
+
+## Non-nested models: AIC/BIC
+
+```{r model-aic-comparison}
+# Compare using information criteria
+data.frame(
+  Model = c("Fully mediated", "Partial mediation"),
+  AIC = c(AIC(fit_reduced), AIC(fit_full)),
+  BIC = c(BIC(fit_reduced), BIC(fit_full))
+)
+```
+
+**Lower AIC/BIC = better fit** (penalized for complexity)
+
+---
+
+# Part 7: Assumptions and Diagnostics
+
+## Key assumptions
+
+1. **Multivariate normality** (for ML estimation)
+2. **Correct model specification** (all important paths included)
+3. **No severe multicollinearity**
+4. **Sufficient sample size**
+
+## Checking multivariate normality
+
+```{r check-normality}
+# Check univariate distributions
+keeley %>%
+  select(age, firesev, cover, rich) %>%
+  pivot_longer(everything()) %>%
+  ggplot(aes(x = value)) +
+  geom_histogram(bins = 20, fill = "steelblue", color = "white") +
+  facet_wrap(~name, scales = "free") +
+  theme_minimal() +
+  labs(title = "Distribution of Key Variables")
+```
+
+## Sample size guidelines
+
+- **Minimum:** 5-10 observations per estimated parameter
+- **Preferred:** 20+ observations per parameter
+- **Rule of thumb:** N > 200 for complex models
+
+```{r sample-size-check}
+# Count parameters
+n_params <- fitmeasures(fit_rich, "npar")
+n_obs <- nrow(keeley)
+
+cat("Estimated parameters:", n_params, "\n")
+cat("Sample size:", n_obs, "\n")
+cat("Ratio:", round(n_obs / n_params, 1), "observations per parameter\n")
+```
+
+## Robust estimation
+
+If normality is violated, use robust standard errors:
+
+```{r robust-se}
+# Satorra-Bentler correction
+fit_robust <- sem(model_rich, data = keeley, 
+                  estimator = "MLM")  # Robust ML
+
+summary(fit_robust, fit.measures = TRUE)
+```
+
+---
+
+# Part 8: Reporting SEM Results
+
+## What to report
+
+1. **Sample size** and any missing data handling
+2. **Model specification** (path diagram or equations)
+3. **Estimation method** (ML, robust, etc.)
+4. **Fit indices** (χ², df, p, CFI, RMSEA, SRMR)
+5. **Path coefficients** (unstandardized and standardized)
+6. **R²** for endogenous variables
+7. **Indirect effects** if testing mediation
+
+## Sample methods and results
+
+### Methods
+
+> We tested hypothesized relationships among stand age, fire severity, plant cover, and species richness using structural equation modeling. Our conceptual model proposed that fire severity mediates the effect of stand age on vegetation cover, which in turn affects species richness along with habitat heterogeneity and abiotic stress. We estimated path coefficients using maximum likelihood in lavaan (Rosseel 2012). Model fit was assessed using chi-square test, CFI, RMSEA, and SRMR. Indirect effects were calculated as products of path coefficients with significance assessed via delta method standard errors. Analyses were conducted in R version 4.3.1.
+
+### Results
+
+> The hypothesized path model showed acceptable fit to the data (χ² = 12.4, df = 8, p = 0.13; CFI = 0.97; RMSEA = 0.05; SRMR = 0.04; **Fig. X**). Stand age significantly increased fire severity (β = 0.42, p < 0.001), which in turn reduced plant cover (β = -0.38, p < 0.001). Plant cover positively predicted species richness (β = 0.35, p < 0.001), along with habitat heterogeneity (β = 0.28, p = 0.003). The indirect effect of age on richness through fire severity and cover was significant (β = -0.06, p = 0.02), indicating partial mediation. The model explained 45% of variance in species richness.
+
+---
+
+## Key takeaways
+
+1. **SEM tests entire causal systems** — Not just individual paths
+
+2. **DAGs clarify causal assumptions** — Build before you model
+
+3. **Know your structures** — Chains, forks, and colliders determine what to control
+
+4. **Fit matters** — Check χ², CFI, RMSEA, SRMR
+
+5. **Label paths for indirect effects** — Use `:=` to define products
+
+6. **Theory guides specification** — Don't add paths just because modification indices suggest them
+
+7. **Sample size constraints** — Need ~10-20 observations per parameter
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. You're studying how grazing affects plant diversity through soil compaction. Draw a DAG with grazing, compaction, and diversity. Is compaction a mediator, confounder, or collider?
+
+2. A colleague controls for plant biomass when estimating the effect of fertilizer on herbivore abundance. Plant biomass is affected by fertilizer AND affects herbivores. Is this appropriate? Why or why not?
+
+3. Your SEM has excellent fit (χ² p = 0.95, CFI = 1.0). Should you be suspicious? Why?
+
+### Part 2: Build a DAG
+
+For your own research question (or a hypothetical ecological system):
+
+1. Identify 4-6 variables and their hypothesized roles
+2. Create a DAG using dagitty
+3. Determine the adjustment set for your key causal question
+4. Discuss what variables you should and should NOT control for
+
+### Part 3: Fit a path model
+
+Using the keeley data:
+
+1. Propose a path model linking distance, heterogeneity, and richness
+2. Fit the model in lavaan
+3. Assess model fit
+4. Calculate any indirect effects
+5. Visualize with semPaths
+
+### Part 4: Model comparison
+
+1. Fit two competing models for the keeley data (one with a direct path, one without)
+2. Compare using LRT and AIC
+3. Interpret which model is preferred and why
+
+### Part 5: Reporting
+
+Write a complete methods and results paragraph for your path model from Part 3, following the format in this chapter.

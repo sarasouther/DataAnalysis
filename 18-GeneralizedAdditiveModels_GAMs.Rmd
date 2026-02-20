@@ -1,0 +1,777 @@
+# Generalized Additive Models (GAMs)
+
+Not all relationships are linear. Tree growth doesn't increase forever with temperature—it peaks and declines. Species richness often shows a hump-shaped relationship with productivity. Pollinator activity varies through the day in complex, nonlinear ways.
+
+You could try to capture these patterns with polynomial regression (`y ~ x + x² + x³`), but:
+- How do you know what polynomial degree to use?
+- Polynomials behave badly at the edges of your data
+- The true relationship might not be polynomial at all
+
+**Generalized Additive Models (GAMs)** solve this by fitting flexible, smooth curves that let the data tell you the shape of the relationship. Instead of assuming linearity, you assume only that the relationship is *smooth*.
+
+## What is a GAM?
+
+A GAM extends the GLM by replacing linear terms with **smooth functions**:
+
+**GLM:** $g(μ) = β_0 + β_1x_1 + β_2x_2$
+
+**GAM:** $g(μ) = β_0 + f_1(x_1) + f_2(x_2)$
+
+Where $f()$ are smooth functions estimated from the data—not specified by you.
+
+The result: flexible, nonlinear relationships without requiring you to guess the functional form.
+
+## When to use GAMs
+
+| Use GAMs when... | Stick with GLMs when... |
+|------------------|-------------------------|
+| Relationships appear nonlinear | Relationships are linear |
+| You don't know the functional form | Theory specifies a particular form |
+| You want to explore patterns | You're testing specific hypotheses |
+| Prediction is a goal | Coefficient interpretation is primary |
+| You have enough data (n > 50-100) | Sample size is small |
+
+## Setup
+
+```{r setup-gam, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(DHARMa)
+
+if (requireNamespace("mgcViz", quietly = TRUE)) {
+  library(mgcViz)
+}
+
+set.seed(42)
+```
+
+---
+
+# Part 1: The Basics of Smoothing
+
+## What is a smoother?
+
+A **smoother** (or smooth function) is a flexible curve fit to data. Think of it as a sophisticated local average that adapts to the shape of your data.
+
+```{r smoother-intro, fig.cap="A smooth function (blue curve) captures the nonlinear relationship without requiring you to specify its shape. The gray band shows the 95% confidence interval."}
+# Simulate nonlinear data
+n <- 100
+x <- runif(n, 0, 10)
+y <- sin(x) + 0.5 * x + rnorm(n, 0, 0.5)
+
+# Fit GAM
+simple_gam <- gam(y ~ s(x), method = "REML")
+
+# Plot
+plot(x, y, pch = 19, col = "gray50", 
+     main = "GAM Smooth Function",
+     xlab = "x", ylab = "y")
+x_pred <- seq(0, 10, length = 200)
+pred <- predict(simple_gam, newdata = data.frame(x = x_pred), se.fit = TRUE)
+lines(x_pred, pred$fit, col = "steelblue", lwd = 2)
+lines(x_pred, pred$fit + 1.96 * pred$se.fit, col = "steelblue", lty = 2)
+lines(x_pred, pred$fit - 1.96 * pred$se.fit, col = "steelblue", lty = 2)
+```
+
+## How smoothers work (conceptually)
+
+Smoothers are built from **basis functions**—simple shapes that combine to create complex curves. Think of it like building a complex wave from simple sine curves.
+
+The most common basis is **thin plate regression splines**, which:
+- Are flexible enough to capture most patterns
+- Are penalized to avoid overfitting
+- Automatically choose smoothness based on the data
+
+```{r basis-functions, fig.cap="Basis functions (gray) combine to create the final smooth (blue). The GAM estimates how much of each basis function to include."}
+# Show basis functions (simplified illustration)
+basis_demo <- smoothCon(s(x, k = 6, bs = "tp"), 
+                         data = data.frame(x = x_pred), 
+                         absorb.cons = TRUE)[[1]]
+
+matplot(x_pred, basis_demo$X, type = "l", col = "gray70", lty = 1,
+        main = "Basis Functions Combine to Form Smooth",
+        xlab = "x", ylab = "Basis function value")
+lines(x_pred, pred$fit, col = "steelblue", lwd = 3)
+legend("topright", c("Basis functions", "Final smooth"), 
+       col = c("gray70", "steelblue"), lwd = c(1, 3))
+```
+
+## The wigglyness penalty
+
+Without constraints, a smooth could wiggle through every data point (overfitting). GAMs prevent this using a **penalty** on wigglyness:
+
+- **High penalty:** Very smooth (nearly linear)
+- **Low penalty:** Very wiggly (nearly interpolating)
+
+The penalty is controlled by a **smoothing parameter** (λ), which is estimated automatically using methods like REML or GCV.
+
+---
+
+# Part 2: Fitting GAMs with mgcv
+
+## Basic syntax
+
+```{r gam-syntax}
+# The s() function creates a smooth term
+# gam(response ~ s(predictor), data = mydata, method = "REML")
+
+# Example: tree growth as function of temperature
+tree_data <- data.frame(
+  temp = runif(150, 5, 30),
+  precip = runif(150, 200, 1200)
+)
+tree_data$growth <- with(tree_data, 
+  10 + 5 * temp - 0.15 * temp^2 + 0.005 * precip + rnorm(150, 0, 3))
+
+# Fit GAM
+tree_gam <- gam(growth ~ s(temp) + s(precip), 
+                data = tree_data, 
+                method = "REML")
+
+summary(tree_gam)
+```
+
+## Understanding the summary
+
+```{r gam-summary-explain}
+# Key elements:
+# 
+# Parametric coefficients:
+#   - The intercept (like in GLM)
+#   - Any linear terms you included
+#
+# Approximate significance of smooth terms:
+#   - edf: Effective degrees of freedom
+#   - Ref.df: Reference df for F-test
+#   - F: Test statistic
+#   - p-value: Is this smooth significantly different from zero?
+#
+# R-sq.(adj): Adjusted R-squared
+# Deviance explained: Percentage of null deviance explained
+# GCV/REML: Smoothness selection criterion (lower = better)
+```
+
+## What is EDF (Effective Degrees of Freedom)?
+
+EDF tells you how wiggly the smooth is:
+
+| EDF | Interpretation |
+|-----|----------------|
+| 1 | Linear (straight line) |
+| 2 | Quadratic-like (one curve) |
+| 3-4 | More complex curve |
+| 8-9 | Very wiggly (close to max allowed) |
+
+```{r edf-examples, fig.cap="Smooth terms with different EDF values. Higher EDF means more complex (wigglier) curves.", fig.height=3}
+par(mfrow = c(1, 3))
+
+# EDF ~ 1 (nearly linear)
+x1 <- runif(100, 0, 10)
+y1 <- 2 + 0.5 * x1 + rnorm(100, 0, 0.5)
+g1 <- gam(y1 ~ s(x1))
+plot(g1, main = paste("EDF =", round(sum(g1$edf) - 1, 1)))
+
+# EDF ~ 2-3 (curved)
+y2 <- 2 + 0.5 * x1 - 0.1 * (x1 - 5)^2 + rnorm(100, 0, 0.5)
+g2 <- gam(y2 ~ s(x1))
+plot(g2, main = paste("EDF =", round(sum(g2$edf) - 1, 1)))
+
+# EDF higher (wiggly)
+y3 <- sin(x1) + 0.3 * x1 + rnorm(100, 0, 0.3)
+g3 <- gam(y3 ~ s(x1))
+plot(g3, main = paste("EDF =", round(sum(g3$edf) - 1, 1)))
+
+par(mfrow = c(1, 1))
+```
+
+---
+
+# Part 3: Types of Smooth Terms
+
+## Basic smooth: s()
+
+The workhorse smooth for single predictors:
+
+```{r smooth-s, eval=FALSE}
+# Basic smooth
+gam(y ~ s(x), data = df)
+
+# Control basis dimension (max wiggliness)
+gam(y ~ s(x, k = 20), data = df)  # Allow more complexity
+
+# Specify basis type
+gam(y ~ s(x, bs = "tp"), data = df)  # Thin plate (default)
+gam(y ~ s(x, bs = "cr"), data = df)  # Cubic regression spline
+gam(y ~ s(x, bs = "cc"), data = df)  # Cyclic (for circular data)
+```
+
+## Cyclic smooths for temporal data
+
+For data that cycles (time of day, day of year), use cyclic splines:
+
+```{r cyclic-smooth, fig.cap="Cyclic smooth for day of year. The smooth is constrained to match at the boundaries (Jan 1 = Dec 31)."}
+# Simulate phenology data
+doy <- sample(1:365, 200, replace = TRUE)
+activity <- 10 * sin(2 * pi * doy / 365) + 5 + rnorm(200, 0, 2)
+phenology_data <- data.frame(doy, activity)
+
+# Cyclic smooth (endpoints match)
+cyclic_gam <- gam(activity ~ s(doy, bs = "cc", k = 12), 
+                   data = phenology_data,
+                   knots = list(doy = c(0.5, 365.5)))  # Specify boundaries
+
+plot(cyclic_gam, shade = TRUE, main = "Cyclic Smooth for Day of Year")
+```
+
+## Tensor product smooths: te() and ti()
+
+For interactions between continuous variables:
+
+```{r tensor-smooth, fig.cap="Tensor product smooth showing how growth depends on both temperature AND precipitation simultaneously."}
+# Interaction between two continuous predictors
+tensor_gam <- gam(growth ~ te(temp, precip, k = c(5, 5)), 
+                   data = tree_data,
+                   method = "REML")
+
+# 3D visualization
+vis.gam(tensor_gam, view = c("temp", "precip"), 
+        theta = 45, phi = 20,
+        main = "Growth ~ Temperature × Precipitation")
+```
+
+**te() vs ti():**
+- `te()`: Full tensor product (main effects + interaction)
+- `ti()`: Tensor interaction only (use with separate `s()` terms for main effects)
+
+```{r ti-example}
+# Separating main effects from interaction
+interaction_gam <- gam(growth ~ s(temp) + s(precip) + ti(temp, precip),
+                        data = tree_data,
+                        method = "REML")
+summary(interaction_gam)
+```
+
+## Factor-smooth interactions: by =
+
+Let smooths vary by group:
+
+```{r by-smooth, fig.cap="Separate smooth curves for each species. The 'by' argument allows the shape of the relationship to differ among groups."}
+# Add species to data
+tree_data$species <- factor(sample(c("Oak", "Pine", "Maple"), 150, replace = TRUE))
+
+# Different smooth for each species
+by_gam <- gam(growth ~ s(temp, by = species) + species,
+               data = tree_data,
+               method = "REML")
+
+# Plot
+par(mfrow = c(1, 3))
+for (sp in levels(tree_data$species)) {
+  plot(by_gam, select = which(levels(tree_data$species) == sp),
+       main = sp, shade = TRUE)
+}
+par(mfrow = c(1, 1))
+```
+
+---
+
+# Part 4: GAMs with Different Distributions
+
+Like GLMs, GAMs can handle non-normal responses using the `family` argument:
+
+## Common families
+
+```{r gam-families, eval=FALSE}
+# Gaussian (continuous, normal errors) - default
+gam(y ~ s(x), family = gaussian)
+
+# Poisson (counts)
+gam(counts ~ s(x), family = poisson)
+
+# Negative binomial (overdispersed counts)
+gam(counts ~ s(x), family = nb)
+
+# Binomial (proportions, presence/absence)
+gam(cbind(successes, failures) ~ s(x), family = binomial)
+gam(presence ~ s(x), family = binomial)
+
+# Gamma (positive continuous, right-skewed)
+gam(biomass ~ s(x), family = Gamma(link = "log"))
+
+# Tweedie (zero-inflated continuous)
+gam(y ~ s(x), family = tw)
+
+# Beta (proportions between 0 and 1)
+gam(proportion ~ s(x), family = betar)
+```
+
+## Example: Species distribution modeling
+
+```{r gam-binomial, fig.cap="GAM for species presence/absence showing probability of occurrence along an environmental gradient."}
+# Simulate species occurrence data
+env_gradient <- runif(200, 0, 100)
+prob_occurrence <- plogis(-3 + 0.1 * env_gradient - 0.001 * env_gradient^2)
+presence <- rbinom(200, 1, prob_occurrence)
+
+sdm_data <- data.frame(presence, env_gradient)
+
+# Fit binomial GAM
+sdm_gam <- gam(presence ~ s(env_gradient), 
+                family = binomial,
+                data = sdm_data,
+                method = "REML")
+
+# Plot on probability scale
+plot(sdm_gam, trans = plogis, shift = coef(sdm_gam)[1],
+     shade = TRUE, rug = FALSE,
+     main = "Probability of Occurrence",
+     ylab = "P(presence)")
+
+# Add raw data
+points(env_gradient, presence, pch = "|", col = "gray50")
+```
+
+## Example: Count data
+
+```{r gam-poisson, fig.cap="GAM for count data using Poisson family. The relationship between abundance and the predictor is nonlinear."}
+# Simulate count data
+visitor_count <- rpois(150, exp(1 + 0.5 * sin(tree_data$temp/5)))
+count_data <- data.frame(visitors = visitor_count, temp = tree_data$temp)
+
+# Fit Poisson GAM
+count_gam <- gam(visitors ~ s(temp), 
+                  family = poisson,
+                  data = count_data,
+                  method = "REML")
+
+# Plot on response scale
+plot(count_gam, trans = exp, shift = coef(count_gam)[1],
+     shade = TRUE, main = "Expected Count")
+```
+
+---
+
+# Part 5: Model Checking and Diagnostics
+
+## Basic diagnostics
+
+```{r gam-check, fig.cap="Diagnostic plots from gam.check(). Look for patterns in residuals (top left), normality (top right), and adequate basis dimension (bottom panels)."}
+# Built-in diagnostics
+gam.check(tree_gam)
+```
+
+**What to look for:**
+
+1. **Residuals vs fitted:** No pattern, random scatter
+2. **QQ plot:** Points follow the line (for Gaussian)
+3. **Histogram:** Approximately normal (for Gaussian)
+4. **Response vs fitted:** Points near diagonal
+
+## Checking basis dimension (k)
+
+If `k` is too low, the smooth can't capture the true pattern. `gam.check()` reports a test:
+
+```{r k-check}
+# The k-index and p-value in gam.check() output
+# If p-value is low (< 0.05), k might be too small
+
+# Increase k and refit
+tree_gam_highk <- gam(growth ~ s(temp, k = 20) + s(precip, k = 20), 
+                       data = tree_data, 
+                       method = "REML")
+
+# Compare EDF to k
+summary(tree_gam_highk)
+# If EDF is close to k-1, you might need even higher k
+```
+
+## DHARMa diagnostics
+
+DHARMa works with GAMs too:
+
+```{r dharma-gam, fig.cap="DHARMa residual diagnostics for GAM. Uniform residuals indicate good model fit."}
+sim_res <- DHARMa::simulateResiduals(count_gam, mgcViz = FALSE)
+plot(sim_res)
+```
+
+## Concurvity
+
+**Concurvity** is the GAM equivalent of multicollinearity—when smooth terms are correlated:
+
+```{r concurvity}
+# Check concurvity
+concurvity(tree_gam, full = TRUE)
+
+# Values close to 1 indicate high concurvity (problematic)
+# Values close to 0 are fine
+```
+
+---
+
+# Part 6: Visualization
+
+## Using gratia for modern plots
+
+The `gratia` package provides ggplot2-style visualization:
+
+```{r gratia-plots, fig.cap="Smooth terms visualized with gratia. The draw() function creates publication-quality ggplot2 figures."}
+library(gratia)
+
+# Draw all smooth terms
+gratia::draw(tree_gam)
+```
+
+```{r gratia-components, fig.cap="Examining an individual smooth component with confidence intervals."}
+library(gratia)
+library(dplyr)
+library(ggplot2)
+
+se <- smooth_estimates(tree_gam)
+
+# ---- find the smooth label column
+smooth_col <- base::intersect(c("smooth", ".smooth", "term", ".term", "label"), names(se))
+if (length(smooth_col) == 0) stop("Couldn't find a smooth-label column in smooth_estimates().")
+smooth_col <- smooth_col[1]
+
+# ---- find the estimate column
+est_col <- base::intersect(c("est", "estimate", ".estimate", "value", ".value"), names(se))
+if (length(est_col) == 0) stop("Couldn't find an estimate column (est/estimate/etc.) in smooth_estimates().")
+est_col <- est_col[1]
+
+# ---- find the SE column
+se_col <- base::intersect(c("se", "se.fit", "std.error", "std_error", ".se", ".se.fit"), names(se))
+if (length(se_col) == 0) stop("Couldn't find a standard error column (se/...) in smooth_estimates().")
+se_col <- se_col[1]
+
+# ---- filter to the temp smooth
+se_temp <- se %>% dplyr::filter(.data[[smooth_col]] == "s(temp)")
+if (nrow(se_temp) == 0) {
+  stop("No rows matched smooth == 's(temp)'. Check unique(se[[smooth_col]]) for the exact smooth label.")
+}
+
+# ---- find the x column for this smooth (usually temp)
+x_col <- base::intersect(c("temp", "x", ".x"), names(se_temp))
+if (length(x_col) == 0) stop("Couldn't find x column for the smooth (temp/x).")
+x_col <- x_col[1]
+
+ggplot(se_temp, aes(x = .data[[x_col]], y = .data[[est_col]])) +
+  geom_ribbon(
+    aes(
+      ymin = .data[[est_col]] - 1.96 * .data[[se_col]],
+      ymax = .data[[est_col]] + 1.96 * .data[[se_col]]
+    ),
+    alpha = 0.2
+  ) +
+  geom_line(linewidth = 1) +
+  labs(x = "Temperature (°C)", y = "Smooth effect", title = "Partial effect of temperature") +
+  theme_minimal()
+```
+
+## Visualizing interactions
+
+```{r interaction-viz, fig.cap="Visualizing a tensor product interaction as a contour plot."}
+# Contour plot
+vis.gam(tensor_gam, view = c("temp", "precip"), 
+        plot.type = "contour",
+        main = "Growth Response Surface",
+        xlab = "Temperature", ylab = "Precipitation")
+```
+
+## Plotting on response scale
+
+```{r response-scale}
+# For non-Gaussian models, plot on response scale
+# Using gratia
+gratia::draw(sdm_gam, fun = plogis)  # For binomial
+
+# Manual approach with predict
+new_data <- data.frame(env_gradient = seq(0, 100, length = 200))
+preds <- predict(sdm_gam, newdata = new_data, type = "response", se.fit = TRUE)
+
+ggplot() +
+  geom_ribbon(aes(x = new_data$env_gradient, 
+                  ymin = preds$fit - 1.96 * preds$se.fit,
+                  ymax = preds$fit + 1.96 * preds$se.fit),
+              fill = "coral", alpha = 0.3) +
+  geom_line(aes(x = new_data$env_gradient, y = preds$fit),
+            color = "coral", linewidth = 1) +
+  geom_rug(data = sdm_data, aes(x = env_gradient), sides = "b") +
+  labs(x = "Environmental Gradient", y = "P(Occurrence)",
+       title = "Species Distribution Model") +
+  theme_minimal()
+```
+
+---
+
+# Part 7: Model Selection
+
+## Comparing GAM to GLM
+
+```{r gam-vs-glm}
+# Fit competing models
+linear_model <- gam(growth ~ temp + precip, data = tree_data)
+gam_model <- gam(growth ~ s(temp) + s(precip), data = tree_data, method = "REML")
+
+# Compare AIC
+AIC(linear_model, gam_model)
+```
+
+## Comparing different smooths
+
+```{r compare-smooths}
+# Different complexity
+gam_simple <- gam(growth ~ s(temp, k = 4) + s(precip, k = 4), 
+                   data = tree_data, method = "REML")
+gam_complex <- gam(growth ~ s(temp, k = 15) + s(precip, k = 15), 
+                    data = tree_data, method = "REML")
+
+AIC(gam_simple, gam_model, gam_complex)
+```
+
+## Should I include this smooth?
+
+If a smooth has EDF ≈ 1 and non-significant p-value, you might simplify to a linear term:
+
+```{r simplify-smooth}
+# Compare models with and without smooth
+with_smooth <- gam(growth ~ s(temp) + s(precip), data = tree_data, method = "REML")
+mixed_smooth <- gam(growth ~ s(temp) + precip, data = tree_data, method = "REML")
+
+AIC(with_smooth, mixed_smooth)
+anova(mixed_smooth, with_smooth, test = "F")
+```
+
+---
+
+# Part 8: GAMs with Random Effects (GAMMs)
+
+GAMs can include random effects using `bs = "re"`:
+
+```{r gamm-random, message=FALSE, warning=FALSE}
+# If AlgDesign is attached, detach it (avoid masking / surprises during knit)
+if ("package:AlgDesign" %in% search()) {
+  detach("package:AlgDesign", unload = TRUE, character.only = TRUE)
+}
+
+# HARD PATCH: mgcv is calling AlgDesign:::model.matrix.formula directly
+if ("AlgDesign" %in% loadedNamespaces()) {
+  assignInNamespace(
+    x = "model.matrix.formula",
+    value = function(form, data = environment(form), ...) {
+      if (is.list(data) && !is.data.frame(data)) data <- as.data.frame(data)
+      tt <- stats::terms(form, data = data)
+      stats::model.matrix(tt, data = data)
+    },
+    ns = "AlgDesign"
+  )
+}
+
+# Ensure the data object really is a plain data.frame
+tree_data <- as.data.frame(tree_data)
+
+# Add site factor
+tree_data$site <- factor(rep(1:15, length.out = nrow(tree_data)))
+
+# Fit GAM with random intercept for site
+gamm_model <- mgcv::gam(
+  growth ~ s(temp) + s(site, bs = "re"),
+  data = tree_data,
+  method = "REML"
+)
+
+summary(gamm_model)
+```
+
+## Alternative: gamm() function
+
+```{r gamm-function, eval=FALSE}
+# Using gamm() for more complex random structures
+gamm_alt <- gamm(growth ~ s(temp), 
+                  random = list(site = ~1),
+                  data = tree_data)
+
+# Access GAM part
+summary(gamm_alt$gam)
+
+# Access mixed model part
+summary(gamm_alt$lme)
+```
+
+## Using bam() for large datasets
+
+For large datasets, `bam()` is faster than `gam()`:
+
+```{r bam-example, eval=FALSE}
+# bam() for big data
+big_gam <- bam(y ~ s(x) + s(site, bs = "re"),
+                data = big_data,
+                discrete = TRUE)  # Further speedup
+```
+
+---
+
+# Part 9: Complete Example
+
+Let's work through a complete analysis of pollinator activity through the day:
+
+```{r complete-example}
+# Simulate daily pollinator activity
+n <- 300
+time <- runif(n, 6, 20)  # 6 AM to 8 PM
+temp <- 15 + 8 * sin(pi * (time - 6) / 12) + rnorm(n, 0, 2)  # Temperature curve
+cloud <- runif(n, 0, 100)  # Cloud cover (%)
+site <- factor(sample(1:10, n, replace = TRUE))
+
+# Activity peaks mid-morning and mid-afternoon, drops with clouds
+activity <- exp(
+  1.5 + 
+  0.8 * sin(pi * (time - 8) / 6) * (1 - 0.3 * sin(pi * (time - 12) / 4)) +
+  -0.01 * cloud +
+  rnorm(n, 0, 0.2)
+)
+activity <- round(activity)
+
+poll_data <- data.frame(activity, time, temp, cloud, site)
+
+# Explore
+ggplot(poll_data, aes(x = time, y = activity)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Time of Day", y = "Pollinator Count") +
+  theme_minimal()
+```
+
+```{r complete-model}
+# Fit GAM
+poll_gam <- gam(activity ~ s(time, k = 12) + s(temp) + cloud + s(site, bs = "re"),
+                 family = poisson,
+                 data = poll_data,
+                 method = "REML")
+
+summary(poll_gam)
+```
+
+```{r complete-check, fig.cap="Diagnostics for the pollinator activity GAM."}
+# Check model
+gam.check(poll_gam)
+```
+
+```{r complete-viz, fig.cap="Pollinator activity GAM results showing nonlinear patterns through the day and with temperature."}
+# Visualize
+gratia::draw(poll_gam, select = c(1, 2))
+```
+
+---
+
+# Part 10: Reporting
+
+## What to report
+
+1. **Why GAM:** Nonlinearity expected/observed
+2. **Model structure:** Response distribution, smooth terms, any random effects
+3. **Smoothing method:** REML, GCV, etc.
+4. **EDF for each smooth:** Indicates complexity
+5. **Model fit:** Deviance explained, R²
+6. **Diagnostic checks:** gam.check() results
+7. **Figures:** Show the smooth relationships
+
+## Sample methods and results
+
+### Methods
+
+> We modeled tree growth as a function of temperature and precipitation using a Generalized Additive Model (GAM) to allow for nonlinear relationships. Smooth terms were fit using thin plate regression splines with the smoothing parameter estimated via restricted maximum likelihood (REML). The basis dimension (k) was set to 10 for each smooth and verified as adequate using the gam.check() function. We compared the GAM to a linear model using AIC and assessed model fit through residual diagnostics. Analyses were conducted using the mgcv package (Wood 2017) in R version 4.3.1.
+
+### Results
+
+> The GAM explained 67% of deviance in tree growth, substantially outperforming the linear model (ΔAIC = 24.5). Growth showed a nonlinear response to temperature (EDF = 3.2, F = 18.4, p < 0.001), increasing from 5°C to approximately 22°C before declining at higher temperatures (**Fig. X**). The effect of precipitation was approximately linear (EDF = 1.1, F = 5.7, p = 0.018), with growth increasing 0.8 mm per 100 mm of annual precipitation. Residual diagnostics indicated adequate model fit with no evidence of unmodeled nonlinearity (k-index > 1.0 for all smooths) or residual patterns.
+
+---
+
+## Key takeaways
+
+1. **GAMs fit flexible curves** — Let the data determine the shape of relationships
+
+2. **EDF indicates complexity** — 1 = linear, higher = more wiggly
+
+3. **Use REML for smoothness selection** — Generally the best default
+
+4. **Check k is adequate** — Look at gam.check() output and k-index
+
+5. **Different families for different data** — GAMs extend to Poisson, binomial, etc.
+
+6. **Visualize your smooths** — The curves ARE the results
+
+7. **Don't over-interpret wiggles** — If confidence bands are wide, the wiggles may not be real
+
+8. **Consider mixed models** — bs = "re" adds random effects easily
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. What does an EDF of 1.0 tell you about a smooth term? What about an EDF of 8.5?
+
+2. Your gam.check() output shows a k-index of 0.65 and a significant p-value for one smooth. What does this indicate and what should you do?
+
+3. When would you use a cyclic smooth (bs = "cc")? Give an ecological example.
+
+### Part 2: Basic GAM fitting
+
+Using this simulated vegetation data:
+
+```{r assignment-basic}
+set.seed(321)
+elevation <- runif(120, 500, 3000)
+veg_cover <- 60 * exp(-0.5 * ((elevation - 1500)/500)^2) + rnorm(120, 0, 5)
+veg_cover <- pmax(0, pmin(100, veg_cover))  # Constrain to 0-100
+
+veg_data <- data.frame(elevation, veg_cover)
+```
+
+1. Plot the data and describe the apparent relationship
+2. Fit a GAM with a smooth term for elevation
+3. Check the model diagnostics
+4. Report the EDF and interpret it
+5. Create a publication-quality figure
+
+### Part 3: GAM vs GLM comparison
+
+Using the same data:
+
+1. Fit a linear model and a quadratic model (lm)
+2. Compare to the GAM using AIC
+3. Which model do you prefer and why?
+4. How do the predictions differ at the edges of your data?
+
+### Part 4: Multiple smooths
+
+Using this multi-predictor dataset:
+
+```{r assignment-multi}
+set.seed(654)
+n <- 200
+soil_moisture <- runif(n, 10, 90)
+soil_temp <- runif(n, 5, 35)
+ph <- runif(n, 4, 8)
+
+biomass <- exp(
+  2 + 
+  -0.5 * ((soil_moisture - 50)/20)^2 +  # Optimum at 50%
+  0.02 * soil_temp +                      # Linear with temp
+  -0.3 * (ph - 6)^2                       # Optimum at pH 6
+) + rnorm(n, 0, 0.5)
+
+multi_data <- data.frame(biomass, soil_moisture, soil_temp, ph)
+```
+
+1. Fit a GAM with smooth terms for all three predictors
+2. Which relationships appear nonlinear? (Check EDF)
+3. Consider simplifying to linear terms where appropriate
+4. Test for an interaction between soil moisture and temperature
+5. Write a results paragraph
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why GAMs are particularly useful for species distribution modeling compared to traditional logistic regression.

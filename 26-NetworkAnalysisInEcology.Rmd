@@ -1,0 +1,864 @@
+# Network Analysis in Ecology
+
+Ecological communities are not just lists of species—they are webs of interactions. Plants interact with pollinators. Predators consume prey. Parasites infect hosts. Seeds rely on dispersers. These interactions form **ecological networks** that structure communities and drive ecosystem function.
+
+Network analysis provides tools to:
+- Visualize complex interaction patterns
+- Quantify network structure (Who is connected to whom? How tightly?)
+- Identify keystone species and critical interactions
+- Compare networks across space, time, or treatments
+- Predict how networks respond to species loss
+
+This chapter introduces network thinking and the core analytical tools for ecological network analysis.
+
+## What is an ecological network?
+
+An ecological network represents species (or individuals, populations) as **nodes** and their interactions as **edges** (links).
+
+```{r network-concept, echo=FALSE}
+cat("
+NETWORK TERMINOLOGY
+═══════════════════════════════════════════════════
+
+NODES (vertices)          EDGES (links)
+  ○ Species                 ─── Interactions
+  ○ Individuals             ─── Energy flow
+  ○ Populations             ─── Services
+
+NETWORK TYPES
+═══════════════════════════════════════════════════
+
+UNIPARTITE (one-mode)           BIPARTITE (two-mode)
+All nodes can interact          Two distinct sets of nodes
+with any other node             Interactions only between sets
+
+     ○───○                        ●       ●       ●
+    /│   │\\                       │\\     /│\\     /│
+   ○─┼───┼─○                      │ \\   / │ \\   / │
+    \\│   │/                       │  \\ /  │  \\ /  │
+     ○───○                        ○───○───○───○───○
+
+  Food webs                    Plant-pollinator
+  Social networks              Host-parasite
+  Competition                  Seed dispersal
+")
+```
+
+## Types of ecological networks
+
+| Network type | Nodes | Edges | Example |
+|--------------|-------|-------|---------|
+| **Food web** | Species | Feeding links | Who eats whom |
+| **Pollination network** | Plants + pollinators | Visits | Flower-visitor interactions |
+| **Seed dispersal** | Plants + dispersers | Dispersal events | Fruit-frugivore interactions |
+| **Host-parasite** | Hosts + parasites | Infection | Disease networks |
+| **Plant-herbivore** | Plants + herbivores | Consumption | Grazing/browsing |
+| **Competition** | Species | Competition | Overlap in resource use |
+| **Facilitation** | Species | Positive effects | Nurse plant networks |
+
+## Setup
+
+```{r setup-networks, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(bipartite)     # Bipartite network analysis
+library(igraph)        # General network analysis
+library(ggraph)        # Network visualization with ggplot2
+library(tidygraph)     # Tidy interface to igraph
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Bipartite Networks
+
+Most ecological interaction networks are **bipartite**: two distinct groups of species where interactions only occur *between* groups, not within them.
+
+## Network data structure
+
+Bipartite networks are typically stored as **interaction matrices**:
+- Rows = one group (e.g., plants)
+- Columns = other group (e.g., pollinators)
+- Cell values = interaction strength (counts, frequencies, or binary)
+
+```{r bipartite-matrix}
+# Example: plant-pollinator network
+# Rows = plant species, Columns = pollinator species
+# Values = number of visits observed
+
+pollination_matrix <- matrix(
+  c(45, 12, 0, 8, 3,
+    22, 38, 15, 0, 0,
+    0, 5, 42, 28, 0,
+    18, 0, 7, 35, 22,
+    2, 0, 0, 12, 48),
+  nrow = 5, byrow = TRUE,
+  dimnames = list(
+    Plants = c("Asteraceae1", "Fabaceae1", "Rosaceae1", "Lamiaceae1", "Asteraceae2"),
+    Pollinators = c("Bombus", "Apis", "Syrphid", "Butterfly", "SolitaryBee")
+  )
+)
+
+pollination_matrix
+```
+
+## Visualizing bipartite networks
+
+```{r bipartite-viz, fig.cap="Bipartite network visualization showing plants (bottom) connected to pollinators (top). Line thickness indicates interaction strength.", message=FALSE, warning=FALSE}
+# Make sure bipartite is available
+library(bipartite)
+
+# --- SAFE DEBUG (does NOT trigger conflicted) ---
+cat("\nUsing function from: bipartite::plotweb\n")
+pw <- getFromNamespace("plotweb", "bipartite")
+
+cat("\nArgs in bipartite::plotweb():\n")
+ok <- names(formals(pw))
+print(ok)
+
+# --- Build args you want ---
+call_args <- list(
+  web = pollination_matrix,
+  method = "normal",
+  col.low = "forestgreen",
+  col.high = "orange",
+  bor.col.low = "darkgreen",
+  bor.col.high = "darkorange",
+  text.rot = 90,
+  labsize = 1.2,
+  y.lim = c(-0.5, 3)
+)
+
+# --- Keep only args supported by YOUR installed bipartite::plotweb() ---
+call_args <- call_args[names(call_args) %in% ok]
+
+cat("\nPassing these args:\n")
+print(names(call_args))
+
+# --- Plot ---
+do.call(pw, call_args)
+```
+
+## Network-level metrics
+
+```{r network-metrics}
+# Calculate network metrics
+net_metrics <- networklevel(pollination_matrix, 
+                             index = c("connectance", 
+                                       "web asymmetry",
+                                       "links per species",
+                                       "nestedness",
+                                       "weighted nestedness",
+                                       "H2"))
+
+# Display
+as.data.frame(net_metrics)
+```
+
+### Key metrics explained
+
+| Metric | Range | What it measures |
+|--------|-------|------------------|
+| **Connectance** | 0-1 | Proportion of possible links realized |
+| **Web asymmetry** | -1 to 1 | Balance between the two trophic levels |
+| **Links per species** | >0 | Average number of partners |
+| **Nestedness** | 0-100 | Whether specialists interact with subsets of generalists' partners |
+| **H2'** | 0-1 | Network-level specialization (0 = random, 1 = perfectly specialized) |
+
+## Species-level metrics
+
+```{r species-metrics}
+# Metrics for each species
+species_metrics <- specieslevel(pollination_matrix, 
+                                 index = c("degree", 
+                                           "normalised degree",
+                                           "species strength",
+                                           "d"))
+
+# Lower trophic level (plants)
+cat("Plant metrics:\n")
+print(round(species_metrics$`lower level`, 3))
+
+# Higher trophic level (pollinators)
+cat("\nPollinator metrics:\n")
+print(round(species_metrics$`higher level`, 3))
+```
+
+### Species-level metrics explained
+
+| Metric | What it measures | Ecological meaning |
+|--------|------------------|-------------------|
+| **Degree** | Number of interaction partners | Generalization |
+| **Normalised degree** | Degree / max possible | Relative generalization |
+| **Species strength** | Sum of dependencies on this species | Importance to partners |
+| **d'** | Specialization index | How selective (0 = generalist, 1 = specialist) |
+
+---
+
+# Part 2: Nestedness
+
+## What is nestedness?
+
+A nested network has a specific structure: **specialists interact with subsets of the species that generalists interact with**.
+
+```{r nestedness-concept, echo=FALSE, fig.cap="Nested (left) vs non-nested (right) networks. In nested networks, specialists' partners are subsets of generalists' partners."}
+par(mfrow = c(1, 2))
+
+# Nested matrix
+nested <- matrix(c(1,1,1,1,1,
+                   1,1,1,1,0,
+                   1,1,1,0,0,
+                   1,1,0,0,0,
+                   1,0,0,0,0), 
+                 nrow = 5, byrow = TRUE)
+image(t(nested[5:1,]), col = c("white", "steelblue"), 
+      axes = FALSE, main = "Nested")
+box()
+
+# Non-nested (modular)
+modular <- matrix(c(1,1,0,0,0,
+                    1,1,0,0,0,
+                    0,0,1,1,0,
+                    0,0,1,1,0,
+                    0,0,0,0,1), 
+                  nrow = 5, byrow = TRUE)
+image(t(modular[5:1,]), col = c("white", "coral"), 
+      axes = FALSE, main = "Non-nested (Modular)")
+box()
+
+par(mfrow = c(1, 1))
+```
+
+## Measuring nestedness
+
+```{r nestedness-calc}
+# Nestedness examples using bipartite
+# - NODF: 0–100 (higher = more nested)
+# - Temperature (binmatnest): 0–100 (lower/colder = more nested)
+
+# Safety checks
+stopifnot(is.matrix(pollination_matrix))
+if (any(is.na(pollination_matrix))) stop("pollination_matrix contains NA values.")
+
+# 1) NODF nestedness (works on quantitative matrices; uses vegan's nestednodf under the hood)
+nodf <- bipartite::nested(pollination_matrix, method = "NODF")
+cat("NODF (0–100; higher = more nested):", round(nodf, 2), "\n")
+
+# Optional: also report weighted NODF (if you care about interaction strengths)
+wnodf <- bipartite::networklevel(pollination_matrix, index = "weighted NODF")
+cat("Weighted NODF (0–100; higher = more nested):", round(wnodf, 2), "\n")
+
+# 2) Temperature-based nestedness (BINMATNEST) requires presence/absence
+pollination_bin <- (pollination_matrix > 0) * 1
+
+temp <- bipartite::nested(pollination_bin, method = "binmatnest")
+cat("Temperature (0–100; LOWER/colder = more nested):", round(temp, 2), "\n")
+
+# Quick interpretation helper
+cat("Interpretation:\n",
+    " - If NODF is high and Temperature is low, the matrix is strongly nested.\n",
+    " - Use NODF/weighted NODF for most ecology papers; temperature is an older but intuitive complement.\n",
+    sep = "")
+```
+
+## Why nestedness matters
+
+Nested networks may be:
+- **More robust** to random species loss (redundancy of interactions)
+- **Less robust** to targeted removal of generalists (they hold the network together)
+- **Result of ecological processes** like abundance differences, phenology overlap
+
+---
+
+# Part 3: Modularity
+
+## What is modularity?
+
+A **modular** network has clusters (modules) of species that interact more with each other than with species in other modules.
+
+```{r modularity-concept, echo=FALSE}
+cat("
+MODULAR NETWORK STRUCTURE
+═════════════════════════════════════════════════
+
+Module 1      Module 2      Module 3
+┌───────┐    ┌───────┐    ┌───────┐
+│ ○─○─○ │    │ ●─●─● │    │ ◇─◇─◇ │
+│ │╲│╱│ │←──→│ │╲│╱│ │←──→│ │╲│╱│ │
+│ ○─○─○ │    │ ●─●─● │    │ ◇─◇─◇ │
+└───────┘    └───────┘    └───────┘
+
+Dense connections WITHIN modules
+Sparse connections BETWEEN modules
+
+Ecological interpretation:
+- Functional groups
+- Phenological compartments
+- Spatial clusters
+")
+```
+
+## Detecting modules
+
+```{r modularity-calc}
+# Calculate modularity using the bipartite package
+mod_result <- computeModules(pollination_matrix, method = "Beckett")
+
+# Modularity value
+cat("Modularity Q:", round(mod_result@likelihood, 3), "\n")
+
+# Module membership
+listModuleInformation(mod_result)
+```
+
+## Visualizing modules
+
+```{r module-viz, fig.cap="Network with species colored by module membership. Modules represent groups of tightly interacting species."}
+# Plot with module colors
+plotModuleWeb(mod_result, 
+              labsize = 1.2,
+              plotModules = TRUE)
+```
+
+## Modularity vs nestedness
+
+Networks can be:
+- **Nested AND modular:** Modules, each internally nested
+- **Nested but not modular:** No clear compartments
+- **Modular but not nested:** Distinct compartments, no subset structure
+
+```{r nest-mod-compare}
+# Compare network structure: nestedness vs modularity
+
+# Nestedness (NODF)
+nodf <- bipartite::nested(pollination_matrix, method = "NODF")
+
+# Modularity (Q) from an already-fitted moduleWeb result
+Q <- mod_result@likelihood
+
+cat("Nestedness (NODF; higher = more nested):", round(nodf, 2), "\n")
+cat("Modularity (Q; higher = more modular):", round(Q, 3), "\n")
+```
+
+---
+
+# Part 4: Food Webs (Unipartite Networks)
+
+Food webs are **unipartite**: any species can potentially interact with (eat or be eaten by) any other.
+
+## Food web data structure
+
+```{r food-web-data}
+# Food web as adjacency matrix
+# 1 = row species eats column species
+food_web <- matrix(
+  c(0, 0, 0, 0, 0, 0,  # Grass (basal)
+    1, 0, 0, 0, 0, 0,  # Grasshopper eats grass
+    1, 0, 0, 0, 0, 0,  # Rabbit eats grass
+    0, 1, 0, 0, 0, 0,  # Frog eats grasshopper
+    0, 1, 1, 0, 0, 0,  # Snake eats grasshopper, rabbit
+    0, 0, 0, 1, 1, 0), # Hawk eats frog, snake
+  nrow = 6, byrow = TRUE,
+  dimnames = list(
+    c("Grass", "Grasshopper", "Rabbit", "Frog", "Snake", "Hawk"),
+    c("Grass", "Grasshopper", "Rabbit", "Frog", "Snake", "Hawk")
+  )
+)
+
+food_web
+```
+
+## Using igraph for food webs
+
+```{r igraph-foodweb}
+# Convert to igraph object
+food_graph <- graph_from_adjacency_matrix(food_web, mode = "directed")
+
+# Add attributes
+V(food_graph)$trophic_level <- c(1, 2, 2, 3, 3, 4)  # Assign trophic levels
+V(food_graph)$type <- c("producer", rep("consumer", 5))
+
+# Basic metrics
+cat("Number of species:", vcount(food_graph), "\n")
+cat("Number of links:", ecount(food_graph), "\n")
+cat("Connectance:", round(ecount(food_graph) / (vcount(food_graph)^2), 3), "\n")
+```
+
+## Visualizing food webs
+
+```{r foodweb-viz, fig.cap="Food web visualization with species arranged by trophic level. Arrows point from prey to predator."}
+# Using ggraph for nice visualization
+food_tidy <- as_tbl_graph(food_graph)
+
+ggraph(food_tidy, layout = "sugiyama") +
+  geom_edge_link(arrow = arrow(length = unit(3, "mm")),
+                 end_cap = circle(3, "mm"),
+                 edge_colour = "gray50") +
+  geom_node_point(aes(color = factor(trophic_level)), size = 8) +
+  geom_node_text(aes(label = name), vjust = -1) +
+  scale_color_viridis_d(name = "Trophic Level") +
+  theme_void() +
+  labs(title = "Simple Food Web")
+```
+
+## Food web metrics
+
+```{r foodweb-metrics}
+# Food web node-level metrics using igraph
+
+# Degree centrality
+# NOTE: in a directed food web:
+#  - in-degree = number of prey (things consumed)
+#  - out-degree = number of predators (things that consume it)
+
+in_degree  <- igraph::degree(food_graph, mode = "in")
+out_degree <- igraph::degree(food_graph, mode = "out")
+
+# Betweenness centrality
+betw <- igraph::betweenness(food_graph, directed = TRUE)
+
+# Compile metrics into a tidy data frame
+fw_metrics <- data.frame(
+  Species        = igraph::V(food_graph)$name,
+  TrophicLevel   = igraph::V(food_graph)$trophic_level,
+  Prey           = in_degree,
+  Predators      = out_degree,
+  Betweenness    = round(betw, 2)
+)
+
+fw_metrics
+```
+
+---
+
+# Part 5: Network Centrality
+
+## Why centrality matters
+
+Not all species are equally important to network structure. **Centrality metrics** identify key species:
+
+| Metric | What it measures | Ecological interpretation |
+|--------|-----------------|--------------------------|
+| **Degree** | Number of connections | Generalism |
+| **Betweenness** | How often on shortest paths | Control of energy/information flow |
+| **Closeness** | Average distance to all others | Rapid spread of effects |
+| **Eigenvector** | Connection to well-connected species | Influence |
+
+```{r centrality-calc}
+# Calculate multiple centrality metrics for a directed food web (igraph)
+
+centrality_df <- data.frame(
+  Species      = igraph::V(food_graph)$name,
+  Degree       = igraph::degree(food_graph, mode = "all"),
+  Betweenness  = igraph::betweenness(food_graph, directed = TRUE),
+  Closeness    = igraph::closeness(food_graph, mode = "all", normalized = TRUE),
+  Eigenvector  = igraph::eigen_centrality(food_graph, directed = TRUE)$vector
+)
+
+# Rank species by betweenness (potential connectors/keystones)
+centrality_df %>%
+  dplyr::arrange(dplyr::desc(Betweenness))
+```
+
+```{r centrality-viz, fig.cap="Food web with node size scaled by betweenness centrality. Larger nodes are more important for connecting the network."}
+# Precompute node metrics on the igraph object you're plotting
+food_tidy <- food_tidy %>%
+  igraph::set_vertex_attr(
+    name  = "btw",
+    value = igraph::betweenness(food_tidy, directed = TRUE)
+  )
+
+ggraph(food_tidy, layout = "kk") +
+  geom_edge_link(
+    arrow = arrow(length = unit(2, "mm")),
+    end_cap = circle(3, "mm"),
+    edge_colour = "gray70",
+    edge_alpha = 0.6
+  ) +
+  geom_node_point(aes(
+    size = btw + 1,
+    color = factor(trophic_level)
+  )) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  scale_size_continuous(range = c(4, 12), name = "Betweenness") +
+  scale_color_viridis_d(name = "Trophic Level") +
+  theme_void()
+```
+
+---
+
+# Part 6: Null Models and Statistical Testing
+
+## Why null models?
+
+Observed network metrics might arise simply from:
+- Species abundance distributions
+- Random interaction patterns
+- Sampling constraints
+
+**Null models** generate random networks that preserve some features while randomizing others, allowing you to test whether observed metrics are non-random.
+
+## Types of null models
+
+| Null model | What it preserves | What it randomizes |
+|------------|-------------------|-------------------|
+| **r00** | Number of links | Everything else |
+| **r0** | Row totals (degree) | Interactions |
+| **c0** | Column totals (degree) | Interactions |
+| **r1** | Row & column totals | Specific interactions |
+| **swap** | Row & column totals (exactly) | Individual swaps |
+
+## Testing nestedness
+
+
+```{r nestedness-null-test 26}
+# Convert to binary (presence/absence)
+bin_matrix <- (pollination_matrix > 0) * 1
+
+# Use quasiswap - preserves row/column FREQUENCIES (number of 1s)
+null_mod <- vegan::nullmodel(bin_matrix, method = "quasiswap")
+null_sim <- simulate(null_mod, nsim = 1000)
+
+obs_nodf <- bipartite::nested(bin_matrix, method = "NODF")
+
+null_nodf <- apply(null_sim, 3, function(m) {
+  bipartite::nested(m, method = "NODF")
+})
+
+p_value <- mean(null_nodf >= obs_nodf)
+
+ses_nodf <- (obs_nodf - mean(null_nodf)) / sd(null_nodf)
+cat("Standardized Effect Size (SES):", round(ses_nodf, 2), "\n")
+
+cat("Observed NODF:", round(obs_nodf, 2), "\n")
+cat("Null mean:", round(mean(null_nodf), 2), "\n")
+cat("Null SD:", round(sd(null_nodf), 2), "\n")
+cat("P-value:", round(p_value, 3), "\n")
+```
+
+```{r null-viz, fig.cap="Null model distribution for nestedness. Red line shows observed value. If observed falls outside the null distribution, the pattern is non-random."}
+# Visualize null distribution
+hist(null_nodf, breaks = 30, col = "gray80", border = "white",
+     main = "Null Distribution of Nestedness",
+     xlab = "NODF")
+abline(v = obs_nodf, col = "firebrick", lwd = 2)
+legend("topright", "Observed", col = "firebrick", lwd = 2)
+```
+
+## Testing multiple metrics
+
+```{r null-multiple}
+test_network_metrics <- function(web, n_null = 999) {
+  
+  # Binary version for connectance and nestedness
+  bin_web <- (web > 0) * 1
+  
+  # Generate null matrices - binary (swap.web) and weighted (r2dtable)
+  nulls_bin <- bipartite::nullmodel(bin_web, N = n_null, method = "swap.web")
+  nulls_wt <- bipartite::nullmodel(web, N = n_null, method = "r2dtable")
+  
+
+  # Observed metrics
+  obs_conn <- networklevel(bin_web, index = "connectance")
+  obs_nest <- networklevel(bin_web, index = "nestedness")
+  obs_h2 <- networklevel(web, index = "H2")
+  
+  # Null metrics - binary
+  null_conn <- sapply(nulls_bin, function(x) networklevel(x, index = "connectance"))
+  null_nest <- sapply(nulls_bin, function(x) networklevel(x, index = "nestedness"))
+  
+  # Null metrics - weighted
+  null_h2 <- sapply(nulls_wt, function(x) networklevel(x, index = "H2"))
+  
+  # Build results
+  calc_row <- function(name, obs, null) {
+    data.frame(
+      Metric = name,
+      Observed = as.numeric(obs),
+      Null_mean = mean(null, na.rm = TRUE),
+      Null_sd = sd(null, na.rm = TRUE),
+      Z_score = (as.numeric(obs) - mean(null, na.rm = TRUE)) / sd(null, na.rm = TRUE),
+      P_value = mean(null >= as.numeric(obs), na.rm = TRUE)
+    )
+  }
+  
+  results <- rbind(
+    calc_row("connectance", obs_conn, null_conn),
+    calc_row("nestedness", obs_nest, null_nest),
+    calc_row("H2", obs_h2, null_h2)
+  )
+  
+  return(results)
+}
+
+null_results <- test_network_metrics(pollination_matrix, n_null = 99)
+print(null_results, digits = 3, row.names = FALSE)
+```
+
+---
+
+# Part 7: Network Robustness
+
+## Simulating species loss
+
+How does network structure change as species go extinct? This reveals which species are critical for maintaining network integrity.
+
+```{r robustness-sim}
+robustness_analysis <- function(web, attack = "random", n_sim = 100) {
+  
+  n_species <- nrow(web)
+  results <- matrix(NA, n_sim, n_species)
+  
+  for (sim in 1:n_sim) {
+    web_temp <- web
+    
+    # Determine removal order
+    if (attack == "random") {
+      removal_order <- sample(1:n_species)
+    } else if (attack == "degree") {
+      # Remove most connected first
+      removal_order <- base::order(rowSums(web > 0), decreasing = TRUE)
+    }
+    
+    # Sequential removal
+    for (i in 1:n_species) {
+      # Count surviving higher trophic level species
+      # (those with at least one interaction remaining)
+      surviving <- sum(colSums(web_temp) > 0)
+      results[sim, i] <- surviving / ncol(web)
+      
+      # Remove next species
+      web_temp[removal_order[i], ] <- 0
+    }
+  }
+  
+  return(results)
+}
+
+# Run robustness analysis
+random_removal <- robustness_analysis(pollination_matrix, attack = "random", n_sim = 100)
+targeted_removal <- robustness_analysis(pollination_matrix, attack = "degree", n_sim = 100)
+```
+
+```{r robustness-plot, fig.cap="Network robustness to species loss. Random removal (blue) vs targeted removal of most-connected species (red). Targeted attacks cause faster network collapse."}
+# Calculate means
+removal_df <- data.frame(
+  Species_removed = 1:nrow(pollination_matrix),
+  Random = colMeans(random_removal),
+  Targeted = colMeans(targeted_removal)
+) %>%
+  pivot_longer(cols = c(Random, Targeted),
+               names_to = "Strategy",
+               values_to = "Fraction_surviving")
+
+ggplot(removal_df, aes(x = Species_removed, y = Fraction_surviving, color = Strategy)) +
+  geom_line(linewidth = 1.2) +
+  labs(x = "Number of Plant Species Removed",
+       y = "Fraction of Pollinators Surviving",
+       title = "Network Robustness to Species Loss") +
+  scale_color_manual(values = c("steelblue", "firebrick")) +
+  theme_minimal()
+
+# Calculate robustness (area under curve)
+cat("Robustness (AUC) - Random:", round(mean(random_removal), 3), "\n")
+cat("Robustness (AUC) - Targeted:", round(mean(targeted_removal), 3), "\n")
+```
+
+---
+
+# Part 8: Comparing Networks
+
+## Comparing network structure
+
+```{r network-comparison}
+# Load example networks from bipartite package
+data(Safariland)
+data(vazquenc)
+
+# Compare metrics
+compare_nets <- data.frame(
+  Network = c("Safariland", "Vazquenc"),
+  Species_lower = c(nrow(Safariland), nrow(vazquenc)),
+  Species_upper = c(ncol(Safariland), ncol(vazquenc)),
+  Connectance = c(
+    networklevel(Safariland, "connectance"),
+    networklevel(vazquenc, "connectance")
+  ),
+  Nestedness = c(
+    bipartite::nested(Safariland, method = "NODF"),
+    bipartite::nested(vazquenc, method = "NODF")
+  ),
+  H2 = c(
+    networklevel(Safariland, "H2"),
+    networklevel(vazquenc, "H2")
+  )
+)
+
+print(compare_nets, digits = 3)
+```
+
+## Network dissimilarity
+
+```{r network-dissim}
+# For networks with same species, can use beta diversity of interactions
+# For different species sets, use network dissimilarity metrics
+
+# Example: using betalink-style approach
+# (simplified - full implementation in betalink package)
+
+interaction_beta <- function(web1, web2) {
+  # Convert to binary
+  web1_bin <- (web1 > 0) * 1
+  web2_bin <- (web2 > 0) * 1
+  
+  # Shared vs unique interactions
+  shared <- sum(web1_bin * web2_bin > 0)
+  unique1 <- sum(web1_bin > 0) - shared
+  unique2 <- sum(web2_bin > 0) - shared
+  
+  # Jaccard dissimilarity
+  jaccard <- 1 - (shared / (shared + unique1 + unique2))
+  
+  return(jaccard)
+}
+```
+
+---
+
+# Part 9: Complete Workflow
+
+```{r complete-workflow-net 26}
+# 1. Load network data
+data(memmott1999)  # Flower visitation network from a meadow near Bristol, UK
+
+# 2. Visualize
+bipartite::plotweb(memmott1999, 
+        srt = 90,
+        lower_color = "forestgreen", 
+        higher_color = "orange")
+
+# 3. Network-level metrics
+cat("\n=== Network Metrics ===\n")
+net_stats <- networklevel(memmott1999, 
+                           index = c("connectance", "nestedness", 
+                                     "weighted nestedness", "H2",
+                                     "links per species"))
+print(round(net_stats, 3))
+
+# 4. Test nestedness against null
+cat("\n=== Null Model Test (Nestedness) ===\n")
+obs_nest <- bipartite::nested(memmott1999, method = "NODF")
+nulls <- bipartite::nullmodel(memmott1999, N = 99, method = "r2dtable")
+null_nest <- sapply(nulls, function(x) bipartite::nested(x, method = "NODF"))
+z_score <- (obs_nest - mean(null_nest)) / sd(null_nest)
+p_val <- mean(null_nest >= obs_nest)
+cat("Z-score:", round(z_score, 2), "\n")
+cat("P-value:", round(p_val, 3), "\n")
+
+# 5. Modularity
+cat("\n=== Modularity ===\n")
+modules <- computeModules(memmott1999, method = "Beckett")
+cat("Modularity Q:", round(modules@likelihood, 3), "\n")
+
+# 6. Species-level metrics for key species
+cat("\n=== Top 5 Most Connected Plants ===\n")
+plant_degree <- rowSums(memmott1999 > 0)
+print(sort(plant_degree, decreasing = TRUE)[1:5])
+
+cat("\n=== Top 5 Most Connected Pollinators ===\n")
+poll_degree <- colSums(memmott1999 > 0)
+print(sort(poll_degree, decreasing = TRUE)[1:5])
+```
+
+---
+
+# Part 10: Reporting
+
+## What to report
+
+1. **Network description:** Number of species in each level, number of interactions
+2. **Network-level metrics:** Connectance, nestedness, modularity, H2'
+3. **Null model comparisons:** Whether metrics differ from random
+4. **Species-level patterns:** Key species, specialists vs generalists
+5. **Visualization:** Network diagram showing structure
+
+## Sample methods and results
+
+### Methods
+
+> We constructed a quantitative plant-pollinator network from field observations at 20 sites in northern Arizona during June-August 2023. We recorded all flower-visitor interactions during standardized 30-minute observation periods, totaling 120 hours of observation. The resulting network included interaction frequencies between plant and pollinator species. We calculated network-level metrics including connectance, weighted nestedness (WNODF), modularity (Q), and network-level specialization (H2') using the bipartite package (Dormann et al. 2008). We tested whether observed nestedness exceeded null expectations using 999 randomized matrices preserving row and column totals (r2dtable null model). Species-level specialization (d') was calculated for all species with ≥5 interactions. We assessed network robustness by simulating sequential removal of plant species under random and targeted (most-connected first) scenarios. Analyses were conducted in R version 4.3.1.
+
+### Results
+
+> The plant-pollinator network comprised 45 plant and 82 pollinator species connected by 387 unique pairwise interactions (**Fig. X**). Network connectance was 0.105, indicating that about 10% of possible interactions were realized. The network was significantly nested (WNODF = 0.42, z = 4.2, p < 0.001 compared to null), suggesting that specialist pollinators visited subsets of the flowers visited by generalists. Modularity was moderate (Q = 0.38), with five distinct modules corresponding roughly to flower color and morphology guilds (**Fig. Y**). Network-level specialization was moderate (H2' = 0.45). The most connected plant was *Helianthus annuus* (28 pollinator species), while the most connected pollinator was *Bombus huntii* (15 plant species). Robustness analysis indicated that random removal of 50% of plant species would result in loss of 23% of pollinator species, while targeted removal of the most-connected plants would cause 61% pollinator loss, highlighting the importance of generalist plants for network persistence.
+
+---
+
+## Key takeaways
+
+1. **Networks reveal structure** — Who interacts with whom, and how tightly
+
+2. **Bipartite networks** are common in ecology — Plant-animal interactions, host-parasite
+
+3. **Key metrics:** Connectance (density), nestedness (subset structure), modularity (compartments)
+
+4. **Null models are essential** — Test whether patterns are non-random
+
+5. **Centrality identifies key species** — For conservation, focus on highly connected species
+
+6. **Robustness predicts stability** — Targeted removal is worse than random
+
+7. **Compare networks carefully** — Need appropriate metrics for different questions
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. What is the difference between a nested and a modular network? What ecological processes might generate each pattern?
+
+2. Why is it important to compare observed network metrics to null models?
+
+3. A pollination network has high H2' (specialization). What does this mean for the pollinators if one plant species goes extinct?
+
+### Part 2: Bipartite network analysis
+
+Using the built-in `vazquenc` data:
+
+```{r assignment-bipartite}
+data(vazquenc)
+```
+
+1. Visualize the network
+2. Calculate network-level metrics (connectance, nestedness, H2')
+3. Test whether nestedness differs from null expectation
+4. Identify the most connected plant and pollinator species
+5. Calculate species-level specialization (d')
+
+### Part 3: Food web analysis
+
+Create a simple food web (6-10 species) representing a system you're familiar with:
+
+1. Construct the adjacency matrix
+2. Convert to igraph format
+3. Calculate degree and betweenness centrality
+4. Create a visualization with trophic levels
+5. Which species is most central?
+
+### Part 4: Robustness analysis
+
+Using the `Safariland` network:
+
+```{r assignment-robust}
+data(Safariland)
+```
+
+1. Simulate random vs targeted species removal
+2. Plot the robustness curves
+3. Calculate robustness (area under curve) for each scenario
+4. What does this tell you about conservation priorities?
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why network analysis provides insights that species-level analyses cannot.

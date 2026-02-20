@@ -1,0 +1,645 @@
+# Bootstrapping and Resampling Methods
+
+Throughout this textbook, we've relied on formulas to calculate standard errors and confidence intervals. These formulas work because we make assumptions—usually that data come from a normal distribution, or that sample sizes are large enough for the Central Limit Theorem to apply.
+
+But what if those assumptions don't hold? What if you want a confidence interval for a statistic that has no standard formula—like the median, a ratio, or a diversity index? What if your sample is small and clearly non-normal?
+
+**Bootstrapping** solves these problems by using the data themselves to estimate uncertainty. Instead of assuming a theoretical distribution, you create an empirical distribution by resampling from your observed data.
+
+## The core insight
+
+The bootstrap is based on a simple but profound idea:
+
+> **Your sample is the best estimate of the population. So treat your sample as if it were the population, and resample from it.**
+
+By drawing many "bootstrap samples" from your data (with replacement), you can see how much your statistic varies across samples. This variation estimates the sampling distribution—the same thing that standard error formulas try to capture, but without distributional assumptions.
+
+## When to use bootstrapping
+
+| Situation | Why bootstrap helps |
+|-----------|---------------------|
+| Non-normal data | No normality assumption needed |
+| Small samples | Works when CLT doesn't apply |
+| Complex statistics | Median, ratios, ICCs have no simple SE formula |
+| Checking robustness | See if conclusions depend on a few observations |
+| Custom metrics | Any statistic you can calculate, you can bootstrap |
+
+## Setup
+
+```{r setup-bootstrap, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(boot)          # The main bootstrapping package
+
+set.seed(42)
+```
+
+---
+
+# Part 1: The Bootstrap Principle
+
+## A simple example
+
+Suppose you measure the biomass of 15 plants and want to estimate the population mean with a confidence interval.
+
+```{r bootstrap-data}
+# Plant biomass data (grams)
+biomass <- c(12.3, 15.7, 8.9, 22.4, 14.2, 18.6, 11.1, 25.3, 
+             13.8, 16.9, 9.5, 20.1, 14.7, 17.3, 19.8)
+
+# Sample statistics
+n <- length(biomass)
+cat("Sample size:", n, "\n")
+cat("Mean:", round(mean(biomass), 2), "\n")
+cat("SD:", round(sd(biomass), 2), "\n")
+```
+
+### The standard approach (parametric)
+
+Assuming normality, we calculate a t-based confidence interval:
+
+```{r parametric-ci}
+t.test(biomass)$conf.int
+```
+
+This works well if data are approximately normal. But what if they're not?
+
+### The bootstrap approach (non-parametric)
+
+Instead of assuming normality, we resample from our data:
+
+```{r bootstrap-manual, fig.cap="Bootstrap distribution of the sample mean. Each value represents the mean from one bootstrap sample. The spread of this distribution estimates the standard error."}
+# Number of bootstrap samples
+n_boot <- 10000
+
+# Storage for bootstrap means
+boot_means <- numeric(n_boot)
+
+# Resample with replacement
+for (i in 1:n_boot) {
+  boot_sample <- sample(biomass, size = n, replace = TRUE)
+  boot_means[i] <- mean(boot_sample)
+}
+
+# Visualize the bootstrap distribution
+hist(boot_means, breaks = 50, col = "steelblue", border = "white",
+     main = "Bootstrap Distribution of the Mean",
+     xlab = "Bootstrap Mean")
+abline(v = mean(biomass), col = "firebrick", lwd = 2, lty = 2)
+legend("topright", "Original mean", col = "firebrick", lty = 2, lwd = 2)
+```
+
+## Why "with replacement"?
+
+Sampling **with replacement** means the same observation can appear multiple times in a bootstrap sample. This is essential because:
+
+1. It allows bootstrap samples to vary (otherwise every sample would be identical to the original)
+2. It mimics the process of sampling from a population
+3. It produces the correct amount of variability in the bootstrap distribution
+
+```{r with-replacement}
+# Example bootstrap sample - note repeated values
+set.seed(123)
+original <- 1:10
+boot_sample <- sample(original, replace = TRUE)
+cat("Original:", original, "\n")
+cat("Bootstrap sample:", boot_sample, "\n")
+cat("Value 6 appears", sum(boot_sample == 6), "times\n")
+cat("Value 4 appears", sum(boot_sample == 4), "times\n")
+```
+
+Each bootstrap sample has the same size as the original, but some observations appear multiple times while others don't appear at all. On average, about 63.2% of original observations appear in each bootstrap sample.
+
+---
+
+# Part 2: Bootstrap Confidence Intervals
+
+There are several methods for constructing bootstrap CIs. They differ in how they handle bias and skewness.
+
+## Method 1: Percentile interval
+
+The simplest approach—just take percentiles of the bootstrap distribution:
+
+```{r percentile-ci}
+# 95% CI using percentiles
+ci_percentile <- quantile(boot_means, probs = c(0.025, 0.975))
+ci_percentile
+```
+
+**Pros:** Simple, intuitive
+**Cons:** Can be biased if bootstrap distribution is skewed
+
+## Method 2: Basic (reverse percentile) interval
+
+Accounts for bias by using the difference between bootstrap estimates and the original estimate:
+
+```{r basic-ci}
+# Basic interval
+theta_hat <- mean(biomass)  # Original estimate
+ci_basic <- c(2 * theta_hat - quantile(boot_means, 0.975),
+              2 * theta_hat - quantile(boot_means, 0.025))
+names(ci_basic) <- c("2.5%", "97.5%")
+ci_basic
+```
+
+## Method 3: BCa (Bias-Corrected and Accelerated)
+
+The most sophisticated method—adjusts for both bias and skewness. This is generally the **recommended method** for most applications.
+
+```{r bca-concept}
+# BCa requires more complex calculations
+# We'll use the boot package for this (shown later)
+# Key idea: adjusts percentiles based on:
+#   - Bias: Is the bootstrap distribution centered on the estimate?
+#   - Acceleration: Does variability change with the parameter value?
+```
+
+## Comparing CI methods
+
+```{r compare-cis}
+# Compare with parametric CI
+ci_t <- t.test(biomass)$conf.int
+
+comparison <- data.frame(
+  Method = c("t-interval (parametric)", "Percentile", "Basic"),
+  Lower = c(ci_t[1], ci_percentile[1], ci_basic[1]),
+  Upper = c(ci_t[2], ci_percentile[2], ci_basic[2])
+)
+comparison$Width <- comparison$Upper - comparison$Lower
+
+knitr::kable(comparison, digits = 2,
+             caption = "Comparison of confidence interval methods")
+```
+
+For approximately normal data, all methods give similar results. The differences become important with skewed data or small samples.
+
+---
+
+# Part 3: Bootstrap Standard Errors
+
+The standard error is simply the standard deviation of the bootstrap distribution:
+
+```{r bootstrap-se}
+# Bootstrap standard error
+boot_se <- sd(boot_means)
+cat("Bootstrap SE:", round(boot_se, 3), "\n")
+
+# Compare to formula-based SE
+formula_se <- sd(biomass) / sqrt(n)
+cat("Formula SE:", round(formula_se, 3), "\n")
+```
+
+This works for **any** statistic—just calculate it for each bootstrap sample and take the SD.
+
+```{r bootstrap-se-median}
+# Bootstrap SE for the median (no formula exists!)
+boot_medians <- numeric(n_boot)
+for (i in 1:n_boot) {
+  boot_sample <- sample(biomass, replace = TRUE)
+  boot_medians[i] <- median(boot_sample)
+}
+
+cat("Median:", median(biomass), "\n")
+cat("Bootstrap SE of median:", round(sd(boot_medians), 3), "\n")
+cat("95% CI for median:", round(quantile(boot_medians, c(0.025, 0.975)), 2), "\n")
+```
+
+---
+
+# Part 4: When to Bootstrap
+
+## Situations where bootstrapping shines
+
+### 1. Statistics without standard formulas
+
+```{r no-formula-stats}
+# Coefficient of variation (CV = SD/mean)
+boot_cv <- numeric(n_boot)
+for (i in 1:n_boot) {
+  boot_sample <- sample(biomass, replace = TRUE)
+  boot_cv[i] <- sd(boot_sample) / mean(boot_sample)
+}
+
+cat("CV:", round(sd(biomass)/mean(biomass), 3), "\n")
+cat("Bootstrap 95% CI:", round(quantile(boot_cv, c(0.025, 0.975)), 3), "\n")
+```
+
+### 2. Ratios
+
+```{r ratio-bootstrap}
+# Ratio of means between two groups
+group1 <- c(12.3, 15.7, 8.9, 14.2, 11.1)
+group2 <- c(18.6, 25.3, 16.9, 20.1, 19.8)
+
+# Observed ratio
+obs_ratio <- mean(group2) / mean(group1)
+
+# Bootstrap the ratio
+boot_ratios <- numeric(n_boot)
+for (i in 1:n_boot) {
+  boot1 <- sample(group1, replace = TRUE)
+  boot2 <- sample(group2, replace = TRUE)
+  boot_ratios[i] <- mean(boot2) / mean(boot1)
+}
+
+cat("Ratio of means:", round(obs_ratio, 3), "\n")
+cat("Bootstrap 95% CI:", round(quantile(boot_ratios, c(0.025, 0.975)), 3), "\n")
+```
+
+### 3. Non-normal data
+
+```{r non-normal, fig.cap="Bootstrap is especially useful for skewed data where normality assumptions fail."}
+# Highly skewed data (e.g., species abundances)
+skewed_data <- c(1, 1, 2, 2, 3, 3, 4, 5, 8, 12, 25, 45, 120)
+
+par(mfrow = c(1, 2))
+hist(skewed_data, main = "Original Data (Skewed)", col = "coral")
+
+# Bootstrap the mean
+boot_skewed <- replicate(n_boot, mean(sample(skewed_data, replace = TRUE)))
+hist(boot_skewed, main = "Bootstrap Distribution", col = "steelblue", breaks = 30)
+par(mfrow = c(1, 1))
+
+cat("Mean:", round(mean(skewed_data), 2), "\n")
+cat("Bootstrap 95% CI:", round(quantile(boot_skewed, c(0.025, 0.975)), 2), "\n")
+```
+
+### 4. Small samples
+
+With small samples, the Central Limit Theorem doesn't apply, and parametric intervals may be unreliable. Bootstrap provides a data-driven alternative.
+
+## When NOT to bootstrap
+
+- **Very small samples (n < 10):** Bootstrap relies on resampling—if your sample poorly represents the population, bootstrap CIs will also be poor
+- **Dependent data:** Standard bootstrap assumes independence; use block bootstrap for time series
+- **Extreme quantiles:** Bootstrapping the 99th percentile requires very large samples
+
+---
+
+# Part 5: The Jackknife
+
+The **jackknife** is an older resampling method that systematically leaves out one observation at a time. While largely superseded by bootstrapping, it's still useful for:
+
+- Estimating bias
+- Calculating influence of individual observations
+- Some specific applications (e.g., rarefaction in ecology)
+
+## How it works
+
+```{r jackknife}
+# Jackknife: leave out each observation once
+n <- length(biomass)
+jack_estimates <- numeric(n)
+
+for (i in 1:n) {
+  jack_estimates[i] <- mean(biomass[-i])  # Mean without observation i
+}
+
+# Jackknife estimate of bias
+theta_hat <- mean(biomass)
+theta_jack <- mean(jack_estimates)
+bias <- (n - 1) * (theta_jack - theta_hat)
+
+cat("Original mean:", round(theta_hat, 3), "\n")
+cat("Jackknife estimate of bias:", round(bias, 4), "\n")
+
+# Jackknife standard error
+jack_se <- sqrt((n - 1) / n * sum((jack_estimates - theta_jack)^2))
+cat("Jackknife SE:", round(jack_se, 3), "\n")
+```
+
+## Identifying influential observations
+
+```{r jackknife-influence, fig.cap="Jackknife estimates with each observation removed. Points far from the overall mean indicate influential observations."}
+# Which observations most affect the mean?
+influence <- data.frame(
+  Removed = 1:n,
+  Value = biomass,
+  JackMean = jack_estimates,
+  Influence = jack_estimates - theta_jack
+)
+
+ggplot(influence, aes(x = Removed, y = JackMean)) +
+  geom_hline(yintercept = theta_hat, linetype = "dashed", color = "firebrick") +
+  geom_point(size = 3, color = "steelblue") +
+  geom_segment(aes(xend = Removed, yend = theta_hat), color = "gray50") +
+  labs(title = "Jackknife Influence Plot",
+       subtitle = "How much does each observation affect the mean?",
+       x = "Observation Removed",
+       y = "Jackknife Mean") +
+  theme_minimal()
+```
+
+---
+
+# Part 6: Practical Applications
+
+## Application 1: Correlation coefficients
+
+Correlation coefficients have complex sampling distributions, especially for small samples.
+
+```{r bootstrap-correlation}
+# Example: correlation between two variables
+x <- c(2.1, 3.5, 4.2, 5.1, 6.3, 7.2, 8.1, 9.4, 10.2, 11.5)
+y <- c(3.2, 4.1, 5.8, 6.2, 8.1, 7.9, 9.5, 11.2, 10.8, 13.1)
+
+# Observed correlation
+obs_cor <- cor(x, y)
+
+# Bootstrap correlation
+boot_cors <- numeric(n_boot)
+for (i in 1:n_boot) {
+  idx <- sample(1:length(x), replace = TRUE)
+  boot_cors[i] <- cor(x[idx], y[idx])
+}
+
+cat("Correlation:", round(obs_cor, 3), "\n")
+cat("Bootstrap SE:", round(sd(boot_cors), 3), "\n")
+cat("Bootstrap 95% CI:", round(quantile(boot_cors, c(0.025, 0.975)), 3), "\n")
+```
+
+## Application 2: Regression coefficients
+
+When regression assumptions are violated, bootstrap provides robust inference.
+
+```{r bootstrap-regression}
+# Simple regression
+fit <- lm(y ~ x)
+obs_slope <- coef(fit)[2]
+
+# Bootstrap regression
+boot_slopes <- numeric(n_boot)
+for (i in 1:n_boot) {
+  idx <- sample(1:length(x), replace = TRUE)
+  boot_fit <- lm(y[idx] ~ x[idx])
+  boot_slopes[i] <- coef(boot_fit)[2]
+}
+
+# Compare to parametric CI
+param_ci <- confint(fit)[2, ]
+
+cat("Slope:", round(obs_slope, 3), "\n")
+cat("Parametric 95% CI:", round(param_ci, 3), "\n")
+cat("Bootstrap 95% CI:", round(quantile(boot_slopes, c(0.025, 0.975)), 3), "\n")
+```
+
+## Application 3: Difference between groups
+
+```{r bootstrap-difference}
+# Two groups
+control <- c(12.3, 15.7, 8.9, 14.2, 11.1, 13.5)
+treatment <- c(18.6, 25.3, 16.9, 20.1, 19.8, 22.4)
+
+# Observed difference
+obs_diff <- mean(treatment) - mean(control)
+
+# Bootstrap the difference
+boot_diffs <- numeric(n_boot)
+for (i in 1:n_boot) {
+  boot_ctrl <- sample(control, replace = TRUE)
+  boot_trt <- sample(treatment, replace = TRUE)
+  boot_diffs[i] <- mean(boot_trt) - mean(boot_ctrl)
+}
+
+cat("Mean difference:", round(obs_diff, 2), "\n")
+cat("Bootstrap 95% CI:", round(quantile(boot_diffs, c(0.025, 0.975)), 2), "\n")
+
+# Does CI include zero?
+ci <- quantile(boot_diffs, c(0.025, 0.975))
+if (ci[1] > 0 | ci[2] < 0) {
+  cat("CI excludes zero: significant difference\n")
+} else {
+  cat("CI includes zero: not significant\n")
+}
+```
+
+## Application 4: Custom ecological metrics
+
+```{r bootstrap-custom}
+# Shannon diversity index
+shannon <- function(x) {
+  p <- x[x > 0] / sum(x)
+  -sum(p * log(p))
+}
+
+# Community abundance data
+community <- c(45, 23, 18, 12, 8, 5, 3, 2, 1, 1)
+obs_shannon <- shannon(community)
+
+# Bootstrap Shannon diversity
+# Note: resample individuals, not species
+individuals <- rep(1:length(community), community)
+total_n <- sum(community)
+
+boot_shannon <- numeric(n_boot)
+for (i in 1:n_boot) {
+  boot_indiv <- sample(individuals, size = total_n, replace = TRUE)
+  boot_comm <- tabulate(boot_indiv, nbins = length(community))
+  boot_shannon[i] <- shannon(boot_comm)
+}
+
+cat("Shannon H':", round(obs_shannon, 3), "\n")
+cat("Bootstrap SE:", round(sd(boot_shannon), 3), "\n")
+cat("Bootstrap 95% CI:", round(quantile(boot_shannon, c(0.025, 0.975)), 3), "\n")
+```
+
+---
+
+# Part 7: Using the `boot` Package
+
+The `boot` package provides efficient, well-tested functions for bootstrapping with all CI methods.
+
+## Basic workflow
+
+```{r boot-package}
+library(boot)
+
+# Step 1: Write a function that calculates your statistic
+# Arguments: data, indices (which observations to use)
+mean_func <- function(data, indices) {
+  mean(data[indices])
+}
+
+# Step 2: Run bootstrap
+boot_result <- boot(data = biomass, 
+                    statistic = mean_func, 
+                    R = 10000)  # Number of bootstrap samples
+
+# View results
+boot_result
+```
+
+## Extracting confidence intervals
+
+```{r boot-ci}
+# Get CIs using multiple methods
+boot_cis <- boot.ci(boot_result, type = c("norm", "basic", "perc", "bca"))
+boot_cis
+```
+
+**CI types:**
+- `norm`: Normal approximation (assumes normality)
+- `basic`: Basic/reverse percentile
+- `perc`: Percentile
+- `bca`: Bias-corrected accelerated (**recommended**)
+
+## Visualizing bootstrap results
+
+```{r boot-plot, fig.cap="Diagnostic plots from the boot package showing the bootstrap distribution and QQ plot for assessing normality."}
+plot(boot_result)
+```
+
+## Example: Correlation with boot package
+
+```{r boot-correlation}
+# Data frame for boot
+cor_data <- data.frame(x = x, y = y)
+
+# Correlation function
+cor_func <- function(data, indices) {
+  d <- data[indices, ]
+  cor(d$x, d$y)
+}
+
+# Bootstrap
+cor_boot <- boot(cor_data, cor_func, R = 10000)
+
+# CIs
+boot.ci(cor_boot, type = "bca")
+```
+
+## Example: Regression slope with boot package
+
+```{r boot-regression}
+# Slope function
+slope_func <- function(data, indices) {
+  d <- data[indices, ]
+  fit <- lm(y ~ x, data = d)
+  coef(fit)[2]
+}
+
+# Bootstrap
+reg_boot <- boot(cor_data, slope_func, R = 10000)
+
+# Results
+reg_boot
+boot.ci(reg_boot, type = "bca")
+```
+
+## Example: Multiple statistics at once
+
+```{r boot-multiple}
+# Function returning multiple statistics
+multi_func <- function(data, indices) {
+  d <- data[indices]
+  c(mean = mean(d), 
+    median = median(d), 
+    sd = sd(d),
+    cv = sd(d)/mean(d))
+}
+
+# Bootstrap
+multi_boot <- boot(biomass, multi_func, R = 10000)
+multi_boot
+
+# CIs for each statistic (index specifies which one)
+boot.ci(multi_boot, type = "bca", index = 1)  # Mean
+boot.ci(multi_boot, type = "bca", index = 2)  # Median
+boot.ci(multi_boot, type = "bca", index = 4)  # CV
+```
+
+---
+
+# Part 8: Reporting Bootstrap Results
+
+## What to report
+
+1. **Number of bootstrap replicates** (typically 1000-10000)
+2. **Type of CI** (percentile, BCa, etc.)
+3. **The estimate** and **confidence interval**
+4. **Why bootstrap was used** (briefly)
+
+## Sample methods and results
+
+### Methods (brief version)
+
+> Confidence intervals were calculated using bias-corrected and accelerated (BCa) bootstrapping with 10,000 replicates.
+
+### Methods (detailed version)
+
+> Because the sampling distribution of the coefficient of variation has no closed-form solution, we estimated 95% confidence intervals using the bootstrap. We generated 10,000 bootstrap samples by resampling observations with replacement and calculated the CV for each sample. We report bias-corrected and accelerated (BCa) confidence intervals, which adjust for both bias and skewness in the bootstrap distribution. Analyses were conducted using the boot package (Canty & Ripley 2022) in R version 4.3.1.
+
+### Results
+
+> Plant biomass averaged 16.0 g (BCa 95% CI: 13.2–18.9 g, 10,000 bootstrap replicates). The coefficient of variation was 0.31 (95% CI: 0.20–0.45), indicating moderate variability among individuals.
+
+---
+
+## Key takeaways
+
+1. **Bootstrap uses resampling to estimate uncertainty** — No distributional assumptions needed
+
+2. **Sample with replacement** — This is what creates variation in bootstrap samples
+
+3. **Use BCa intervals when possible** — They adjust for bias and skewness
+
+4. **Bootstrap works for any statistic** — If you can calculate it, you can bootstrap it
+
+5. **The `boot` package is your friend** — Efficient, well-tested, provides multiple CI methods
+
+6. **Bootstrap ≠ magic** — It still requires a reasonable sample that represents the population
+
+7. **Different from permutation tests** — Bootstrap estimates uncertainty (CIs); permutation tests hypotheses (p-values)
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. Why do we sample *with replacement* when bootstrapping? What would happen if we sampled without replacement?
+
+2. What's the difference between bootstrap (this chapter) and permutation tests (Chapter 25)? When would you use each?
+
+3. A colleague bootstrapped a 95% CI from 15 observations and got a very narrow interval. Should they trust it? Why or why not?
+
+### Part 2: Manual bootstrap
+
+Using this dataset of seedling heights (cm):
+
+```{r assignment-manual}
+seedlings <- c(4.2, 5.1, 3.8, 6.7, 4.9, 5.5, 3.2, 7.1, 4.4, 5.8, 
+               6.2, 4.1, 5.3, 6.8, 3.9)
+```
+
+1. Calculate the mean and median
+2. Write a loop to bootstrap the median (5000 replicates)
+3. Calculate the bootstrap SE and 95% percentile CI for the median
+4. Plot the bootstrap distribution
+
+### Part 3: Using the boot package
+
+Using the same seedling data:
+
+1. Write a function compatible with `boot()` that calculates the interquartile range (IQR)
+2. Run the bootstrap with 10,000 replicates
+3. Extract BCa confidence intervals
+4. Compare to percentile intervals
+
+### Part 4: Applied problem
+
+You measured pollinator visit rates (visits/hour) at 8 flowers treated with a pesticide and 8 control flowers:
+
+```{r assignment-applied}
+control <- c(12, 15, 18, 14, 16, 13, 17, 15)
+pesticide <- c(8, 6, 9, 7, 10, 5, 8, 7)
+```
+
+1. Calculate the ratio of means (pesticide/control)
+2. Bootstrap a 95% CI for this ratio
+3. Does the CI include 1.0? What does this mean?
+4. Write a one-sentence results statement
+
+### Part 5: Reflection
+
+In 2-3 sentences, explain why bootstrapping is particularly valuable for ecological statistics like diversity indices or ratios.
+

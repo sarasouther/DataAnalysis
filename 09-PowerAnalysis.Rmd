@@ -7,77 +7,547 @@ Install packages 'pwr', 'faraway', 'simr', 'simglm', and 'Superpower'.
 
 As we learned in lesson 3, Basic Statistical Test, statistical power is a measure of making a Type II error - saying that there is no treatment effect when, in fact, there is one. A power analysis is a way of estimating statistical power to either speak to the ability of your experiment to detect treatment effects or estimate sample size needed to answer the question that you are interested in with your experimental design. 
 
-```{r}
+## Introduction: Why power matters
+
+In the chapter on Basic Statistical Testing, we learned that a **Type II error** occurs when we fail to detect an effect that actually exists—in other words, when we say "no significant difference" even though there really is one. **Statistical power** is the probability of *avoiding* this mistake: it's the likelihood that our study will detect an effect if the effect is real.
+
+Power = 1 - P(Type II error)
+
+A study with 80% power has an 80% chance of detecting a real effect and a 20% chance of missing it. A study with 50% power is essentially a coin flip—you're as likely to miss a real effect as to find it.
+
+**Why should you care about power?**
+
+1. **Before your study**: Power analysis tells you how many samples you need. Collecting too few samples wastes your effort—you might find nothing even when there's something to find. Collecting too many wastes resources that could go elsewhere.
+
+2. **During study design**: Power analysis forces you to think carefully about effect sizes and what constitutes a meaningful difference in your system.
+
+3. **After your study**: Understanding power helps you interpret non-significant results. A non-significant p-value from an underpowered study tells you very little.
+
+4. **For funding and ethics**: Many grant agencies and IRBs require power analyses. In studies involving animals or rare species, we have an ethical obligation not to sample more than necessary.
+
+## Setup
+
+```{r power-setup, message=FALSE, warning=FALSE}
+# Install these packages if you haven't already:
+# install.packages(c("pwr", "effectsize", "simr", "Superpower"))
+
 library(pwr)
+library(effectsize)  # For calculating effect sizes from data
 library(tidyverse)
+
+# We'll also use these later for complex designs
+# library(simr)       # Power for mixed models
+# library(Superpower) # Power for factorial designs
+```
+
+## The four ingredients of power
+
+Power analysis involves four interconnected quantities. If you know any three, you can solve for the fourth:
+
+| Ingredient | Symbol | Description |
+|------------|--------|-------------|
+| **Sample size** | n | Number of observations (per group for comparisons) |
+| **Effect size** | d, f, r, etc. | Magnitude of the difference or relationship |
+| **Significance level** | α | Threshold for rejecting the null (usually 0.05) |
+| **Power** | 1 - β | Probability of detecting a real effect (usually 0.80) |
+
+The relationship works like this:
+
+- **Larger sample size** → **Higher power** (more data = more ability to detect effects)
+- **Larger effect size** → **Higher power** (bigger differences are easier to spot)
+- **Larger α** → **Higher power** (but also more false positives)
+- Everything is a tradeoff!
+
+### Why 0.80 for power?
+
+By convention, we typically aim for 80% power. This means we accept a 20% chance of missing a real effect (Type II error). Why not 95% or 99%? Because achieving very high power usually requires impractically large sample sizes. The 80% threshold represents a balance—high enough to have a good chance of detecting real effects, but not so high that studies become infeasible.
+
+That said, 80% is a convention, not a law. For critical studies (endangered species management, medical interventions), you might aim for 90% or higher. For exploratory pilot studies, you might accept 70%.
+
+## Effect size: The key to power analysis
+
+Effect size is the trickiest ingredient because it requires you to specify *how big* an effect you expect—before you've collected data. Effect size standardizes the magnitude of an effect so it can be compared across studies and used in power calculations.
+
+### Cohen's d: Effect size for comparing two means
+
+**Cohen's d** measures how many standard deviations apart two group means are:
+
+$$d = \frac{\bar{x}_1 - \bar{x}_2}{s_{pooled}}$$
+
+where $s_{pooled}$ is the pooled standard deviation:
+
+$$s_{pooled} = \sqrt{\frac{s_1^2 + s_2^2}{2}}$$
+
+**Cohen's benchmarks for d:**
+
+| Size | d value | Interpretation |
+|------|---------|----------------|
+| Small | 0.2 | Subtle difference, hard to see without statistics |
+| Medium | 0.5 | Noticeable difference, visible in careful plots |
+| Large | 0.8 | Obvious difference, visible to the naked eye |
+
+**Ecological intuition:** If seedlings in burned plots average 10 cm with SD = 4 cm, and you expect fertilizer to increase height to 12 cm (same SD), then:
+
+$$d = \frac{12 - 10}{4} = 0.5$$
+
+This is a "medium" effect by Cohen's standards.
+
+### Calculating effect size from pilot data
+
+If you have pilot data, you can calculate effect sizes directly rather than guessing:
+
+```{r effect-size-from-data}
+# Example: Pilot study of seedling heights in two treatments
+control <- c(8.2, 9.1, 7.5, 10.3, 8.8, 9.5, 7.9)
+fertilized <- c(11.2, 12.5, 10.8, 13.1, 11.9, 12.3, 10.5)
+
+# Calculate Cohen's d manually
+mean_diff <- mean(fertilized) - mean(control)
+pooled_sd <- sqrt((sd(control)^2 + sd(fertilized)^2) / 2)
+d_manual <- mean_diff / pooled_sd
+
+cat("Difference in means:", round(mean_diff, 2), "cm\n")
+cat("Pooled SD:", round(pooled_sd, 2), "cm\n")
+cat("Cohen's d:", round(d_manual, 2), "\n")
+
+# Or use the effectsize package (easier and more reliable)
+library(effectsize)
+cohens_d(fertilized, control)
+```
+
+**Interpretation:** A Cohen's d of around 2.5 is a very large effect—the fertilizer treatment increases height by about 2.5 standard deviations. This would be easy to detect with even a small sample.
+
+### Cohen's f: Effect size for ANOVA
+
+When comparing more than two groups (ANOVA), we use **Cohen's f** instead of d:
+
+$$f = \frac{\sigma_{between}}{\sigma_{within}}$$
+
+where $\sigma_{between}$ is the standard deviation of the group means, and $\sigma_{within}$ is the pooled within-group standard deviation.
+
+**Cohen's benchmarks for f:**
+
+| Size | f value |
+|------|---------|
+| Small | 0.10 |
+| Medium | 0.25 |
+| Large | 0.40 |
+
+### Other effect size measures
+
+Different tests use different effect size measures:
+
+| Test | Effect size | Small | Medium | Large |
+|------|-------------|-------|--------|-------|
+| t-test | Cohen's d | 0.2 | 0.5 | 0.8 |
+| ANOVA | Cohen's f | 0.10 | 0.25 | 0.40 |
+| Correlation | r | 0.10 | 0.30 | 0.50 |
+| Chi-square | w | 0.10 | 0.30 | 0.50 |
+| Regression | f² | 0.02 | 0.15 | 0.35 |
+
+The `pwr` package has a handy function to look these up:
+
+```{r cohen-es-lookup}
+# Get conventional effect sizes for different tests
+cohen.ES(test = "t", size = "medium")
+cohen.ES(test = "anov", size = "medium")
+cohen.ES(test = "r", size = "medium")
+cohen.ES(test = "chisq", size = "medium")
+```
+
+## Power analysis for common tests
+
+### Two-sample t-test
+
+**Scenario:** You want to compare seedling survival between burned and unburned plots. How many plots do you need per treatment?
+
+```{r power-ttest}
+# If you expect a medium effect (d = 0.5)
+pwr.t.test(d = 0.5,           # Effect size
+           sig.level = 0.05,   # Alpha
+           power = 0.80,       # Desired power
+           type = "two.sample",# Two independent groups
+           alternative = "two.sided")
+```
+
+**Interpretation:** You need approximately 64 plots *per group* (128 total) to have 80% power to detect a medium effect with a two-sample t-test.
+
+**What if you already know your sample size?** You can solve for power instead:
+
+```{r power-ttest-known-n}
+# You can only sample 30 plots per treatment. What's your power?
+pwr.t.test(n = 30,
+           d = 0.5,
+           sig.level = 0.05,
+           type = "two.sample",
+           alternative = "two.sided")
+```
+
+With only 30 per group, power drops to about 48%—you have less than a coin flip's chance of detecting a medium effect. This is valuable information for interpreting your results!
+
+### Paired t-test
+
+**Scenario:** You measure the same plants before and after treatment. Paired designs are more powerful because they control for individual variation.
+
+```{r power-paired}
+# Paired t-test with medium effect
+pwr.t.test(d = 0.5,
+           sig.level = 0.05,
+           power = 0.80,
+           type = "paired",
+           alternative = "two.sided")
+```
+
+**Interpretation:** You only need about 34 pairs (compared to 64 per group for independent samples). Paired designs are efficient!
+
+### One-way ANOVA
+
+**Scenario:** You're comparing seedling growth across three burn severity levels (low, moderate, high). How many plots per treatment?
+
+```{r power-anova}
+# Three groups, medium effect size
+pwr.anova.test(k = 3,          # Number of groups
+               f = 0.25,        # Medium effect (Cohen's f)
+               sig.level = 0.05,
+               power = 0.80)
+```
+
+**Interpretation:** You need approximately 52 plots *per group* (156 total) to detect a medium effect across three burn severity treatments.
+
+**What about more groups?**
+
+```{r power-anova-many-groups}
+# Comparing 6 treatment combinations
+pwr.anova.test(k = 6, f = 0.25, sig.level = 0.05, power = 0.80)
+```
+
+With more groups, you need more samples per group because you're spreading your comparisons across more contrasts.
+
+### Correlation
+
+**Scenario:** You want to test whether canopy cover correlates with seedling density. How many plots do you need?
+
+```{r power-correlation}
+# Detect a medium correlation (r = 0.3)
+pwr.r.test(r = 0.3,
+           sig.level = 0.05,
+           power = 0.80,
+           alternative = "two.sided")
+```
+
+**Interpretation:** You need about 84 plots to detect a correlation of r = 0.3 with 80% power.
+
+### Chi-square test
+
+**Scenario:** You're testing whether survival (yes/no) is independent of treatment (control/experimental). How many observations do you need?
+
+```{r power-chisq}
+# Chi-square for 2x2 table, medium effect
+pwr.chisq.test(w = 0.3,        # Medium effect size
+               df = 1,          # (rows-1) × (cols-1)
+               sig.level = 0.05,
+               power = 0.80)
+```
+
+**Interpretation:** You need about 88 total observations to detect a medium association between survival and treatment.
+
+### Linear regression
+
+**Scenario:** You're building a regression model with 3 predictors (canopy cover, elevation, burn severity) to predict seedling density. How many plots do you need?
+
+For regression, we use f²:
+
+$$f^2 = \frac{R^2}{1 - R^2}$$
+
+```{r power-regression}
+# If you expect R² = 0.15 (medium effect), then f² = 0.15/0.85 = 0.176
+pwr.f2.test(u = 3,              # Number of predictors
+            f2 = 0.15,          # Medium effect
+            sig.level = 0.05,
+            power = 0.80)
+```
+
+**Interpretation:** The `v` in the output represents the error degrees of freedom (n - predictors - 1). So you need n = 77 + 3 + 1 = 81 observations.
+
+## Visualizing power: Power curves
+
+Power curves show how power changes with sample size for different effect sizes. They're extremely useful for planning and communication:
+
+```{r power-curve, fig.cap="Power curves for a two-sample t-test at different effect sizes. Larger effects require fewer samples to achieve adequate power.", fig.width=8, fig.height=5}
+# Calculate power across a range of sample sizes and effect sizes
+sample_sizes <- seq(10, 150, by = 5)
+effect_sizes <- c(0.2, 0.5, 0.8)
+
+# Create data frame for plotting
+power_data <- expand.grid(n = sample_sizes, d = effect_sizes)
+power_data$power <- mapply(function(n, d) {
+  pwr.t.test(n = n, d = d, sig.level = 0.05, type = "two.sample")$power
+}, power_data$n, power_data$d)
+
+power_data$effect <- factor(power_data$d, 
+                            labels = c("Small (d=0.2)", "Medium (d=0.5)", "Large (d=0.8)"))
+
+# Plot
+ggplot(power_data, aes(x = n, y = power, color = effect)) +
+  geom_line(linewidth = 1.2) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray40") +
+  annotate("text", x = 140, y = 0.83, label = "80% power", color = "gray40") +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  scale_color_manual(values = c("firebrick", "forestgreen", "steelblue")) +
+  labs(x = "Sample size per group",
+       y = "Power",
+       color = "Effect size",
+       title = "Power curves for two-sample t-test") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+**What this tells us:**
+
+- For **large effects** (d = 0.8), you reach 80% power with only ~26 per group
+- For **medium effects** (d = 0.5), you need ~64 per group
+- For **small effects** (d = 0.2), you need ~394 per group (!)
+
+Small effects require enormous sample sizes. This is why it's crucial to have realistic expectations about effect sizes in your system.
+
+## What if you can't achieve adequate power?
+
+Sometimes the power analysis delivers bad news: you'd need 500 samples, but you can only collect 50. What are your options?
+
+### 1. Increase effect size (through design)
+
+You can't change the true effect size, but you can reduce noise:
+
+- **Reduce measurement error**: Use more precise instruments, train observers
+- **Control for covariates**: Block on known sources of variation
+- **Use paired or repeated measures designs**: Each subject serves as its own control
+- **Stratify sampling**: Ensure all conditions are well-represented
+
+### 2. Increase α (with caution)
+
+Using α = 0.10 instead of 0.05 increases power, but also increases false positives. This might be acceptable for:
+
+- Exploratory studies where missing an effect is costly
+- Pilot studies informing larger experiments
+- When multiple testing corrections will be applied later
+
+### 3. Accept lower power (and be honest about it)
+
+Sometimes an underpowered study is still worth doing:
+
+- It may provide pilot data for future, better-powered studies
+- It contributes to meta-analyses that pool across studies
+- The effect may turn out to be larger than expected
+
+**The key is transparency.** Report your power analysis and acknowledge limitations.
+
+### 4. Change the question
+
+Can you:
+- Focus on fewer treatment levels?
+- Combine categories to increase per-cell sample size?
+- Use a different outcome variable that's less noisy?
+
+### 5. Collaborate
+
+Pool resources with other researchers to achieve adequate sample sizes.
+
+## Post-hoc power: Don't do it
+
+**Post-hoc power analysis**—calculating power *after* you've seen your results—is statistically meaningless and should be avoided.
+
+Here's why: Post-hoc power is mathematically determined by your p-value. If p < 0.05, power will appear adequate. If p > 0.05, power will appear low. It adds no new information.
+
+Some people calculate post-hoc power after finding p > 0.05, hoping to argue "we didn't find an effect, but we had low power, so the effect might still exist." But this is circular reasoning—the low power is a direct consequence of the non-significant result, not independent evidence about the true effect.
+
+**What to do instead after a non-significant result:**
+
+1. Report confidence intervals—they show the range of effect sizes consistent with your data
+2. Report effect size estimates—even non-significant effects have estimated magnitudes
+3. Compare your sample size to what power analysis suggested a priori
+4. Discuss what effect sizes you *could* have detected with your sample
+
+## Power for complex designs: Simulation
+
+For simple designs (t-tests, ANOVA, regression), analytical formulas work well. But for complex designs—mixed models, non-normal data, unbalanced designs—simulation-based power analysis is often necessary.
+
+The basic idea:
+
+1. Specify your model and expected effects
+2. Simulate many datasets from this model
+3. Fit your analysis to each dataset
+4. Calculate the proportion of datasets where you detected the effect
+
+### Example: Power for a mixed model using simr
+
+The `simr` package provides tools for simulation-based power analysis, particularly for mixed-effects models:
+
+```{r simr-example, eval=FALSE}
 library(simr)
-library(simglm)
+library(lme4)
+
+# Imagine you're planning a study with plants nested in plots nested in sites
+# You want to know if a treatment affects plant height
+
+# Step 1: Define the model structure with expected effect sizes
+# Create a "pilot" model with your expected effects
+
+# Simulated pilot data
+set.seed(42)
+pilot_data <- data.frame(
+  site = rep(1:10, each = 20),
+  plot = rep(1:50, each = 4),
+  treatment = rep(c("control", "treatment"), 100),
+  height = rnorm(200, mean = 10, sd = 2)
+)
+
+# Add a treatment effect
+pilot_data$height[pilot_data$treatment == "treatment"] <- 
+  pilot_data$height[pilot_data$treatment == "treatment"] + 1.5
+
+# Fit the model
+pilot_model <- lmer(height ~ treatment + (1|site/plot), data = pilot_data)
+
+# Step 2: Run power simulation
+# This simulates new data and refits the model many times
+power_result <- powerSim(pilot_model, test = fixed("treatmenttreatment"), nsim = 100)
+print(power_result)
+
+# Step 3: Explore how power changes with sample size
+# What if we added more sites?
+power_curve_sites <- powerCurve(pilot_model, 
+                                 test = fixed("treatmenttreatment"),
+                                 along = "site",
+                                 nsim = 50)
+plot(power_curve_sites)
+```
+
+### Example: Power for factorial designs using Superpower
+
+For factorial designs (multiple crossed factors), the `Superpower` package provides intuitive power analysis:
+
+```{r superpower-example, eval=FALSE}
 library(Superpower)
-#load data
-data('oatvar', package='faraway')
-```
-#Using power analysis to estimate needed sample size.
 
-To conduct a power analysis, you will need to know: 
-*The number of groups in your study
-*Significance level. It is standard to use a significance level of 0.05.
-*The power required for your experiment, which is typically set at 0.8.
-*Effect size, which can be calculated from data from a pilot study or estimated. 
+# 2x3 factorial design: Treatment (control, fertilized) × Burn severity (low, med, high)
+# We want to detect the interaction
 
-**Effect size** is a relativized estimate of difference between groups being compared. Generally, effect size is calculated by taking the difference between the two groups (e.g., the mean of treatment group minus the mean of the control group) and dividing it by the standard deviation of one of the groups.
+design <- ANOVA_design(
+  design = "2b*3b",  # 2 between-subject factors, 2 and 3 levels
+  n = 30,            # per cell
+  mu = c(10, 12,     # Control: low, med, high burn
+         11, 14,     # Fertilized: low, med, high burn
+         9, 15),
+  sd = 3,
+  labelnames = c("treatment", "control", "fertilized",
+                 "burn", "low", "medium", "high")
+)
 
-Because effect size is converted to standard deviations units, it tells you how many standard deviations lie between the two means, and can be compared across datasets regardless of the original units of the study (which is why effect sizes are calculated for meta-analyses).
+# Visualize the expected results
+plot(design)
 
-A classic effect size calculation is Cohen's D calculated as $\frac{\overline{x}_1 - \overline{x}_2}{s_{pooled}}$, where ${\overline{x}_1}$ is the mean of one group, ${\overline{x}_2}$ is the mean of the second group, and $s_{pooled}$ is standard deviation (typically pooled; sometimes of the control or pretest data) calculated as $s_{pooled} = \sqrt{\frac{sd_{a}^{2}+ sd_{b}^{2}}{2}}$. Note that Cohen's D is one of *many* ways of calculating effect size. Two other metrics are used by the 'pwr package': $f$, calculated as expected standard deviation of the group means divided by the pooled within-group standard deviation, is used in our example below. Another option is eta-squared (η2). The eta-squared is the proportion of the total variance explained by the means variance.
-
-It is harder to detect a smaller effect of the treatment, and easier to detect larger effects. Cohen in his 1988 book (citation below) classified effect sizes into 3 general categories for Cohen's D (CONFIRM): a small effect is typically set at 0.1 - 0.3, a medium effect at 0.3 - 0.5, and a large effect at > 0.5. **Note that the range for small, medium, and large effects differ by effect size calculation** Using these classifications, you can estimate the sample size for a proposed study even if you have **no** data. 
-
-**Cohen, J. (1988). Statistical power analysis for the behavioral sciences (2nd ed.). Hillsdale,NJ:
-Lawrence Erlbaum.**
-
-Below, we will run a power analysis with actual data, but let's start by running a power analysis to guide experimental planning for a study when no opportunity to conduct a pilot. Imagine you are planning an experiment in which you are trialing the effect of a new fertilizer on oat growth. You plan to include three levels, a control (no fertilizer added), a moderate fertilization treatment, and a high fertilization treatment and measure height as a dependent variable.
-
-In the code below, k indicates the number of groups (here: control, moderate, high), f indicates an effect size (we selected a medium effect size), sig.level indicates the significance level (0.05), and power (standard to use 0.8). To calculate the number of groups, if you have two factors, simply multiply the number of groups in each factor to get the value k. For instance, say you are looking at the effect of 2 levels of pesticide and 3 temperature levels on bee longevity, you would multiply 2 * 3, yielding 6 groups.
-
-**Why do we use 0.8?**
-It is by convention, much like we set a significance level ($\alpha$) of 0.05. At some point scientists agreed that a power level of 0.8, which means that the probability of rejecting a false null hypothesis is 0.8 (or 80%), is an acceptable risk of committing a Type II error.
-
-```{r}
-pwr.anova.test(k=3, f=0.3, sig.level=0.05, power=0.8) 
-```
-In this case, we'd should include at least 37 individuals (plus a few extra) to accommodate loss of individuals during the experiment.
-
-When possible, it is preferable to run a pilot experiment in order to improve experimental design. The 'pwr' package in R allows you to run a power analysis on various forms of data. Let's run through several quick analyses using the 'pwr' package. The effect size calculations will depend on your statistical test (for a full description of tests, go to the package).  
-
-Since Cohen's description of effect sizes as small, medium and large depend on each statistical test, there is an easy way to generate this information in the 'pwr' dataset. For example, if you are interested in determining the value associated with a small effect size for a regression, you would run the following code:
-
-```{r}
-cohen.ES(test = 'r', size = 'small')
-```
-Note that you have several test options here: 
-*r = regression
-*r; alternative = 'two.sided' = correlation (can specify direction 'greater') - not 100 percent sure I'm right here...
-*p = 
-*t = for t-test (type = 'paired'; you can select between two population to a repeated measure test)
-*anov = anova
-*chisq = chi sq tests
-*f2 = glms
-
-The 'pwr' package is nice for quick looks at power for simple analyses with no previous data. Note: that you can calculate effect sizes from data by hand and plug them into 'pwr' to generate sample sizes or power assessments. 
-
-Let's check this out with the 'oatvar dataset'. 
-
-```{r}
-ggplot(oatvar, aes(y=yield, x=block, color=variety)) + 
-    geom_point() +
-    geom_line(aes(x=as.integer(block)))
+# Run power simulation
+power_result <- ANOVA_power(design, nsims = 1000)
+print(power_result)
 ```
 
-The cbpp is a dataset on contagious bovine pleuropneumonia. Data description is here:
-https://rdrr.io/cran/lme4/man/cbpp.html
+## Practical workflow for power analysis
 
-```{r}
-library(simr)
-head(cbpp)
-cbpp$obs <- 1:nrow(cbpp)
-```
+Here's a step-by-step process for incorporating power analysis into your study planning:
+
+### Step 1: Define your primary hypothesis
+
+What is the main question you want to answer? What test will you use?
+
+### Step 2: Determine the minimum meaningful effect
+
+Ask yourself: "What is the smallest effect that would be scientifically or practically important?"
+
+This is different from asking "What effect do I expect?" A treatment that increases survival by 1% might be statistically detectable with enough samples, but is it meaningful for management? Conversely, a 10% increase might be very important even if you're not sure it's that large.
+
+### Step 3: Estimate variability
+
+Use pilot data, previous studies, or ecological reasoning to estimate the standard deviation or variance in your system.
+
+### Step 4: Calculate required sample size
+
+Use `pwr` functions for simple designs, or simulation for complex designs.
+
+### Step 5: Compare to feasibility
+
+Can you actually collect that many samples? If not, return to the "What if you can't achieve adequate power?" section above.
+
+### Step 6: Document everything
+
+Include your power analysis in your pre-registration, grant proposal, or methods section. Specify:
+
+- The effect size you powered for and why
+- The source of your variance estimate
+- The target power level
+- The resulting sample size requirement
+
+## Common mistakes in power analysis
+
+1. **Using an effect size from a published study without adjustment**: Published effects are often inflated due to publication bias. Consider using a smaller effect than reported in the literature.
+
+2. **Forgetting about multiple comparisons**: If you're testing multiple hypotheses, you need more power for each individual test.
+
+3. **Ignoring clustering**: If your data have hierarchical structure (plants within plots within sites), you need more samples than a simple power analysis suggests.
+
+4. **Being too optimistic about feasibility**: Always add a buffer (10-20%) for lost samples, failed measurements, or exclusions.
+
+5. **Calculating post-hoc power**: As discussed above, this is uninformative.
+
+## Summary
+
+| Concept | Key point |
+|---------|-----------|
+| Power | Probability of detecting a real effect (typically aim for 80%) |
+| Effect size | Standardized magnitude of difference/relationship |
+| Trade-offs | Larger n, larger effects, larger α → higher power |
+| Cohen's d | Effect size for t-tests: small=0.2, medium=0.5, large=0.8 |
+| Cohen's f | Effect size for ANOVA: small=0.1, medium=0.25, large=0.4 |
+| Power curves | Visualize how power changes with sample size |
+| Post-hoc power | Don't do it—it's mathematically circular |
+| Complex designs | Use simulation (simr, Superpower) |
+
+## Key takeaways
+
+- **Do power analysis before your study**: It informs sampling design and helps justify your approach to funders and reviewers.
+
+- **Effect size is the hard part**: Invest time in estimating realistic effect sizes from pilot data or previous studies.
+
+- **80% power is conventional, not sacred**: Adjust based on the consequences of Type I vs. Type II errors in your context.
+
+- **An underpowered study isn't worthless**: But be honest about its limitations and frame conclusions accordingly.
+
+- **Power analysis is approximate**: It gives you a defensible target, not a precise guarantee.
+
+## Assignment
+
+Conduct a power analysis for your thesis or course project:
+
+**Part 1: Study design specification**
+
+1. State your primary research question and the statistical test you plan to use.
+2. Identify your response variable and predictor(s)/treatment(s).
+
+**Part 2: Effect size estimation**
+
+3. Determine the minimum effect size that would be scientifically meaningful in your system. Explain your reasoning.
+4. If you have pilot data or can find relevant published data, calculate the effect size from that data using the `effectsize` package. If not, use Cohen's conventional sizes and justify your choice (small, medium, or large).
+5. Estimate the standard deviation or variance in your response variable. Where did this estimate come from?
+
+**Part 3: Power calculation**
+
+6. Using the appropriate `pwr` function, calculate the sample size needed for 80% power to detect your target effect.
+7. Create a power curve showing how power changes from n=10 to n=150 (or an appropriate range for your study).
+
+**Part 4: Feasibility assessment**
+
+8. Is the required sample size feasible given your resources and constraints? 
+9. If not, what modifications could you make to your design to achieve adequate power? Discuss at least two options.
+
+**Part 5: Reporting**
+
+10. Write a brief methods paragraph (3-5 sentences) describing your power analysis as it would appear in a thesis or manuscript. Include the effect size, variance estimate, target power, significance level, and resulting sample size.

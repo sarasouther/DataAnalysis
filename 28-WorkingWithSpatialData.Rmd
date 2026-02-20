@@ -1,0 +1,790 @@
+---
+title: "Working with Spatial Data in R"
+output: html_document
+---
+
+# Introduction: Why Spatial Data Matters in Ecology
+
+Almost all ecological data has a spatial component. Where you collect data matters as much as what you collect.
+
+> "Everything is related to everything else, but near things are more related than distant things" — Tobler's First Law of Geography
+
+This principle underlies nearly every ecological pattern: species distributions, soil properties, climate gradients, disease spread, and population dynamics all exhibit spatial structure.
+
+**Ignoring spatial structure can lead to:**
+
+- Pseudoreplication (treating non-independent samples as independent)
+- Biased parameter estimates
+- Inflated Type I error rates (false positives)
+- Missing important ecological patterns
+
+## Setup
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(sf)
+library(terra)
+library(ggplot2)
+
+set.seed(42)
+
+# Optional spatial-interpolation tools (can fail on some installs)
+has_gstat <- requireNamespace("gstat", quietly = TRUE)
+
+if (has_gstat) {
+  ok <- try(library(gstat), silent = TRUE)
+  if (inherits(ok, "try-error")) {
+    message("gstat failed to load on this system; skipping gstat-based chunks.")
+    has_gstat <- FALSE
+  }
+} else {
+  message("gstat not installed; skipping gstat-based chunks.")
+}
+```
+
+---
+
+# Part 1: Understanding Coordinate Reference Systems (CRS)
+
+## The fundamental problem
+
+The Earth is a 3D sphere (technically an oblate spheroid). Maps and computer screens are 2D flat surfaces. **There is no perfect way to represent a curved surface on a flat plane.**
+
+Every map projection involves trade-offs — you can preserve shape, area, distance, or direction, but never all four simultaneously.
+```{r crs-concept, echo=FALSE}
+cat("
+THE CRS PROBLEM
+════════════════════════════════════════════════════════════════
+
+Earth (3D sphere) → Map (2D plane)
+
+What gets distorted?
+┌─────────────────────────────────────────────────────────────┐
+│  SHAPE ←──────────────── Trade-off ──────────────→ AREA    │
+│                                                             │
+│  Conformal projections     vs.     Equal-area projections  │
+│  (preserve shape)                  (preserve area)         │
+│  e.g., Mercator                    e.g., Albers            │
+└─────────────────────────────────────────────────────────────┘
+
+You CANNOT preserve everything. Choose based on your analysis needs.
+")
+```
+
+## Geographic vs. Projected Coordinate Systems
+
+### Geographic Coordinate Systems (GCS)
+
+A geographic coordinate system describes locations on the Earth's surface using angular measurements (degrees).
+
+**Key features:**
+
+- Units: degrees of latitude and longitude
+- Latitude: 0° at equator, +90° at North Pole, -90° at South Pole
+- Longitude: 0° at Prime Meridian (Greenwich), ±180° at International Date Line
+- Most common: WGS84 (World Geodetic System 1984)
+
+**EPSG:4326 (WGS84)** — This is what your GPS uses!
+```{r geographic-example}
+# A point in Flagstaff, AZ in geographic coordinates (WGS84)
+flagstaff_geo <- st_point(c(-111.6513, 35.1983))  # longitude, latitude
+flagstaff_sf <- st_sfc(flagstaff_geo, crs = 4326)
+
+cat("Flagstaff coordinates (WGS84):\n")
+cat("Longitude:", -111.6513, "degrees\n")
+cat("Latitude:", 35.1983, "degrees\n")
+st_crs(flagstaff_sf)
+```
+
+**When to use geographic CRS:**
+
+- Storing raw GPS coordinates
+- Global datasets
+- Sharing data (everyone understands lat/long)
+
+**Limitations:**
+
+- One degree of longitude varies in distance depending on latitude
+- At the equator: 1° longitude ≈ 111 km
+- At 45° latitude: 1° longitude ≈ 78 km
+- At the poles: 1° longitude = 0 km
+- **Never calculate distances or areas directly in geographic coordinates!**
+
+### Projected Coordinate Systems (PCS)
+
+A projected coordinate system transforms the curved Earth onto a flat surface using mathematical formulas.
+
+**Key features:**
+
+- Units: meters (or feet)
+- Coordinates are typically called "easting" (x) and "northing" (y)
+- Optimized for specific regions
+- Distance and area calculations are valid
+
+**Common projected CRS:**
+
+| CRS | EPSG | Best for | Notes |
+|-----|------|----------|-------|
+| UTM Zone 12N | 32612 | Arizona, Utah, Colorado | Good for most SW fieldwork |
+| UTM Zone 11N | 32611 | California, Nevada | |
+| Albers Equal Area | 5070 | Continental US analyses | Preserves area |
+| State Plane (AZ Central) | 2223 | Arizona-specific work | High accuracy, feet |
+```{r projected-example}
+# Transform Flagstaff to UTM Zone 12N
+flagstaff_utm <- st_transform(flagstaff_sf, crs = 32612)
+
+cat("Flagstaff coordinates (UTM Zone 12N):\n")
+st_coordinates(flagstaff_utm)
+cat("Units: meters\n")
+```
+
+## The UTM System
+
+Universal Transverse Mercator (UTM) divides the world into 60 zones, each 6° of longitude wide.
+```{r utm-zones, echo=FALSE}
+cat("
+UTM ZONES FOR THE UNITED STATES
+════════════════════════════════════════════════════════════════
+
+Zone 10: California coast
+Zone 11: California, Nevada, Oregon
+Zone 12: Arizona, Utah, Colorado, New Mexico
+Zone 13: Colorado, New Mexico, Texas
+Zone 14: Texas, Oklahoma, Kansas
+Zone 15: Louisiana, Arkansas, Missouri
+...
+
+Finding your UTM zone:
+  Zone = floor((longitude + 180) / 6) + 1
+  
+Flagstaff (-111.65°): Zone = floor((-111.65 + 180) / 6) + 1 = 12
+")
+```
+
+## EPSG Codes
+
+EPSG codes are standardized numeric identifiers for coordinate reference systems. They're maintained by the International Association of Oil & Gas Producers (formerly the European Petroleum Survey Group).
+
+**Essential EPSG codes to memorize:**
+
+| EPSG | Name | Use |
+|------|------|-----|
+| 4326 | WGS84 | GPS coordinates, global data |
+| 4269 | NAD83 | North American datum |
+| 32612 | UTM Zone 12N | Arizona/Utah fieldwork |
+| 5070 | Albers Equal Area | Continental US mapping |
+
+## CRS in Practice
+```{r crs-practice}
+# Create example points (sampling locations)
+sites <- data.frame(
+  site_id = c("A1", "A2", "A3", "B1", "B2"),
+  longitude = c(-111.65, -111.62, -111.68, -111.70, -111.63),
+  latitude = c(35.20, 35.22, 35.18, 35.25, 35.19)
+)
+
+# Convert to sf object with geographic CRS
+sites_sf <- st_as_sf(sites, coords = c("longitude", "latitude"), crs = 4326)
+
+# Check CRS
+st_crs(sites_sf)
+
+# Transform to UTM for distance calculations
+sites_utm <- st_transform(sites_sf, crs = 32612)
+
+# Now we can calculate distances in meters
+distances <- st_distance(sites_utm)
+cat("\nDistance matrix (meters):\n")
+print(round(as.matrix(distances), 0))
+```
+
+## Common CRS Problems and Solutions
+```{r crs-problems, echo=FALSE}
+cat("
+COMMON CRS PROBLEMS
+════════════════════════════════════════════════════════════════
+
+PROBLEM                          SOLUTION
+─────────────────────────────────────────────────────────────────
+Data won't overlay               Check CRS of both layers
+                                 st_crs(layer1); st_crs(layer2)
+                                 Transform to match: st_transform()
+
+Distance calculations wrong      You're using geographic CRS!
+                                 Project to local CRS first
+
+Area calculations wrong          Use equal-area projection
+                                 e.g., Albers (EPSG:5070)
+
+CRS shows as NA                  CRS wasn't saved with file
+                                 Assign if you know it: st_set_crs()
+                                 ONLY if you're certain!
+
+Points appear in wrong location  Possible datum mismatch
+                                 NAD27 vs NAD83 can differ 10-100m
+")
+```
+```{r crs-example-fix}
+# Example: Two datasets that won't overlay
+layer1 <- st_as_sf(data.frame(x = -111.65, y = 35.20), 
+                    coords = c("x", "y"), crs = 4326)
+
+layer2 <- st_as_sf(data.frame(x = 423000, y = 3895000), 
+                    coords = c("x", "y"), crs = 32612)
+
+# Check CRS
+cat("Layer 1 CRS:", st_crs(layer1)$input, "\n")
+cat("Layer 2 CRS:", st_crs(layer2)$input, "\n")
+
+# Transform layer1 to match layer2
+layer1_transformed <- st_transform(layer1, crs = st_crs(layer2))
+
+cat("\nAfter transformation, both layers use:", st_crs(layer1_transformed)$input, "\n")
+```
+
+---
+
+# Part 2: Types of Spatial Data
+
+## Vector Data
+
+Vector data represents discrete features using points, lines, and polygons.
+```{r vector-types, echo=FALSE}
+cat("
+VECTOR DATA TYPES
+════════════════════════════════════════════════════════════════
+
+POINTS (0-dimensional)
+  • Sample locations
+
+  • Species occurrences
+  • Weather stations
+  • GPS waypoints
+
+LINES (1-dimensional)  
+  • Transects
+  • Streams and rivers
+  • Roads
+  • Animal movement paths
+
+POLYGONS (2-dimensional)
+  • Study area boundaries
+  • Habitat patches
+  • Management units
+  • Species ranges
+  • Watershed boundaries
+")
+```
+```{r vector-example}
+# Create example vector data
+
+# Points: sampling locations
+points <- data.frame(
+  plot_id = 1:5,
+  treatment = c("control", "burned", "control", "burned", "burned"),
+  x = c(-111.65, -111.62, -111.68, -111.70, -111.63),
+  y = c(35.20, 35.22, 35.18, 35.25, 35.19)
+)
+points_sf <- st_as_sf(points, coords = c("x", "y"), crs = 4326)
+
+# Polygon: study area boundary
+study_area <- st_polygon(list(rbind(
+  c(-111.75, 35.15),
+  c(-111.55, 35.15),
+  c(-111.55, 35.30),
+  c(-111.75, 35.30),
+  c(-111.75, 35.15)
+)))
+study_area_sf <- st_sfc(study_area, crs = 4326) |> 
+  st_sf(name = "Study Area")
+
+# Line: transect
+transect <- st_linestring(rbind(
+  c(-111.70, 35.17),
+  c(-111.60, 35.23)
+))
+transect_sf <- st_sfc(transect, crs = 4326) |>
+  st_sf(transect_id = "T1")
+
+# Plot all together
+ggplot() +
+  geom_sf(data = study_area_sf, fill = "lightgreen", alpha = 0.3) +
+  geom_sf(data = transect_sf, color = "blue", linewidth = 1) +
+  geom_sf(data = points_sf, aes(color = treatment), size = 3) +
+  scale_color_manual(values = c("control" = "darkgreen", "burned" = "firebrick")) +
+  labs(title = "Vector Data Example",
+       subtitle = "Points, lines, and polygons") +
+  theme_minimal()
+```
+
+## Raster Data
+
+Raster data represents continuous surfaces as a grid of cells (pixels).
+```{r raster-types, echo=FALSE}
+cat("
+RASTER DATA IN ECOLOGY
+════════════════════════════════════════════════════════════════
+
+TOPOGRAPHIC
+  • Elevation (DEMs)
+  • Slope
+  • Aspect
+  • Topographic wetness index
+
+CLIMATE
+  • Temperature (mean, min, max)
+  • Precipitation
+  • Solar radiation
+  • Vapor pressure deficit
+
+VEGETATION
+  • NDVI (greenness)
+  • Land cover classification
+  • Canopy height
+  • Leaf area index
+
+RESOLUTION MATTERS!
+  • 1 km (PRISM climate) → regional patterns
+  • 30 m (Landsat) → landscape analysis
+  • 10 m (Sentinel-2) → habitat mapping
+  • 1 m (LiDAR) → fine-scale structure
+")
+```
+```{r raster-example}
+# Create example raster (simulated elevation)
+# In practice, you'd load real data with rast("elevation.tif")
+
+# Create a simple raster
+elev_matrix <- matrix(
+  c(2100, 2150, 2200, 2180, 2120,
+    2080, 2130, 2250, 2220, 2100,
+    2050, 2100, 2200, 2150, 2080,
+    2030, 2070, 2120, 2100, 2050,
+    2020, 2040, 2060, 2050, 2030),
+  nrow = 5, byrow = TRUE
+)
+
+# Create raster with terra
+elevation <- rast(elev_matrix)
+
+# Set extent and CRS
+ext(elevation) <- c(-111.75, -111.55, 35.15, 35.30)
+crs(elevation) <- "EPSG:4326"
+names(elevation) <- "elevation_m"
+
+# Check properties
+cat("Raster properties:\n")
+cat("Resolution:", res(elevation), "\n")
+cat("Extent:", as.vector(ext(elevation)), "\n")
+cat("CRS:", crs(elevation, describe = TRUE)$name, "\n")
+
+# Plot
+plot(elevation, main = "Elevation (m)")
+```
+
+## When to Use Which?
+```{r data-choice, echo=FALSE}
+cat("
+CHOOSING VECTOR VS. RASTER
+════════════════════════════════════════════════════════════════
+
+USE VECTOR FOR:
+  ✓ Discrete features (sample points, boundaries)
+  ✓ Features with attributes (species ID, plot data)
+  ✓ Precise boundaries
+  ✓ Data you collected in the field
+
+USE RASTER FOR:
+  ✓ Continuous surfaces (elevation, temperature)
+  ✓ Remote sensing imagery
+  ✓ Modeled environmental data (climate, soils)
+  ✓ Data covering large areas
+
+MANY ANALYSES NEED BOTH:
+  • Extract raster values at point locations
+  • Summarize raster within polygon boundaries
+  • Use raster predictors in species distribution models
+")
+```
+
+---
+
+# Part 3: Reading and Writing Spatial Data
+
+## Vector Data with sf
+```{r sf-io, eval=FALSE}
+# Reading vector data
+# Shapefiles
+plots <- st_read("data/sampling_plots.shp")
+
+# GeoPackage (preferred!)
+boundary <- st_read("data/study_area.gpkg")
+
+# GeoJSON
+occurrences <- st_read("data/species_records.geojson")
+
+# Check what you loaded
+class(plots)
+st_geometry_type(plots)
+st_crs(plots)
+head(plots)
+
+# Writing vector data
+st_write(plots, "output/plots.gpkg")
+st_write(plots, "output/plots.shp")  # shapefile
+```
+```{r sf-from-csv}
+# Common task: Convert CSV with coordinates to spatial object
+field_data <- data.frame(
+  plot = c("P1", "P2", "P3", "P4"),
+  longitude = c(-111.65, -111.62, -111.68, -111.70),
+  latitude = c(35.20, 35.22, 35.18, 35.25),
+  species_richness = c(12, 8, 15, 10),
+  cover_pct = c(45, 32, 68, 51)
+)
+
+# Convert to sf
+field_sf <- st_as_sf(
+  field_data,
+  coords = c("longitude", "latitude"),  # x column first, then y
+  crs = 4326  # WGS84
+)
+
+print(field_sf)
+```
+
+## Raster Data with terra
+```{r terra-io, eval=FALSE}
+# Reading raster data
+elevation <- rast("data/dem.tif")
+climate <- rast("data/bioclim.tif")  # can have multiple layers
+
+# Check properties
+res(elevation)       # resolution
+ext(elevation)       # extent
+crs(elevation)       # coordinate reference system
+nlyr(climate)        # number of layers
+names(climate)       # layer names
+
+# Writing raster data
+writeRaster(elevation, "output/elevation.tif")
+writeRaster(elevation, "output/elevation.tif", overwrite = TRUE)
+```
+
+---
+
+# Part 4: Basic Spatial Operations
+
+## Vector Operations
+```{r vector-ops}
+# Using our example data
+sites_utm <- st_transform(points_sf, crs = 32612)
+study_utm <- st_transform(study_area_sf, crs = 32612)
+
+# BUFFERING: Create circles around points
+buffers_100m <- st_buffer(sites_utm, dist = 100)  # 100 meter buffer
+buffers_500m <- st_buffer(sites_utm, dist = 500)  # 500 meter buffer
+
+ggplot() +
+  geom_sf(data = buffers_500m, fill = "lightblue", alpha = 0.3) +
+  geom_sf(data = buffers_100m, fill = "steelblue", alpha = 0.5) +
+  geom_sf(data = sites_utm, color = "red", size = 2) +
+  labs(title = "Buffering Example",
+       subtitle = "100m and 500m buffers around sample points") +
+  theme_minimal()
+```
+```{r vector-ops2}
+# DISTANCES: Calculate pairwise distances
+dist_matrix <- st_distance(sites_utm)
+cat("Distance matrix (meters):\n")
+print(round(as.matrix(dist_matrix), 0))
+
+# AREA: Calculate polygon area
+area_m2 <- st_area(study_utm)
+area_km2 <- as.numeric(area_m2) / 1e6
+cat("\nStudy area:", round(area_km2, 2), "km²\n")
+```
+
+## Raster Operations
+```{r raster-ops}
+# Calculate derived layers from elevation
+slope <- terrain(elevation, v = "slope", unit = "degrees")
+aspect <- terrain(elevation, v = "aspect", unit = "degrees")
+
+# Stack layers together
+topo_stack <- c(elevation, slope, aspect)
+names(topo_stack) <- c("elevation", "slope", "aspect")
+
+# Plot all layers
+plot(topo_stack)
+```
+
+## Extracting Raster Values at Points
+
+This is one of the most common operations in ecological analysis!
+```{r extract-values}
+# Extract topographic values at sample points
+# First, make sure CRS matches
+points_geo <- points_sf  # already in EPSG:4326
+
+# Extract values
+extracted <- terra::extract(topo_stack, vect(points_geo))
+
+# Combine with original data
+points_with_topo <- cbind(st_drop_geometry(points_sf), extracted)
+print(points_with_topo)
+```
+
+---
+
+# Part 5: Spatial Autocorrelation
+
+## What is Spatial Autocorrelation?
+
+Spatial autocorrelation occurs when values at nearby locations are more similar (or more different) than expected by chance.
+```{r sa-concept, echo=FALSE}
+cat("
+SPATIAL AUTOCORRELATION
+════════════════════════════════════════════════════════════════
+
+POSITIVE AUTOCORRELATION (most common in ecology)
+  Similar values cluster together
+  Examples:
+    • Soil nutrients (driven by parent material)
+    • Temperature (smooth gradients)
+    • Species abundance (dispersal limitation)
+    • Disease prevalence (transmission)
+
+NEGATIVE AUTOCORRELATION (rare)
+  Dissimilar values cluster together
+  Examples:
+    • Territorial spacing
+    • Competition effects
+
+ZERO AUTOCORRELATION
+  Spatial randomness
+  Values independent of location
+")
+```
+
+## Why It Matters
+```{r sa-problem, echo=FALSE}
+cat("
+THE PROBLEM WITH SPATIAL AUTOCORRELATION
+════════════════════════════════════════════════════════════════
+
+Standard statistics assume INDEPENDENCE of observations.
+
+When samples are spatially autocorrelated:
+  1. Effective sample size < actual sample size
+  2. Standard errors are TOO SMALL
+  3. Confidence intervals are TOO NARROW
+  4. P-values are TOO SMALL
+  5. Type I error rate INCREASES
+
+Result: You think you found a significant effect,
+        but it's actually just spatial pattern in the noise.
+")
+```
+
+## Detecting Spatial Autocorrelation
+
+### Visual Methods
+```{r sa-visual}
+# Simulate data with spatial autocorrelation
+set.seed(123)
+n_points <- 50
+
+# Create spatially autocorrelated response
+x <- runif(n_points, 0, 100)
+y <- runif(n_points, 0, 100)
+
+# Response correlated with location (spatial pattern)
+response <- 0.3 * x + 0.2 * y + rnorm(n_points, 0, 10)
+
+# Predictor (no relationship with response after accounting for space)
+predictor <- rnorm(n_points, 50, 10)
+
+# Fit naive model
+naive_model <- lm(response ~ predictor)
+
+# Create spatial data frame
+sim_data <- st_as_sf(
+  data.frame(x = x, y = y, response = response, 
+             predictor = predictor, residuals = residuals(naive_model)),
+  coords = c("x", "y")
+)
+
+# Map residuals - look for spatial clustering
+ggplot(sim_data) +
+  geom_sf(aes(color = residuals), size = 3) +
+  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  labs(title = "Model Residuals",
+       subtitle = "Clustering of similar colors = spatial autocorrelation") +
+  theme_minimal()
+```
+
+### Moran's I Test
+```{r a morans-i, message=FALSE, warning=FALSE}
+library(spdep)
+
+# Create neighbor structure (points within 20 units of each other)
+coords <- st_coordinates(sim_data)
+neighbors <- dnearneigh(coords, d1 = 0, d2 = 20)
+
+# Create spatial weights
+weights <- nb2listw(neighbors, style = "W", zero.policy = TRUE)
+
+# Test residuals for spatial autocorrelation
+moran_result <- moran.test(sim_data$residuals, weights, zero.policy = TRUE)
+print(moran_result)
+```
+
+**Interpreting Moran's I:**
+
+- Moran's I ranges from -1 to +1
+- Positive values indicate positive spatial autocorrelation (clustering)
+- Negative values indicate negative spatial autocorrelation (dispersion)
+- Values near 0 indicate spatial randomness
+- The p-value tests whether I differs significantly from expected under randomness
+
+## Dealing with Spatial Autocorrelation
+```{r sa-solutions, echo=FALSE}
+cat("
+SOLUTIONS FOR SPATIAL AUTOCORRELATION
+════════════════════════════════════════════════════════════════
+
+PREVENTION (Best approach!)
+─────────────────────────────────────────────────────────────────
+- Increase spacing between samples
+- Use stratified or systematic sampling
+- GRTS sampling (spatially balanced)
+
+ACCOMMODATION (Model-based solutions)
+─────────────────────────────────────────────────────────────────
+1. Include spatial covariates
+   • Add coordinates as predictors
+   • Add spatially-structured environmental variables
+
+2. Spatial regression models (spatialreg package)
+   • Spatial lag models
+   • Spatial error models
+
+3. Mixed models with spatial correlation
+   • nlme::gls() with correlation structures
+   • glmmTMB with spatial random effects
+
+4. Geostatistical models (gstat package)
+   • Model correlation structure explicitly
+   • Kriging for spatial prediction
+")
+```
+
+---
+
+# Part 6: Complete Worked Example
+```{r ch 28 complete-example spatial}
+# Simulate a realistic ecological dataset
+set.seed(42)
+
+# 30 vegetation plots across a landscape
+n_plots <- 30
+
+plots_data <- data.frame(
+  plot_id = paste0("P", sprintf("%02d", 1:n_plots)),
+  longitude = runif(n_plots, -111.75, -111.55),
+  latitude = runif(n_plots, 35.15, 35.30)
+)
+
+# Convert to sf
+plots_sf <- st_as_sf(plots_data, coords = c("longitude", "latitude"), crs = 4326)
+
+# Transform to UTM for analysis
+plots_utm <- st_transform(plots_sf, crs = 32612)
+
+# Extract "environmental" data (using our simple elevation raster)
+plots_utm$elevation <- terra::extract(elevation, vect(st_transform(plots_utm, 4326)))$elevation_m
+
+# Simulate species richness as function of elevation + spatial autocorrelation
+coords <- st_coordinates(plots_utm)
+plots_utm$richness <- round(
+  20 - 0.005 * plots_utm$elevation +  # elevation effect
+  0.001 * coords[,1] +                  # spatial gradient
+  rnorm(n_plots, 0, 2)                  # noise
+)
+
+# Fit model
+model <- lm(richness ~ elevation, data = plots_utm)
+summary(model)
+
+# Check residuals for spatial autocorrelation
+plots_utm$residuals <- residuals(model)
+
+# Create neighbor weights
+coords <- st_coordinates(plots_utm)
+nb <- dnearneigh(coords, d1 = 0, d2 = 5000)  # 5 km threshold
+wts <- nb2listw(nb, style = "W", zero.policy = TRUE)
+
+# Moran's I test
+moran.test(plots_utm$residuals, wts, zero.policy = TRUE)
+```
+```{r spatial 32 complete-example-plot}
+# Visualize
+ggplot() +
+  geom_sf(data = plots_utm, aes(color = residuals), size = 4) +
+  scale_color_gradient2(
+    low = "blue", mid = "white", high = "red", 
+    midpoint = 0, name = "Residuals"
+  ) +
+  labs(title = "Model Residuals Mapped",
+       subtitle = "Check for spatial clustering") +
+  theme_minimal()
+```
+
+---
+
+## Key Takeaways
+```{r takeaways, echo=FALSE}
+cat("
+KEY TAKEAWAYS
+════════════════════════════════════════════════════════════════
+
+1. ALWAYS check and document your CRS
+   • st_crs() for vectors, crs() for rasters
+
+2. MATCH CRS before combining datasets
+   • st_transform() for vectors, project() for rasters
+
+3. USE PROJECTED CRS for distance and area calculations
+   • Geographic CRS (degrees) will give wrong results
+
+4. UNDERSTAND the difference between geographic and projected
+   • Geographic: lat/long in degrees
+   • Projected: x/y in meters (or feet)
+
+5. CHECK for spatial autocorrelation in model residuals
+   • Map residuals visually
+   • Test with Moran's I
+
+6. PREVENTION is easier than cure
+   • Good spatial sampling design avoids problems
+   • Complex spatial models are a last resort
+
+7. KNOW YOUR KEY PACKAGES
+   • sf: vector data
+   • terra: raster data
+   • spdep: spatial autocorrelation
+")
+```
+
+---
+
+## Assignment
+
+For your project data:
+
+1. **Document the CRS** of all spatial datasets you're using
+2. **Create a map** showing sampling locations and study area boundary
+3. **Extract environmental covariates** from rasters at your sample points
+4. **Fit a preliminary model** and map the residuals
+5. **Test for spatial autocorrelation** using Moran's I
+6. **Discuss implications** for your analysis — what would you do if autocorrelation is present?

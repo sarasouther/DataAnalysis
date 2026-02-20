@@ -1,0 +1,637 @@
+# Structural Equation Modeling II: Latent Variables and Measurement Models
+
+In Part I, we modeled relationships among **observed** variables—things we directly measure. But many ecological concepts are **latent**: habitat quality, disturbance pressure, ecosystem health. We can't measure these directly, but we can infer them from multiple indicators.
+
+This chapter extends SEM to include:
+
+- **Latent variables** inferred from multiple indicators
+- **Confirmatory Factor Analysis (CFA)** for measurement models
+- **Full structural models** with both latent and observed variables
+- **Measurement error** and why it matters
+
+## What is a latent variable?
+
+A **latent variable** is an unmeasured construct that we infer from multiple observed indicators.
+
+```{r latent-concept, echo=FALSE}
+cat("
+LATENT VARIABLES
+═══════════════════════════════════════════════════════════════
+
+Observable indicators          Latent construct
+         ↓                           ↓
+    ┌─────────┐                  ┌───────┐
+    │ Road    │──────────────────│       │
+    │ density │                  │       │
+    └─────────┘                  │       │
+    ┌─────────┐                  │Distur-│
+    │ Fire    │──────────────────│ bance │
+    │ freq    │                  │Pressure│
+    └─────────┘                  │       │
+    ┌─────────┐                  │       │
+    │ Grazing │──────────────────│       │
+    │ intens. │                  │       │
+    └─────────┘                  └───────┘
+       (squares)                  (circle)
+      Observed                    Latent
+
+We can't measure 'disturbance pressure' directly,
+but we CAN infer it from road density, fire frequency,
+and grazing intensity.
+")
+```
+
+**Ecological examples of latent variables:**
+
+- **Habitat quality:** Inferred from vegetation cover, food availability, water access
+- **Stress level:** Inferred from cortisol, behavior, body condition
+- **Community stability:** Inferred from temporal variability in multiple species
+
+## Why use latent variables?
+
+1. **Theoretical accuracy:** Many constructs are inherently unobservable
+2. **Measurement error:** Each indicator is imperfect; combining them reduces error
+3. **Parsimony:** One latent variable summarizes multiple indicators
+4. **Better estimates:** Separating true signal from measurement noise improves inference
+
+## Setup
+
+```{r setup-sem2, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lavaan)
+library(semPlot)
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Confirmatory Factor Analysis (CFA)
+
+## What is CFA?
+
+**Confirmatory Factor Analysis** tests whether observed variables load onto hypothesized latent factors. It's the "measurement model" portion of SEM.
+
+- **Exploratory Factor Analysis (EFA):** Discovers factor structure from data
+- **Confirmatory Factor Analysis (CFA):** Tests whether data fit a *pre-specified* structure
+
+## CFA syntax in lavaan
+
+```{r cfa-syntax, echo=FALSE}
+cat("
+LAVAAN CFA SYNTAX
+═══════════════════════════════════════════════════════════════
+
+Define a latent factor:
+
+  LatentFactor =~ indicator1 + indicator2 + indicator3
+
+The '=~' operator means 'is measured by'
+
+Example:
+
+  HabitatQuality =~ veg_cover + food_avail + water_dist
+")
+```
+
+## Example: Disturbance pressure
+
+Let's create data where three indicators reflect an underlying disturbance construct:
+
+```{r simulate-cfa-data}
+# Simulate latent disturbance factor with three indicators
+n <- 200
+
+# True latent disturbance (unobserved)
+disturbance_true <- rnorm(n, mean = 0, sd = 1)
+
+# Observed indicators (imperfect measures of disturbance)
+road_density <- 0.7 * disturbance_true + rnorm(n, 0, 0.5)
+fire_frequency <- 0.8 * disturbance_true + rnorm(n, 0, 0.4)
+grazing_intensity <- 0.6 * disturbance_true + rnorm(n, 0, 0.6)
+
+# Combine
+disturbance_data <- data.frame(
+  road_density = road_density,
+  fire_freq = fire_frequency,
+  grazing = grazing_intensity
+)
+
+# Check correlations (should be moderate-high)
+cor(disturbance_data)
+```
+
+## Fitting a CFA model
+
+```{r fit-cfa}
+# Define CFA model
+cfa_model <- '
+  # Latent factor definition
+  Disturbance =~ road_density + fire_freq + grazing
+'
+
+# Fit the model
+cfa_fit <- cfa(cfa_model, data = disturbance_data)
+
+# Summary
+summary(cfa_fit, standardized = TRUE, fit.measures = TRUE)
+```
+
+## Interpreting CFA output
+
+**Factor loadings:** How strongly each indicator reflects the latent factor
+- Standardized loadings > 0.5 indicate good indicators
+- Loadings > 0.7 are excellent
+
+**Model fit:** Does the measurement model fit the data?
+- Same indices as path analysis (χ², CFI, RMSEA, SRMR)
+
+```{r cfa-plot, fig.cap="CFA diagram showing the latent Disturbance factor measured by three indicators. Numbers are standardized factor loadings."}
+semPaths(cfa_fit, 
+         whatLabels = "std",
+         edge.label.cex = 1.2,
+         sizeMan = 8,
+         sizeLat = 10,
+         style = "ram",
+         nCharNodes = 0,
+         nCharEdges = 0)
+```
+
+## Identification in CFA
+
+A CFA model must be **identified** (enough information to estimate all parameters).
+
+**Rules for identification:**
+
+| Situation | Identified? |
+|-----------|-------------|
+| 3+ indicators per factor | ✅ Yes |
+| 2 indicators, variances fixed | ✅ Yes |
+| 1 indicator | ❌ No (need to fix error variance) |
+
+**Setting the scale:** The latent variable needs a scale. Options:
+1. Fix first loading to 1.0 (default in lavaan)
+2. Fix latent variance to 1.0
+
+```{r cfa-alternative-scale}
+# Alternative: fix latent variance to 1
+cfa_model_std <- '
+  Disturbance =~ NA*road_density + fire_freq + grazing
+  Disturbance ~~ 1*Disturbance  # Fix variance to 1
+'
+
+cfa_fit_std <- cfa(cfa_model_std, data = disturbance_data)
+standardizedSolution(cfa_fit_std) %>%
+  filter(op == "=~")
+```
+
+---
+
+# Part 2: Multiple Latent Factors
+
+## When constructs are multidimensional
+
+Often we have multiple latent factors. For example, "ecosystem condition" might include:
+- Disturbance pressure
+- Resource availability
+- Habitat structure
+
+```{r simulate-multiple-factors}
+# Simulate two latent factors
+n <- 250
+
+# Factor 1: Disturbance
+disturbance <- rnorm(n)
+road <- 0.7 * disturbance + rnorm(n, 0, 0.5)
+fire <- 0.8 * disturbance + rnorm(n, 0, 0.4)
+grazing <- 0.6 * disturbance + rnorm(n, 0, 0.6)
+
+# Factor 2: Resources (negatively correlated with disturbance)
+resources <- -0.3 * disturbance + rnorm(n, 0, 0.8)
+food <- 0.75 * resources + rnorm(n, 0, 0.5)
+water <- 0.70 * resources + rnorm(n, 0, 0.5)
+cover <- 0.65 * resources + rnorm(n, 0, 0.5)
+
+# Combine
+multi_factor_data <- data.frame(
+  road = road, fire = fire, grazing = grazing,
+  food = food, water = water, cover = cover
+)
+```
+
+## Fitting a two-factor CFA
+
+```{r multi-factor-cfa}
+# Two-factor CFA model
+cfa_2factor <- '
+  # Factor definitions
+  Disturbance =~ road + fire + grazing
+  Resources =~ food + water + cover
+  
+  # Factor correlation (estimated by default)
+  # Disturbance ~~ Resources
+'
+
+cfa_2fit <- cfa(cfa_2factor, data = multi_factor_data)
+summary(cfa_2fit, standardized = TRUE, fit.measures = TRUE)
+```
+
+```{r multi-factor-plot, fig.cap="Two-factor CFA model with Disturbance and Resources as correlated latent factors."}
+semPaths(cfa_2fit, 
+         whatLabels = "std",
+         edge.label.cex = 1.0,
+         sizeMan = 7,
+         sizeLat = 9,
+         style = "ram",
+         layout = "tree2",
+         rotation = 2)
+```
+
+## Factor correlations
+
+```{r factor-correlation}
+# Extract factor correlation
+lavInspect(cfa_2fit, what = "cor.lv")
+```
+
+**Interpretation:** The correlation between latent factors tells you how related the constructs are. High correlation (> 0.8) might suggest they're actually one factor.
+
+---
+
+# Part 3: Full Structural Models
+
+## Combining measurement and structural models
+
+A **full SEM** has two components:
+
+1. **Measurement model:** How latent variables relate to indicators (CFA)
+2. **Structural model:** How latent variables relate to each other
+
+```{r full-sem-concept, echo=FALSE}
+cat("
+FULL STRUCTURAL EQUATION MODEL
+═══════════════════════════════════════════════════════════════
+
+MEASUREMENT MODEL (CFA)          STRUCTURAL MODEL (Path)
+       ↓                                ↓
+┌─────────────────┐              ┌─────────────────┐
+│ road ─┐         │              │                 │
+│       │         │              │  Disturbance    │
+│ fire ─┼→ Disturb│──────────────│       │         │
+│       │         │              │       ▼         │
+│ graz ─┘         │              │   Richness ←────│── Observed
+└─────────────────┘              │       │         │   predictors
+                                 │       ▼         │
+                                 │   Abundance     │
+                                 └─────────────────┘
+
+Left side: HOW we measure latent constructs
+Right side: HOW latent constructs relate to outcomes
+")
+```
+
+## Example: Disturbance effects on biodiversity
+
+```{r simulate-full-sem}
+# Add outcome variables
+multi_factor_data$species_richness <- 
+  -0.5 * disturbance + 0.6 * resources + rnorm(n, 0, 0.4) + 15
+multi_factor_data$total_abundance <- 
+  -0.3 * disturbance + 0.8 * resources + rnorm(n, 0, 0.5) + 100
+```
+
+```{r fit-full-sem}
+# Full SEM with latent and observed variables
+full_sem <- '
+  # Measurement model
+  Disturbance =~ road + fire + grazing
+  Resources =~ food + water + cover
+  
+  # Structural model
+  species_richness ~ Disturbance + Resources
+  total_abundance ~ Disturbance + Resources + species_richness
+'
+
+full_fit <- sem(full_sem, data = multi_factor_data)
+summary(full_fit, standardized = TRUE, rsquare = TRUE, fit.measures = TRUE)
+```
+
+```{r full-sem-plot, fig.cap="Full SEM showing how latent Disturbance and Resources affect species richness and abundance."}
+semPaths(full_fit, 
+         whatLabels = "std",
+         edge.label.cex = 0.8,
+         sizeMan = 6,
+         sizeLat = 8,
+         style = "ram",
+         layout = "tree2",
+         rotation = 2,
+         nCharNodes = 6)
+```
+
+## Extracting results
+
+```{r full-sem-results, message=FALSE, warning=FALSE}
+pe <- lavaan::parameterEstimates(full_fit, standardized = TRUE)
+
+pe %>%
+  dplyr::filter(op == "~") %>%
+  dplyr::select(lhs, rhs, est, se, pvalue, std.all) %>%
+  dplyr::arrange(lhs)
+```
+
+---
+
+# Part 4: Measurement Error in Predictors
+
+## Why measurement error matters
+
+Standard regression assumes predictors are measured without error. This is rarely true in ecology:
+
+- GPS locations have uncertainty
+- Species counts have observation error
+- Environmental sensors have measurement error
+
+**Consequence:** Measurement error in predictors biases coefficients toward zero ("attenuation bias").
+
+## Modeling measurement error
+
+In SEM, we can explicitly model measurement error by treating observed variables as indicators of "true" latent variables:
+
+```{r measurement-error-model}
+# Simulate data with known measurement error
+n <- 150
+
+# True values
+true_temperature <- rnorm(n, mean = 20, sd = 5)
+true_precipitation <- rnorm(n, mean = 1000, sd = 200)
+
+# Measured with error
+obs_temp <- true_temperature + rnorm(n, 0, 2)   # ±2°C error
+obs_precip <- true_precipitation + rnorm(n, 0, 100)  # ±100mm error
+
+# Response depends on TRUE values
+species_count <- 20 + 0.5 * true_temperature + 0.01 * true_precipitation + rnorm(n, 0, 3)
+
+error_data <- data.frame(
+  temp = obs_temp,
+  precip = obs_precip,
+  species = species_count
+)
+```
+
+## Comparing models with and without error correction
+
+```{r compare-error-models}
+# Standard regression (ignores measurement error)
+lm_naive <- lm(species ~ temp + precip, data = error_data)
+
+cat("Standard regression (ignoring measurement error):\n")
+summary(lm_naive)$coefficients
+
+# SEM with single indicators (still ignores error, but same framework)
+sem_naive <- '
+  species ~ temp + precip
+'
+fit_naive <- sem(sem_naive, data = error_data)
+```
+
+To properly account for measurement error with single indicators, you need:
+1. Multiple indicators, OR
+2. External information about error variance
+
+```{r error-variance-known}
+# If you KNOW the error variance, you can fix it
+# Error variance = 4 for temp (SD = 2, variance = 4)
+# Error variance = 10000 for precip (SD = 100, variance = 10000)
+
+sem_error_known <- '
+  # Latent "true" variables with single indicators
+  TrueTemp =~ 1*temp
+  TruePrecip =~ 1*precip
+  
+  # Fix error variances based on known measurement error
+  temp ~~ 4*temp
+  precip ~~ 10000*precip
+  
+  # Structural model uses latent (error-corrected) variables
+  species ~ TrueTemp + TruePrecip
+'
+
+fit_error <- sem(sem_error_known, data = error_data)
+
+cat("\nSEM with known error variances:\n")
+parameterEstimates(fit_error) %>%
+  filter(op == "~") %>%
+  select(lhs, rhs, est, se, pvalue)
+```
+
+---
+
+# Part 5: Model Identification Deep Dive
+
+## The identification problem
+
+A model is **identified** if there's a unique solution for all parameters. Under-identified models can't be estimated.
+
+## Key identification rules
+
+**T-rule:** Number of free parameters ≤ unique elements in covariance matrix
+
+```{r t-rule}
+# Number of unique covariances for p variables
+p <- 6  # Number of observed variables
+n_unique <- p * (p + 1) / 2
+cat("With", p, "variables, you have", n_unique, "unique variances/covariances\n")
+```
+
+**Three-indicator rule:** Each latent factor needs ≥3 indicators (with uncorrelated errors)
+
+**Two-indicator rule:** Okay with 2 indicators IF:
+- Multiple factors exist, OR
+- You constrain some parameters
+
+## Checking identification
+
+```{r check-identification}
+# lavaan will warn about identification problems
+# Let's try an under-identified model
+
+underid_model <- '
+  LatentFactor =~ x1 + x2  # Only 2 indicators
+'
+
+# Simulate simple data
+underid_data <- data.frame(
+  x1 = rnorm(100),
+  x2 = rnorm(100)
+)
+
+# This should give a warning or error
+tryCatch({
+  underid_fit <- cfa(underid_model, data = underid_data)
+  summary(underid_fit)
+}, error = function(e) {
+  cat("Error:", e$message, "\n")
+}, warning = function(w) {
+  cat("Warning:", w$message, "\n")
+})
+```
+
+---
+
+# Part 6: Advanced Model Assessment
+
+## Comparing nested CFA models
+
+```{r nested-cfa-comparison}
+# One-factor model (all indicators load on one factor)
+one_factor <- '
+  General =~ road + fire + grazing + food + water + cover
+'
+one_fit <- cfa(one_factor, data = multi_factor_data)
+
+# Two-factor model (from before)
+two_fit <- cfa_2fit
+
+# Compare
+anova(one_fit, two_fit)
+
+# AIC comparison
+data.frame(
+  Model = c("One-factor", "Two-factor"),
+  AIC = c(AIC(one_fit), AIC(two_fit)),
+  BIC = c(BIC(one_fit), BIC(two_fit))
+)
+```
+
+## Reliability measures
+
+**Composite reliability** measures how well indicators capture the latent factor:
+
+```{r reliability}
+# Calculate composite reliability manually
+std_solution <- standardizedSolution(cfa_2fit)
+
+# For Disturbance factor
+dist_loadings <- std_solution %>%
+  filter(lhs == "Disturbance", op == "=~") %>%
+  pull(est.std)
+
+# Composite reliability = (Σλ)² / [(Σλ)² + Σθ]
+sum_loadings <- sum(dist_loadings)
+sum_error_var <- sum(1 - dist_loadings^2)  # Error = 1 - λ²
+
+comp_reliability <- sum_loadings^2 / (sum_loadings^2 + sum_error_var)
+cat("Composite reliability for Disturbance:", round(comp_reliability, 3), "\n")
+
+# Guideline: > 0.7 is acceptable
+```
+
+## Average Variance Extracted (AVE)
+
+```{r ave}
+# AVE = average variance explained by the factor
+ave <- mean(dist_loadings^2)
+cat("AVE for Disturbance:", round(ave, 3), "\n")
+
+# Guideline: > 0.5 means the factor explains more variance than error
+```
+
+---
+
+# Part 7: Reporting Latent Variable Models
+
+## What to report for CFA
+
+1. **Model specification:** Which indicators load on which factors
+2. **Sample size** and estimation method
+3. **Model fit:** χ², df, p, CFI, RMSEA, SRMR
+4. **Factor loadings:** Standardized, with significance
+5. **Factor correlations** (if multiple factors)
+6. **Reliability:** Composite reliability, AVE
+
+## What to report for full SEM
+
+All of the above, plus:
+
+7. **Structural paths:** Between latent and/or observed variables
+8. **R²** for endogenous variables
+9. **Indirect effects** if applicable
+
+## Sample methods and results
+
+### Methods
+
+> We used structural equation modeling to test how latent disturbance pressure and resource availability affect biodiversity outcomes. Disturbance pressure was measured via three indicators: road density (km/km²), fire frequency (fires/decade), and grazing intensity (AUM/ha). Resource availability was measured via food availability index, water proximity, and vegetation cover. We first evaluated the measurement model using confirmatory factor analysis, assessing fit with chi-square test, CFI (>0.95), RMSEA (<0.06), and SRMR (<0.08). Factor loadings >0.5 were considered acceptable. We then fit the full structural model with species richness and total abundance as outcomes. Maximum likelihood estimation was used with robust standard errors (MLR) to account for non-normality. Analyses were conducted using lavaan version 0.6-12 (Rosseel 2012) in R version 4.3.1.
+
+### Results
+
+> The two-factor measurement model showed good fit (χ² = 11.2, df = 8, p = 0.19; CFI = 0.98; RMSEA = 0.04; SRMR = 0.03). All indicators loaded significantly on their hypothesized factors with standardized loadings ranging from 0.65 to 0.82 (**Table X**). The latent factors were negatively correlated (r = -0.31, p = 0.003), indicating that high-disturbance sites had lower resource availability. Composite reliability exceeded 0.70 for both factors (Disturbance: 0.78; Resources: 0.74). In the structural model, disturbance negatively predicted species richness (β = -0.42, p < 0.001) while resources had a positive effect (β = 0.53, p < 0.001). Together, the latent factors explained 58% of variance in species richness. Total abundance was positively predicted by both resources (β = 0.61, p < 0.001) and richness (β = 0.35, p < 0.001), with a weaker negative effect of disturbance (β = -0.18, p = 0.04).
+
+---
+
+## Key takeaways
+
+1. **Latent variables represent unmeasured constructs** — Inferred from multiple indicators
+
+2. **CFA tests measurement models** — Do indicators reflect hypothesized factors?
+
+3. **Need 3+ indicators per factor** — For identification (or constraints with fewer)
+
+4. **Measurement error can be modeled** — Separates true signal from noise
+
+5. **Full SEM combines measurement + structure** — Both in one framework
+
+6. **Report reliability** — Composite reliability and AVE
+
+7. **Factor loadings > 0.5** — Indicate acceptable indicators
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. What's the difference between EFA and CFA? When would you use each?
+
+2. You have two indicators for a latent factor but the model won't converge. What are your options?
+
+3. Why might using a latent variable (with multiple indicators) give different results than using a single observed variable?
+
+### Part 2: Build a CFA
+
+Simulate data for a latent "Habitat Quality" factor with three indicators:
+- Vegetation cover
+- Canopy height
+- Understory density
+
+1. Create correlated indicators that reflect an underlying construct
+2. Fit a one-factor CFA
+3. Report fit indices and factor loadings
+4. Calculate composite reliability
+
+### Part 3: Two-factor CFA
+
+Extend Part 2 to include a second latent factor "Predation Risk" measured by:
+- Predator abundance
+- Distance to cover
+- Visibility
+
+1. Fit the two-factor model
+2. Estimate the factor correlation
+3. Compare to a one-factor model using LRT and AIC
+4. Interpret: Are these distinct constructs or one underlying dimension?
+
+### Part 4: Full SEM
+
+Add outcome variables (prey abundance, nest success) to your measurement model:
+
+1. Specify a full SEM where Habitat Quality and Predation Risk predict outcomes
+2. Fit the model and assess fit
+3. Report structural path coefficients
+4. Calculate R² for outcome variables
+5. Write a complete results paragraph
+
+### Part 5: Reflection
+
+In 2-3 sentences, discuss when it's appropriate to use a single observed variable versus constructing a latent variable from multiple indicators. What are the trade-offs?

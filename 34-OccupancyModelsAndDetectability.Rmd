@@ -1,0 +1,795 @@
+# Occupancy Models and Detectability
+
+You survey a forest plot for owls. You don't detect any. Does that mean owls are absent?
+
+Not necessarily. Maybe owls were present but silent. Maybe they were obscured by vegetation. Maybe you surveyed at the wrong time of day. **Imperfect detection** is the norm in ecological surveys—and ignoring it leads to biased estimates of species distributions and abundance.
+
+**Occupancy models** explicitly separate two processes:
+1. **Occupancy (ψ):** Is the species truly present at a site?
+2. **Detection (p):** Given the species is present, do we detect it?
+
+This chapter introduces occupancy modeling, from basic single-season models to dynamic multi-season models and N-mixture models for abundance.
+
+## The detection problem
+
+```{r occ-detection-problem, echo=FALSE}
+cat("
+THE FUNDAMENTAL PROBLEM
+═══════════════════════════════════════════════════════════════
+
+What you OBSERVE:           What's REAL:
+                            
+  Detected                    Present AND Detected
+      ↑                              ↑
+  Not detected  →  Could be:   Present but NOT detected
+                               OR
+                               Truly ABSENT
+
+Without accounting for detection:
+  - Occupancy is UNDERESTIMATED
+  - Range maps show 'false absences'
+  - Trends are BIASED (detection changes over time/space)
+
+The solution: REPEATED SURVEYS
+  - Visit each site multiple times
+  - Use detection/non-detection patterns to estimate p and ψ
+")
+```
+
+## When to use occupancy models
+
+| Situation | Use occupancy model? |
+|-----------|---------------------|
+| Rare or cryptic species | ✅ Yes - detection often < 100% |
+| Presence/absence surveys | ✅ Yes - standard approach |
+| Camera trap data | ✅ Yes - detection varies with effort |
+| eDNA surveys | ✅ Yes - false negatives common |
+| Abundant, conspicuous species | Maybe - if detection ≈ 1, simpler methods work |
+| Abundance estimation | ✅ Use N-mixture models |
+
+## Setup
+
+```{r occ-setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(unmarked)      # Core package for occupancy models
+library(AICcmodavg)    # Model selection
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Single-Season Occupancy Models
+
+## The basic model
+
+The single-season occupancy model estimates:
+- **ψ (psi):** Probability a site is occupied
+- **p:** Probability of detecting the species, given it's present
+
+With repeated surveys at each site, we can separate these parameters.
+
+```{r occ-model-concept, echo=FALSE}
+cat("
+SINGLE-SEASON OCCUPANCY MODEL
+═══════════════════════════════════════════════════════════════
+
+Site i, Survey j:
+
+  True state:      z_i ~ Bernoulli(ψ)
+                   (site is occupied with probability ψ)
+
+  Observation:     y_ij | z_i ~ Bernoulli(z_i × p)
+                   (detected only if present AND detected)
+
+Detection histories tell us about p:
+  
+  Site 1: [1, 0, 1]  →  Detected, not detected, detected
+                        Species DEFINITELY present (we saw it)
+                        p < 1 (we missed it once)
+  
+  Site 2: [0, 0, 0]  →  Never detected
+                        Species MIGHT be present (false absence)
+                        OR truly absent
+")
+```
+
+## Simulating occupancy data
+
+```{r occ-simulate-data}
+# Simulation parameters
+n_sites <- 100
+n_surveys <- 4
+true_psi <- 0.6      # True occupancy probability
+true_p <- 0.4        # True detection probability
+
+# Generate true occupancy states (latent)
+z_true <- rbinom(n_sites, 1, true_psi)
+cat("True number of occupied sites:", sum(z_true), "of", n_sites, "\n")
+
+# Generate detection histories
+det_hist <- matrix(NA, n_sites, n_surveys)
+for (i in 1:n_sites) {
+  for (j in 1:n_surveys) {
+    det_hist[i, j] <- rbinom(1, 1, z_true[i] * true_p)
+  }
+}
+
+# What we would conclude without occupancy modeling
+naive_occupancy <- mean(rowSums(det_hist) > 0)
+cat("Naive occupancy (detected at least once):", round(naive_occupancy, 3), "\n")
+cat("True occupancy:", true_psi, "\n")
+```
+
+## The detection history matrix
+
+```{r occ-det-history}
+# View some detection histories
+head(det_hist, 10)
+
+# Summarize detection patterns
+det_patterns <- apply(det_hist, 1, paste, collapse = "")
+table(det_patterns)
+```
+
+## Fitting occupancy models with unmarked
+
+```{r occ-unmarked-format}
+# Create unmarked frame
+# unmarked requires detection history as a matrix
+umf <- unmarkedFrameOccu(y = det_hist)
+
+# View structure
+summary(umf)
+```
+
+```{r occ-fit-null}
+# Fit null model (constant ψ and p)
+occ_null <- occu(~ 1 ~ 1, data = umf)
+
+# View results
+summary(occ_null)
+```
+
+## Interpreting output
+
+```{r occ-interpret-null}
+# Estimates are on logit scale - back-transform
+# Detection probability
+p_est <- plogis(coef(occ_null, type = "det"))
+cat("Estimated detection probability:", round(p_est, 3), "\n")
+cat("True detection probability:", true_p, "\n\n")
+
+# Occupancy probability
+psi_est <- plogis(coef(occ_null, type = "state"))
+cat("Estimated occupancy probability:", round(psi_est, 3), "\n")
+cat("True occupancy probability:", true_psi, "\n")
+cat("Naive estimate:", round(naive_occupancy, 3), "\n")
+```
+
+**Key insight:** The occupancy model correctly estimates ψ, while naive presence/absence underestimates it.
+
+---
+
+# Part 2: Covariates on Detection and Occupancy
+
+## Why covariates matter
+
+Detection probability often varies with:
+- **Survey conditions:** Weather, time of day, observer
+- **Effort:** Survey duration, number of observers
+
+Occupancy probability often varies with:
+- **Habitat:** Vegetation type, elevation, patch size
+- **Landscape:** Connectivity, edge effects
+
+## Adding site covariates
+
+```{r occ-covariates-simulate}
+# Site covariates affecting occupancy
+elevation <- rnorm(n_sites, mean = 1500, sd = 300)
+forest_cover <- runif(n_sites, 0, 100)
+
+# Occupancy depends on covariates
+beta0 <- -0.5
+beta_elev <- 0.002
+beta_forest <- 0.03
+
+psi_cov <- plogis(beta0 + beta_elev * (elevation - 1500) + 
+                   beta_forest * (forest_cover - 50))
+
+# Generate new occupancy states
+z_cov <- rbinom(n_sites, 1, psi_cov)
+
+# Generate detection histories (same p for now)
+det_hist_cov <- matrix(NA, n_sites, n_surveys)
+for (i in 1:n_sites) {
+  for (j in 1:n_surveys) {
+    det_hist_cov[i, j] <- rbinom(1, 1, z_cov[i] * true_p)
+  }
+}
+
+# Create site covariates data frame
+site_covs <- data.frame(
+  elev = scale(elevation)[,1],  # Standardize!
+  forest = scale(forest_cover)[,1]
+)
+```
+
+```{r occ-fit-covariates}
+# Create unmarked frame with covariates
+umf_cov <- unmarkedFrameOccu(
+  y = det_hist_cov,
+  siteCovs = site_covs
+)
+
+# Fit model with occupancy covariates
+occ_cov <- occu(~ 1 ~ elev + forest, data = umf_cov)
+summary(occ_cov)
+```
+
+## Adding observation covariates
+
+```{r occ-obs-covariates}
+# Observation-level covariates (vary by site AND survey)
+# Example: survey date affects detection
+survey_date <- matrix(
+  rep(1:n_surveys, each = n_sites) + rnorm(n_sites * n_surveys, 0, 0.5),
+  n_sites, n_surveys
+)
+
+# Standardize
+survey_date_scaled <- scale(survey_date)[,]
+
+# Create unmarked frame with observation covariates
+umf_obs <- unmarkedFrameOccu(
+  y = det_hist_cov,
+  siteCovs = site_covs,
+  obsCovs = list(date = survey_date_scaled)
+)
+
+# Fit model with detection covariate
+occ_det_cov <- occu(~ date ~ elev + forest, data = umf_obs)
+summary(occ_det_cov)
+```
+
+## Model selection
+
+```{r occ-model-selection}
+# Fit candidate models
+m1 <- occu(~ 1 ~ 1, data = umf_obs)                    # Null
+m2 <- occu(~ 1 ~ elev, data = umf_obs)                 # Elevation only
+m3 <- occu(~ 1 ~ forest, data = umf_obs)               # Forest only
+m4 <- occu(~ 1 ~ elev + forest, data = umf_obs)        # Both
+m5 <- occu(~ date ~ elev + forest, data = umf_obs)    # + detection covariate
+
+# Model selection table
+models <- list(
+  "null" = m1,
+  "elev" = m2,
+  "forest" = m3,
+  "elev + forest" = m4,
+  "full" = m5
+)
+
+# AIC comparison
+aic_table <- data.frame(
+  Model = names(models),
+  AIC = sapply(models, AIC)
+)
+aic_table$deltaAIC <- aic_table$AIC - min(aic_table$AIC)
+aic_table <- aic_table[order(aic_table$AIC), ]
+print(aic_table)
+```
+
+---
+
+# Part 3: Predictions and Visualization
+
+## Predicting occupancy
+
+```{r occ-predictions}
+# Use best model
+best_model <- occ_cov
+
+# Create prediction data frame
+pred_data <- data.frame(
+  elev = seq(-2, 2, length = 100),
+  forest = 0  # Hold forest at mean
+)
+
+# Predict occupancy
+pred_occ <- predict(best_model, type = "state", newdata = pred_data)
+pred_data$psi <- pred_occ$Predicted
+pred_data$psi_lower <- pred_occ$lower
+pred_data$psi_upper <- pred_occ$upper
+```
+
+```{r occ-plot-predictions, fig.cap="Predicted occupancy probability as a function of elevation (standardized). Shaded region shows 95% confidence interval."}
+ggplot(pred_data, aes(x = elev, y = psi)) +
+  geom_ribbon(aes(ymin = psi_lower, ymax = psi_upper), 
+              fill = "steelblue", alpha = 0.3) +
+  geom_line(color = "steelblue", size = 1.2) +
+  labs(x = "Elevation (standardized)",
+       y = "Occupancy Probability (ψ)",
+       title = "Predicted Occupancy vs Elevation") +
+  ylim(0, 1) +
+  theme_minimal()
+```
+
+## Mapping occupancy
+
+```{r occ-site-predictions}
+# Predict for each site
+site_preds <- predict(best_model, type = "state")
+site_covs$predicted_psi <- site_preds$Predicted
+
+# Sites with coordinates (simulated)
+site_covs$x <- runif(n_sites, 0, 100)
+site_covs$y <- runif(n_sites, 0, 100)
+site_covs$detected <- rowSums(det_hist_cov) > 0
+```
+
+```{r occ-map, fig.cap="Map of predicted occupancy probability. Points are survey sites; filled points indicate species was detected."}
+ggplot(site_covs, aes(x = x, y = y)) +
+  geom_point(aes(color = predicted_psi, shape = detected), size = 4) +
+  scale_color_viridis_c(name = "Predicted ψ", limits = c(0, 1)) +
+  scale_shape_manual(values = c(1, 19), name = "Detected") +
+  labs(title = "Predicted Occupancy Across Sites") +
+  coord_equal() +
+  theme_minimal()
+```
+
+---
+
+# Part 4: Model Goodness-of-Fit
+
+## Checking model fit
+
+```{r occ-gof}
+# MacKenzie-Bailey goodness-of-fit test
+# Uses parametric bootstrap
+
+# This takes a while, so we'll use fewer bootstraps for demonstration
+set.seed(123)
+gof_test <- mb.gof.test(best_model, nsim = 100)
+
+print(gof_test)
+```
+
+**Interpretation:**
+- **p > 0.05:** Model fits adequately
+- **p < 0.05:** Consider model misspecification
+- **c-hat > 1:** Overdispersion present; use quasi-likelihood adjustments
+
+## Assessing detection probability
+
+```{r occ-detection-check}
+# Extract estimated detection probability
+p_estimates <- predict(best_model, type = "det")
+
+cat("Mean detection probability:", round(mean(p_estimates$Predicted), 3), "\n")
+cat("Range:", round(min(p_estimates$Predicted), 3), "-", 
+    round(max(p_estimates$Predicted), 3), "\n")
+```
+
+**Rule of thumb:** Detection probability should ideally be > 0.2 for reliable occupancy estimates. Very low p means you need more surveys.
+
+---
+
+# Part 5: Multi-Season (Dynamic) Occupancy Models
+
+## Why multi-season models?
+
+Single-season models assume occupancy is static. But populations change:
+- **Colonization (γ):** Probability an unoccupied site becomes occupied
+- **Extinction (ε):** Probability an occupied site becomes unoccupied
+
+Dynamic models estimate these rates.
+
+```{r occ-dynamic-concept, echo=FALSE}
+cat("
+DYNAMIC OCCUPANCY MODEL
+═══════════════════════════════════════════════════════════════
+
+Year t to Year t+1:
+
+  If site WAS occupied:
+    - Stays occupied with probability (1 - ε)
+    - Becomes unoccupied with probability ε (extinction)
+
+  If site WAS unoccupied:
+    - Stays unoccupied with probability (1 - γ)
+    - Becomes occupied with probability γ (colonization)
+
+This gives us:
+  - ψ₁: Initial occupancy
+  - γ: Colonization rate
+  - ε: Extinction rate
+  - p: Detection probability (can vary by year/survey)
+")
+```
+
+## Simulating multi-season data
+
+```{r occ-multiseas-simulate}
+# Parameters
+n_sites <- 80
+n_years <- 5
+n_surveys <- 3
+psi1 <- 0.5      # Initial occupancy
+gamma <- 0.2    # Colonization
+epsilon <- 0.15  # Extinction
+p <- 0.5        # Detection
+
+# Initialize
+z <- matrix(NA, n_sites, n_years)
+z[, 1] <- rbinom(n_sites, 1, psi1)
+
+# Simulate dynamics
+for (t in 2:n_years) {
+  for (i in 1:n_sites) {
+    if (z[i, t-1] == 1) {
+      # Occupied site: may go extinct
+      z[i, t] <- rbinom(1, 1, 1 - epsilon)
+    } else {
+      # Unoccupied site: may be colonized
+      z[i, t] <- rbinom(1, 1, gamma)
+    }
+  }
+}
+
+# Simulate detections
+y_array <- array(NA, dim = c(n_sites, n_surveys, n_years))
+for (t in 1:n_years) {
+  for (i in 1:n_sites) {
+    for (j in 1:n_surveys) {
+      y_array[i, j, t] <- rbinom(1, 1, z[i, t] * p)
+    }
+  }
+}
+
+# Check true occupancy over time
+true_occ <- colMeans(z)
+cat("True occupancy by year:", round(true_occ, 3), "\n")
+```
+
+## Fitting multi-season models
+
+```{r occ-multiseas-format}
+# Format for unmarked
+# Need to create a list of detection matrices (one per year)
+y_list <- lapply(1:n_years, function(t) y_array[, , t])
+
+# Combine into single matrix (sites × surveys, across years)
+y_combined <- do.call(cbind, y_list)
+
+# Create unmarked frame for multi-season
+umf_multi <- unmarkedMultFrame(
+  y = y_combined,
+  numPrimary = n_years
+)
+
+summary(umf_multi)
+```
+
+```{r occ-multiseas-fit}
+# Fit dynamic occupancy model (colext)
+dyn_occ <- colext(
+  psiformula = ~ 1,      # Initial occupancy
+  gammaformula = ~ 1,    # Colonization
+  epsilonformula = ~ 1,  # Extinction
+  pformula = ~ 1,        # Detection
+  data = umf_multi
+)
+
+summary(dyn_occ)
+```
+
+```{r occ-multiseas-interpret}
+# Back-transform parameters
+psi1_est <- plogis(coef(dyn_occ, type = "psi"))
+gamma_est <- plogis(coef(dyn_occ, type = "col"))
+epsilon_est <- plogis(coef(dyn_occ, type = "ext"))
+p_est <- plogis(coef(dyn_occ, type = "det"))
+
+cat("Parameter estimates:\n")
+cat("Initial occupancy (ψ₁):", round(psi1_est, 3), "(true:", psi1, ")\n")
+cat("Colonization (γ):", round(gamma_est, 3), "(true:", gamma, ")\n")
+cat("Extinction (ε):", round(epsilon_est, 3), "(true:", epsilon, ")\n")
+cat("Detection (p):", round(p_est, 3), "(true:", p, ")\n")
+```
+
+## Derived parameters
+
+```{r occ-derived-params}
+# Equilibrium occupancy (if dynamics stabilize)
+psi_eq <- gamma_est / (gamma_est + epsilon_est)
+cat("\nEquilibrium occupancy:", round(psi_eq, 3), "\n")
+
+# Population growth rate (lambda)
+lambda <- 1 - epsilon_est + gamma_est * (1/psi1_est - 1)
+cat("Approximate growth rate:", round(lambda, 3), "\n")
+```
+
+---
+
+# Part 6: N-Mixture Models for Abundance
+
+## Beyond presence/absence
+
+Sometimes you count individuals, not just presence. **N-mixture models** estimate abundance while accounting for imperfect detection.
+
+```{r occ-nmix-concept, echo=FALSE}
+cat("
+N-MIXTURE MODEL
+═══════════════════════════════════════════════════════════════
+
+Site i, Survey j:
+
+  True abundance:   N_i ~ Poisson(λ)  or  NegBin(λ, θ)
+  
+  Observation:      y_ij ~ Binomial(N_i, p)
+                    (detect each individual with probability p)
+
+Example:
+  Site has N = 10 birds
+  Detection p = 0.3
+  Survey 1: see 3 birds
+  Survey 2: see 4 birds
+  Survey 3: see 2 birds
+  
+  Naive estimate: max(3, 4, 2) = 4
+  N-mixture estimate: ≈ 10 (accounts for imperfect detection)
+")
+```
+
+## Simulating count data
+
+```{r occ-nmix-simulate}
+# Parameters
+n_sites <- 60
+n_surveys <- 4
+lambda <- 8      # Mean abundance
+p <- 0.4         # Detection probability per individual
+
+# Site covariate affecting abundance
+habitat_quality <- rnorm(n_sites)
+lambda_site <- exp(log(lambda) + 0.5 * habitat_quality)
+
+# True abundance at each site
+N_true <- rpois(n_sites, lambda_site)
+
+# Counts (imperfect detection)
+counts <- matrix(NA, n_sites, n_surveys)
+for (i in 1:n_sites) {
+  for (j in 1:n_surveys) {
+    counts[i, j] <- rbinom(1, N_true[i], p)
+  }
+}
+
+# Compare naive vs true
+cat("True total abundance:", sum(N_true), "\n")
+cat("Max count total:", sum(apply(counts, 1, max)), "\n")
+cat("Mean count total:", sum(apply(counts, 1, mean)), "\n")
+```
+
+## Fitting N-mixture models
+
+```{r occ-nmix-format}
+# Create site covariates
+site_covs_nmix <- data.frame(habitat = scale(habitat_quality)[,1])
+
+# Create unmarked frame for N-mixture
+umf_nmix <- unmarkedFramePCount(
+  y = counts,
+  siteCovs = site_covs_nmix
+)
+
+summary(umf_nmix)
+```
+
+```{r occ-nmix-fit}
+# Fit Poisson N-mixture model
+nmix_pois <- pcount(
+  ~ 1 ~ habitat,   # detection ~ 1, abundance ~ habitat
+  data = umf_nmix,
+  K = 50  # Upper bound for integration (should be > max possible N)
+)
+
+summary(nmix_pois)
+```
+
+```{r occ-nmix-interpret}
+# Back-transform
+p_nmix <- plogis(coef(nmix_pois, type = "det"))
+cat("Estimated detection probability:", round(p_nmix, 3), "\n")
+cat("True detection probability:", p, "\n\n")
+
+# Abundance at average habitat
+lambda_mean <- exp(coef(nmix_pois, type = "state")[1])
+cat("Estimated mean abundance (average habitat):", round(lambda_mean, 2), "\n")
+cat("True mean lambda:", lambda, "\n")
+```
+
+## Estimating site-specific abundance
+
+```{r occ-nmix-ranef}
+# Empirical Bayes estimates of N at each site
+N_estimates <- unmarked::ranef(nmix_pois)
+
+# Extract posterior means
+N_post_mean <- bup(N_estimates, stat = "mean")
+
+# Compare to truth
+comparison <- data.frame(
+  True_N = N_true,
+  Estimated_N = N_post_mean,
+  Max_count = apply(counts, 1, max)
+)
+
+head(comparison, 10)
+```
+
+```{r occ-nmix-compare-plot, fig.cap="Comparison of true abundance (x-axis) vs estimated abundance from N-mixture model (y-axis). The model corrects for imperfect detection."}
+ggplot(comparison, aes(x = True_N, y = Estimated_N)) +
+  geom_point(alpha = 0.6) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+  geom_smooth(method = "lm", se = FALSE, color = "steelblue") +
+  labs(x = "True Abundance",
+       y = "Estimated Abundance (N-mixture)",
+       title = "N-mixture Model Performance") +
+  theme_minimal()
+```
+
+---
+
+# Part 7: Survey Design Considerations
+
+## How many surveys?
+
+Detection probability determines how many surveys you need:
+
+```{r occ-survey-design}
+# Probability of detecting species at least once
+# (cumulative detection probability)
+
+p_values <- seq(0.1, 0.9, by = 0.1)
+n_surveys_options <- 1:10
+
+# Calculate P(detect at least once) = 1 - (1-p)^n
+design_table <- expand.grid(p = p_values, n = n_surveys_options)
+design_table$p_star <- 1 - (1 - design_table$p)^design_table$n
+
+# Reshape for viewing
+design_matrix <- matrix(
+  round(design_table$p_star, 3),
+  nrow = length(p_values),
+  ncol = length(n_surveys_options),
+  dimnames = list(paste0("p=", p_values), paste0("n=", n_surveys_options))
+)
+
+print(design_matrix)
+```
+
+**Guideline:** Aim for cumulative detection probability > 0.95
+
+```{r occ-design-plot, fig.cap="Cumulative detection probability as a function of number of surveys, for different per-survey detection probabilities."}
+ggplot(design_table, aes(x = n, y = p_star, color = factor(p))) +
+  geom_line(size = 1) +
+  geom_hline(yintercept = 0.95, linetype = "dashed") +
+  scale_color_viridis_d(name = "Per-survey p") +
+  labs(x = "Number of Surveys",
+       y = "Cumulative Detection Probability",
+       title = "Survey Design: How Many Visits?") +
+  theme_minimal()
+```
+
+## Sites vs surveys trade-off
+
+```{r occ-sites-vs-surveys}
+# With fixed total effort, what's better: more sites or more surveys?
+
+# Simulate precision under different designs
+# Total effort = 120 site-visits
+
+designs <- data.frame(
+  n_sites = c(120, 60, 40, 30, 24, 20),
+  n_surveys = c(1, 2, 3, 4, 5, 6)
+)
+
+cat("Fixed total effort = 120 site-visits\n\n")
+cat("With very low detection (p=0.2), more surveys helps separate ψ from p\n")
+cat("With high detection (p=0.7), more sites gives better precision on ψ\n")
+```
+
+---
+
+# Part 8: Reporting Occupancy Models
+
+## What to report
+
+1. **Survey design:** Sites, surveys per site, timing
+2. **Detection covariates:** What affected p
+3. **Occupancy covariates:** What affected ψ
+4. **Parameter estimates:** With standard errors
+5. **Model selection:** AIC table if multiple models
+6. **Goodness-of-fit:** MacKenzie-Bailey test
+7. **Detection probability:** Report p to justify survey effort
+8. **Predictions:** Maps or covariate response curves
+
+## Sample methods and results
+
+### Methods
+
+> We surveyed 100 sites for Mexican spotted owl presence during the 2023 breeding season. Each site was visited 4 times between April and July, with visits separated by at least 7 days. At each visit, observers conducted 2-hour crepuscular surveys using playback calls. We recorded detection (1) or non-detection (0) for each survey, creating detection histories for each site. We fit single-season occupancy models using the unmarked package in R, estimating both occupancy probability (ψ) and detection probability (p). We modeled occupancy as a function of elevation and forest cover (both standardized), and detection as a function of survey date. We used AIC to select among candidate models and assessed goodness-of-fit using the MacKenzie-Bailey parametric bootstrap test (1000 iterations). Predicted occupancy was mapped across the study area using the best-supported model.
+
+### Results
+
+> Occupancy probability for Mexican spotted owl averaged 0.48 (SE = 0.07) across the study area. The best-supported model included elevation as a predictor of occupancy (β = 0.82, SE = 0.21) and survey date as a predictor of detection. Occupancy increased with elevation, with predicted probability ranging from 0.25 at low-elevation sites to 0.78 at high-elevation sites (**Fig. X**). Detection probability averaged 0.42 (SE = 0.05) and decreased over the survey season (β = -0.15, SE = 0.06). With four surveys per site, cumulative detection probability was 0.89, providing adequate power to distinguish true absence from non-detection. The model showed adequate fit (χ² = 42.3, c-hat = 1.08, p = 0.23). Based on predicted occupancy, we identified 23 sites with ψ > 0.7 as core habitat (**Fig. Y**).
+
+---
+
+## Key takeaways
+
+1. **Imperfect detection is the rule** — Account for it or underestimate occupancy
+
+2. **Repeated surveys are essential** — They separate p from ψ
+
+3. **Model both processes** — Detection AND occupancy can have covariates
+
+4. **Report detection probability** — It justifies your survey effort
+
+5. **Dynamic models track change** — Colonization and extinction over time
+
+6. **N-mixture models for counts** — Abundance with imperfect detection
+
+7. **Survey design matters** — More surveys help with low detection
+
+8. **Check model fit** — MacKenzie-Bailey test for occupancy models
+
+---
+
+## Assignment
+
+### Part 1: Conceptual questions
+
+1. You conduct 3 surveys at 50 sites and never detect a species at 20 sites. Does this mean those 20 sites are unoccupied? Explain.
+
+2. Your estimated detection probability is 0.15. What does this tell you about your survey design? How many surveys would you need for 95% cumulative detection?
+
+3. In an N-mixture model, how does accounting for imperfect detection change abundance estimates compared to using raw counts?
+
+### Part 2: Single-season occupancy
+
+Using the simulated data in this chapter (or your own data):
+
+1. Fit occupancy models with different covariate combinations
+2. Conduct model selection using AIC
+3. Check goodness-of-fit
+4. Generate and plot predictions
+5. Interpret the ecological meaning of your results
+
+### Part 3: Multi-season model
+
+Using multi-year survey data:
+
+1. Format data for colext()
+2. Fit a dynamic occupancy model
+3. Estimate colonization and extinction rates
+4. Calculate equilibrium occupancy
+5. Discuss what these dynamics mean biologically
+
+### Part 4: N-mixture model
+
+With count data (simulated or real):
+
+1. Fit a Poisson N-mixture model
+2. Fit a negative binomial model and compare
+3. Extract site-specific abundance estimates
+4. Compare to naive counts
+5. Discuss when N-mixture models are most valuable
+
+### Part 5: Reporting
+
+Write a complete methods and results section for an occupancy analysis of your choice, following the format in this chapter.

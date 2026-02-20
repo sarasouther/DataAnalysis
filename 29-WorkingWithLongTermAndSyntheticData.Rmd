@@ -1,0 +1,540 @@
+# Working with Long-term and Synthetic Data
+
+Throughout this textbook, we've assumed you collected your own data using designs you controlled. But increasingly, ecologists work with data they didn't collect: long-term monitoring records, archived datasets, remote sensing products, or data synthesized across multiple studies.
+
+This chapter addresses the unique challenges and opportunities of working with **external data**:
+
+- Long-term monitoring data (LTER, NEON, agency records)
+- Climate data products (PRISM, Daymet, WorldClim)
+- Remote sensing time series (NDVI, land cover change)
+- Published datasets from other researchers
+- Multiple datasets combined for synthesis
+
+These data sources enable questions impossible to address with short-term field studies—but they come with complications that standard statistical training doesn't cover.
+
+## Why this matters
+
+**The opportunity:** Long-term and synthetic data allow you to:
+- Study processes that unfold over decades (succession, climate change)
+- Generalize findings across broader spatial scales
+- Test hypotheses at scales relevant to management
+- Build on previous research rather than starting from scratch
+
+**The challenge:** These data bring issues you don't face with your own field data:
+- Methods changed over time or between studies
+- Different observers, different detection probabilities
+- Missing data, irregular sampling intervals
+- Unknown confounds and biases
+- Temporal autocorrelation in long time series
+
+This chapter equips you to recognize and address these challenges.
+
+## Setup
+
+```{r setup-synthesis, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(zoo)           # Time series manipulation
+library(forecast)      # Time series decomposition and ARIMA
+library(tseries)       # Time series tests
+library(metafor)       # Meta-analysis
+
+set.seed(42)
+```
+
+---
+
+# Part 1: Challenges of Data You Didn't Collect
+
+## The hidden assumptions
+
+When you collect your own data, you know:
+- Exactly how measurements were taken
+- Whether conditions varied between sampling dates
+- The quirks and limitations of your methods
+- What didn't get recorded but might matter
+
+With external data, you're trusting someone else's documentation—which may be incomplete, outdated, or missing entirely.
+
+### Common problems
+
+| Problem | Example | What to do |
+|---------|---------|------------|
+| **Method changes** | Vegetation monitoring switched from point-intercept to Daubenmire | Look for discontinuities; consider treating periods separately |
+| **Observer effects** | Different surveyors have different bird detection rates | Include observer as covariate or random effect if recorded |
+| **Effort variation** | Some years had 10 survey visits, others had 3 | Standardize by effort; use detection models |
+| **Missing metadata** | Climate data lacks information about sensor location changes | Search for documentation; contact data providers |
+| **Spatial mismatch** | Climate data is 4km grid but your sites are 100m apart | Acknowledge resolution limits; consider downscaling methods |
+| **Temporal gaps** | No data collected during budget cuts in 2011-2012 | Don't interpolate carelessly; acknowledge gaps |
+
+## Evaluating data quality
+
+Before using external data, ask:
+
+1. **Is there documentation?** Metadata, protocols, data papers?
+2. **What was the original purpose?** Was it designed to answer your question?
+3. **Are there known issues?** Check for errata, user forums, published critiques
+4. **How have others used it?** See if methods papers address your concerns
+5. **Can you validate against independent data?** Cross-check where possible
+
+### Example: Using PRISM climate data
+
+```{r prism-example, eval=FALSE}
+# PRISM provides 4km gridded climate data for the US
+# Before using, consider:
+
+# 1. Resolution: Is 4km appropriate for your site?
+#    - In flat terrain: probably fine
+#    - In mountains: microclimate varies over 100m
+
+# 2. Temporal extent: PRISM goes back to 1895
+#    - Earlier years have fewer stations, more interpolation
+#    - Consider uncertainty increasing back in time
+
+# 3. What variable?
+#    - "ppt" = precipitation (measured)
+#    - "vpdmax" = vapor pressure deficit (derived)
+#    - Derived variables compound uncertainty
+
+# Using the prism package:
+# library(prism)
+# get_prism_dailys(type = "ppt", dates = "2020-06-15", keepZip = FALSE)
+```
+
+---
+
+# Part 2: Introduction to Time Series
+
+When you have long sequences of observations over time (not just repeated measures on subjects), you enter **time series analysis**. This is a vast field; here we cover the essential concepts for ecologists.
+
+## When does "repeated measures" become "time series"?
+
+| Scenario | What it is | Method |
+|----------|------------|--------|
+| 3-5 measurements per subject over time | Repeated measures | Mixed model with random intercept/slope |
+| 10-20 measurements per subject | Long repeated measures | Mixed model; check autocorrelation |
+| 50+ observations at one location over time | Time series | Time series methods (this section) |
+| 30 years of annual data at 10 sites | Both! | Mixed model with time series errors |
+
+## The components of a time series
+
+Any time series can be decomposed into three components:
+
+1. **Trend:** Long-term direction (increasing, decreasing, stable)
+2. **Seasonality:** Regular periodic fluctuations (annual cycles, monthly patterns)
+3. **Residual (noise):** Random variation after removing trend and seasonality
+
+```{r ts-decomposition, fig.cap="Decomposing a time series into trend, seasonal, and residual components. The original series (top) equals trend + seasonal + residual."}
+# Simulate 10 years of monthly data with trend, seasonality, and noise
+n <- 120  # 10 years × 12 months
+
+# Time index
+time_index <- 1:n
+
+# Components
+trend <- 0.1 * time_index                          # Gradual increase
+seasonal <- 10 * sin(2 * pi * time_index / 12)     # Annual cycle
+noise <- rnorm(n, 0, 3)                            # Random variation
+
+# Combined series
+abundance <- 50 + trend + seasonal + noise
+
+# Create time series object
+abundance_ts <- ts(abundance, frequency = 12, start = c(2014, 1))
+
+# Decompose
+decomp <- stl(abundance_ts, s.window = "periodic")
+plot(decomp, main = "Time Series Decomposition")
+```
+
+**Why decomposition matters:**
+- Reveals underlying patterns obscured by noise
+- Separates different processes (climate trend vs. seasonal behavior)
+- Helps decide which patterns need modeling
+
+## Stationarity
+
+A **stationary** time series has statistical properties (mean, variance) that don't change over time. Many time series methods assume stationarity.
+
+**Non-stationary signals:**
+- Trend: mean changes over time
+- Changing variance: variability increases or decreases
+- Structural breaks: sudden shifts in level or behavior
+
+```{r stationarity-test}
+# Test for stationarity using Augmented Dickey-Fuller test
+# H0: The series has a unit root (non-stationary)
+# Low p-value = evidence of stationarity
+
+# Our simulated series has a trend, so it's non-stationary
+adf.test(abundance_ts)
+
+# After removing trend, it should be stationary
+detrended <- abundance_ts - decomp$time.series[, "trend"]
+adf.test(detrended)
+```
+
+## Autocorrelation in time series
+
+**Autocorrelation** is correlation between observations at different time lags. It's the temporal equivalent of spatial autocorrelation.
+
+```{r ts-acf, fig.cap="Autocorrelation function (left) and partial autocorrelation function (right) for a seasonal time series. The strong peaks at lag 12, 24, etc. reflect the annual seasonal cycle."}
+par(mfrow = c(1, 2))
+acf(abundance_ts, main = "Autocorrelation Function (ACF)", lag.max = 36)
+pacf(abundance_ts, main = "Partial ACF (PACF)", lag.max = 36)
+par(mfrow = c(1, 1))
+```
+
+**Reading ACF and PACF:**
+- ACF shows correlation at each lag
+- PACF shows correlation at lag k *after* removing effects of shorter lags
+- Seasonal patterns show peaks at seasonal lags (12 for monthly data)
+- Together, ACF and PACF help identify ARIMA model structure
+
+## ARIMA models: A brief introduction
+
+**ARIMA** (Autoregressive Integrated Moving Average) is the workhorse of time series modeling. The name describes three components:
+
+- **AR (Autoregressive):** Current value depends on past values
+- **I (Integrated):** Differencing to achieve stationarity
+- **MA (Moving Average):** Current value depends on past errors
+
+ARIMA models are specified as **ARIMA(p, d, q)** where:
+- p = order of autoregressive component
+- d = degree of differencing
+- q = order of moving average component
+
+For seasonal data, we add seasonal terms: **ARIMA(p, d, q)(P, D, Q)[m]**
+
+```{r arima-fit}
+# Fit ARIMA model using auto.arima (selects best model automatically)
+arima_model <- auto.arima(abundance_ts)
+summary(arima_model)
+```
+
+```{r arima-forecast, fig.cap="ARIMA forecast for 24 months ahead. Dark shading shows 80% prediction interval; light shading shows 95% interval."}
+# Forecast 24 months ahead
+forecast_result <- forecast(arima_model, h = 24)
+plot(forecast_result, main = "ARIMA Forecast")
+```
+
+### When to use ARIMA
+
+**Use ARIMA when:**
+- You have a long time series (50+ observations) at a single location
+- Your goal is understanding temporal dynamics or forecasting
+- You've checked that simpler approaches (regression, decomposition) are insufficient
+
+**Don't use ARIMA when:**
+- You have repeated measures on multiple subjects (use mixed models)
+- Your series is very short (<20 observations)
+- You're only testing whether there's a trend (linear regression may suffice)
+
+### Connecting ARIMA to what you know
+
+ARIMA is related to concepts you've already learned:
+
+| ARIMA component | Analogous to... |
+|-----------------|-----------------|
+| AR(1) errors | corAR1() in nlme (Chapter on Mixed Models) |
+| Trend | Including time as a predictor in regression |
+| Seasonality | Including month/season as a factor |
+
+The difference is that ARIMA models the temporal structure directly, rather than as a nuisance to control for.
+
+---
+
+# Part 3: Combining Datasets
+
+Synthesis often requires combining data from multiple sources. This is harder than it sounds.
+
+## Harmonization challenges
+
+| Challenge | Example | Strategy |
+|-----------|---------|----------|
+| **Different units** | One study reports biomass in g/m², another in kg/ha | Careful unit conversion; document everything |
+| **Different methods** | One study uses pitfall traps, another uses sweep nets | May not be combinable; consider as moderator |
+| **Different taxonomic resolution** | One dataset identifies to species, another to genus | Aggregate to common resolution |
+| **Different spatial scales** | Plot sizes vary from 1m² to 100m² | Standardize to density; acknowledge scale effects |
+| **Different temporal grains** | Monthly data vs. annual data | Aggregate to common grain |
+
+## Example: Combining climate datasets
+
+```{r harmonization-example}
+# Imagine combining temperature data from two sources
+
+# Source 1: Daily Tmax (°F)
+source1 <- data.frame(
+  date = seq(as.Date("2020-01-01"), as.Date("2020-01-10"), by = "day"),
+  tmax_f = c(45, 48, 52, 49, 55, 58, 54, 51, 47, 50)
+)
+
+# Source 2: Daily Tmax (°C), different date format
+source2 <- data.frame(
+  date_str = c("2020/01/11", "2020/01/12", "2020/01/13"),
+  tmax_c = c(12.1, 14.5, 11.8)
+)
+
+# Harmonize: convert units and standardize date format
+source1_clean <- source1 %>%
+  mutate(
+    date = as.Date(date),
+    tmax_c = (tmax_f - 32) * 5/9,  # Convert to Celsius
+    source = "Source1"
+  ) %>%
+  select(date, tmax_c, source)
+
+source2_clean <- source2 %>%
+  mutate(
+    date = as.Date(date_str, format = "%Y/%m/%d"),
+    source = "Source2"
+  ) %>%
+  select(date, tmax_c, source)
+
+# Combine
+combined <- bind_rows(source1_clean, source2_clean)
+head(combined)
+tail(combined)
+```
+
+## Documenting your synthesis
+
+When combining datasets, create a **data provenance document** that records:
+
+1. **Sources:** Where did each dataset come from?
+2. **Versions:** What version/access date?
+3. **Transformations:** What did you change (units, aggregation, filtering)?
+4. **Decisions:** Why did you make each choice?
+5. **Limitations:** What can't be resolved?
+
+This documentation is essential for reproducibility and for understanding what your synthesized dataset actually represents.
+
+---
+
+# Part 4: Introduction to Meta-analysis
+
+**Meta-analysis** is the statistical synthesis of results from multiple independent studies. Rather than combining raw data (which is often unavailable), you combine **effect sizes** extracted from published papers.
+
+## Why meta-analysis?
+
+- **Increases power:** Combining studies reveals effects too small to detect individually
+- **Resolves conflicts:** When studies disagree, meta-analysis quantifies the overall pattern
+- **Identifies moderators:** Explains why effects vary across studies
+- **Guides future research:** Identifies where evidence is strong vs. weak
+
+## The meta-analysis workflow
+
+1. **Define the question:** What effect are you estimating?
+2. **Literature search:** Find all relevant studies (systematic, documented)
+3. **Extract effect sizes:** Calculate standardized effects from each study
+4. **Combine effects:** Weight by precision; estimate overall effect
+5. **Assess heterogeneity:** Do studies agree? What explains variation?
+6. **Check for bias:** Publication bias, quality variation
+
+## Effect sizes
+
+Meta-analysis uses **standardized effect sizes** that can be compared across studies with different methods and scales.
+
+| Effect size | Used for | Formula |
+|-------------|----------|---------|
+| **Hedges' g** | Difference between two means | (M₁ - M₂) / S_pooled |
+| **Log response ratio (lnRR)** | Ratio of means (e.g., treatment/control) | ln(M_treatment / M_control) |
+| **Correlation (r)** | Relationship between two variables | Pearson's r (transformed to Fisher's z) |
+| **Log odds ratio** | Binary outcomes | ln(odds₁ / odds₂) |
+
+## Example: Meta-analysis of grazing effects
+
+Suppose you've collected data from 8 studies examining how grazing affects plant species richness:
+
+```{r meta-data}
+# Example meta-analysis dataset
+# Each row is one study; we have mean richness in grazed vs. ungrazed plots
+
+meta_data <- data.frame(
+  study = paste("Study", 1:8),
+  mean_grazed = c(12.5, 8.3, 15.2, 10.1, 14.8, 9.5, 11.2, 13.4),
+  sd_grazed = c(3.2, 2.1, 4.5, 2.8, 3.9, 2.5, 3.1, 3.6),
+  n_grazed = c(15, 10, 20, 12, 18, 14, 16, 22),
+  mean_ungrazed = c(10.2, 7.8, 12.1, 9.8, 11.5, 8.2, 10.8, 11.2),
+  sd_ungrazed = c(2.8, 1.9, 3.8, 2.5, 3.2, 2.1, 2.9, 3.2),
+  n_ungrazed = c(15, 10, 20, 12, 18, 14, 16, 22),
+  grazing_intensity = c("Low", "High", "Low", "Moderate", 
+                        "Low", "High", "Moderate", "Low")
+)
+
+meta_data
+```
+
+## Calculate effect sizes
+
+We'll use **Hedges' g**, which measures the standardized mean difference:
+
+```{r meta-effect-sizes}
+# Calculate Hedges' g for each study using metafor
+library(metafor)
+
+# escalc() calculates effect sizes and sampling variances
+# SMD = Standardized Mean Difference (Hedges' g)
+effect_data <- escalc(measure = "SMD",
+                       m1i = mean_grazed, sd1i = sd_grazed, n1i = n_grazed,
+                       m2i = mean_ungrazed, sd2i = sd_ungrazed, n2i = n_ungrazed,
+                       data = meta_data)
+
+# View effect sizes (yi) and variances (vi)
+effect_data[, c("study", "yi", "vi")]
+```
+
+## Fit the meta-analysis model
+
+```{r meta-model}
+# Random-effects meta-analysis
+# Assumes true effects vary across studies
+meta_model <- rma(yi, vi, data = effect_data)
+summary(meta_model)
+```
+
+### Interpret the output
+
+- **Estimate (0.54):** Overall effect size; grazing increases richness by 0.54 SD
+- **se, z, p:** Test of whether effect differs from zero
+- **I² (12.7%):** Heterogeneity; % of variance due to true differences between studies
+- **Q-test:** Tests whether heterogeneity is significant
+
+## Visualize: Forest plot
+
+```{r forest-plot, fig.cap="Forest plot showing effect sizes from each study (squares) and the overall meta-analytic estimate (diamond). Horizontal lines show 95% confidence intervals."}
+forest(meta_model, 
+       slab = effect_data$study,
+       xlab = "Standardized Mean Difference (Hedges' g)",
+       main = "Effect of Grazing on Plant Richness")
+```
+
+**Reading a forest plot:**
+- Each square is one study's effect size
+- Square size reflects the study's weight (precision)
+- Horizontal lines are 95% CIs
+- Diamond is the overall pooled estimate
+- Vertical line at 0 indicates no effect
+
+## Test for publication bias
+
+Studies with non-significant results are less likely to be published, potentially biasing meta-analyses.
+
+```{r funnel-plot, fig.cap="Funnel plot for detecting publication bias. Asymmetry (more studies on one side) suggests bias. This plot shows no obvious asymmetry."}
+funnel(meta_model, main = "Funnel Plot")
+
+# Egger's test for funnel plot asymmetry
+regtest(meta_model)
+```
+
+## Moderator analysis
+
+If heterogeneity is substantial, test whether study characteristics explain variation:
+
+```{r moderator}
+# Does grazing intensity explain variation in effects?
+mod_model <- rma(yi, vi, mods = ~ grazing_intensity, data = effect_data)
+summary(mod_model)
+```
+
+## Sample methods and results for meta-analysis
+
+**Methods:**
+
+> We conducted a random-effects meta-analysis of studies examining grazing effects on plant species richness. We searched Web of Science and Google Scholar using terms "grazing AND species richness AND plant*" and identified 8 studies meeting our inclusion criteria (experimental manipulation of grazing, measurement of plant species richness, sufficient data to calculate effect sizes). We calculated Hedges' g (standardized mean difference) for each study using the escalc() function in the metafor package (Viechtbauer 2010). We assessed heterogeneity using I² and Q statistics, and tested for publication bias using funnel plots and Egger's regression test. We examined grazing intensity (low, moderate, high) as a potential moderator of effect size.
+
+**Results:**
+
+> Across 8 studies, grazing had a moderate positive effect on plant species richness (Hedges' g = 0.54, 95% CI: 0.24–0.84, p < 0.001; **Fig. X**). Heterogeneity among studies was low (I² = 12.7%, Q₇ = 8.0, p = 0.33), suggesting consistent effects across studies. We found no evidence of publication bias (Egger's test: z = 0.71, p = 0.48; **Fig. Y**). Grazing intensity did not significantly moderate the effect (Q_moderator = 2.1, df = 2, p = 0.35), though low-intensity grazing showed numerically larger effects.
+
+---
+
+# Part 5: Practical Guidance
+
+## When to use what
+
+| Your situation | Appropriate method |
+|----------------|-------------------|
+| Long monitoring time series at one site | Time series decomposition, ARIMA |
+| Repeated measures on subjects over time | Mixed models (with autocorrelation if needed) |
+| Combining your data with climate data | Harmonization + regression/mixed models |
+| Synthesizing results from multiple studies | Meta-analysis |
+| Re-analyzing published raw data | Depends on design; treat like your own data |
+
+## Know when to get help
+
+This chapter provides an introduction to these methods. For complex applications:
+
+- **Time series:** Consult statistician or take a dedicated course
+- **Meta-analysis:** Consider formal training; methods are evolving rapidly
+- **Complex data fusion:** Spatial statisticians, remote sensing specialists
+
+The goal here is to recognize when these methods are appropriate, understand the basic concepts, and communicate effectively with specialists.
+
+## Resources for going deeper
+
+**Time series:**
+- Hyndman & Athanasopoulos, *Forecasting: Principles and Practice* (free online)
+- Cowpertwait & Metcalfe, *Introductory Time Series with R*
+
+**Meta-analysis:**
+- Koricheva et al., *Handbook of Meta-analysis in Ecology and Evolution*
+- The metafor package documentation (comprehensive)
+
+**Data synthesis:**
+- Hampton et al. (2013). "Big data and the future of ecology." *Frontiers in Ecology*
+- Jones et al. (2006). "The new bioinformatics: integrating ecological data."
+
+---
+
+## Key takeaways
+
+1. **External data requires scrutiny** — Understand methods, document decisions, acknowledge limitations
+
+2. **Time series have structure** — Trend, seasonality, and autocorrelation need to be addressed
+
+3. **ARIMA is powerful but specialized** — Know when you need it vs. when simpler methods suffice
+
+4. **Combining data requires harmonization** — Units, methods, scales, and documentation matter
+
+5. **Meta-analysis synthesizes evidence** — Combines effect sizes, not raw data
+
+6. **Know your limits** — These are entry points; complex applications need specialist input
+
+---
+
+## Assignment
+
+### Part 1: Evaluating external data
+
+Find a long-term ecological dataset relevant to your research (LTER, NEON, agency monitoring, etc.). Write a 1-page evaluation addressing:
+
+1. What was the original purpose of data collection?
+2. What documentation is available?
+3. What are the known limitations or issues?
+4. How have others used these data?
+5. What would you need to check before using it for your research?
+
+### Part 2: Time series decomposition
+
+Using monthly climate data from your region (available from PRISM, NOAA, or similar):
+
+1. Create a time series object in R
+2. Decompose into trend, seasonal, and residual components
+3. Describe what you see in each component
+4. Test for stationarity
+5. Plot and interpret the ACF
+
+### Part 3: Mini meta-analysis
+
+Find 4-6 studies on a topic in your field that report means, standard deviations, and sample sizes for two groups. Then:
+
+1. Calculate effect sizes (Hedges' g or log response ratio)
+2. Fit a random-effects meta-analysis
+3. Create a forest plot
+4. Write a brief results paragraph
+
+### Part 4: Reflection
+
+In 2-3 sentences, explain why synthesizing data across multiple studies or time periods is valuable for ecology, but also requires careful attention to methods and documentation.
+
+
