@@ -42,7 +42,7 @@ options(brms.backend = "cmdstanr")
 
 ---
 
-# Part 1: Two Philosophies of Statistics
+## Part 1: Two Philosophies of Statistics
 
 ## Frequentist thinking
 
@@ -173,7 +173,7 @@ ggplot(plot_data, aes(x = theta, y = density, color = distribution)) +
 
 ---
 
-# Part 2: Priors
+## Part 2: Priors
 
 ## What are priors?
 
@@ -265,7 +265,7 @@ With 20 observations, results are reasonably robust to prior choice. With fewer 
 
 ---
 
-# Part 3: Hierarchical Models
+## Part 3: Hierarchical Models
 
 ## The partial pooling insight
 
@@ -375,7 +375,7 @@ KEY INSIGHT:
 
 ---
 
-# Part 4: Bayesian Regression with brms
+## Part 4: Bayesian Regression with brms
 
 ## A simple Bayesian regression
 
@@ -447,7 +447,7 @@ pp_check(bayes_lm, ndraws = 100) +
 
 ---
 
-# Part 5: Bayesian Hierarchical Models
+## Part 5: Bayesian Hierarchical Models
 
 ## Fitting hierarchical models with brms
 
@@ -501,7 +501,7 @@ print(comparison_hier, digits = 2)
 
 ---
 
-# Part 6: Ecological Example - Species Richness
+## Part 6: Ecological Example - Species Richness
 
 ## A more realistic model
 
@@ -595,7 +595,7 @@ brms::rhat(eco_model)
 
 ---
 
-# Part 7: Model Comparison
+## Part 7: Model Comparison
 
 ## Bayesian model comparison
 
@@ -631,7 +631,7 @@ loo_compare(loo_null, loo_habitat, loo_area, loo_full)
 
 ---
 
-# Part 8: Predictions and Uncertainty
+## Part 8: Predictions and Uncertainty
 
 ## Posterior predictions
 
@@ -683,7 +683,7 @@ cat("95% CI:", round(quantile(pred_new_region, c(0.025, 0.975)), 1), "\n")
 
 ---
 
-# Part 9: When to Go Bayesian
+## Part 9: When to Go Bayesian
 
 ## Advantages of Bayesian approach
 
@@ -758,7 +758,7 @@ PRACTICAL BAYESIAN TIPS
 
 ---
 
-# Part 10: Reporting Bayesian Analyses
+## Part 10: Reporting Bayesian Analyses
 
 ## What to report
 

@@ -35,7 +35,7 @@ set.seed(42)
 
 ---
 
-# Part 1: The Bootstrap Principle
+## Part 1: The Bootstrap Principle
 
 ## A simple example
 
@@ -111,7 +111,7 @@ Each bootstrap sample has the same size as the original, but some observations a
 
 ---
 
-# Part 2: Bootstrap Confidence Intervals
+## Part 2: Bootstrap Confidence Intervals
 
 There are several methods for constructing bootstrap CIs. They differ in how they handle bias and skewness.
 
@@ -174,7 +174,7 @@ For approximately normal data, all methods give similar results. The differences
 
 ---
 
-# Part 3: Bootstrap Standard Errors
+## Part 3: Bootstrap Standard Errors
 
 The standard error is simply the standard deviation of the bootstrap distribution:
 
@@ -205,7 +205,7 @@ cat("95% CI for median:", round(quantile(boot_medians, c(0.025, 0.975)), 2), "\n
 
 ---
 
-# Part 4: When to Bootstrap
+## Part 4: When to Bootstrap
 
 ## Situations where bootstrapping shines
 
@@ -275,7 +275,7 @@ With small samples, the Central Limit Theorem doesn't apply, and parametric inte
 
 ---
 
-# Part 5: The Jackknife
+## Part 5: The Jackknife
 
 The **jackknife** is an older resampling method that systematically leaves out one observation at a time. While largely superseded by bootstrapping, it's still useful for:
 
@@ -331,7 +331,7 @@ ggplot(influence, aes(x = Removed, y = JackMean)) +
 
 ---
 
-# Part 6: Practical Applications
+## Part 6: Practical Applications
 
 ## Application 1: Correlation coefficients
 
@@ -444,7 +444,7 @@ cat("Bootstrap 95% CI:", round(quantile(boot_shannon, c(0.025, 0.975)), 3), "\n"
 
 ---
 
-# Part 7: Using the `boot` Package
+## Part 7: Using the `boot` Package
 
 The `boot` package provides efficient, well-tested functions for bootstrapping with all CI methods.
 
@@ -549,7 +549,7 @@ boot.ci(multi_boot, type = "bca", index = 4)  # CV
 
 ---
 
-# Part 8: Reporting Bootstrap Results
+## Part 8: Reporting Bootstrap Results
 
 ## What to report
 

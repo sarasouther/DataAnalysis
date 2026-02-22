@@ -48,7 +48,7 @@ set.seed(42)
 
 ---
 
-# Part 1: The Basics of Smoothing
+## Part 1: The Basics of Smoothing
 
 ## What is a smoother?
 
@@ -108,7 +108,7 @@ The penalty is controlled by a **smoothing parameter** (λ), which is estimated 
 
 ---
 
-# Part 2: Fitting GAMs with mgcv
+## Part 2: Fitting GAMs with mgcv
 
 ## Basic syntax
 
@@ -187,7 +187,7 @@ par(mfrow = c(1, 1))
 
 ---
 
-# Part 3: Types of Smooth Terms
+## Part 3: Types of Smooth Terms
 
 ## Basic smooth: s()
 
@@ -276,7 +276,7 @@ par(mfrow = c(1, 1))
 
 ---
 
-# Part 4: GAMs with Different Distributions
+## Part 4: GAMs with Different Distributions
 
 Like GLMs, GAMs can handle non-normal responses using the `family` argument:
 
@@ -352,7 +352,7 @@ plot(count_gam, trans = exp, shift = coef(count_gam)[1],
 
 ---
 
-# Part 5: Model Checking and Diagnostics
+## Part 5: Model Checking and Diagnostics
 
 ## Basic diagnostics
 
@@ -409,7 +409,7 @@ concurvity(tree_gam, full = TRUE)
 
 ---
 
-# Part 6: Visualization
+## Part 6: Visualization
 
 ## Using gratia for modern plots
 
@@ -504,7 +504,7 @@ ggplot() +
 
 ---
 
-# Part 7: Model Selection
+## Part 7: Model Selection
 
 ## Comparing GAM to GLM
 
@@ -544,7 +544,7 @@ anova(mixed_smooth, with_smooth, test = "F")
 
 ---
 
-# Part 8: GAMs with Random Effects (GAMMs)
+## Part 8: GAMs with Random Effects (GAMMs)
 
 GAMs can include random effects using `bs = "re"`:
 
@@ -611,7 +611,7 @@ big_gam <- bam(y ~ s(x) + s(site, bs = "re"),
 
 ---
 
-# Part 9: Complete Example
+## Part 9: Complete Example
 
 Let's work through a complete analysis of pollinator activity through the day:
 
@@ -663,7 +663,7 @@ gratia::draw(poll_gam, select = c(1, 2))
 
 ---
 
-# Part 10: Reporting
+## Part 10: Reporting
 
 ## What to report
 

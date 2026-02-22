@@ -63,7 +63,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Stochastic Matrix Models
+## Part 1: Stochastic Matrix Models
 
 Before diving into stochastic IPMs, let's build intuition with simpler matrix models.
 
@@ -208,9 +208,9 @@ cat("\nApproximate log(λs) [using σ²/2 reduction]:", round(log_lambda_approx,
 
 ---
 
-# Part 2: Demographic Stochasticity
+## Part 2: Demographic Stochasticity
 
-## What is demographic stochasticity?
+### What is demographic stochasticity?
 
 Even if survival probability is exactly 0.8, some individuals die and some survive—by chance. In small populations, this randomness can push populations to extinction even when expected λ > 1.
 
@@ -239,7 +239,7 @@ RULE OF THUMB:
 ")
 ```
 
-## Simulating demographic stochasticity
+### Simulating demographic stochasticity
 
 ```{r stoch-demographic-simulate}
 # Compare deterministic vs demographic stochastic projections
@@ -328,9 +328,9 @@ ggplot(plot_data_small, aes(x = year, y = total + 1, group = sim)) +
 
 ---
 
-# Part 3: Extinction Risk Analysis
+## Part 3: Extinction Risk Analysis
 
-## Quasi-extinction thresholds
+### Quasi-extinction thresholds
 
 Rather than asking about true extinction (N = 0), managers often use **quasi-extinction thresholds**—population sizes below which recovery is unlikely or genetic diversity is lost.
 
@@ -363,7 +363,7 @@ knitr::kable(quasi_table, digits = 3,
              caption = "Quasi-extinction probability by threshold and time horizon")
 ```
 
-## Cumulative extinction curves
+### Cumulative extinction curves
 
 ```{r stoch-extinction-curves, fig.cap="Cumulative probability of quasi-extinction over time for different population thresholds."}
 # Calculate cumulative extinction curves
@@ -408,9 +408,9 @@ ggplot(cum_extinct_long, aes(x = year, y = prob, color = threshold)) +
 
 ---
 
-# Part 4: Stochastic IPMs
+## Part 4: Stochastic IPMs
 
-## Why IPMs for stochasticity?
+### Why IPMs for stochasticity?
 
 IPMs capture how vital rates vary continuously with size. Adding stochasticity means:
 
@@ -418,7 +418,7 @@ IPMs capture how vital rates vary continuously with size. Adding stochasticity m
 2. **Demographic stochasticity:** Individual fates vary given their size-specific rates
 3. **Parameter uncertainty:** We're uncertain about true parameter values
 
-## Building a stochastic IPM with ipmr
+### Building a stochastic IPM with ipmr
 
 ```{r stoch-ipm-setup}
 # We'll create a simplified stochastic IPM
@@ -461,7 +461,7 @@ U <- 5
 n_mesh <- 100
 ```
 
-## Simulating year-specific vital rates
+### Simulating year-specific vital rates
 
 ```{r stoch-ipm-simulate-years}
 # Generate year-specific parameters for 30 years
@@ -484,7 +484,7 @@ year_params$fec <- pmax(year_params$fec, 10)
 head(year_params)
 ```
 
-## Building year-specific kernels
+### Building year-specific kernels
 
 ```{r stoch-ipm-kernels}
 # Function to build IPM kernel for a given year
@@ -554,7 +554,7 @@ cat("Mean λ:", round(mean(lambdas), 3), "\n")
 cat("Geometric mean λ:", round(exp(mean(log(lambdas))), 3), "\n")
 ```
 
-## Stochastic IPM simulation
+### Stochastic IPM simulation
 
 ```{r stoch-ipm-simulate}
 # Initialize population distribution
@@ -625,7 +625,7 @@ ggplot(ipm_plot_data, aes(x = year, y = N, group = sim)) +
   theme_minimal()
 ```
 
-## Visualizing size distribution dynamics
+### Visualizing size distribution dynamics
 
 ```{r stoch-size-dist, fig.cap="Evolution of the size distribution over time in a stochastic IPM. Colors represent different time points."}
 # Plot size distribution at different times
@@ -647,9 +647,9 @@ ggplot(dist_data, aes(x = size, y = density, color = factor(year))) +
 
 ---
 
-# Part 5: Catastrophes and Bonanzas
+## Part 5: Catastrophes and Bonanzas
 
-## Incorporating rare events
+### Incorporating rare events
 
 Some years aren't just "bad"—they're catastrophic (fire, disease outbreak). Others are bonanzas (exceptional recruitment year).
 
@@ -735,9 +735,9 @@ cat("With catastrophes:", round(mean(extinct_with_cat), 3), "\n")
 
 ---
 
-# Part 6: Stochastic Sensitivity Analysis
+## Part 6: Stochastic Sensitivity Analysis
 
-## Which vital rates matter most under stochasticity?
+### Which vital rates matter most under stochasticity?
 
 In deterministic models, elasticity tells us which vital rates most affect λ. Under stochasticity, we ask: which vital rates most affect **log(λs)**?
 
@@ -813,9 +813,9 @@ cat("Fecundity (per seed):", round(sens_fec, 6), "\n")
 
 ---
 
-# Part 7: Application to *Silene lanceolata*
+## Part 7: Application to *Silene lanceolata*
 
-## Connecting to Chapter 18
+### Connecting to Chapter 18
 
 The deterministic IPM in Chapter 18 estimated λ for *S. lanceolata*. Now we ask: **How does environmental variation in vital rates affect extinction risk?**
 
@@ -841,7 +841,7 @@ Management implications:
 ")
 ```
 
-## Minimum viable population analysis
+### Minimum viable population analysis
 
 ```{r stoch-mvp}
 # How large must a population be to have <5% extinction risk in 100 years?
@@ -906,9 +906,9 @@ ggplot(extinction_by_size, aes(x = N0, y = p_extinct)) +
 
 ---
 
-# Part 8: Reporting Stochastic Models
+## Part 8: Reporting Stochastic Models
 
-## What to report
+### What to report
 
 1. **Type of stochasticity:** Demographic, environmental, catastrophic
 2. **Parameter distributions:** Means and variances for vital rates
@@ -917,13 +917,13 @@ ggplot(extinction_by_size, aes(x = N0, y = p_extinct)) +
 5. **Minimum viable population:** If relevant
 6. **Comparison to deterministic:** How much does variance matter?
 
-## Sample methods and results
+### Sample methods and results
 
-### Methods
+#### Methods
 
 > We extended the deterministic IPM to incorporate environmental stochasticity by allowing vital rate parameters to vary among years according to estimated interannual variability. We estimated year-to-year variance in survival, growth, and fecundity parameters from 5 years of demographic monitoring, modeling each parameter as normally distributed around its mean. We also incorporated catastrophic fire events with 5% annual probability and 80% mortality based on observed fire return intervals and post-fire survival. We estimated the stochastic growth rate (log λs) from 100 simulations of 100 years each, sampling year-specific parameter sets randomly with replacement. Extinction risk was calculated as the proportion of simulations falling below quasi-extinction thresholds (N < 10) at various time horizons. We conducted minimum viable population analysis by varying initial population size and calculating extinction probability over 100 years. All analyses were conducted in R using the ipmr package.
 
-### Results
+#### Results
 
 > The stochastic growth rate was lower than the deterministic growth rate (log λs = -0.08 ± 0.03, λs = 0.92 vs deterministic λ = 0.95), reflecting the variance discount from environmental stochasticity. The 100-year extinction probability was 0.23 for a population starting at N = 50, increasing to 0.68 when catastrophic fire was included. Minimum viable population analysis indicated that populations required N > 150 individuals for <5% extinction risk over 100 years without fire, and N > 350 with fire included. Stochastic elasticity analysis showed that log λs was most sensitive to adult survival (elasticity = 0.45) and least sensitive to fecundity (elasticity = 0.12), consistent with deterministic results but with survival becoming relatively more important under stochasticity. These results suggest that maintaining populations above 200 individuals and reducing fire frequency are critical for *S. lanceolata* persistence.
 

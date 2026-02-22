@@ -43,7 +43,7 @@ set.seed(42)
 
 ---
 
-# Part 1: D-Separation and Model Fit
+## Part 1: D-Separation and Model Fit
 
 ## The logic of piecewise SEM
 
@@ -163,7 +163,7 @@ summary(psem_correct)
 
 ---
 
-# Part 2: Working with Real Ecological Data
+## Part 2: Working with Real Ecological Data
 
 ## Example: Post-fire recovery (Keeley data)
 
@@ -230,7 +230,7 @@ rsquared(keeley_psem)
 
 ---
 
-# Part 3: GLMs in Piecewise SEM
+## Part 3: GLMs in Piecewise SEM
 
 ## Why GLMs matter
 
@@ -311,7 +311,7 @@ coefs(count_psem, standardize = "scale")
 
 ---
 
-# Part 4: Mixed Models in Piecewise SEM
+## Part 4: Mixed Models in Piecewise SEM
 
 ## Handling hierarchical data
 
@@ -351,7 +351,7 @@ stopifnot(exists("mixed_data"))
 
 mixed_data$site <- as.factor(mixed_data$site)
 
-m1 <- nlme::lme(
+mixed_psem <- nlme::lme(
   fixed  = cover ~ treatment + soil,
   random = ~ 1 | site,
   data   = mixed_data,
@@ -359,10 +359,10 @@ m1 <- nlme::lme(
 )
 
 cat("\n=== Model overview ===\n")
-print(m1)
+print(mixed_psem)
 
 cat("\n=== Path coefficients (fixed effects) ===\n")
-sm <- summary(m1)
+sm <- summary(mixed_psem)
 print(sm$tTable)
 ```
 
@@ -379,7 +379,7 @@ rsquared(mixed_psem)
 
 ---
 
-# Part 5: Nonlinearity and Interactions
+## Part 5: Nonlinearity and Interactions
 
 ## Polynomial terms
 
@@ -438,7 +438,7 @@ summary(int_psem)
 
 ---
 
-# Part 6: Categorical Predictors
+## Part 6: Categorical Predictors
 
 ## Treatment effects in SEM
 
@@ -487,7 +487,7 @@ pairs(emmeans(biomass_mod, specs = ~ treatment))
 
 ---
 
-# Part 7: Complete Ecological Example
+## Part 7: Complete Ecological Example
 
 ## Case study: Vegetation management and pollinators
 
@@ -567,33 +567,43 @@ summary(ivm_psem)
 
 
 ```{r sem-path-diagram, message=FALSE, warning=FALSE}
-# Clean coefficient table
-ctab_clean <- ctab %>%
-  dplyr::mutate(
-    Estimate_num = suppressWarnings(as.numeric(Estimate)),
-    P_num        = suppressWarnings(as.numeric(P.Value))
-  ) %>%
-  dplyr::filter(!is.na(Estimate_num))
+if (!exists("ivm_psem")) stop("ivm_psem not found. Fit it in an earlier chunk.")
 
-# significance stars
+# Extract coefficients
+ctab <- piecewiseSEM::coefs(ivm_psem)
+
+# ---- CLEAN COLUMN NAMES ----
+names(ctab) <- make.names(names(ctab), unique = TRUE)
+ctab <- as.data.frame(ctab)
+
+# Remove intercepts early
+ctab <- ctab[ctab$Predictor != "(Intercept)", ]
+
+# Clean numeric columns
+ctab$Estimate_num <- suppressWarnings(as.numeric(ctab$Estimate))
+ctab$P_num        <- suppressWarnings(as.numeric(ctab$P.Value))
+
+ctab_clean <- ctab[!is.na(ctab$Estimate_num) & !is.na(ctab$P_num), ]
+
+# Significance stars
 sigstars <- function(p){
   ifelse(p < 0.001, "***",
   ifelse(p < 0.01,  "**",
   ifelse(p < 0.05,  "*", "")))
 }
 
-edges <- transform(
-  ctab_clean,
-  label = sprintf("%.2f%s", Estimate_num, sigstars(P_num))
-)
+ctab_clean$label <- sprintf("%.2f%s",
+                            ctab_clean$Estimate_num,
+                            sigstars(ctab_clean$P_num))
 
 dot <- paste0(
   "digraph psem {\n",
   "rankdir=LR;\n",
   "node [shape=box, style=rounded];\n",
   paste0(
-    "  \"", edges$Predictor, "\" -> \"", edges$Response,
-    "\" [label=\"", edges$label, "\"];\n",
+    "  \"", ctab_clean$Predictor,
+    "\" -> \"", ctab_clean$Response,
+    "\" [label=\"", ctab_clean$label, "\"];\n",
     collapse = ""
   ),
   "}\n"
@@ -616,7 +626,7 @@ rsquared(ivm_psem)
 
 ---
 
-# Part 8: Reporting Piecewise SEM
+## Part 8: Reporting Piecewise SEM
 
 ## What to report
 

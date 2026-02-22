@@ -36,7 +36,7 @@ set.seed(42)
 
 ---
 
-# Part 1: From Correlation to Causation
+## Part 1: From Correlation to Causation
 
 ## The ladder of causation
 
@@ -100,7 +100,7 @@ grid.arrange(p1, p2, p3, ncol = 3)
 
 ---
 
-# Part 2: What is a DAG?
+## Part 2: What is a DAG?
 
 ## Directed Acyclic Graphs
 
@@ -183,7 +183,7 @@ paths(simple_dag, from = "X", to = "Y")
 
 ---
 
-# Part 3: The Three Fundamental Structures
+## Part 3: The Three Fundamental Structures
 
 Every DAG, no matter how complex, is built from three basic structures. Understanding these is the key to causal inference.
 
@@ -356,7 +356,7 @@ THE GOLDEN RULES
 
 ---
 
-# Part 4: Paths and D-Separation
+## Part 4: Paths and D-Separation
 
 ## What is a path?
 
@@ -419,7 +419,7 @@ print(all_paths)
 
 ---
 
-# Part 5: The Backdoor Criterion
+## Part 5: The Backdoor Criterion
 
 ## Causal vs non-causal paths
 
@@ -497,7 +497,7 @@ ggdag_adjustment_set(multi_dag) +
 
 ---
 
-# Part 6: Common Pitfalls
+## Part 6: Common Pitfalls
 
 ## Pitfall 1: Controlling for a mediator
 
@@ -592,7 +592,7 @@ Including everything gives biased estimates for most coefficients.
 
 ---
 
-# Part 7: Building Your Own DAG
+## Part 7: Building Your Own DAG
 
 ## Step-by-step process
 
@@ -686,7 +686,7 @@ print(adjustment_sets)
 
 ---
 
-# Part 8: When Causal Inference Fails
+## Part 8: When Causal Inference Fails
 
 ## Unmeasured confounding
 
@@ -724,7 +724,7 @@ cat("Adjustment sets:", ifelse(length(adj) == 0, "NONE - effect not identifiable
 
 ---
 
-# Part 9: Connecting DAGs to Analysis
+## Part 9: Connecting DAGs to Analysis
 
 ## DAGs inform statistical models
 
@@ -810,7 +810,7 @@ cat("Unadjusted model:", round(coef(treatment_model)["Nitrogen"], 3), "\n")
 
 ---
 
-# Part 10: Reporting Causal Analysis
+## Part 10: Reporting Causal Analysis
 
 ## What to report
 

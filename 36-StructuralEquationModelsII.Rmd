@@ -66,7 +66,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Confirmatory Factor Analysis (CFA)
+## Part 1: Confirmatory Factor Analysis (CFA)
 
 ## What is CFA?
 
@@ -187,7 +187,7 @@ standardizedSolution(cfa_fit_std) %>%
 
 ---
 
-# Part 2: Multiple Latent Factors
+## Part 2: Multiple Latent Factors
 
 ## When constructs are multidimensional
 
@@ -258,7 +258,7 @@ lavInspect(cfa_2fit, what = "cor.lv")
 
 ---
 
-# Part 3: Full Structural Models
+## Part 3: Full Structural Models
 
 ## Combining measurement and structural models
 
@@ -341,7 +341,7 @@ pe %>%
 
 ---
 
-# Part 4: Measurement Error in Predictors
+## Part 4: Measurement Error in Predictors
 
 ## Why measurement error matters
 
@@ -427,7 +427,7 @@ parameterEstimates(fit_error) %>%
 
 ---
 
-# Part 5: Model Identification Deep Dive
+## Part 5: Model Identification Deep Dive
 
 ## The identification problem
 
@@ -479,7 +479,7 @@ tryCatch({
 
 ---
 
-# Part 6: Advanced Model Assessment
+## Part 6: Advanced Model Assessment
 
 ## Comparing nested CFA models
 
@@ -539,7 +539,7 @@ cat("AVE for Disturbance:", round(ave, 3), "\n")
 
 ---
 
-# Part 7: Reporting Latent Variable Models
+## Part 7: Reporting Latent Variable Models
 
 ## What to report for CFA
 

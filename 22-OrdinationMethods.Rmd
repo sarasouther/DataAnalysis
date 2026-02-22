@@ -35,7 +35,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Visualizing Ordination Logic
+## Part 1: Visualizing Ordination Logic
 
 Let's build intuition for what ordination does using a simple example.
 
@@ -89,7 +89,7 @@ With 50 species, you'd have 50 axes—impossible to visualize. Ordination finds 
 
 ---
 
-# Part 2: NMDS (Non-metric Multidimensional Scaling)
+## Part 2: NMDS (Non-metric Multidimensional Scaling)
 
 ## What makes NMDS different?
 
@@ -236,7 +236,7 @@ plot(env_fit, col = "firebrick", lwd = 2)
 
 ---
 
-# Part 3: Other Ordination Methods
+## Part 3: Other Ordination Methods
 
 ## PCA (Principal Components Analysis)
 
@@ -284,7 +284,7 @@ CA/DCA are less commonly used now because NMDS is more flexible. Consider them w
 
 ---
 
-# Part 4: Practical Considerations
+## Part 4: Practical Considerations
 
 ## Choosing the right dissimilarity
 
@@ -372,7 +372,7 @@ grid.arrange(p1, p2, ncol = 2)
 
 ---
 
-# Part 5: Reporting Ordination Results
+## Part 5: Reporting Ordination Results
 
 ## What to report
 

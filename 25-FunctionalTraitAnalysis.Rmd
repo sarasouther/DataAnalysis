@@ -44,7 +44,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Trait Data Structure
+## Part 1: Trait Data Structure
 
 ## The three matrices
 
@@ -334,7 +334,7 @@ ggplot(fd_long, aes(x = Moisture, y = Value)) +
 
 ---
 
-# Part 4: Fourth-Corner Analysis
+## Part 4: Fourth-Corner Analysis
 
 ## The question
 
@@ -395,7 +395,7 @@ plot(fourth_adj, alpha = 0.05, stat = "D2")
 
 ---
 
-# Part 5: RLQ Analysis
+## Part 5: RLQ Analysis
 
 ## Beyond fourth-corner
 
@@ -486,7 +486,7 @@ plot(rlq_test)
 
 ---
 
-# Part 6: Trait-Based Community Assembly
+## Part 6: Trait-Based Community Assembly
 
 ## Assembly mechanisms
 
@@ -502,33 +502,64 @@ Functional trait analysis can help distinguish assembly mechanisms:
 
 To test whether observed FD differs from random, compare to a null model:
 
-```{r null-model}
-# Null model: shuffle traits among species
+```{r null-model 25}
+library(FD)
+
+set.seed(1)
 n_null <- 999
-null_fdis <- matrix(NA, n_null, n_sites)
+
+L_mat <- as.matrix(L_df)
+Q_mat <- as.data.frame(Q_df)
+Q_mat <- Q_mat[, vapply(Q_mat, is.numeric, logical(1)), drop = FALSE]
+
+sp <- sort(base::intersect(colnames(L_mat), rownames(Q_mat)))
+L2 <- L_mat[, sp, drop = FALSE]
+Q2 <- Q_mat[sp, , drop = FALSE]
+
+n_sites <- nrow(L2)
+
+# ---- Precompute distance + PCoA once ----
+trait_dist <- dist(scale(Q2))
+trait_pcoa <- cmdscale(trait_dist, k = ncol(Q2), eig = FALSE)
+
+# Observed FDis
+fd_obs <- dbFD(Q2, L2, messages = FALSE)
+obs_fdis <- fd_obs$FDis
+
+null_fdis <- matrix(NA_real_, nrow = n_null, ncol = n_sites)
 
 for (i in 1:n_null) {
-  # Randomize trait matrix (shuffle species labels)
-  Q_null <- Q[sample(nrow(Q)), ]
-  rownames(Q_null) <- rownames(Q)
   
-  # Calculate FDis
-  fd_null <- dbFD(Q_null, L, messages = FALSE)
-  null_fdis[i, ] <- fd_null$FDis
+  perm <- sample(seq_len(nrow(Q2)))
+  trait_perm <- trait_pcoa[perm, , drop = FALSE]
+  
+  # Calculate FDis manually
+  for (j in seq_len(n_sites)) {
+    w <- L2[j, ]
+    if (sum(w) == 0) {
+      null_fdis[i, j] <- NA
+    } else {
+      centroid <- colSums(trait_perm * w) / sum(w)
+      dists <- sqrt(rowSums((trait_perm - centroid)^2))
+      null_fdis[i, j] <- sum(dists * w) / sum(w)
+    }
+  }
 }
 
-# Compare observed to null
-obs_fdis <- fd_results$FDis
+# SES
+null_mean <- colMeans(null_fdis, na.rm = TRUE)
+null_sd   <- apply(null_fdis, 2, sd, na.rm = TRUE)
+null_sd[null_sd == 0] <- NA
 
-# Calculate standardized effect size (SES)
-ses_fdis <- (obs_fdis - colMeans(null_fdis)) / apply(null_fdis, 2, sd)
+ses_fdis <- (obs_fdis - null_mean) / null_sd
 
-# Results
 ses_results <- data.frame(
-  Site = rownames(L),
-  Observed = obs_fdis,
-  Null_mean = colMeans(null_fdis),
-  SES = ses_fdis
+  Site      = rownames(L2),
+  Observed  = obs_fdis,
+  Null_mean = null_mean,
+  Null_sd   = null_sd,
+  SES       = ses_fdis,
+  row.names = rownames(L2)
 )
 
 head(ses_results)
@@ -556,7 +587,7 @@ ggplot(ses_results, aes(x = Site, y = SES)) +
 
 ---
 
-# Part 7: Intraspecific Trait Variation
+## Part 7: Intraspecific Trait Variation
 
 ## Beyond species means
 
@@ -616,7 +647,7 @@ cat("Within-species variance (ITV):", round(var_within/var_total * 100, 1), "%\n
 
 ---
 
-# Part 8: Complete Workflow
+## Part 8: Complete Workflow
 
 Let's work through a complete functional trait analysis:
 
@@ -693,7 +724,7 @@ cat("\nRLQ global test p-value:", rlq_test$pvalue, "\n")
 
 ---
 
-# Part 9: Reporting
+## Part 9: Reporting
 
 ## What to report
 

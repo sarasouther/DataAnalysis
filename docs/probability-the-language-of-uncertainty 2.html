@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 3 Probability: The Language of Uncertainty | Applied Statistics for the Natural Sciences</title>
+  <meta name="description" content="Chapter 3 Probability: The Language of Uncertainty | Applied Statistics for the Natural Sciences" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 3 Probability: The Language of Uncertainty | Applied Statistics for the Natural Sciences" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="sarasouther/DataAnalysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 3 Probability: The Language of Uncertainty | Applied Statistics for the Natural Sciences" />
+  
+  
+  
+
+<meta name="author" content="Sara Souther" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="back-to-the-basics.html"/>
+<link rel="next" href="data-types-and-why-they-matter.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet" />
+<script src="libs/bsTable-3.3.7/bootstrapTable.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.11/grViz.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Applied Statistics for the Natural Sciences</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#learning-objectives"><i class="fa fa-check"></i><b>1.1</b> Learning Objectives</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#using-r-in-this-course"><i class="fa fa-check"></i><b>1.2</b> Using R in This Course</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#what-you-need-to-use-r"><i class="fa fa-check"></i><b>1.2.1</b> What you need to use R</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#create-an-r-file"><i class="fa fa-check"></i><b>1.2.2</b> Create an R file</a></li>
+<li class="chapter" data-level="1.2.3" data-path="index.html"><a href="index.html#using-working-directories-and-opening-files"><i class="fa fa-check"></i><b>1.2.3</b> Using working directories and opening files</a></li>
+<li class="chapter" data-level="1.2.4" data-path="index.html"><a href="index.html#r-packages"><i class="fa fa-check"></i><b>1.2.4</b> R Packages</a></li>
+<li class="chapter" data-level="1.2.5" data-path="index.html"><a href="index.html#other-information-about-r-code"><i class="fa fa-check"></i><b>1.2.5</b> Other information about R code</a></li>
+<li class="chapter" data-level="1.2.6" data-path="index.html"><a href="index.html#getting-started-with-r"><i class="fa fa-check"></i><b>1.2.6</b> Getting started with R</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#how-to-use-this-online-manual"><i class="fa fa-check"></i><b>1.3</b> How to use this online manual</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="index.html"><a href="index.html#how-this-manual-fits-into-the-course"><i class="fa fa-check"></i><b>1.3.1</b> How this manual fits into the course</a></li>
+<li class="chapter" data-level="1.3.2" data-path="index.html"><a href="index.html#tips-for-getting-the-most-out-of-this-book"><i class="fa fa-check"></i><b>1.3.2</b> Tips for getting the most out of this book</a></li>
+<li class="chapter" data-level="1.3.3" data-path="index.html"><a href="index.html#a-note-on-r-code-in-this-book"><i class="fa fa-check"></i><b>1.3.3</b> A note on R code in this book</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#course-structure"><i class="fa fa-check"></i><b>1.4</b> Course structure</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html"><i class="fa fa-check"></i><b>2</b> Back to the basics</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#watch-the-video"><i class="fa fa-check"></i><b>2.1</b> Watch the video</a></li>
+<li class="chapter" data-level="2.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-can-statistics-tell-us"><i class="fa fa-check"></i><b>2.2</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="2.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-frequentist-framework"><i class="fa fa-check"></i><b>2.3</b> The Frequentist Framework</a></li>
+<li class="chapter" data-level="2.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#bayesian-statistics"><i class="fa fa-check"></i><b>2.4</b> Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#when-might-you-choose-bayesian-statistics"><i class="fa fa-check"></i><b>2.4.1</b> When might you choose Bayesian statistics?</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#fundaments-of-frequentist-statistics"><i class="fa fa-check"></i><b>2.5</b> Fundaments of frequentist statistics</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#statistical-error"><i class="fa fa-check"></i><b>2.5.1</b> Statistical error</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-is-a-model"><i class="fa fa-check"></i><b>2.6</b> What is a model?</a></li>
+<li class="chapter" data-level="2.7" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#assignment"><i class="fa fa-check"></i><b>2.7</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html"><i class="fa fa-check"></i><b>3</b> Probability: The Language of Uncertainty</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#watch-the-video-1"><i class="fa fa-check"></i><b>3.1</b> Watch the video</a></li>
+<li class="chapter" data-level="3.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#probability-is-everywhere-and-we-often-get-it-wrong"><i class="fa fa-check"></i><b>3.2</b> Probability is everywhere, and we often get it wrong</a></li>
+<li class="chapter" data-level="3.3" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#from-uncertainty-to-inference"><i class="fa fa-check"></i><b>3.3</b> From uncertainty to inference</a></li>
+<li class="chapter" data-level="3.4" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#samplespace"><i class="fa fa-check"></i><b>3.4</b> Defining the sample space</a></li>
+<li class="chapter" data-level="3.5" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#longrun"><i class="fa fa-check"></i><b>3.5</b> Probability as long-run frequency</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#simulation-watching-probability-stabilize"><i class="fa fa-check"></i><b>3.5.1</b> Simulation: watching probability stabilize</a></li>
+<li class="chapter" data-level="3.5.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#what-long-run-frequency-means-for-your-research"><i class="fa fa-check"></i><b>3.5.2</b> What long-run frequency means for your research</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#conditional"><i class="fa fa-check"></i><b>3.6</b> Conditional probability and dependence</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#how-knowing-one-thing-changes-what-we-expect"><i class="fa fa-check"></i><b>3.6.1</b> How knowing one thing changes what we expect</a></li>
+<li class="chapter" data-level="3.6.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#independence-when-knowing-one-thing-changes-nothing"><i class="fa fa-check"></i><b>3.6.2</b> Independence: when knowing one thing changes nothing</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#nullmodels"><i class="fa fa-check"></i><b>3.7</b> From probability to statistical thinking</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#probability-distributions-the-full-picture-of-uncertainty"><i class="fa fa-check"></i><b>3.7.1</b> Probability distributions: the full picture of uncertainty</a></li>
+<li class="chapter" data-level="3.7.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#nullmodel"><i class="fa fa-check"></i><b>3.7.2</b> Null models: what does chance alone look like?</a></li>
+<li class="chapter" data-level="3.7.3" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#permtest"><i class="fa fa-check"></i><b>3.7.3</b> A permutation test: building a null distribution</a></li>
+<li class="chapter" data-level="3.7.4" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#pvalue"><i class="fa fa-check"></i><b>3.7.4</b> The p-value: measuring surprise</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#roadmap"><i class="fa fa-check"></i><b>3.8</b> Where probability appears in ecology and statistics</a></li>
+<li class="chapter" data-level="3.9" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#probsummary"><i class="fa fa-check"></i><b>3.9</b> Summary</a></li>
+<li class="chapter" data-level="3.10" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#probassignment"><i class="fa fa-check"></i><b>3.10</b> Assignment: Probability thinking in your research system</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-1-defining-the-sample-space"><i class="fa fa-check"></i><b>3.10.1</b> Part 1: Defining the sample space</a></li>
+<li class="chapter" data-level="3.10.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-2-probability-as-long-run-frequency"><i class="fa fa-check"></i><b>3.10.2</b> Part 2: Probability as long-run frequency</a></li>
+<li class="chapter" data-level="3.10.3" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-3-conditional-probability"><i class="fa fa-check"></i><b>3.10.3</b> Part 3: Conditional probability</a></li>
+<li class="chapter" data-level="3.10.4" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-4-independence-and-dependence"><i class="fa fa-check"></i><b>3.10.4</b> Part 4: Independence and dependence</a></li>
+<li class="chapter" data-level="3.10.5" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-5-null-model-thinking"><i class="fa fa-check"></i><b>3.10.5</b> Part 5: Null model thinking</a></li>
+<li class="chapter" data-level="3.10.6" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-6-connecting-to-your-analyses"><i class="fa fa-check"></i><b>3.10.6</b> Part 6: Connecting to your analyses</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html"><i class="fa fa-check"></i><b>4</b> Data Types and Why They Matter</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#vartypes"><i class="fa fa-check"></i><b>4.1</b> Types of variables</a>
+<ul>
+<li class="chapter" data-level="4.1.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#categorical-variables"><i class="fa fa-check"></i><b>4.1.1</b> Categorical variables</a></li>
+<li class="chapter" data-level="4.1.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#numerical-variables"><i class="fa fa-check"></i><b>4.1.2</b> Numerical variables</a></li>
+<li class="chapter" data-level="4.1.3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#ordinal-variables"><i class="fa fa-check"></i><b>4.1.3</b> Ordinal variables</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#residuals"><i class="fa fa-check"></i><b>4.2</b> From data to residuals</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#what-is-a-residual"><i class="fa fa-check"></i><b>4.2.1</b> What is a residual?</a></li>
+<li class="chapter" data-level="4.2.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#why-the-shape-of-residuals-matters"><i class="fa fa-check"></i><b>4.2.2</b> Why the shape of residuals matters</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#errorstructure"><i class="fa fa-check"></i><b>4.3</b> Normal vs. non-normal error</a></li>
+<li class="chapter" data-level="4.4" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#distribution-table"><i class="fa fa-check"></i><b>4.4</b> Linking data types to distributions and models</a></li>
+<li class="chapter" data-level="4.5" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#distributions"><i class="fa fa-check"></i><b>4.5</b> Common statistical distributions</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-normal-distribution"><i class="fa fa-check"></i><b>4.5.1</b> The normal distribution</a></li>
+<li class="chapter" data-level="4.5.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-binomial-distribution"><i class="fa fa-check"></i><b>4.5.2</b> The binomial distribution</a></li>
+<li class="chapter" data-level="4.5.3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-poisson-distribution"><i class="fa fa-check"></i><b>4.5.3</b> The Poisson distribution</a></li>
+<li class="chapter" data-level="4.5.4" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-negative-binomial-distribution"><i class="fa fa-check"></i><b>4.5.4</b> The negative binomial distribution</a></li>
+<li class="chapter" data-level="4.5.5" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-uniform-distribution"><i class="fa fa-check"></i><b>4.5.5</b> The uniform distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#datatypes-summary"><i class="fa fa-check"></i><b>4.6</b> Summary</a></li>
+<li class="chapter" data-level="4.7" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#datatypes-assignment"><i class="fa fa-check"></i><b>4.7</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="data-exploration-and-assumption-checking.html"><a href="data-exploration-and-assumption-checking.html"><i class="fa fa-check"></i><b>5</b> Data Exploration and Assumption Checking</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="data-exploration-and-assumption-checking.html"><a href="data-exploration-and-assumption-checking.html#describing-data"><i class="fa fa-check"></i><b>5.1</b> Describing data</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="ecological-sampling.html"><a href="ecological-sampling.html"><i class="fa fa-check"></i><b>6</b> Ecological sampling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#background"><i class="fa fa-check"></i><b>6.1</b> Background</a></li>
+<li class="chapter" data-level="6.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#what-kind-of-study-are-you-designing"><i class="fa fa-check"></i><b>6.2</b> What kind of study are you designing?</a></li>
+<li class="chapter" data-level="6.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-approaches"><i class="fa fa-check"></i><b>6.3</b> Sampling approaches</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-sampling"><i class="fa fa-check"></i><b>6.3.1</b> Random sampling</a></li>
+<li class="chapter" data-level="6.3.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#stratified-random-sampling"><i class="fa fa-check"></i><b>6.3.2</b> Stratified random sampling</a></li>
+<li class="chapter" data-level="6.3.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#gridded-random-sampling"><i class="fa fa-check"></i><b>6.3.3</b> Gridded random sampling</a></li>
+<li class="chapter" data-level="6.3.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-cluster-sampling"><i class="fa fa-check"></i><b>6.3.4</b> Random cluster sampling</a></li>
+<li class="chapter" data-level="6.3.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#grts-sampling-generalized-random-tessellation-stratified-sampling"><i class="fa fa-check"></i><b>6.3.5</b> GRTS Sampling (Generalized Random-Tessellation Stratified Sampling)</a></li>
+<li class="chapter" data-level="6.3.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#understanding-design-weights"><i class="fa fa-check"></i><b>6.3.6</b> Understanding Design Weights</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#systematic-sampling"><i class="fa fa-check"></i><b>6.4</b> Systematic Sampling</a></li>
+<li class="chapter" data-level="6.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#adaptive-sampling-sampling-rare-or-patchy-species"><i class="fa fa-check"></i><b>6.5</b> Adaptive Sampling (Sampling Rare or Patchy Species)</a></li>
+<li class="chapter" data-level="6.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-along-gradients"><i class="fa fa-check"></i><b>6.6</b> Sampling Along Gradients</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#what-is-a-gradient-study"><i class="fa fa-check"></i><b>6.6.1</b> What is a gradient study?</a></li>
+<li class="chapter" data-level="6.6.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#designing-a-gradient-study"><i class="fa fa-check"></i><b>6.6.2</b> Designing a gradient study</a></li>
+<li class="chapter" data-level="6.6.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#gradient-sampling-in-r"><i class="fa fa-check"></i><b>6.6.3</b> Gradient sampling in R</a></li>
+<li class="chapter" data-level="6.6.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#common-pitfalls-in-gradient-studies"><i class="fa fa-check"></i><b>6.6.4</b> Common pitfalls in gradient studies</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="ecological-sampling.html"><a href="ecological-sampling.html#imperfect-detection-in-ecological-sampling"><i class="fa fa-check"></i><b>6.7</b> Imperfect Detection in Ecological Sampling</a></li>
+<li class="chapter" data-level="6.8" data-path="ecological-sampling.html"><a href="ecological-sampling.html#temporal-sampling-and-study-designs-through-time"><i class="fa fa-check"></i><b>6.8</b> Temporal Sampling and Study Designs Through Time</a>
+<ul>
+<li class="chapter" data-level="6.8.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-panels"><i class="fa fa-check"></i><b>6.8.1</b> Sampling Panels</a></li>
+<li class="chapter" data-level="6.8.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#baci-and-other-experimental-designs"><i class="fa fa-check"></i><b>6.8.2</b> BACI and Other Experimental Designs</a></li>
+</ul></li>
+<li class="chapter" data-level="6.9" data-path="ecological-sampling.html"><a href="ecological-sampling.html#plot-shapes-sizes-and-transects"><i class="fa fa-check"></i><b>6.9</b> Plot shapes, sizes, and transects</a></li>
+<li class="chapter" data-level="6.10" data-path="ecological-sampling.html"><a href="ecological-sampling.html#distance-sampling-and-point-counts"><i class="fa fa-check"></i><b>6.10</b> Distance Sampling and Point Counts</a></li>
+<li class="chapter" data-level="6.11" data-path="ecological-sampling.html"><a href="ecological-sampling.html#reducing-sampling-error"><i class="fa fa-check"></i><b>6.11</b> Reducing sampling error</a></li>
+<li class="chapter" data-level="6.12" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sample-size-determination-in-ecology-effect-sizes-and-precision"><i class="fa fa-check"></i><b>6.12</b> Sample Size Determination in Ecology: Effect Sizes and Precision</a></li>
+<li class="chapter" data-level="6.13" data-path="ecological-sampling.html"><a href="ecological-sampling.html#variables-of-interest"><i class="fa fa-check"></i><b>6.13</b> Variables of interest</a></li>
+<li class="chapter" data-level="6.14" data-path="ecological-sampling.html"><a href="ecological-sampling.html#test-your-knowledge"><i class="fa fa-check"></i><b>6.14</b> Test your knowledge</a></li>
+<li class="chapter" data-level="6.15" data-path="ecological-sampling.html"><a href="ecological-sampling.html#assignment-1"><i class="fa fa-check"></i><b>6.15</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="6.15.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#example-methods-sampling-design"><i class="fa fa-check"></i><b>6.15.1</b> Example Methods: Sampling Design</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html"><i class="fa fa-check"></i><b>7</b> Experimental Design: From Question to Study Structure</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#studytypes"><i class="fa fa-check"></i><b>7.1</b> Observational vs. manipulative studies</a>
+<ul>
+<li class="chapter" data-level="7.1.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#manipulative-experiments"><i class="fa fa-check"></i><b>7.1.1</b> Manipulative experiments</a></li>
+<li class="chapter" data-level="7.1.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#observational-studies"><i class="fa fa-check"></i><b>7.1.2</b> Observational studies</a></li>
+<li class="chapter" data-level="7.1.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#natural-experiments-and-quasi-experiments"><i class="fa fa-check"></i><b>7.1.3</b> Natural experiments and quasi-experiments</a></li>
+<li class="chapter" data-level="7.1.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#space-for-time-substitution"><i class="fa fa-check"></i><b>7.1.4</b> Space-for-time substitution</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#controls"><i class="fa fa-check"></i><b>7.2</b> The logic of controls and comparison</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#what-makes-a-good-control"><i class="fa fa-check"></i><b>7.2.1</b> What makes a good control?</a></li>
+<li class="chapter" data-level="7.2.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#procedural-controls"><i class="fa fa-check"></i><b>7.2.2</b> Procedural controls</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#randomization"><i class="fa fa-check"></i><b>7.3</b> Randomization: why and how</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#what-randomization-does"><i class="fa fa-check"></i><b>7.3.1</b> What randomization does</a></li>
+<li class="chapter" data-level="7.3.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#how-to-randomize"><i class="fa fa-check"></i><b>7.3.2</b> How to randomize</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#designs"><i class="fa fa-check"></i><b>7.4</b> Common experimental designs</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#completely-randomized-design-crd"><i class="fa fa-check"></i><b>7.4.1</b> Completely Randomized Design (CRD)</a></li>
+<li class="chapter" data-level="7.4.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#blocking"><i class="fa fa-check"></i><b>7.4.2</b> Randomized Complete Block Design (RCBD)</a></li>
+<li class="chapter" data-level="7.4.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#factorial"><i class="fa fa-check"></i><b>7.4.3</b> Factorial designs</a></li>
+<li class="chapter" data-level="7.4.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#nested"><i class="fa fa-check"></i><b>7.4.4</b> Nested designs</a></li>
+<li class="chapter" data-level="7.4.5" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#splitplot"><i class="fa fa-check"></i><b>7.4.5</b> Split-plot designs</a></li>
+<li class="chapter" data-level="7.4.6" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#repeatedmeasures"><i class="fa fa-check"></i><b>7.4.6</b> Repeated measures and longitudinal designs</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#baci"><i class="fa fa-check"></i><b>7.5</b> Before-After-Control-Impact (BACI) designs</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#the-problem-baci-solves"><i class="fa fa-check"></i><b>7.5.1</b> The problem BACI solves</a></li>
+<li class="chapter" data-level="7.5.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#the-four-standard-baci-designs"><i class="fa fa-check"></i><b>7.5.2</b> The four standard BACI designs</a></li>
+<li class="chapter" data-level="7.5.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#the-baci-interaction"><i class="fa fa-check"></i><b>7.5.3</b> The BACI interaction</a></li>
+<li class="chapter" data-level="7.5.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#statistical-model-for-baci"><i class="fa fa-check"></i><b>7.5.4</b> Statistical model for BACI</a></li>
+<li class="chapter" data-level="7.5.5" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#baci-pitfalls"><i class="fa fa-check"></i><b>7.5.5</b> BACI pitfalls</a></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#replication"><i class="fa fa-check"></i><b>7.6</b> Identifying your unit of replication</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#the-rule"><i class="fa fa-check"></i><b>7.6.1</b> The rule</a></li>
+<li class="chapter" data-level="7.6.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#what-to-do-with-subsamples"><i class="fa fa-check"></i><b>7.6.2</b> What to do with subsamples</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#design-to-analysis"><i class="fa fa-check"></i><b>7.7</b> Connecting design to analysis</a></li>
+<li class="chapter" data-level="7.8" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#designsummary"><i class="fa fa-check"></i><b>7.8</b> Summary</a></li>
+<li class="chapter" data-level="7.9" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#designassignment"><i class="fa fa-check"></i><b>7.9</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="7.9.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#part-1-study-type"><i class="fa fa-check"></i><b>7.9.1</b> Part 1: Study type</a></li>
+<li class="chapter" data-level="7.9.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#part-2-design-structure"><i class="fa fa-check"></i><b>7.9.2</b> Part 2: Design structure</a></li>
+<li class="chapter" data-level="7.9.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#part-3-controls-and-confounds"><i class="fa fa-check"></i><b>7.9.3</b> Part 3: Controls and confounds</a></li>
+<li class="chapter" data-level="7.9.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#part-4-design-to-model-connection"><i class="fa fa-check"></i><b>7.9.4</b> Part 4: Design-to-model connection</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="power-analysis.html"><a href="power-analysis.html"><i class="fa fa-check"></i><b>8</b> Power analysis</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="power-analysis.html"><a href="power-analysis.html#prework"><i class="fa fa-check"></i><b>8.1</b> Prework</a></li>
+<li class="chapter" data-level="8.2" data-path="power-analysis.html"><a href="power-analysis.html#statistical-power"><i class="fa fa-check"></i><b>8.2</b> Statistical power</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html"><i class="fa fa-check"></i><b>9</b> Selecting statistical tests</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-foray-into-statistics"><i class="fa fa-check"></i><b>9.1</b> A foray into statistics</a></li>
+<li class="chapter" data-level="9.2" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#pick-the-explanatory-and-response-variable"><i class="fa fa-check"></i><b>9.2</b> Pick the explanatory and response variable</a></li>
+<li class="chapter" data-level="9.3" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#variable-types-refresher"><i class="fa fa-check"></i><b>9.3</b> Variable types refresher</a></li>
+<li class="chapter" data-level="9.4" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#more-examples"><i class="fa fa-check"></i><b>9.4</b> More examples</a></li>
+<li class="chapter" data-level="9.5" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#the-decision-matrix"><i class="fa fa-check"></i><b>9.5</b> The decision matrix</a></li>
+<li class="chapter" data-level="9.6" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-note-on-assumptions"><i class="fa fa-check"></i><b>9.6</b> A note on assumptions</a></li>
+<li class="chapter" data-level="9.7" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#learning-goals"><i class="fa fa-check"></i><b>9.7</b> Learning goals</a></li>
+<li class="chapter" data-level="9.8" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#downloads-for-this-class"><i class="fa fa-check"></i><b>9.8</b> Downloads for this class</a></li>
+<li class="chapter" data-level="9.9" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#in-class-practice"><i class="fa fa-check"></i><b>9.9</b> In-class practice</a></li>
+<li class="chapter" data-level="9.10" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#assignment-choosing-and-running-the-right-test"><i class="fa fa-check"></i><b>9.10</b> Assignment: Choosing and Running the Right Test</a>
+<ul>
+<li class="chapter" data-level="9.10.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#deliverables"><i class="fa fa-check"></i><b>9.10.1</b> Deliverables</a></li>
+</ul></li>
+<li class="chapter" data-level="9.11" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#statistical-analyses-for-your-species-interaction-lab"><i class="fa fa-check"></i><b>9.11</b> Statistical analyses for your species interaction lab</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html"><i class="fa fa-check"></i><b>10</b> Basic statistical testing</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#a-short-statistical-review"><i class="fa fa-check"></i><b>10.1</b> A short statistical review</a>
+<ul>
+<li class="chapter" data-level="10.1.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#what-can-statistics-tell-us-1"><i class="fa fa-check"></i><b>10.1.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="10.1.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#sampling-populations"><i class="fa fa-check"></i><b>10.1.2</b> Sampling populations</a></li>
+</ul></li>
+<li class="chapter" data-level="10.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#hypothesis-testing-review"><i class="fa fa-check"></i><b>10.2</b> Hypothesis testing review</a></li>
+<li class="chapter" data-level="10.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#downloads-for-this-module"><i class="fa fa-check"></i><b>10.3</b> Downloads for this module</a></li>
+<li class="chapter" data-level="10.4" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#objectives"><i class="fa fa-check"></i><b>10.4</b> Objectives</a></li>
+<li class="chapter" data-level="10.5" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#tailed-tests"><i class="fa fa-check"></i><b>10.5</b> Tailed tests</a>
+<ul>
+<li class="chapter" data-level="10.5.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#generate-hypotheses"><i class="fa fa-check"></i><b>10.5.1</b> Generate hypotheses</a></li>
+<li class="chapter" data-level="10.5.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#calculate-a-test-statistic"><i class="fa fa-check"></i><b>10.5.2</b> Calculate a test statistic</a></li>
+<li class="chapter" data-level="10.5.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#determine-the-p-value"><i class="fa fa-check"></i><b>10.5.3</b> Determine the p-value</a></li>
+</ul></li>
+<li class="chapter" data-level="10.6" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#drawing-conclusions-from-statistics"><i class="fa fa-check"></i><b>10.6</b> Drawing conclusions from statistics</a></li>
+<li class="chapter" data-level="10.7" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#reporting-results"><i class="fa fa-check"></i><b>10.7</b> Reporting results</a></li>
+<li class="chapter" data-level="10.8" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#assignment-2"><i class="fa fa-check"></i><b>10.8</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html"><i class="fa fa-check"></i><b>11</b> Generalized Linear Models (GLMs)</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html#linear-models"><i class="fa fa-check"></i><b>11.1</b> Linear models</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>12</b> Generalized Linear Models</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#link-functions"><i class="fa fa-check"></i><b>12.1</b> Link functions</a></li>
+<li class="chapter" data-level="12.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#glms-in-r"><i class="fa fa-check"></i><b>12.2</b> GLMs in R</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html"><i class="fa fa-check"></i><b>13</b> Mixed Effects Models</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html#examples-in-r"><i class="fa fa-check"></i><b>13.1</b> Examples in R</a></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html"><i class="fa fa-check"></i><b>14</b> Describing ecological patterns</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#when-to-use-model-selection"><i class="fa fa-check"></i><b>14.1</b> When to use model selection?</a></li>
+<li class="chapter" data-level="14.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-1-identifying-predictor-variables-or-co-variates-of-importance"><i class="fa fa-check"></i><b>14.2</b> Step 1: Identifying predictor variables or co-variates of importance</a></li>
+<li class="chapter" data-level="14.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-2-removing-colinear-variables"><i class="fa fa-check"></i><b>14.3</b> Step 2: Removing colinear variables</a>
+<ul>
+<li class="chapter" data-level="14.3.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#automated-variable-removal"><i class="fa fa-check"></i><b>14.3.1</b> Automated Variable Removal</a></li>
+<li class="chapter" data-level="14.3.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#expert-knowledge-driven-selection"><i class="fa fa-check"></i><b>14.3.2</b> Expert Knowledge-Driven Selection</a></li>
+<li class="chapter" data-level="14.3.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#blended-strategy-recommended"><i class="fa fa-check"></i><b>14.3.3</b> Blended Strategy (Recommended)</a></li>
+</ul></li>
+<li class="chapter" data-level="14.4" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#example-reducing-colinear-climate-variables"><i class="fa fa-check"></i><b>14.4</b> Example: Reducing colinear climate variables</a></li>
+<li class="chapter" data-level="14.5" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-3-select-the-best-model"><i class="fa fa-check"></i><b>14.5</b> Step 3: Select the best model</a>
+<ul>
+<li class="chapter" data-level="14.5.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#major-types-of-model-selection-overview-benefits-drawbacks-and-applications"><i class="fa fa-check"></i><b>14.5.1</b> Major Types of Model Selection: Overview, Benefits, Drawbacks, and Applications</a></li>
+<li class="chapter" data-level="14.5.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#stepwise-regression-based-on-aic-akaike-information-criterion."><i class="fa fa-check"></i><b>14.5.2</b> Stepwise regression based on AIC (Akaike Information Criterion).</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="15" data-path="plot-establishment.html"><a href="plot-establishment.html"><i class="fa fa-check"></i><b>15</b> Plot establishment</a></li>
+<li class="chapter" data-level="16" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html"><i class="fa fa-check"></i><b>16</b> Before-After-Control-Impact</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#which-design"><i class="fa fa-check"></i><b>16.1</b> Which design</a></li>
+<li class="chapter" data-level="16.2" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#baci-design-2"><i class="fa fa-check"></i><b>16.2</b> BACI Design 2</a></li>
+</ul></li>
+<li class="chapter" data-level="17" data-path="time-is-a-flat-circle.html"><a href="time-is-a-flat-circle.html"><i class="fa fa-check"></i><b>17</b> Time is a flat circle</a></li>
+<li class="chapter" data-level="18" data-path="bootstrapping-and-resampling.html"><a href="bootstrapping-and-resampling.html"><i class="fa fa-check"></i><b>18</b> Bootstrapping and resampling</a></li>
+<li class="chapter" data-level="19" data-path="permuting-your-brains-out.html"><a href="permuting-your-brains-out.html"><i class="fa fa-check"></i><b>19</b> Permuting your brains out</a></li>
+<li class="chapter" data-level="20" data-path="spatial-data.html"><a href="spatial-data.html"><i class="fa fa-check"></i><b>20</b> Spatial data</a></li>
+<li class="chapter" data-level="21" data-path="read.html"><a href="read.html"><i class="fa fa-check"></i><b>21</b> Read</a></li>
+<li class="chapter" data-level="22" data-path="check-structure.html"><a href="check-structure.html"><i class="fa fa-check"></i><b>22</b> Check structure</a></li>
+<li class="chapter" data-level="23" data-path="write.html"><a href="write.html"><i class="fa fa-check"></i><b>23</b> Write</a></li>
+<li class="chapter" data-level="24" data-path="read-1.html"><a href="read-1.html"><i class="fa fa-check"></i><b>24</b> Read</a></li>
+<li class="chapter" data-level="25" data-path="check-properties.html"><a href="check-properties.html"><i class="fa fa-check"></i><b>25</b> Check properties</a></li>
+<li class="chapter" data-level="26" data-path="write-1.html"><a href="write-1.html"><i class="fa fa-check"></i><b>26</b> Write</a></li>
+<li class="chapter" data-level="27" data-path="create-neighbor-list.html"><a href="create-neighbor-list.html"><i class="fa fa-check"></i><b>27</b> Create neighbor list</a></li>
+<li class="chapter" data-level="28" data-path="test-residuals.html"><a href="test-residuals.html"><i class="fa fa-check"></i><b>28</b> Test residuals</a></li>
+<li class="chapter" data-level="29" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html"><i class="fa fa-check"></i><b>29</b> Species Distribution Modeling</a>
+<ul>
+<li class="chapter" data-level="29.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#introduction-1"><i class="fa fa-check"></i><b>29.1</b> Introduction</a></li>
+<li class="chapter" data-level="29.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#a-brief-review-of-niche-theory"><i class="fa fa-check"></i><b>29.2</b> A brief review of niche theory</a></li>
+<li class="chapter" data-level="29.3" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#downloads-for-this-lab"><i class="fa fa-check"></i><b>29.3</b> Downloads for this lab</a></li>
+<li class="chapter" data-level="29.4" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#objectives-1"><i class="fa fa-check"></i><b>29.4</b> Objectives</a></li>
+<li class="chapter" data-level="29.5" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#methods"><i class="fa fa-check"></i><b>29.5</b> Methods</a>
+<ul>
+<li class="chapter" data-level="29.5.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#lets-get-modeling"><i class="fa fa-check"></i><b>29.5.1</b> Let’s get modeling</a></li>
+<li class="chapter" data-level="29.5.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#run-the-r-code"><i class="fa fa-check"></i><b>29.5.2</b> Run the R code</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="30" data-path="diversity-statistics.html"><a href="diversity-statistics.html"><i class="fa fa-check"></i><b>30</b> Diversity statistics</a>
+<ul>
+<li class="chapter" data-level="30.1" data-path="diversity-statistics.html"><a href="diversity-statistics.html#inext"><i class="fa fa-check"></i><b>30.1</b> iNext</a></li>
+<li class="chapter" data-level="30.2" data-path="diversity-statistics.html"><a href="diversity-statistics.html#coveragebased-re-sampling-curves"><i class="fa fa-check"></i><b>30.2</b> Coverage‐based R/E sampling curves</a></li>
+<li class="chapter" data-level="30.3" data-path="diversity-statistics.html"><a href="diversity-statistics.html#data-manipulation"><i class="fa fa-check"></i><b>30.3</b> Data manipulation</a></li>
+</ul></li>
+<li class="chapter" data-level="31" data-path="ordination-station.html"><a href="ordination-station.html"><i class="fa fa-check"></i><b>31</b> Ordination station</a></li>
+<li class="chapter" data-level="32" data-path="population-sensation.html"><a href="population-sensation.html"><i class="fa fa-check"></i><b>32</b> Population sensation</a>
+<ul>
+<li class="chapter" data-level="32.1" data-path="population-sensation.html"><a href="population-sensation.html#population-characteristics"><i class="fa fa-check"></i><b>32.1</b> Population characteristics</a></li>
+<li class="chapter" data-level="32.2" data-path="population-sensation.html"><a href="population-sensation.html#planning-a-census"><i class="fa fa-check"></i><b>32.2</b> Planning a census</a></li>
+<li class="chapter" data-level="32.3" data-path="population-sensation.html"><a href="population-sensation.html#life-cycle-diagrams"><i class="fa fa-check"></i><b>32.3</b> Life cycle diagrams</a></li>
+<li class="chapter" data-level="32.4" data-path="population-sensation.html"><a href="population-sensation.html#population-demographic-models"><i class="fa fa-check"></i><b>32.4</b> Population demographic models</a>
+<ul>
+<li class="chapter" data-level="32.4.1" data-path="population-sensation.html"><a href="population-sensation.html#unstructured-models"><i class="fa fa-check"></i><b>32.4.1</b> Unstructured Models</a></li>
+<li class="chapter" data-level="32.4.2" data-path="population-sensation.html"><a href="population-sensation.html#structured-models"><i class="fa fa-check"></i><b>32.4.2</b> Structured Models</a></li>
+</ul></li>
+<li class="chapter" data-level="32.5" data-path="population-sensation.html"><a href="population-sensation.html#integral-projection-models"><i class="fa fa-check"></i><b>32.5</b> Integral projection models</a></li>
+<li class="chapter" data-level="32.6" data-path="population-sensation.html"><a href="population-sensation.html#population-dynamics"><i class="fa fa-check"></i><b>32.6</b> Population dynamics</a>
+<ul>
+<li class="chapter" data-level="32.6.1" data-path="population-sensation.html"><a href="population-sensation.html#population-growth-rate"><i class="fa fa-check"></i><b>32.6.1</b> Population growth rate</a></li>
+<li class="chapter" data-level="32.6.2" data-path="population-sensation.html"><a href="population-sensation.html#stable-stage-distribution"><i class="fa fa-check"></i><b>32.6.2</b> Stable stage distribution</a></li>
+<li class="chapter" data-level="32.6.3" data-path="population-sensation.html"><a href="population-sensation.html#reproductive-value"><i class="fa fa-check"></i><b>32.6.3</b> Reproductive value</a></li>
+<li class="chapter" data-level="32.6.4" data-path="population-sensation.html"><a href="population-sensation.html#sensitivities-absolute-effects"><i class="fa fa-check"></i><b>32.6.4</b> Sensitivities: absolute effects</a></li>
+<li class="chapter" data-level="32.6.5" data-path="population-sensation.html"><a href="population-sensation.html#elasticities-proportional-effects"><i class="fa fa-check"></i><b>32.6.5</b> Elasticities: proportional effects</a></li>
+<li class="chapter" data-level="32.6.6" data-path="population-sensation.html"><a href="population-sensation.html#beyond-asymptotic-dynamics-transient-behavior"><i class="fa fa-check"></i><b>32.6.6</b> Beyond asymptotic dynamics: transient behavior</a></li>
+</ul></li>
+<li class="chapter" data-level="32.7" data-path="population-sensation.html"><a href="population-sensation.html#chapter-summary"><i class="fa fa-check"></i><b>32.7</b> Chapter summary</a></li>
+<li class="chapter" data-level="32.8" data-path="population-sensation.html"><a href="population-sensation.html#test-your-knowledge-1"><i class="fa fa-check"></i><b>32.8</b> Test your knowledge</a></li>
+<li class="chapter" data-level="32.9" data-path="population-sensation.html"><a href="population-sensation.html#assignment-3"><i class="fa fa-check"></i><b>32.9</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="32.9.1" data-path="population-sensation.html"><a href="population-sensation.html#your-task"><i class="fa fa-check"></i><b>32.9.1</b> Your task</a></li>
+<li class="chapter" data-level="32.9.2" data-path="population-sensation.html"><a href="population-sensation.html#guidelines"><i class="fa fa-check"></i><b>32.9.2</b> Guidelines</a></li>
+<li class="chapter" data-level="32.9.3" data-path="population-sensation.html"><a href="population-sensation.html#what-to-submit"><i class="fa fa-check"></i><b>32.9.3</b> What to submit</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="33" data-path="integral-population-models.html"><a href="integral-population-models.html"><i class="fa fa-check"></i><b>33</b> Integral Population Models</a>
+<ul>
+<li class="chapter" data-level="33.1" data-path="integral-population-models.html"><a href="integral-population-models.html#case-study-modeling-an-endangered-hawaiian-plant"><i class="fa fa-check"></i><b>33.1</b> Case Study: Modeling an Endangered Hawaiian Plant</a>
+<ul>
+<li class="chapter" data-level="33.1.1" data-path="integral-population-models.html"><a href="integral-population-models.html#why-model-s.-lanceolata-populations"><i class="fa fa-check"></i><b>33.1.1</b> Why model S. lanceolata populations?</a></li>
+<li class="chapter" data-level="33.1.2" data-path="integral-population-models.html"><a href="integral-population-models.html#the-management-question"><i class="fa fa-check"></i><b>33.1.2</b> The management question:</a></li>
+</ul></li>
+<li class="chapter" data-level="33.2" data-path="integral-population-models.html"><a href="integral-population-models.html#designing-a-demographic-census-timing-and-measurements"><i class="fa fa-check"></i><b>33.2</b> Designing a Demographic Census: Timing and Measurements</a>
+<ul>
+<li class="chapter" data-level="33.2.1" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-1-census-timing-must-align-with-the-organisms-life-cycle"><i class="fa fa-check"></i><b>33.2.1</b> Principle 1: Census Timing Must Align with the Organism’s Life Cycle</a></li>
+<li class="chapter" data-level="33.2.2" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-2-measurements-must-link-to-vital-rates"><i class="fa fa-check"></i><b>33.2.2</b> Principle 2: Measurements Must Link to Vital Rates</a></li>
+<li class="chapter" data-level="33.2.3" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-3-track-individual-fates-through-time"><i class="fa fa-check"></i><b>33.2.3</b> Principle 3: Track Individual Fates Through Time</a></li>
+<li class="chapter" data-level="33.2.4" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-4-document-context-and-threats"><i class="fa fa-check"></i><b>33.2.4</b> Principle 4: Document Context and Threats</a></li>
+<li class="chapter" data-level="33.2.5" data-path="integral-population-models.html"><a href="integral-population-models.html#understanding-state-variables-in-ipms"><i class="fa fa-check"></i><b>33.2.5</b> Understanding State Variables in IPMs</a></li>
+<li class="chapter" data-level="33.2.6" data-path="integral-population-models.html"><a href="integral-population-models.html#explore-potential-state-variables"><i class="fa fa-check"></i><b>33.2.6</b> Explore Potential State Variables</a></li>
+<li class="chapter" data-level="33.2.7" data-path="integral-population-models.html"><a href="integral-population-models.html#visualize-distribution-of-candidate-state-variables"><i class="fa fa-check"></i><b>33.2.7</b> Visualize Distribution of Candidate State Variables</a></li>
+<li class="chapter" data-level="33.2.8" data-path="integral-population-models.html"><a href="integral-population-models.html#selecting-our-state-variable"><i class="fa fa-check"></i><b>33.2.8</b> Selecting Our State Variable</a></li>
+<li class="chapter" data-level="33.2.9" data-path="integral-population-models.html"><a href="integral-population-models.html#the-dimensionality-problem"><i class="fa fa-check"></i><b>33.2.9</b> The dimensionality problem</a></li>
+</ul></li>
+<li class="chapter" data-level="33.3" data-path="integral-population-models.html"><a href="integral-population-models.html#packages-and-approaches-to-creating-ipms"><i class="fa fa-check"></i><b>33.3</b> Packages and approaches to creating IPMs</a>
+<ul>
+<li class="chapter" data-level="33.3.1" data-path="integral-population-models.html"><a href="integral-population-models.html#ipmr-a-modern-flexible-ipm-framework"><i class="fa fa-check"></i><b>33.3.1</b> ipmr: a modern, flexible IPM framework</a></li>
+<li class="chapter" data-level="33.3.2" data-path="integral-population-models.html"><a href="integral-population-models.html#ipmpack-a-more-automated-ipm-workflow"><i class="fa fa-check"></i><b>33.3.2</b> IPMpack: a more automated IPM workflow</a></li>
+<li class="chapter" data-level="33.3.3" data-path="integral-population-models.html"><a href="integral-population-models.html#hand-coded-ipms-maximum-transparency"><i class="fa fa-check"></i><b>33.3.3</b> Hand-coded IPMs: maximum transparency</a></li>
+</ul></li>
+<li class="chapter" data-level="33.4" data-path="integral-population-models.html"><a href="integral-population-models.html#building-an-ipm-structuring-linear-models-variable-transformations-and-dealing-with-outliers"><i class="fa fa-check"></i><b>33.4</b> Building an IPM: Structuring linear models, variable transformations, and dealing with outliers</a>
+<ul>
+<li class="chapter" data-level="33.4.1" data-path="integral-population-models.html"><a href="integral-population-models.html#variable-transformations-and-scale"><i class="fa fa-check"></i><b>33.4.1</b> Variable transformations and scale</a></li>
+<li class="chapter" data-level="33.4.2" data-path="integral-population-models.html"><a href="integral-population-models.html#dealing-with-zeros-missing-values-and-outliers"><i class="fa fa-check"></i><b>33.4.2</b> Dealing with zeros, missing values, and outliers</a></li>
+<li class="chapter" data-level="33.4.3" data-path="integral-population-models.html"><a href="integral-population-models.html#parallel-ipm-workflows"><i class="fa fa-check"></i><b>33.4.3</b> Parallel IPM workflows</a></li>
+<li class="chapter" data-level="33.4.4" data-path="integral-population-models.html"><a href="integral-population-models.html#growth-transitions"><i class="fa fa-check"></i><b>33.4.4</b> Growth transitions</a></li>
+</ul></li>
+<li class="chapter" data-level="33.5" data-path="integral-population-models.html"><a href="integral-population-models.html#constructing-a-transition-matrix"><i class="fa fa-check"></i><b>33.5</b> Constructing a transition matrix</a></li>
+<li class="chapter" data-level="33.6" data-path="integral-population-models.html"><a href="integral-population-models.html#building-an-ipm-boundary-points-mesh-points-and-step-size"><i class="fa fa-check"></i><b>33.6</b> Building an IPM: Boundary points, mesh points, and step size</a></li>
+<li class="chapter" data-level="33.7" data-path="integral-population-models.html"><a href="integral-population-models.html#model-evaluation-eviction"><i class="fa fa-check"></i><b>33.7</b> Model Evaluation: Eviction</a>
+<ul>
+<li class="chapter" data-level="33.7.1" data-path="integral-population-models.html"><a href="integral-population-models.html#why-eviction-matters"><i class="fa fa-check"></i><b>33.7.1</b> Why Eviction Matters</a></li>
+<li class="chapter" data-level="33.7.2" data-path="integral-population-models.html"><a href="integral-population-models.html#eviction-correction-strategies"><i class="fa fa-check"></i><b>33.7.2</b> Eviction Correction Strategies</a></li>
+<li class="chapter" data-level="33.7.3" data-path="integral-population-models.html"><a href="integral-population-models.html#summary"><i class="fa fa-check"></i><b>33.7.3</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="33.8" data-path="integral-population-models.html"><a href="integral-population-models.html#estimating-population-dynamics-parameters"><i class="fa fa-check"></i><b>33.8</b> Estimating population dynamics parameters</a></li>
+<li class="chapter" data-level="33.9" data-path="integral-population-models.html"><a href="integral-population-models.html#calculating-confidence-intervals"><i class="fa fa-check"></i><b>33.9</b> Calculating confidence intervals</a></li>
+<li class="chapter" data-level="33.10" data-path="integral-population-models.html"><a href="integral-population-models.html#putting-this-all-together-in-code-form"><i class="fa fa-check"></i><b>33.10</b> Putting this all together in code form!</a></li>
+<li class="chapter" data-level="33.11" data-path="integral-population-models.html"><a href="integral-population-models.html#test-your-knowledge-2"><i class="fa fa-check"></i><b>33.11</b> Test your knowledge</a></li>
+<li class="chapter" data-level="33.12" data-path="integral-population-models.html"><a href="integral-population-models.html#assignment-4"><i class="fa fa-check"></i><b>33.12</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="34" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html"><i class="fa fa-check"></i><b>34</b> What are structural equation models?</a>
+<ul>
+<li class="chapter" data-level="34.0.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#when-should-you-use-sem"><i class="fa fa-check"></i><b>34.0.1</b> When Should You Use SEM?</a></li>
+<li class="chapter" data-level="34.0.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression"><i class="fa fa-check"></i><b>34.0.2</b> How is SEM Different from Multiple Regression?</a></li>
+<li class="chapter" data-level="34.0.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-1"><i class="fa fa-check"></i><b>34.0.3</b> Summary</a></li>
+<li class="chapter" data-level="34.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model"><i class="fa fa-check"></i><b>34.1</b> Anatomy of a Structural Equation Model</a>
+<ul>
+<li class="chapter" data-level="34.1.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#types-of-variables"><i class="fa fa-check"></i><b>34.1.1</b> Types of Variables</a></li>
+<li class="chapter" data-level="34.1.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#path-diagrams"><i class="fa fa-check"></i><b>34.1.2</b> Path Diagrams</a></li>
+</ul></li>
+<li class="chapter" data-level="34.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#building-multivariate-models"><i class="fa fa-check"></i><b>34.2</b> Building Multivariate Models</a>
+<ul>
+<li class="chapter" data-level="34.2.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-causality"><i class="fa fa-check"></i><b>34.2.1</b> What is Causality?</a></li>
+<li class="chapter" data-level="34.2.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression"><i class="fa fa-check"></i><b>34.2.2</b> Why move beyond Multiple Regression?</a></li>
+<li class="chapter" data-level="34.2.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#meta-modeling-your-system"><i class="fa fa-check"></i><b>34.2.3</b> Meta-Modeling Your System</a></li>
+</ul></li>
+<li class="chapter" data-level="34.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#from-concept-to-model"><i class="fa fa-check"></i><b>34.3</b> From Concept to Model</a></li>
+<li class="chapter" data-level="34.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams"><i class="fa fa-check"></i><b>34.4</b> Common Structures in Causal Diagrams</a>
+<ul>
+<li class="chapter" data-level="34.4.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chains-mediation-paths"><i class="fa fa-check"></i><b>34.4.1</b> Chains (Mediation Paths)</a></li>
+<li class="chapter" data-level="34.4.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#colliders"><i class="fa fa-check"></i><b>34.4.2</b> Colliders</a></li>
+<li class="chapter" data-level="34.4.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#forks-confounding-paths"><i class="fa fa-check"></i><b>34.4.3</b> Forks (Confounding Paths)</a></li>
+<li class="chapter" data-level="34.4.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#descendants-of-colliders"><i class="fa fa-check"></i><b>34.4.4</b> Descendants of Colliders</a></li>
+<li class="chapter" data-level="34.4.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-of-strcutures"><i class="fa fa-check"></i><b>34.4.5</b> Summary of strcutures</a></li>
+<li class="chapter" data-level="34.4.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifying-causality"><i class="fa fa-check"></i><b>34.4.6</b> Identifying Causality</a></li>
+<li class="chapter" data-level="34.4.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#backdoor-criterion"><i class="fa fa-check"></i><b>34.4.7</b> Backdoor Criterion</a></li>
+<li class="chapter" data-level="34.4.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#frontdoor-criterion"><i class="fa fa-check"></i><b>34.4.8</b> Frontdoor Criterion</a></li>
+<li class="chapter" data-level="34.4.9" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management"><i class="fa fa-check"></i><b>34.4.9</b> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management</a></li>
+<li class="chapter" data-level="34.4.10" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#adjustment-sets"><i class="fa fa-check"></i><b>34.4.10</b> Adjustment Sets</a></li>
+</ul></li>
+<li class="chapter" data-level="34.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem"><i class="fa fa-check"></i><b>34.5</b> Chapter 5: Covariance-Based Estimation in SEM</a>
+<ul>
+<li class="chapter" data-level="34.5.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-covariance-based-sem"><i class="fa fa-check"></i><b>34.5.1</b> What is Covariance-Based SEM?</a></li>
+<li class="chapter" data-level="34.5.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#maximum-likelihood-estimation"><i class="fa fa-check"></i><b>34.5.2</b> Maximum Likelihood Estimation</a></li>
+<li class="chapter" data-level="34.5.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation"><i class="fa fa-check"></i><b>34.5.3</b> Assumptions Behind ML Estimation</a></li>
+<li class="chapter" data-level="34.5.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifiability"><i class="fa fa-check"></i><b>34.5.4</b> Identifiability</a></li>
+<li class="chapter" data-level="34.5.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#degrees-of-freedom"><i class="fa fa-check"></i><b>34.5.5</b> Degrees of Freedom</a></li>
+<li class="chapter" data-level="34.5.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#sample-size-considerations"><i class="fa fa-check"></i><b>34.5.6</b> Sample Size Considerations</a></li>
+<li class="chapter" data-level="34.5.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-2"><i class="fa fa-check"></i><b>34.5.7</b> Summary</a></li>
+<li class="chapter" data-level="34.5.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan"><i class="fa fa-check"></i><b>34.5.8</b> Chapter 6: Structural Equation Modeling in R with lavaan</a></li>
+</ul></li>
+<li class="chapter" data-level="34.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation"><i class="fa fa-check"></i><b>34.6</b> Getting Started with lavaan – Model Specification, Estimation, and Interpretation</a>
+<ul>
+<li class="chapter" data-level="34.6.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality"><i class="fa fa-check"></i><b>34.6.1</b> Chapter 7:Assessing Fit and Normality</a></li>
+<li class="chapter" data-level="34.6.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation"><i class="fa fa-check"></i><b>34.6.2</b> Chapter 8: Comparing Models and Testing Mediation</a></li>
+<li class="chapter" data-level="34.6.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers"><i class="fa fa-check"></i><b>34.6.3</b> Chapter 8: Latent Variables as Drivers</a></li>
+<li class="chapter" data-level="34.6.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error"><i class="fa fa-check"></i><b>34.6.4</b> Chapter 10: Latent Responses and Measurement Error</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="35" data-path="piecewise-sems.html"><a href="piecewise-sems.html"><i class="fa fa-check"></i><b>35</b> Piecewise SEMs</a>
+<ul>
+<li class="chapter" data-level="35.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview"><i class="fa fa-check"></i><b>35.1</b> Overview</a></li>
+<li class="chapter" data-level="35.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem"><i class="fa fa-check"></i><b>35.2</b> Why Use Piecewise SEM, instead of a covariance SEM?</a>
+<ul>
+<li class="chapter" data-level="35.2.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#comparison-of-sem-approaches"><i class="fa fa-check"></i><b>35.2.1</b> Comparison of SEM Approaches</a></li>
+<li class="chapter" data-level="35.2.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-covariance-based-sem"><i class="fa fa-check"></i><b>35.2.2</b> Benefits of Covariance-Based SEM</a></li>
+<li class="chapter" data-level="35.2.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-piecewise-sem"><i class="fa fa-check"></i><b>35.2.3</b> Benefits of Piecewise SEM</a></li>
+<li class="chapter" data-level="35.2.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#when-to-use-each-approach"><i class="fa fa-check"></i><b>35.2.4</b> When to Use Each Approach</a></li>
+<li class="chapter" data-level="35.2.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#models-differ-in-approach"><i class="fa fa-check"></i><b>35.2.5</b> Models differ in approach</a></li>
+</ul></li>
+<li class="chapter" data-level="35.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona"><i class="fa fa-check"></i><b>35.3</b> SEM Example: Resilience to Drought in Arizona</a>
+<ul>
+<li class="chapter" data-level="35.3.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r"><i class="fa fa-check"></i><b>35.3.1</b> Chapter 12: Introduction to Piecewise SEM in R</a></li>
+</ul></li>
+<li class="chapter" data-level="35.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#part-1-what-is-piecewise-sem"><i class="fa fa-check"></i><b>35.4</b> Part 1: What is Piecewise SEM?</a>
+<ul>
+<li class="chapter" data-level="35.4.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem"><i class="fa fa-check"></i><b>35.4.1</b> Chapter 13: Nonlinearity and Interaction in SEM</a></li>
+<li class="chapter" data-level="35.4.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem"><i class="fa fa-check"></i><b>35.4.2</b> Chapter 14: GLMs with SEM using PiecewiseSEM</a></li>
+</ul></li>
+<li class="chapter" data-level="35.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview-1"><i class="fa fa-check"></i><b>35.5</b> Overview</a>
+<ul>
+<li class="chapter" data-level="35.5.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem"><i class="fa fa-check"></i><b>35.5.1</b> Chapter 15: Categorical Predictors &amp; Multigroup SEM</a></li>
+<li class="chapter" data-level="35.5.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r"><i class="fa fa-check"></i><b>35.5.2</b> Chapter 16: Multigroup SEM in R</a></li>
+<li class="chapter" data-level="35.5.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-17"><i class="fa fa-check"></i><b>35.5.3</b> Chapter 17:</a></li>
+</ul></li>
+<li class="chapter" data-level="35.6" data-path="piecewise-sems.html"><a href="piecewise-sems.html#example-with-powerline-data"><i class="fa fa-check"></i><b>35.6</b> Example with Powerline Data</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Applied Statistics for the Natural Sciences</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="probability-the-language-of-uncertainty" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">Chapter 3</span> Probability: The Language of Uncertainty<a href="probability-the-language-of-uncertainty.html#probability-the-language-of-uncertainty" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="watch-the-video-1" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Watch the video<a href="probability-the-language-of-uncertainty.html#watch-the-video-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><a href="https://youtu.be/iKJmOoJGVMQ">Watch the chapter video</a></p>
+<p>Across philosophy, physics, ecology, and statistics, “randomness” does not mean the same thing. Sometimes it reflects true unpredictability, sometimes incomplete knowledge, and sometimes the limits of measurement. One of the most interesting panels that I attended as a graduate student was a debate between scientific and religious philosophers over the meaning of randomness. There were a range of viewpoints; the theologian believed that randomness was where the divine could work; at the other extreme, the science philosopher believed that there is no such thing as random, only that we haven’t developed the capacity to measure what we perceive as random, and that everything we experience is a deterministic outcome of physics manifest in the world around us.</p>
+<p>Statistics does not try to resolve why variation exists. In statistics, randomness has a specific and practical meaning: it refers to situations in which outcomes cannot be predicted with certainty, but where each possible outcome has a known probability of occurring. Importantly, statistics does not distinguish between “true” randomness and unpredictability arising from incomplete information or measurement limitations. Instead, all sources of uncertainty are treated the same way.</p>
+<p>But probability is not just an abstract statistical concept—it shapes how science communicates with the rest of the world, and misinterpreting it has real consequences.</p>
+</div>
+<div id="probability-is-everywhere-and-we-often-get-it-wrong" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> Probability is everywhere, and we often get it wrong<a href="probability-the-language-of-uncertainty.html#probability-is-everywhere-and-we-often-get-it-wrong" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Consider these statements:</p>
+<ul>
+<li><p><em>“It is extremely likely (95–100% probability) that human activities caused more than half of the observed increase in global mean surface temperature from 1951 to 2010.”</em> — IPCC Fifth Assessment Report</p></li>
+<li><p><em>“There is a 30% chance of rain tomorrow.”</em></p></li>
+<li><p><em>“The probability of local extinction of this population within 50 years is 0.40.”</em></p></li>
+</ul>
+<p>Each of these communicates uncertainty using probability, and each is routinely misunderstood. The IPCC statement does not mean that scientists are 95% sure climate change is happening—it means that in 95–100% of the analyses, human influence exceeded natural variability. A 30% chance of rain does not mean 30% of the area gets wet, or that it will rain for 30% of the day—it means that under similar atmospheric conditions, about 30% of days produce measurable rainfall. An extinction probability of 0.40 does not mean the population <em>will</em> go extinct or <em>won’t</em>—it means that if we ran the future 1,000 times under the same conditions, roughly 400 of those futures would result in extinction.</p>
+<p>Getting probability right matters. Policy decisions about endangered species, climate adaptation, and public health all depend on whether decision-makers correctly interpret probabilistic statements. And as scientists, producing and interpreting those statements correctly is a core part of our job.</p>
+</div>
+<div id="from-uncertainty-to-inference" class="section level2 hasAnchor" number="3.3">
+<h2><span class="header-section-number">3.3</span> From uncertainty to inference<a href="probability-the-language-of-uncertainty.html#from-uncertainty-to-inference" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The difference between the true value of a quantity (such as the mean height of giraffes or the strength of a relationship between snail shell length and movement speed) and the value we observe from a sample is called <strong>error</strong>. Error is not a mistake; it is the inevitable result of sampling and measurement in complex, variable systems. Statistical models are designed to separate systematic patterns in the data (such as treatment effects or relationships between variables) from this background uncertainty.</p>
+<p>Because error is unavoidable, statistics replaces certainty with probability. When conducting a statistical analysis, we use probability to evaluate how likely it is that an observed pattern could arise by chance alone. This single idea—<strong>comparing what we observed to what chance alone would produce</strong>—is the engine that drives almost all of statistical inference. It is what connects this chapter to every analysis you will do in this course.</p>
+<p>To make that connection, we need to understand a few core probability concepts. We will develop them primarily through ecological examples, using coins and dice only briefly as familiar scaffolding when a new idea needs a simple illustration.</p>
+</div>
+<div id="samplespace" class="section level2 hasAnchor" number="3.4">
+<h2><span class="header-section-number">3.4</span> Defining the sample space<a href="probability-the-language-of-uncertainty.html#samplespace" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The first step in any probability calculation is to define the <strong>sample space</strong>: the complete set of all possible outcomes of an experiment, observation, or process. If the sample space is defined incorrectly, any probability calculation that follows will also be incorrect.</p>
+<p>In simple cases, the sample space is obvious. Flip a fair coin: the sample space is {heads, tails}. Roll a die: the sample space is {1, 2, 3, 4, 5, 6}. In ecological applications, defining the sample space requires more thought—and the question you ask determines the answer.</p>
+<p><strong>Ecological example:</strong> You survey a set of plots to determine whether a focal plant species is present. For each plot, the outcome is either <em>present</em> or <em>absent</em>. The sample space consists of two possible outcomes. Importantly, the sample space does not include abundance, biomass, or flowering status—unless those outcomes are explicitly part of your question.</p>
+<p>Now suppose instead you are counting individuals in each plot. The sample space changes: it becomes {0, 1, 2, 3, …}, in principle extending to infinity. This is a fundamentally different question, and it will lead to different probability calculations and different statistical models. Presence/absence data and count data look different, behave differently, and require different analytical tools—and that distinction starts here, with the sample space.</p>
+<p>Defining the sample space forces you to be precise about what you are studying. Asking “Is the species present?” is not the same as asking “How many individuals are there?”, which is not the same as asking “What proportion of plots are occupied?” Each question defines a different sample space, and each leads to a different statistical framework.</p>
+</div>
+<div id="longrun" class="section level2 hasAnchor" number="3.5">
+<h2><span class="header-section-number">3.5</span> Probability as long-run frequency<a href="probability-the-language-of-uncertainty.html#longrun" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In statistics, probability is commonly interpreted as a <strong>long-run frequency</strong>: the proportion of times an event would occur if the same process were repeated many times under identical conditions.</p>
+<p>Suppose you estimate seed germination by planting 100 seeds from the same species under identical greenhouse conditions. Even though the conditions are controlled, not all seeds germinate. If 30 out of 100 seeds germinate, we estimate the probability of germination as 0.30. But what does this number mean?</p>
+<p>It means that if you repeated this experiment many, many times—planting 100 seeds each time under the same conditions—the proportion of seeds that germinate would converge toward 0.30. In any <em>single</em> trial, the result might be 25, or 33, or 28. But as the number of trials increases, the average settles down.</p>
+<p>This idea—that estimates stabilize with more data—is one of the most important intuitions in statistics. Let’s see it in action.</p>
+<div id="simulation-watching-probability-stabilize" class="section level3 hasAnchor" number="3.5.1">
+<h3><span class="header-section-number">3.5.1</span> Simulation: watching probability stabilize<a href="probability-the-language-of-uncertainty.html#simulation-watching-probability-stabilize" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>To build intuition, let’s use a simple example first: flipping a fair coin. We know the theoretical probability of heads is 0.5. But in small samples, the observed proportion can look nothing like 0.5.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="probability-the-language-of-uncertainty.html#cb3-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">226</span>)</span>
+<span id="cb3-2"><a href="probability-the-language-of-uncertainty.html#cb3-2" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="probability-the-language-of-uncertainty.html#cb3-3" tabindex="-1"></a><span class="co"># Flip a coin many times and track the running proportion of heads</span></span>
+<span id="cb3-4"><a href="probability-the-language-of-uncertainty.html#cb3-4" tabindex="-1"></a>n_flips <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb3-5"><a href="probability-the-language-of-uncertainty.html#cb3-5" tabindex="-1"></a>flips <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">&quot;H&quot;</span>, <span class="st">&quot;T&quot;</span>), <span class="at">size =</span> n_flips, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-6"><a href="probability-the-language-of-uncertainty.html#cb3-6" tabindex="-1"></a>running_proportion <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(flips <span class="sc">==</span> <span class="st">&quot;H&quot;</span>) <span class="sc">/</span> (<span class="dv">1</span><span class="sc">:</span>n_flips)</span>
+<span id="cb3-7"><a href="probability-the-language-of-uncertainty.html#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="probability-the-language-of-uncertainty.html#cb3-8" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>n_flips, running_proportion,</span>
+<span id="cb3-9"><a href="probability-the-language-of-uncertainty.html#cb3-9" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>, <span class="at">lwd =</span> <span class="fl">1.5</span>,</span>
+<span id="cb3-10"><a href="probability-the-language-of-uncertainty.html#cb3-10" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;Number of flips&quot;</span>,</span>
+<span id="cb3-11"><a href="probability-the-language-of-uncertainty.html#cb3-11" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;Proportion of heads&quot;</span>,</span>
+<span id="cb3-12"><a href="probability-the-language-of-uncertainty.html#cb3-12" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Probability stabilizes with more observations&quot;</span>,</span>
+<span id="cb3-13"><a href="probability-the-language-of-uncertainty.html#cb3-13" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb3-14"><a href="probability-the-language-of-uncertainty.html#cb3-14" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>)</span>
+<span id="cb3-15"><a href="probability-the-language-of-uncertainty.html#cb3-15" tabindex="-1"></a><span class="fu">text</span>(n_flips <span class="sc">*</span> <span class="fl">0.8</span>, <span class="fl">0.54</span>, <span class="st">&quot;True probability = 0.5&quot;</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:coin-convergence"></span>
+<img src="_main_files/figure-html/coin-convergence-1.png" alt="As the number of coin flips increases, the observed proportion of heads converges toward the true probability of 0.5. With few flips, estimates are noisy; with many flips, they stabilize." width="672" />
+<p class="caption">
+Figure 3.1: As the number of coin flips increases, the observed proportion of heads converges toward the true probability of 0.5. With few flips, estimates are noisy; with many flips, they stabilize.
+</p>
+</div>
+<p>Notice the pattern: early on, the observed proportion swings wildly. With only 10 flips, you might see 70% heads or 30% heads, and neither would be surprising. But as the number of flips grows, the line settles toward 0.5. This is the <strong>law of large numbers</strong> in action, and it is the reason that larger samples give more reliable estimates.</p>
+<p>This same logic applies directly to ecological sampling. If the true probability of seed germination is 0.30, then planting 10 seeds gives a noisy estimate (you might see 1 or 5 germinate), while planting 500 seeds gives a much more stable one. This is not just a theoretical nicety—it is the practical reason that sample size matters in every ecological study.</p>
+</div>
+<div id="what-long-run-frequency-means-for-your-research" class="section level3 hasAnchor" number="3.5.2">
+<h3><span class="header-section-number">3.5.2</span> What long-run frequency means for your research<a href="probability-the-language-of-uncertainty.html#what-long-run-frequency-means-for-your-research" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In real ecological studies, we rarely get to repeat the exact same experiment thousands of times. But we still rely on long-run frequency reasoning. When we say “the survival probability of juveniles is 0.65,” we mean: if we could observe the survival process for this species many times under these conditions, about 65% of juveniles would survive. Our observed data are one realization of this process, and probability describes the behavior we expect across many such realizations.</p>
+<p>This interpretation connects directly to ecological rates like survival, recruitment, germination, and flowering probability—all of which are estimated from repeated observations rather than single outcomes.</p>
+</div>
+</div>
+<div id="conditional" class="section level2 hasAnchor" number="3.6">
+<h2><span class="header-section-number">3.6</span> Conditional probability and dependence<a href="probability-the-language-of-uncertainty.html#conditional" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Many ecological processes are not isolated events. Whether a plant flowers depends on whether it survived the winter. Whether you detect a species depends on whether it is actually present. Whether a seed germinates may depend on whether it experienced a fire. These are all cases where the probability of one event depends on another.</p>
+<div id="how-knowing-one-thing-changes-what-we-expect" class="section level3 hasAnchor" number="3.6.1">
+<h3><span class="header-section-number">3.6.1</span> How knowing one thing changes what we expect<a href="probability-the-language-of-uncertainty.html#how-knowing-one-thing-changes-what-we-expect" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Conditional probability</strong> describes situations in which the probability of one event depends on whether another event has occurred. It is written as <span class="math inline">\(P(A \mid B)\)</span>, read as “the probability of A given B,” and is calculated as:</p>
+<p><span class="math display">\[P(A \mid B) = \frac{P(A \cap B)}{P(B)}\]</span></p>
+<p>where <span class="math inline">\(P(A \cap B)\)</span> is the probability that both events occur simultaneously.</p>
+<p>The formula looks abstract, so let’s work through an ecological example.</p>
+<p><strong>Example: flowering probability in a perennial plant</strong></p>
+<p>Consider a perennial plant population that you have monitored for two years. In year one, you tagged 200 individuals. By spring of year two, you recorded whether each plant (a) survived the winter and (b) flowered. Here are the results:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="probability-the-language-of-uncertainty.html#cb4-1" tabindex="-1"></a><span class="co"># Simulated monitoring data</span></span>
+<span id="cb4-2"><a href="probability-the-language-of-uncertainty.html#cb4-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb4-3"><a href="probability-the-language-of-uncertainty.html#cb4-3" tabindex="-1"></a>n_plants <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb4-4"><a href="probability-the-language-of-uncertainty.html#cb4-4" tabindex="-1"></a>survived <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>), n_plants, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.7</span>, <span class="fl">0.3</span>))</span>
+<span id="cb4-5"><a href="probability-the-language-of-uncertainty.html#cb4-5" tabindex="-1"></a>flowered <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(survived,</span>
+<span id="cb4-6"><a href="probability-the-language-of-uncertainty.html#cb4-6" tabindex="-1"></a>                   <span class="fu">sample</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="fu">sum</span>(survived), <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.4</span>, <span class="fl">0.6</span>)),</span>
+<span id="cb4-7"><a href="probability-the-language-of-uncertainty.html#cb4-7" tabindex="-1"></a>                   <span class="cn">FALSE</span>)</span>
+<span id="cb4-8"><a href="probability-the-language-of-uncertainty.html#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="probability-the-language-of-uncertainty.html#cb4-9" tabindex="-1"></a>plant_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-10"><a href="probability-the-language-of-uncertainty.html#cb4-10" tabindex="-1"></a>  <span class="at">survived =</span> survived,</span>
+<span id="cb4-11"><a href="probability-the-language-of-uncertainty.html#cb4-11" tabindex="-1"></a>  <span class="at">flowered =</span> flowered</span>
+<span id="cb4-12"><a href="probability-the-language-of-uncertainty.html#cb4-12" tabindex="-1"></a>)</span>
+<span id="cb4-13"><a href="probability-the-language-of-uncertainty.html#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="probability-the-language-of-uncertainty.html#cb4-14" tabindex="-1"></a><span class="co"># Summarize the data</span></span>
+<span id="cb4-15"><a href="probability-the-language-of-uncertainty.html#cb4-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Total plants tagged:&quot;</span>, n_plants, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Total plants tagged: 200</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="probability-the-language-of-uncertainty.html#cb6-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Survived winter:&quot;</span>, <span class="fu">sum</span>(survived), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Survived winter: 129</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="probability-the-language-of-uncertainty.html#cb8-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Flowered:&quot;</span>, <span class="fu">sum</span>(flowered), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Flowered: 37</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="probability-the-language-of-uncertainty.html#cb10-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Died and flowered:&quot;</span>, <span class="fu">sum</span>(<span class="sc">!</span>survived <span class="sc">&amp;</span> flowered), <span class="st">&quot;(should be 0)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Died and flowered: 0 (should be 0)</code></pre>
+<p>Now let’s calculate two different probabilities:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="probability-the-language-of-uncertainty.html#cb12-1" tabindex="-1"></a><span class="co"># P(flowered): probability of flowering across ALL tagged plants</span></span>
+<span id="cb12-2"><a href="probability-the-language-of-uncertainty.html#cb12-2" tabindex="-1"></a>p_flower <span class="ot">&lt;-</span> <span class="fu">mean</span>(plant_data<span class="sc">$</span>flowered)</span>
+<span id="cb12-3"><a href="probability-the-language-of-uncertainty.html#cb12-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;P(flowered) =&quot;</span>, <span class="fu">round</span>(p_flower, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## P(flowered) = 0.185</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="probability-the-language-of-uncertainty.html#cb14-1" tabindex="-1"></a><span class="co"># P(flowered | survived): probability of flowering GIVEN survival</span></span>
+<span id="cb14-2"><a href="probability-the-language-of-uncertainty.html#cb14-2" tabindex="-1"></a>p_flower_given_survived <span class="ot">&lt;-</span> <span class="fu">mean</span>(plant_data<span class="sc">$</span>flowered[plant_data<span class="sc">$</span>survived])</span>
+<span id="cb14-3"><a href="probability-the-language-of-uncertainty.html#cb14-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;P(flowered | survived) =&quot;</span>, <span class="fu">round</span>(p_flower_given_survived, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## P(flowered | survived) = 0.287</code></pre>
+<p>These are different numbers, and the difference matters. <span class="math inline">\(P(\text{flowered})\)</span> treats all 200 plants the same—including the ones that died, which had zero chance of flowering. <span class="math inline">\(P(\text{flowered} \mid \text{survived})\)</span> restricts attention to the plants that were actually “eligible” to flower. The conditional probability is higher because knowing that a plant survived <em>changes the sample space</em> we are considering.</p>
+<p>This distinction is not just mathematical bookkeeping. In population ecology, the probability of reproduction is almost always conditional on survival. If you estimate <span class="math inline">\(P(\text{flowered})\)</span> without accounting for survival, you will underestimate the reproductive capacity of surviving plants. Stage-structured population models, life tables, and matrix projection models all depend on conditional probabilities like these.</p>
+</div>
+<div id="independence-when-knowing-one-thing-changes-nothing" class="section level3 hasAnchor" number="3.6.2">
+<h3><span class="header-section-number">3.6.2</span> Independence: when knowing one thing changes nothing<a href="probability-the-language-of-uncertainty.html#independence-when-knowing-one-thing-changes-nothing" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Two events are <strong>independent</strong> if the occurrence of one does not affect the probability of the other. Mathematically, events A and B are independent if:</p>
+<p><span class="math display">\[P(A \mid B) = P(A)\]</span></p>
+<p>In other words, learning that B happened tells you nothing new about the probability of A.</p>
+<p><strong>When independence is reasonable:</strong> The survival of two plants growing far apart in similar habitat may be approximately independent. Whether it rains in Tucson today is independent of whether a coin lands heads.</p>
+<p><strong>When independence is unreasonable:</strong> The survival of the same plant across consecutive years is almost certainly <em>not</em> independent—a plant that survived year one is likely healthier, larger, or in a better microsite, all of which increase its probability of surviving year two.</p>
+<p>For independent events, the probability of both occurring is the product of their individual probabilities:</p>
+<p><span class="math display">\[P(A \cap B) = P(A) \times P(B)\]</span></p>
+<p>This is the <strong>multiplication rule for independent events</strong>. It only works when the events truly are independent.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="probability-the-language-of-uncertainty.html#cb16-1" tabindex="-1"></a><span class="co"># Two independent events: flipping two separate coins</span></span>
+<span id="cb16-2"><a href="probability-the-language-of-uncertainty.html#cb16-2" tabindex="-1"></a>p_heads_coin1 <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb16-3"><a href="probability-the-language-of-uncertainty.html#cb16-3" tabindex="-1"></a>p_heads_coin2 <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb16-4"><a href="probability-the-language-of-uncertainty.html#cb16-4" tabindex="-1"></a>p_both_heads <span class="ot">&lt;-</span> p_heads_coin1 <span class="sc">*</span> p_heads_coin2</span>
+<span id="cb16-5"><a href="probability-the-language-of-uncertainty.html#cb16-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;P(heads on both coins) =&quot;</span>, p_both_heads, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## P(heads on both coins) = 0.25</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="probability-the-language-of-uncertainty.html#cb18-1" tabindex="-1"></a><span class="co"># Two dependent events: survival across years</span></span>
+<span id="cb18-2"><a href="probability-the-language-of-uncertainty.html#cb18-2" tabindex="-1"></a>p_survive_yr1 <span class="ot">&lt;-</span> <span class="fl">0.70</span></span>
+<span id="cb18-3"><a href="probability-the-language-of-uncertainty.html#cb18-3" tabindex="-1"></a>p_survive_yr2_given_yr1 <span class="ot">&lt;-</span> <span class="fl">0.85</span>  <span class="co"># higher because survivors are healthier</span></span>
+<span id="cb18-4"><a href="probability-the-language-of-uncertainty.html#cb18-4" tabindex="-1"></a>p_survive_both <span class="ot">&lt;-</span> p_survive_yr1 <span class="sc">*</span> p_survive_yr2_given_yr1</span>
+<span id="cb18-5"><a href="probability-the-language-of-uncertainty.html#cb18-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;P(survive both years) =&quot;</span>, p_survive_both, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## P(survive both years) = 0.595</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="probability-the-language-of-uncertainty.html#cb20-1" tabindex="-1"></a><span class="co"># Compare: if we INCORRECTLY assumed independence</span></span>
+<span id="cb20-2"><a href="probability-the-language-of-uncertainty.html#cb20-2" tabindex="-1"></a>p_survive_yr2_marginal <span class="ot">&lt;-</span> <span class="fl">0.70</span>  <span class="co"># ignoring dependence</span></span>
+<span id="cb20-3"><a href="probability-the-language-of-uncertainty.html#cb20-3" tabindex="-1"></a>p_survive_both_wrong <span class="ot">&lt;-</span> p_survive_yr1 <span class="sc">*</span> p_survive_yr2_marginal</span>
+<span id="cb20-4"><a href="probability-the-language-of-uncertainty.html#cb20-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;P(survive both years), assuming independence =&quot;</span>, p_survive_both_wrong, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## P(survive both years), assuming independence = 0.49</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="probability-the-language-of-uncertainty.html#cb22-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Error from assuming independence:&quot;</span>,</span>
+<span id="cb22-2"><a href="probability-the-language-of-uncertainty.html#cb22-2" tabindex="-1"></a>    <span class="fu">round</span>(p_survive_both <span class="sc">-</span> p_survive_both_wrong, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Error from assuming independence: 0.105</code></pre>
+<p>Assuming independence when events are dependent leads to incorrect conclusions. In this example, ignoring the dependence between years underestimates two-year survival. This is why statistical analyses often account for repeated measures, spatial structure, or shared environments—these are all forms of dependence that violate the independence assumption.</p>
+<p><strong>Why this matters for your statistics:</strong> Many statistical tests assume that observations are independent. Violating this assumption—for example, by treating repeated measurements on the same individual as independent data points—is one of the most common mistakes in ecological statistics. Recognizing when events are dependent is not just a probability concept; it is a practical skill that will affect every analysis you run.</p>
+</div>
+</div>
+<div id="nullmodels" class="section level2 hasAnchor" number="3.7">
+<h2><span class="header-section-number">3.7</span> From probability to statistical thinking<a href="probability-the-language-of-uncertainty.html#nullmodels" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>So far, we have built a vocabulary: sample spaces, long-run frequency, conditional probability, independence. These concepts matter, but they serve a larger purpose: they are the building blocks of statistical inference. This section shows how they come together.</p>
+<p>The key question in most statistical analyses is deceptively simple: <strong>Could the pattern I observed have arisen by chance alone?</strong> Answering that question requires three things: (1) a model of what “chance alone” looks like, (2) a way to describe the range of outcomes that chance could produce, and (3) a way to measure how surprising our actual observation is. Probability provides all three.</p>
+<div id="probability-distributions-the-full-picture-of-uncertainty" class="section level3 hasAnchor" number="3.7.1">
+<h3><span class="header-section-number">3.7.1</span> Probability distributions: the full picture of uncertainty<a href="probability-the-language-of-uncertainty.html#probability-distributions-the-full-picture-of-uncertainty" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In the previous sections, we talked about the probability of single events: the probability of germination, the probability of survival. But in practice, we usually care about the <em>distribution</em> of outcomes—not just whether a single seed germinates, but how many out of 50 germinate.</p>
+<p><strong>A probability distribution describes all possible outcomes and how likely each one is.</strong> It is a complete picture of uncertainty for a given process.</p>
+<p>Let’s build one from scratch. Suppose the probability of seed germination for a particular species is 0.30. You plant 50 seeds. How many do you expect to germinate?</p>
+<p>The intuitive answer is <span class="math inline">\(50 \times 0.30 = 15\)</span>. But you won’t always get exactly 15. Sometimes you’ll get 12, sometimes 18, occasionally 8 or 22. The question is: what is the <em>full range</em> of plausible outcomes, and how likely is each one?</p>
+<p>We can answer this with simulation:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="probability-the-language-of-uncertainty.html#cb24-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">226</span>)</span>
+<span id="cb24-2"><a href="probability-the-language-of-uncertainty.html#cb24-2" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="probability-the-language-of-uncertainty.html#cb24-3" tabindex="-1"></a><span class="co"># Simulate planting 50 seeds, 10000 times</span></span>
+<span id="cb24-4"><a href="probability-the-language-of-uncertainty.html#cb24-4" tabindex="-1"></a>n_seeds <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb24-5"><a href="probability-the-language-of-uncertainty.html#cb24-5" tabindex="-1"></a>p_germ <span class="ot">&lt;-</span> <span class="fl">0.30</span></span>
+<span id="cb24-6"><a href="probability-the-language-of-uncertainty.html#cb24-6" tabindex="-1"></a>n_reps <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb24-7"><a href="probability-the-language-of-uncertainty.html#cb24-7" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="probability-the-language-of-uncertainty.html#cb24-8" tabindex="-1"></a>germination_counts <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n_reps, <span class="at">size =</span> n_seeds, <span class="at">prob =</span> p_germ)</span>
+<span id="cb24-9"><a href="probability-the-language-of-uncertainty.html#cb24-9" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="probability-the-language-of-uncertainty.html#cb24-10" tabindex="-1"></a><span class="fu">hist</span>(germination_counts,</span>
+<span id="cb24-11"><a href="probability-the-language-of-uncertainty.html#cb24-11" tabindex="-1"></a>     <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fu">max</span>(germination_counts) <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">by =</span> <span class="dv">1</span>),</span>
+<span id="cb24-12"><a href="probability-the-language-of-uncertainty.html#cb24-12" tabindex="-1"></a>     <span class="at">col =</span> <span class="st">&quot;lightgreen&quot;</span>, <span class="at">border =</span> <span class="st">&quot;darkgreen&quot;</span>,</span>
+<span id="cb24-13"><a href="probability-the-language-of-uncertainty.html#cb24-13" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;Number of seeds germinated (out of 50)&quot;</span>,</span>
+<span id="cb24-14"><a href="probability-the-language-of-uncertainty.html#cb24-14" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;Frequency&quot;</span>,</span>
+<span id="cb24-15"><a href="probability-the-language-of-uncertainty.html#cb24-15" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Distribution of germination outcomes</span><span class="sc">\n</span><span class="st">(p = 0.30, n = 50 seeds)&quot;</span>)</span>
+<span id="cb24-16"><a href="probability-the-language-of-uncertainty.html#cb24-16" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> n_seeds <span class="sc">*</span> p_germ, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>)</span>
+<span id="cb24-17"><a href="probability-the-language-of-uncertainty.html#cb24-17" tabindex="-1"></a><span class="fu">text</span>(n_seeds <span class="sc">*</span> p_germ <span class="sc">+</span> <span class="dv">3</span>, n_reps <span class="sc">*</span> <span class="fl">0.12</span>, <span class="st">&quot;Expected: 15&quot;</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:build-distribution"></span>
+<img src="_main_files/figure-html/build-distribution-1.png" alt="If the true germination probability is 0.30 and we plant 50 seeds, this is the distribution of outcomes we would expect across many repetitions. The dashed line marks the expected value of 15." width="672" />
+<p class="caption">
+Figure 3.2: If the true germination probability is 0.30 and we plant 50 seeds, this is the distribution of outcomes we would expect across many repetitions. The dashed line marks the expected value of 15.
+</p>
+</div>
+<p>This histogram is a <strong>binomial distribution</strong>: it describes the number of “successes” (germinations) in a fixed number of independent trials (seeds), each with the same probability of success. You just built it by simulation; R has a built-in function that does the same thing analytically:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="probability-the-language-of-uncertainty.html#cb25-1" tabindex="-1"></a><span class="co"># Compare simulation to the theoretical binomial distribution</span></span>
+<span id="cb25-2"><a href="probability-the-language-of-uncertainty.html#cb25-2" tabindex="-1"></a>theoretical_probs <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(<span class="dv">0</span><span class="sc">:</span>n_seeds, <span class="at">size =</span> n_seeds, <span class="at">prob =</span> p_germ)</span>
+<span id="cb25-3"><a href="probability-the-language-of-uncertainty.html#cb25-3" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="probability-the-language-of-uncertainty.html#cb25-4" tabindex="-1"></a><span class="co"># Most likely outcomes</span></span>
+<span id="cb25-5"><a href="probability-the-language-of-uncertainty.html#cb25-5" tabindex="-1"></a>likely_range <span class="ot">&lt;-</span> <span class="fu">which</span>(theoretical_probs <span class="sc">&gt;</span> <span class="fl">0.01</span>) <span class="sc">-</span> <span class="dv">1</span>  <span class="co"># subtract 1 because index starts at 1</span></span>
+<span id="cb25-6"><a href="probability-the-language-of-uncertainty.html#cb25-6" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Outcomes with &gt;1% probability:&quot;</span>, <span class="fu">paste</span>(<span class="fu">range</span>(likely_range), <span class="at">collapse =</span> <span class="st">&quot; to &quot;</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Outcomes with &gt;1% probability: 8 to 22</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="probability-the-language-of-uncertainty.html#cb27-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Expected value:&quot;</span>, n_seeds <span class="sc">*</span> p_germ, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Expected value: 15</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="probability-the-language-of-uncertainty.html#cb29-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Standard deviation:&quot;</span>, <span class="fu">round</span>(<span class="fu">sqrt</span>(n_seeds <span class="sc">*</span> p_germ <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_germ)), <span class="dv">2</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Standard deviation: 3.24</code></pre>
+<p>The binomial distribution is just one probability distribution. Different kinds of ecological data call for different distributions—counts of individuals in quadrats often follow a Poisson distribution, continuous measurements like body mass often follow a normal distribution. We will meet these in later chapters. For now, the important idea is that <strong>a probability distribution gives us a way to describe what “normal variation” looks like for a given process.</strong> And that is exactly what we need to build a null model.</p>
+</div>
+<div id="nullmodel" class="section level3 hasAnchor" number="3.7.2">
+<h3><span class="header-section-number">3.7.2</span> Null models: what does chance alone look like?<a href="probability-the-language-of-uncertainty.html#nullmodel" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Here is the central move in statistical thinking: once you can describe what chance alone would produce, you can ask whether your data look like they came from that process or whether something more interesting is going on.</p>
+<p>A <strong>null model</strong> is a probability model that represents the hypothesis of “no effect” or “nothing interesting happening.” It defines what we would expect to see if, for example, a treatment had no impact, two groups were identical, or a pattern were generated by chance.</p>
+<p><strong>Ecological example:</strong> You are testing whether a restoration treatment increases seed germination. You set up an experiment with two groups:</p>
+<ul>
+<li><strong>Treatment:</strong> 50 seeds planted in restored soil</li>
+<li><strong>Control:</strong> 50 seeds planted in unrestored soil</li>
+</ul>
+<p>You observe that 22 out of 50 seeds germinate in the treatment group and 13 out of 50 in the control group. The difference in germination rates is <span class="math inline">\(22/50 - 13/50 = 0.44 - 0.26 = 0.18\)</span>. That seems like a meaningful difference. But could it have happened by chance, even if the treatment did nothing?</p>
+<p>To answer this, we need a null model. The null hypothesis is: <em>the treatment has no effect on germination.</em> Under this hypothesis, the 35 seeds that germinated would have germinated regardless of which group they were in. The group labels are meaningless.</p>
+<p>This gives us a strategy: <strong>shuffle the labels and see what happens.</strong></p>
+</div>
+<div id="permtest" class="section level3 hasAnchor" number="3.7.3">
+<h3><span class="header-section-number">3.7.3</span> A permutation test: building a null distribution<a href="probability-the-language-of-uncertainty.html#permtest" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>A <strong>permutation test</strong> (also called a randomization test) works by:</p>
+<ol style="list-style-type: decimal">
+<li>Combining all observations into a single pool (ignoring group labels).</li>
+<li>Randomly reassigning observations to groups.</li>
+<li>Calculating the difference between groups for each random assignment.</li>
+<li>Repeating many times to build a <strong>null distribution</strong>—the distribution of differences we would see if group membership were random.</li>
+</ol>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="probability-the-language-of-uncertainty.html#cb31-1" tabindex="-1"></a><span class="co"># Our observed data</span></span>
+<span id="cb31-2"><a href="probability-the-language-of-uncertainty.html#cb31-2" tabindex="-1"></a>treatment <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">22</span>), <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">28</span>))  <span class="co"># 22 germinated out of 50</span></span>
+<span id="cb31-3"><a href="probability-the-language-of-uncertainty.html#cb31-3" tabindex="-1"></a>control   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">13</span>), <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">37</span>))  <span class="co"># 13 germinated out of 50</span></span>
+<span id="cb31-4"><a href="probability-the-language-of-uncertainty.html#cb31-4" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="probability-the-language-of-uncertainty.html#cb31-5" tabindex="-1"></a><span class="co"># Combine into one dataset</span></span>
+<span id="cb31-6"><a href="probability-the-language-of-uncertainty.html#cb31-6" tabindex="-1"></a>germinated <span class="ot">&lt;-</span> <span class="fu">c</span>(treatment, control)</span>
+<span id="cb31-7"><a href="probability-the-language-of-uncertainty.html#cb31-7" tabindex="-1"></a>group <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;treatment&quot;</span>, <span class="dv">50</span>), <span class="fu">rep</span>(<span class="st">&quot;control&quot;</span>, <span class="dv">50</span>))</span>
+<span id="cb31-8"><a href="probability-the-language-of-uncertainty.html#cb31-8" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="probability-the-language-of-uncertainty.html#cb31-9" tabindex="-1"></a><span class="co"># Observed difference in germination rates</span></span>
+<span id="cb31-10"><a href="probability-the-language-of-uncertainty.html#cb31-10" tabindex="-1"></a>obs_diff <span class="ot">&lt;-</span> <span class="fu">mean</span>(germinated[group <span class="sc">==</span> <span class="st">&quot;treatment&quot;</span>]) <span class="sc">-</span> <span class="fu">mean</span>(germinated[group <span class="sc">==</span> <span class="st">&quot;control&quot;</span>])</span>
+<span id="cb31-11"><a href="probability-the-language-of-uncertainty.html#cb31-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Observed difference in germination rate:&quot;</span>, obs_diff, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Observed difference in germination rate: 0.18</code></pre>
+<p>Now we build the null distribution by shuffling group labels:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="probability-the-language-of-uncertainty.html#cb33-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">226</span>)</span>
+<span id="cb33-2"><a href="probability-the-language-of-uncertainty.html#cb33-2" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="probability-the-language-of-uncertainty.html#cb33-3" tabindex="-1"></a>n_perms <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb33-4"><a href="probability-the-language-of-uncertainty.html#cb33-4" tabindex="-1"></a>perm_diffs <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_perms)</span>
+<span id="cb33-5"><a href="probability-the-language-of-uncertainty.html#cb33-5" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="probability-the-language-of-uncertainty.html#cb33-6" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_perms) {</span>
+<span id="cb33-7"><a href="probability-the-language-of-uncertainty.html#cb33-7" tabindex="-1"></a>  shuffled_group <span class="ot">&lt;-</span> <span class="fu">sample</span>(group)  <span class="co"># randomly reassign labels</span></span>
+<span id="cb33-8"><a href="probability-the-language-of-uncertainty.html#cb33-8" tabindex="-1"></a>  perm_diffs[i] <span class="ot">&lt;-</span> <span class="fu">mean</span>(germinated[shuffled_group <span class="sc">==</span> <span class="st">&quot;treatment&quot;</span>]) <span class="sc">-</span></span>
+<span id="cb33-9"><a href="probability-the-language-of-uncertainty.html#cb33-9" tabindex="-1"></a>                   <span class="fu">mean</span>(germinated[shuffled_group <span class="sc">==</span> <span class="st">&quot;control&quot;</span>])</span>
+<span id="cb33-10"><a href="probability-the-language-of-uncertainty.html#cb33-10" tabindex="-1"></a>}</span>
+<span id="cb33-11"><a href="probability-the-language-of-uncertainty.html#cb33-11" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="probability-the-language-of-uncertainty.html#cb33-12" tabindex="-1"></a><span class="co"># Plot the null distribution</span></span>
+<span id="cb33-13"><a href="probability-the-language-of-uncertainty.html#cb33-13" tabindex="-1"></a><span class="fu">hist</span>(perm_diffs,</span>
+<span id="cb33-14"><a href="probability-the-language-of-uncertainty.html#cb33-14" tabindex="-1"></a>     <span class="at">breaks =</span> <span class="dv">40</span>,</span>
+<span id="cb33-15"><a href="probability-the-language-of-uncertainty.html#cb33-15" tabindex="-1"></a>     <span class="at">col =</span> <span class="st">&quot;grey80&quot;</span>, <span class="at">border =</span> <span class="st">&quot;grey50&quot;</span>,</span>
+<span id="cb33-16"><a href="probability-the-language-of-uncertainty.html#cb33-16" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;Difference in germination rate (treatment - control)&quot;</span>,</span>
+<span id="cb33-17"><a href="probability-the-language-of-uncertainty.html#cb33-17" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;Frequency&quot;</span>,</span>
+<span id="cb33-18"><a href="probability-the-language-of-uncertainty.html#cb33-18" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Null distribution: what chance alone produces&quot;</span>)</span>
+<span id="cb33-19"><a href="probability-the-language-of-uncertainty.html#cb33-19" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> obs_diff, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb33-20"><a href="probability-the-language-of-uncertainty.html#cb33-20" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="sc">-</span>obs_diff, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb33-21"><a href="probability-the-language-of-uncertainty.html#cb33-21" tabindex="-1"></a><span class="fu">text</span>(obs_diff <span class="sc">+</span> <span class="fl">0.02</span>, n_perms <span class="sc">*</span> <span class="fl">0.06</span>, <span class="st">&quot;Observed</span><span class="sc">\n</span><span class="st">difference&quot;</span>,</span>
+<span id="cb33-22"><a href="probability-the-language-of-uncertainty.html#cb33-22" tabindex="-1"></a>     <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="at">cex =</span> <span class="fl">0.85</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:permutation-test"></span>
+<img src="_main_files/figure-html/permutation-test-1.png" alt="The null distribution shows the range of differences in germination rate we would expect if the treatment had no effect. The red dashed line marks our observed difference. Values as extreme or more extreme than our observation are rare under the null model, suggesting the treatment had a real effect." width="672" />
+<p class="caption">
+Figure 3.3: The null distribution shows the range of differences in germination rate we would expect if the treatment had no effect. The red dashed line marks our observed difference. Values as extreme or more extreme than our observation are rare under the null model, suggesting the treatment had a real effect.
+</p>
+</div>
+<p>Most of the null distribution is clustered near zero—which makes sense, because if the treatment does nothing, the difference between groups should be small. Our observed difference of 0.18 sits out in the tail of the distribution.</p>
+</div>
+<div id="pvalue" class="section level3 hasAnchor" number="3.7.4">
+<h3><span class="header-section-number">3.7.4</span> The p-value: measuring surprise<a href="probability-the-language-of-uncertainty.html#pvalue" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <strong>p-value</strong> is simply the proportion of the null distribution that is as extreme as, or more extreme than, what we actually observed. It answers the question: <em>if the treatment truly had no effect, how often would chance alone produce a difference this large?</em></p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="probability-the-language-of-uncertainty.html#cb34-1" tabindex="-1"></a><span class="co"># Two-sided p-value: proportion of permutations with |difference| &gt;= |observed|</span></span>
+<span id="cb34-2"><a href="probability-the-language-of-uncertainty.html#cb34-2" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">abs</span>(perm_diffs) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_diff))</span>
+<span id="cb34-3"><a href="probability-the-language-of-uncertainty.html#cb34-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;p-value:&quot;</span>, p_value, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## p-value: 0.0361</code></pre>
+<p>A small p-value means our observation would be unusual if nothing were going on. That’s it. It does not <em>prove</em> the treatment works. It does not measure the <em>size</em> of the effect. It does not tell us whether the result is ecologically important. It quantifies <strong>surprise under a specific assumption</strong>—the assumption that the null model is true.</p>
+<p>Let’s put all three pieces together:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="probability-the-language-of-uncertainty.html#cb36-1" tabindex="-1"></a>summary_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb36-2"><a href="probability-the-language-of-uncertainty.html#cb36-2" tabindex="-1"></a>  <span class="at">Concept =</span> <span class="fu">c</span>(<span class="st">&quot;Null model&quot;</span>,</span>
+<span id="cb36-3"><a href="probability-the-language-of-uncertainty.html#cb36-3" tabindex="-1"></a>              <span class="st">&quot;Null distribution&quot;</span>,</span>
+<span id="cb36-4"><a href="probability-the-language-of-uncertainty.html#cb36-4" tabindex="-1"></a>              <span class="st">&quot;p-value&quot;</span>),</span>
+<span id="cb36-5"><a href="probability-the-language-of-uncertainty.html#cb36-5" tabindex="-1"></a>  <span class="at">Definition =</span> <span class="fu">c</span>(<span class="st">&quot;A probability model representing &#39;no effect&#39;&quot;</span>,</span>
+<span id="cb36-6"><a href="probability-the-language-of-uncertainty.html#cb36-6" tabindex="-1"></a>                  <span class="st">&quot;The distribution of outcomes under the null model&quot;</span>,</span>
+<span id="cb36-7"><a href="probability-the-language-of-uncertainty.html#cb36-7" tabindex="-1"></a>                  <span class="st">&quot;The probability of observing a result as extreme as ours, if the null model were true&quot;</span>),</span>
+<span id="cb36-8"><a href="probability-the-language-of-uncertainty.html#cb36-8" tabindex="-1"></a>  <span class="at">In_our_example =</span> <span class="fu">c</span>(<span class="st">&quot;Treatment has no effect on germination&quot;</span>,</span>
+<span id="cb36-9"><a href="probability-the-language-of-uncertainty.html#cb36-9" tabindex="-1"></a>                      <span class="st">&quot;Histogram of differences from 10,000 random shuffles&quot;</span>,</span>
+<span id="cb36-10"><a href="probability-the-language-of-uncertainty.html#cb36-10" tabindex="-1"></a>                      <span class="fu">paste0</span>(p_value, <span class="st">&quot; of shuffled differences were as extreme as ours&quot;</span>))</span>
+<span id="cb36-11"><a href="probability-the-language-of-uncertainty.html#cb36-11" tabindex="-1"></a>)</span>
+<span id="cb36-12"><a href="probability-the-language-of-uncertainty.html#cb36-12" tabindex="-1"></a></span>
+<span id="cb36-13"><a href="probability-the-language-of-uncertainty.html#cb36-13" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(summary_df, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Concept&quot;</span>, <span class="st">&quot;What it means&quot;</span>, <span class="st">&quot;In our example&quot;</span>),</span>
+<span id="cb36-14"><a href="probability-the-language-of-uncertainty.html#cb36-14" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">&quot;The three components of a statistical test&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:summary-table">Table 3.1: </span>The three components of a statistical test</caption>
+<colgroup>
+<col width="11%" />
+<col width="54%" />
+<col width="34%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Concept</th>
+<th align="left">What it means</th>
+<th align="left">In our example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Null model</td>
+<td align="left">A probability model representing ‘no effect’</td>
+<td align="left">Treatment has no effect on germination</td>
+</tr>
+<tr class="even">
+<td align="left">Null distribution</td>
+<td align="left">The distribution of outcomes under the null model</td>
+<td align="left">Histogram of differences from 10,000 random shuffles</td>
+</tr>
+<tr class="odd">
+<td align="left">p-value</td>
+<td align="left">The probability of observing a result as extreme as ours, if the null model were true</td>
+<td align="left">0.0361 of shuffled differences were as extreme as ours</td>
+</tr>
+</tbody>
+</table>
+<p>This logic—build a null model, generate a null distribution, ask where your data fall—is the foundation of hypothesis testing. Every statistical test you encounter in this course, from t-tests to regression to ANOVA, follows this same structure. The tests differ in the specific null model they use and how they calculate the null distribution, but the reasoning is always the same.</p>
+</div>
+</div>
+<div id="roadmap" class="section level2 hasAnchor" number="3.8">
+<h2><span class="header-section-number">3.8</span> Where probability appears in ecology and statistics<a href="probability-the-language-of-uncertainty.html#roadmap" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The concepts from this chapter are not an isolated topic. They are the foundation for virtually everything that follows in this course and in quantitative ecology more broadly. Here is a brief roadmap of where these ideas reappear:</p>
+<p><strong>Hypothesis testing</strong> formalizes the null model logic we developed in the previous section. Every test you will learn—t-tests, ANOVA, chi-square tests, regression significance tests—asks the same question: how surprising is my result under a null model? The tests differ in what null model they assume and how they compute the null distribution, but the reasoning is identical.</p>
+<p><strong>Regression and linear models</strong> estimate relationships between variables, and every coefficient in a regression model has a probability distribution. Testing whether a coefficient “differs from zero” is a direct application of null model thinking: we ask how likely the observed coefficient would be if the true relationship were zero.</p>
+<p><strong>Population modeling and Population Viability Analysis (PVA)</strong> rely on probability at every level. Survival probabilities, reproduction probabilities, and transition probabilities between life stages are all estimated from data and used to project population dynamics into the future. These models are often stochastic, meaning they incorporate randomness to generate distributions of possible outcomes (like the extinction probability example from the beginning of this chapter). Stage-structured population models use conditional probabilities across time steps—these are <strong>Markov chains</strong>, where the probability of being in a particular state next year depends on your current state, exactly as flowering probability depended on survival in our earlier example.</p>
+<p><strong>Bayesian inference</strong> takes the conditional probability formula from this chapter and flips it. Instead of asking <span class="math inline">\(P(\text{data} \mid \text{hypothesis})\)</span>—which is what a p-value gives us—Bayesian methods ask <span class="math inline">\(P(\text{hypothesis} \mid \text{data})\)</span>. This “flip” is Bayes’ theorem, and it is nothing more than the conditional probability formula applied in a new direction. If you choose to use Bayesian methods later, the concepts from this chapter are exactly what you need.</p>
+<p><strong>Occupancy models</strong> separate two processes that are often conflated: whether a species is truly present at a site, and whether you detected it during your survey. The probability of detection given presence, <span class="math inline">\(P(\text{detected} \mid \text{present})\)</span>, is a conditional probability. Occupancy models use this to estimate the true occurrence rate from imperfect survey data.</p>
+<p>You do not need to understand all of these yet. The point is that probability is not a standalone topic—it is the language that connects everything we will do this semester.</p>
+</div>
+<div id="probsummary" class="section level2 hasAnchor" number="3.9">
+<h2><span class="header-section-number">3.9</span> Summary<a href="probability-the-language-of-uncertainty.html#probsummary" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Randomness and variability are unavoidable features of natural systems. In statistics, we do not attempt to explain why variation exists; instead, we develop tools to reason about uncertainty in the presence of that variation.</p>
+<p>The difference between a true population value and what we observe in a sample is called error. Error is not a mistake—it is an inherent consequence of sampling complex systems. Probability provides the language for reasoning about error and uncertainty.</p>
+<p><strong>Key concepts from this chapter:</strong></p>
+<ul>
+<li><p>The <strong>sample space</strong> defines all possible outcomes. Being explicit about what outcomes are possible—and what question you are asking—is essential for translating ecological questions into statistical ones.</p></li>
+<li><p><strong>Probability as long-run frequency</strong> means that a probability represents the proportion of times an event would occur across many repetitions. Larger samples give more stable estimates.</p></li>
+<li><p><strong>Conditional probability</strong> formalizes how probabilities change when additional information is available. Many ecological processes are conditional: reproduction depends on survival, detection depends on presence, and future states depend on current ones.</p></li>
+<li><p><strong>Independence</strong> means that knowing one event tells you nothing about another. Assuming independence when events are dependent—such as repeated measurements on the same individual—is a common source of error in statistical analyses.</p></li>
+<li><p>A <strong>probability distribution</strong> describes the full range of possible outcomes and their likelihoods. It is the basis for building null models.</p></li>
+<li><p>A <strong>null model</strong> represents the hypothesis that nothing interesting is happening. The <strong>null distribution</strong> shows the range of outcomes we would expect under that hypothesis.</p></li>
+<li><p>The <strong>p-value</strong> is the proportion of the null distribution as extreme as or more extreme than our observed result. It quantifies surprise under a specific assumption—not the probability that the hypothesis is true.</p></li>
+</ul>
+<p>These concepts form the foundation for hypothesis testing, regression models, population modeling, and Bayesian inference, all of which will be developed in later chapters.</p>
+<p><strong>Key takeaway:</strong> Probability does not remove uncertainty from ecological science—it allows us to work with it transparently and rigorously.</p>
+</div>
+<div id="probassignment" class="section level2 hasAnchor" number="3.10">
+<h2><span class="header-section-number">3.10</span> Assignment: Probability thinking in your research system<a href="probability-the-language-of-uncertainty.html#probassignment" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><strong>Goal:</strong> Apply core probability concepts from this chapter to your own research system, without requiring advanced mathematics.</p>
+<p><strong>Instructions:</strong> Answer the following questions using your thesis system (or a proposed research project if you are early-stage). Short answers are sufficient (1–3 sentences per question unless otherwise noted).</p>
+<div id="part-1-defining-the-sample-space" class="section level3 hasAnchor" number="3.10.1">
+<h3><span class="header-section-number">3.10.1</span> Part 1: Defining the sample space<a href="probability-the-language-of-uncertainty.html#part-1-defining-the-sample-space" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol style="list-style-type: decimal">
+<li><p>Identify one ecological outcome you measure or plan to measure (e.g., survival, presence/absence, flowering, infection).</p></li>
+<li><p>Explicitly define the sample space for this outcome.</p>
+<ul>
+<li>What outcomes are possible?</li>
+<li>What outcomes are <em>not</em> included?</li>
+</ul></li>
+</ol>
+</div>
+<div id="part-2-probability-as-long-run-frequency" class="section level3 hasAnchor" number="3.10.2">
+<h3><span class="header-section-number">3.10.2</span> Part 2: Probability as long-run frequency<a href="probability-the-language-of-uncertainty.html#part-2-probability-as-long-run-frequency" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol start="3" style="list-style-type: decimal">
+<li><p>If you repeated your study many times under the same conditions, what does the probability of your chosen outcome represent?</p></li>
+<li><p>What would increasing your sample size change about your probability estimate?</p></li>
+</ol>
+</div>
+<div id="part-3-conditional-probability" class="section level3 hasAnchor" number="3.10.3">
+<h3><span class="header-section-number">3.10.3</span> Part 3: Conditional probability<a href="probability-the-language-of-uncertainty.html#part-3-conditional-probability" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol start="5" style="list-style-type: decimal">
+<li><p>Identify one outcome in your system that depends on another condition (e.g., reproduction depends on survival, detection depends on presence, germination depends on fire).</p></li>
+<li><p>Explain the difference between <span class="math inline">\(P(A)\)</span> and <span class="math inline">\(P(A \mid B)\)</span> in the context of your research question (e.g., “P(flowering) vs. P(flowering | survived winter)”).</p></li>
+</ol>
+</div>
+<div id="part-4-independence-and-dependence" class="section level3 hasAnchor" number="3.10.4">
+<h3><span class="header-section-number">3.10.4</span> Part 4: Independence and dependence<a href="probability-the-language-of-uncertainty.html#part-4-independence-and-dependence" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol start="7" style="list-style-type: decimal">
+<li><p>Identify two events in your system that are likely <strong>dependent</strong>.</p></li>
+<li><p>Briefly explain why assuming independence would be inappropriate in this case. What might go wrong statistically?</p></li>
+</ol>
+</div>
+<div id="part-5-null-model-thinking" class="section level3 hasAnchor" number="3.10.5">
+<h3><span class="header-section-number">3.10.5</span> Part 5: Null model thinking<a href="probability-the-language-of-uncertainty.html#part-5-null-model-thinking" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol start="9" style="list-style-type: decimal">
+<li><p>Describe a null model for one comparison or question in your research. What would you expect to see if there were no treatment effect, no relationship, or no difference?</p></li>
+<li><p>If you simulated data under this null model many times, what would the distribution of outcomes look like? (Describe in words—you do not need to run a simulation.)</p></li>
+</ol>
+</div>
+<div id="part-6-connecting-to-your-analyses" class="section level3 hasAnchor" number="3.10.6">
+<h3><span class="header-section-number">3.10.6</span> Part 6: Connecting to your analyses<a href="probability-the-language-of-uncertainty.html#part-6-connecting-to-your-analyses" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol start="11" style="list-style-type: decimal">
+<li>Name one statistical analysis you plan to use (or expect to use) in your research. Which probability concept from this chapter does it rely on most heavily?</li>
+</ol>
+<p><em>Examples to get you started: If you plan to use logistic regression, it models conditional probability. If you plan to use a t-test, it relies on null model logic. If you plan to build a population model, it uses conditional (transition) probabilities across time steps.</em></p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="back-to-the-basics.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="data-types-and-why-they-matter.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/sarasouther/DataAnalysis/edit/main/03-Probability.Rmd",
+    "text": "Edit this page"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["_main.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

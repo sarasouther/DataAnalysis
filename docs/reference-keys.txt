@@ -1383,7 +1383,7 @@ part-2-co-occurrence-analysis-1
 part-3-phylogenetic-structure
 part-4-combining-evidence
 part-5-reflection-7
-introduction-why-spatial-data-matters-in-ecology
+introduction-working-with-spatial-data-in-r
 setup-18
 part-1-understanding-coordinate-reference-systems-crs
 the-fundamental-problem

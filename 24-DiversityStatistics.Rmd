@@ -36,7 +36,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Types of Diversity Data
+## Part 1: Types of Diversity Data
 
 Before calculating diversity, you must understand what type of data you have. This determines which methods are appropriate.
 
@@ -126,7 +126,7 @@ knitr::kable(data_types, caption = "Choosing the appropriate data type for diver
 
 ---
 
-# Part 2: Diversity Metrics and Hill Numbers
+## Part 2: Diversity Metrics and Hill Numbers
 
 ## Classic diversity indices
 
@@ -228,7 +228,7 @@ A community with $^1D = 10$ has the same Shannon diversity as a community of 10 
 
 ---
 
-# Part 3: The Sampling Problem
+## Part 3: The Sampling Problem
 
 ## You never find all the species
 
@@ -303,7 +303,7 @@ Coverage tells you how **complete** your sample is. A sample with 95% coverage h
 
 ---
 
-# Part 4: The iNEXT Framework
+## Part 4: The iNEXT Framework
 
 `iNEXT` (iNterpolation and EXTrapolation) provides a unified framework for diversity estimation that:
 
@@ -387,7 +387,7 @@ ggiNEXT(ant_inext, type = 1, facet.var = "Order.q") +
 
 ---
 
-# Part 5: Data Preparation for iNEXT
+## Part 5: Data Preparation for iNEXT
 
 Getting your data into the right format is often the hardest part. Here are common scenarios:
 

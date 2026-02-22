@@ -39,9 +39,9 @@ set.seed(42)
 
 ---
 
-# Part 1: Fixed vs. Random Effects
+## Part 1: Fixed vs. Random Effects
 
-## Fixed effects
+### Fixed effects
 
 **Fixed effects** are the variables whose specific levels you're interested in and that you would replicate in future studies.
 
@@ -52,7 +52,7 @@ Examples:
 
 **Key question:** Would you use these exact same levels in a future study?
 
-## Random effects
+### Random effects
 
 **Random effects** are grouping factors that introduce correlation structure but whose specific levels are:
 - Not of primary interest
@@ -67,7 +67,7 @@ Examples:
 
 **Key question:** Are these specific levels a sample from a larger population of possible levels?
 
-## The gray area
+### The gray area
 
 Some factors could be treated either way:
 
@@ -81,7 +81,7 @@ Some factors could be treated either way:
 
 ---
 
-# Part 2: Design → Model Structure
+## Part 2: Design → Model Structure
 
 The random effects structure in your model should match your study design. Here's a guide:
 
@@ -98,9 +98,9 @@ Let's work through each design with examples.
 
 ---
 
-# Part 3: Randomized Complete Block Design
+## Part 3: Randomized Complete Block Design
 
-## The design
+### The design
 
 You have an environmental gradient or spatial heterogeneity, so you group experimental units into **blocks** of similar conditions. Each treatment appears once per block.
 
@@ -140,7 +140,7 @@ ggplot(variety_data, aes(x = variety, y = yield, color = block, group = block)) 
 
 Notice how the lines (connecting blocks) are roughly parallel—blocks shift yields up or down, but variety differences are consistent across blocks.
 
-## The model
+### The model
 
 **Fixed effect:** Variety (we want to compare these specific 8 varieties)
 
@@ -203,9 +203,9 @@ In this case, ignoring blocks gives similar SEs because blocks explained relativ
 
 ---
 
-# Part 4: Nested (Hierarchical) Designs
+## Part 4: Nested (Hierarchical) Designs
 
-## The design
+### The design
 
 Sampling units are grouped within higher-level units. Lower-level units are **unique to** their higher-level unit.
 
@@ -247,7 +247,7 @@ nested_data$height <- 15 +
 head(nested_data)
 ```
 
-## The model
+### The model
 
 **Fixed effect:** Treatment (fertilized vs. control)
 
@@ -312,9 +312,9 @@ Notice the denominator df = 9. This is because the effective sample size for tes
 
 ---
 
-# Part 5: Crossed Random Effects
+## Part 5: Crossed Random Effects
 
-## The design
+### The design
 
 When every level of one random factor occurs with every level of another random factor, they are **crossed** (not nested).
 
@@ -348,7 +348,7 @@ crossed_data$abundance <- 20 +
 head(crossed_data)
 ```
 
-## The model
+### The model
 
 **Fixed effect:** Period (before vs. after intervention)
 
@@ -389,9 +389,9 @@ The period effect is significant (F = 28.1, p < 0.001).
 
 ---
 
-# Part 6: Repeated Measures and Longitudinal Data
+## Part 6: Repeated Measures and Longitudinal Data
 
-## The design
+### The design
 
 The same subjects are measured multiple times. Measurements within a subject are correlated.
 
@@ -434,7 +434,7 @@ ggplot(repeated_data, aes(x = time, y = height, group = individual, color = trea
   theme_minimal()
 ```
 
-## Random intercept model
+### Random intercept model
 
 If you only expect individuals to differ in their starting point (intercept), use a random intercept:
 
@@ -446,7 +446,7 @@ summary(ri_model)
 
 The `time:treatmentFertilized` interaction tests whether growth rate differs between treatments.
 
-## Random slope model
+### Random slope model
 
 If individuals might also differ in how they respond to the predictor (e.g., different growth rates), add a random slope:
 
@@ -492,18 +492,18 @@ If the random slope model is significantly better (LRT p < 0.05 or ΔAIC > 2), i
 
 ---
 
-# Part 7: Model Diagnostics
+## Part 7: Model Diagnostics
 
 Mixed model diagnostics are similar to GLM diagnostics, but we also check random effects assumptions.
 
-## Check residuals
+### Check residuals
 
 ```{r diagnostics-residuals, fig.cap="Diagnostic plots for mixed effects model. Left: Residuals vs. fitted should show random scatter. Right: QQ plot of residuals should follow the diagonal."}
 # Using performance package
 check_model(rs_model)
 ```
 
-## Check random effects normality
+### Check random effects normality
 
 Random effects are assumed to be normally distributed:
 
@@ -522,7 +522,7 @@ qqline(rand_eff$time)
 par(mfrow = c(1, 1))
 ```
 
-## Check for influential groups
+### Check for influential groups
 
 ```{r influential}
 # Cook's distance by group
@@ -536,9 +536,9 @@ Look for groups with unusually large random effects—they may be influential.
 
 ---
 
-# Part 8: Reporting Mixed Models
+## Part 8: Reporting Mixed Models
 
-## What to report
+### What to report
 
 1. **Model structure:** Fixed effects, random effects structure
 2. **Method for p-values:** Satterthwaite, Kenward-Roger, or likelihood ratio tests
@@ -547,7 +547,7 @@ Look for groups with unusually large random effects—they may be influential.
 5. **Random effects:** Variance components (or SDs)
 6. **Model fit:** Conditional and marginal R²
 
-## R-squared for mixed models
+### R-squared for mixed models
 
 Mixed models have two types of R²:
 
@@ -559,7 +559,7 @@ Mixed models have two types of R²:
 r.squaredGLMM(rs_model)
 ```
 
-## Sample methods and results
+### Sample methods and results
 
 **Methods:**
 
@@ -571,9 +571,9 @@ r.squaredGLMM(rs_model)
 
 ---
 
-# Part 9: Common Issues and Solutions
+## Part 9: Common Issues and Solutions
 
-## Singular fit / convergence warnings
+### Singular fit / convergence warnings
 
 **"boundary (singular) fit"** or **"Model failed to converge"**
 
@@ -598,7 +598,7 @@ model <- lmer(y ~ x + (1|group) + (0 + x|group), data = data)
 model <- lmer(y ~ x + (1|group), data = data)
 ```
 
-## How many levels do you need for random effects?
+### How many levels do you need for random effects?
 
 **Rule of thumb:** At least 5-6 levels for a random effect, ideally more.
 
@@ -607,7 +607,7 @@ With fewer levels:
 - Consider treating as fixed effect instead
 - Or use a Bayesian approach with informative priors
 
-## Nested factors with same labels
+### Nested factors with same labels
 
 **Problem:** Plots labeled 1, 2, 3 at site A and 1, 2, 3 at site B are different plots!
 
@@ -625,11 +625,11 @@ With fewer levels:
 
 ---
 
-# Part 8: BACI Analysis — A Complete Worked Example
+## Part 8: BACI Analysis — A Complete Worked Example
 
 The Before-After-Control-Impact (BACI) design was introduced in the Experimental Design chapter. Here we implement the full statistical analysis, showing how the design concepts translate directly into a mixed model.
 
-## The scenario
+### The scenario
 
 A wastewater treatment plant began discharging into a stream in 2020. You monitored aquatic invertebrate density (individuals per m²) at both an impact site (downstream of discharge) and a control site (upstream, unaffected) for 3 years before (2017-2019) and 3 years after (2020-2022) the discharge began.
 
@@ -674,7 +674,7 @@ baci_data$year <- factor(baci_data$year)
 head(baci_data)
 ```
 
-## Visualize the BACI pattern
+### Visualize the BACI pattern
 
 ```{r baci-plot, fig.cap="BACI design: Invertebrate density at control (blue) and impact (red) sites before and after wastewater discharge began in 2020. The control site remains stable while the impact site shows a clear decline after the disturbance."}
 # Calculate means for plotting
@@ -703,7 +703,7 @@ ggplot(baci_means, aes(x = year, y = mean_density, color = site, group = site)) 
 
 The pattern is clear visually: the control site remains stable, while the impact site drops after 2020. But is this statistically significant?
 
-## The BACI model
+### The BACI model
 
 The key test in a BACI design is the **period × site interaction**. This tests whether the change from before to after differs between sites.
 
@@ -713,7 +713,7 @@ baci_model <- lmer(density ~ period * site + (1|year), data = baci_data)
 summary(baci_model)
 ```
 
-## Interpret the BACI output
+### Interpret the BACI output
 
 ```{r baci-anova}
 # Type III tests for the interaction
@@ -749,7 +749,7 @@ emm
 contrast(emm, interaction = "pairwise")
 ```
 
-## BACI effect size and confidence interval
+### BACI effect size and confidence interval
 
 ```{r baci-effect}
 # Extract the interaction effect with CI
@@ -762,7 +762,7 @@ cat("Estimate:", round(fixef(baci_model)["periodAfter:siteImpact"], 1), "individ
 cat("95% CI:", round(baci_effect[1], 1), "to", round(baci_effect[2], 1), "\n")
 ```
 
-## Sample methods and results for BACI
+### Sample methods and results for BACI
 
 **Methods:**
 
@@ -774,11 +774,11 @@ cat("95% CI:", round(baci_effect[1], 1), "to", round(baci_effect[2], 1), "\n")
 
 ---
 
-# Part 9: Temporal Autocorrelation
+## Part 9: Temporal Autocorrelation
 
 When observations are collected over time, adjacent time points are often more similar than distant time points. This **temporal autocorrelation** violates the independence assumption.
 
-## When does it matter?
+### When does it matter?
 
 | Situation | Autocorrelation? | What to do |
 |-----------|------------------|------------|
@@ -787,7 +787,7 @@ When observations are collected over time, adjacent time points are often more s
 | Long time series (years of data) | Almost certain | Need time series methods |
 | Irregular sampling intervals | Depends | Check empirically |
 
-## Detecting temporal autocorrelation
+### Detecting temporal autocorrelation
 
 The **autocorrelation function (ACF)** shows correlation between observations at different time lags:
 
@@ -832,7 +832,7 @@ acf(ar_data$resid, main = "ACF of Model Residuals", lag.max = 10)
 - Dashed lines show 95% confidence bounds under no autocorrelation
 - Bars exceeding bounds indicate significant autocorrelation
 
-## What autocorrelation does to your analysis
+### What autocorrelation does to your analysis
 
 If you ignore positive autocorrelation:
 
@@ -919,9 +919,9 @@ These methods are covered in the Working with Long-term Data chapter. For most e
 
 ---
 
-# Part 10: Summary Tables
+## Part 10: Summary Tables
 
-## Design to model structure
+### Design to model structure
 
 | Design | Fixed effects | Random effects |
 |--------|--------------|----------------|

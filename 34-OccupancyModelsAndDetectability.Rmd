@@ -59,7 +59,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Single-Season Occupancy Models
+## Part 1: Single-Season Occupancy Models
 
 ## The basic model
 
@@ -171,7 +171,7 @@ cat("Naive estimate:", round(naive_occupancy, 3), "\n")
 
 ---
 
-# Part 2: Covariates on Detection and Occupancy
+## Part 2: Covariates on Detection and Occupancy
 
 ## Why covariates matter
 
@@ -284,7 +284,7 @@ print(aic_table)
 
 ---
 
-# Part 3: Predictions and Visualization
+## Part 3: Predictions and Visualization
 
 ## Predicting occupancy
 
@@ -342,7 +342,7 @@ ggplot(site_covs, aes(x = x, y = y)) +
 
 ---
 
-# Part 4: Model Goodness-of-Fit
+## Part 4: Model Goodness-of-Fit
 
 ## Checking model fit
 
@@ -377,7 +377,7 @@ cat("Range:", round(min(p_estimates$Predicted), 3), "-",
 
 ---
 
-# Part 5: Multi-Season (Dynamic) Occupancy Models
+## Part 5: Multi-Season (Dynamic) Occupancy Models
 
 ## Why multi-season models?
 
@@ -514,7 +514,7 @@ cat("Approximate growth rate:", round(lambda, 3), "\n")
 
 ---
 
-# Part 6: N-Mixture Models for Abundance
+## Part 6: N-Mixture Models for Abundance
 
 ## Beyond presence/absence
 
@@ -644,7 +644,7 @@ ggplot(comparison, aes(x = True_N, y = Estimated_N)) +
 
 ---
 
-# Part 7: Survey Design Considerations
+## Part 7: Survey Design Considerations
 
 ## How many surveys?
 
@@ -705,7 +705,7 @@ cat("With high detection (p=0.7), more sites gives better precision on ψ\n")
 
 ---
 
-# Part 8: Reporting Occupancy Models
+## Part 8: Reporting Occupancy Models
 
 ## What to report
 

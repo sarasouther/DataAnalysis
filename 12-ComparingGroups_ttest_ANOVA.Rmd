@@ -61,7 +61,7 @@ set.seed(42)
 
 ---
 
-# Part 1: t-tests
+## Part 1: t-tests
 
 The t-test compares means between two groups. There are three flavors:
 
@@ -71,7 +71,7 @@ The t-test compares means between two groups. There are three flavors:
 | **Two-sample t-test** | Comparing means of two independent groups |
 | **Paired t-test** | Comparing means of two related measurements (same subjects) |
 
-## One-sample t-test
+### One-sample t-test
 
 ### The question
 
@@ -426,9 +426,9 @@ wilcox.test(chlorophyll$after, chlorophyll$before, paired = TRUE)
 
 ---
 
-# Part 2: ANOVA
+## Part 2: ANOVA
 
-## From t-test to ANOVA
+### From t-test to ANOVA
 
 What if you have three or more groups? You might think: "I'll just do multiple t-tests!" 
 
@@ -442,7 +442,7 @@ With 5 groups, this jumps to 40%. This is called the **multiple comparisons prob
 
 **ANOVA** (Analysis of Variance) solves this by testing all groups simultaneously with a single test, maintaining the overall Type I error rate at α = 0.05.
 
-## The logic of ANOVA
+### The logic of ANOVA
 
 ANOVA compares:
 - **Between-group variance**: How much do the group means differ from each other?
@@ -454,7 +454,7 @@ $$F = \frac{\text{Between-group variance}}{\text{Within-group variance}} = \frac
 
 If groups are truly different, F will be large. If groups are similar, F will be close to 1.
 
-## One-way ANOVA
+### One-way ANOVA
 
 ### The question
 

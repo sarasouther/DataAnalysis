@@ -47,7 +47,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Causal Thinking and DAGs
+## Part 1: Causal Thinking and DAGs
 
 ## What is causality?
 
@@ -167,7 +167,7 @@ ggdag(collider_dag, text = FALSE, use_labels = "label") +
 
 ---
 
-# Part 2: Building a Conceptual Model
+## Part 2: Building a Conceptual Model
 
 ## Meta-modeling your system
 
@@ -260,7 +260,7 @@ adjustmentSets(ivm_dag, exposure = "Treatment", outcome = "PollinatorAbund")
 
 ---
 
-# Part 3: Path Analysis with lavaan
+## Part 3: Path Analysis with lavaan
 
 ## Example data: Post-fire plant recovery
 
@@ -412,7 +412,7 @@ standardizedSolution(fit3) %>%
 
 ---
 
-# Part 4: Model Fit Assessment
+## Part 4: Model Fit Assessment
 
 ## Why assess fit?
 
@@ -448,7 +448,7 @@ modificationIndices(fit2, sort. = TRUE, minimum.value = 3)
 
 ---
 
-# Part 5: A Complete Example
+## Part 5: A Complete Example
 
 Let's build a more complex model of species richness:
 
@@ -502,7 +502,7 @@ print(std_solution, digits = 3)
 
 ---
 
-# Part 6: Comparing Models
+## Part 6: Comparing Models
 
 ## Nested models: Likelihood Ratio Test
 
@@ -544,7 +544,7 @@ data.frame(
 
 ---
 
-# Part 7: Assumptions and Diagnostics
+## Part 7: Assumptions and Diagnostics
 
 ## Key assumptions
 
@@ -597,7 +597,7 @@ summary(fit_robust, fit.measures = TRUE)
 
 ---
 
-# Part 8: Reporting SEM Results
+## Part 8: Reporting SEM Results
 
 ## What to report
 

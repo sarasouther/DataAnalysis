@@ -70,7 +70,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Bipartite Networks
+## Part 1: Bipartite Networks
 
 Most ecological interaction networks are **bipartite**: two distinct groups of species where interactions only occur *between* groups, not within them.
 
@@ -195,7 +195,7 @@ print(round(species_metrics$`higher level`, 3))
 
 ---
 
-# Part 2: Nestedness
+## Part 2: Nestedness
 
 ## What is nestedness?
 
@@ -270,7 +270,7 @@ Nested networks may be:
 
 ---
 
-# Part 3: Modularity
+## Part 3: Modularity
 
 ## What is modularity?
 
@@ -342,7 +342,7 @@ cat("Modularity (Q; higher = more modular):", round(Q, 3), "\n")
 
 ---
 
-# Part 4: Food Webs (Unipartite Networks)
+## Part 4: Food Webs (Unipartite Networks)
 
 Food webs are **unipartite**: any species can potentially interact with (eat or be eaten by) any other.
 
@@ -431,7 +431,7 @@ fw_metrics
 
 ---
 
-# Part 5: Network Centrality
+## Part 5: Network Centrality
 
 ## Why centrality matters
 
@@ -487,7 +487,7 @@ ggraph(food_tidy, layout = "kk") +
 
 ---
 
-# Part 6: Null Models and Statistical Testing
+## Part 6: Null Models and Statistical Testing
 
 ## Why null models?
 
@@ -597,7 +597,7 @@ print(null_results, digits = 3, row.names = FALSE)
 
 ---
 
-# Part 7: Network Robustness
+## Part 7: Network Robustness
 
 ## Simulating species loss
 
@@ -666,7 +666,7 @@ cat("Robustness (AUC) - Targeted:", round(mean(targeted_removal), 3), "\n")
 
 ---
 
-# Part 8: Comparing Networks
+## Part 8: Comparing Networks
 
 ## Comparing network structure
 
@@ -725,7 +725,7 @@ interaction_beta <- function(web1, web2) {
 
 ---
 
-# Part 9: Complete Workflow
+## Part 9: Complete Workflow
 
 ```{r complete-workflow-net 26}
 # 1. Load network data
@@ -772,7 +772,7 @@ print(sort(poll_degree, decreasing = TRUE)[1:5])
 
 ---
 
-# Part 10: Reporting
+## Part 10: Reporting
 
 ## What to report
 

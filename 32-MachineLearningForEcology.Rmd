@@ -52,7 +52,7 @@ tidymodels_prefer()    # Resolve function conflicts
 
 ---
 
-# Part 1: Supervised vs Unsupervised Learning
+## Part 1: Supervised vs Unsupervised Learning
 
 ## Supervised learning
 
@@ -111,7 +111,7 @@ TYPES:
 
 ---
 
-# Part 2: The Train/Test Paradigm
+## Part 2: The Train/Test Paradigm
 
 ## Why we split data
 
@@ -213,7 +213,7 @@ cv_folds
 
 ---
 
-# Part 3: Regularized Regression
+## Part 3: Regularized Regression
 
 ## The problem with many predictors
 
@@ -299,7 +299,7 @@ cat("Elastic Net:", round(enet_auc, 3), "\n")
 
 ---
 
-# Part 4: Random Forests
+## Part 4: Random Forests
 
 ## The workhorse of ecological ML
 
@@ -443,7 +443,7 @@ abline(a = 0, b = 1, lty = 2, col = "gray50")
 
 ---
 
-# Part 5: Gradient Boosting (XGBoost)
+## Part 5: Gradient Boosting (XGBoost)
 
 ## Sequential learning
 
@@ -596,7 +596,7 @@ print(comparison, row.names = FALSE)
 
 ---
 
-# Part 6: Unsupervised Learning
+## Part 6: Unsupervised Learning
 
 ## K-means clustering
 
@@ -669,7 +669,7 @@ biplot(pca_result, main = "PCA Biplot")
 
 ---
 
-# Part 7: Using tidymodels for ML Workflows
+## Part 7: Using tidymodels for ML Workflows
 
 ## The tidymodels framework
 
@@ -756,7 +756,7 @@ final_rf
 
 ---
 
-# Part 8: Case Study — Species Distribution Model
+## Part 8: Case Study — Species Distribution Model
 
 Let's build a complete SDM workflow:
 
@@ -919,7 +919,7 @@ graphics::par(mfrow = c(1, 1))
 
 ---
 
-# Part 9: Practical Challenges
+## Part 9: Practical Challenges
 
 ## Small sample sizes
 
@@ -995,7 +995,7 @@ check_extrapolation <- function(train, new) {
 
 ---
 
-# Part 10: Interpretation vs Prediction
+## Part 10: Interpretation vs Prediction
 
 ## The black box concern
 
@@ -1041,7 +1041,7 @@ ML finds patterns but doesn't identify mechanisms.
 
 ---
 
-# Part 11: Reporting ML Results
+## Part 11: Reporting ML Results
 
 ## What to report
 

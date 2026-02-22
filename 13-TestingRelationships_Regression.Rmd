@@ -44,9 +44,9 @@ set.seed(42)
 
 ---
 
-# Part 1: Simple Linear Regression
+## Part 1: Simple Linear Regression
 
-## Ecological example: Tree growth and light availability
+### Ecological example: Tree growth and light availability
 
 You're studying how light availability affects tree seedling growth. At 30 forest plots, you measured canopy openness (% of sky visible) and the average height growth (cm/year) of oak seedlings.
 

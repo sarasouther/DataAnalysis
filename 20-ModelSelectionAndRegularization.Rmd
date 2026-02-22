@@ -539,7 +539,7 @@ LASSO shrinks some coefficients to exactly zero, performing automatic variable s
 
 ---
 
-# Part 5: Reporting Model Selection Results
+## Part 5: Reporting Model Selection Results
 
 ## What to include
 

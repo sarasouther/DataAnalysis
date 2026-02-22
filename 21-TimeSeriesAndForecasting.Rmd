@@ -41,7 +41,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Time Series Structure
+## Part 1: Time Series Structure
 
 ## Components of a time series
 
@@ -130,7 +130,7 @@ cat("End:", end(monthly_ts), "\n")
 
 ---
 
-# Part 2: Exploratory Data Analysis
+## Part 2: Exploratory Data Analysis
 
 ## Visualizing time series
 
@@ -208,7 +208,7 @@ ggPacf(AirPassengers, lag.max = 36) +
 
 ---
 
-# Part 3: Stationarity
+## Part 3: Stationarity
 
 ## What is stationarity?
 
@@ -301,7 +301,7 @@ par(mfrow = c(1, 1))
 
 ---
 
-# Part 4: Decomposition
+## Part 4: Decomposition
 
 ## Classical decomposition
 
@@ -348,7 +348,7 @@ seasonally_adjusted <- air_stl$time.series[, "trend"] + air_stl$time.series[, "r
 
 ---
 
-# Part 5: ARIMA Models
+## Part 5: ARIMA Models
 
 ## The ARIMA framework
 
@@ -446,7 +446,7 @@ The **Ljung-Box test** tests for remaining autocorrelation:
 
 ---
 
-# Part 6: Forecasting
+## Part 6: Forecasting
 
 ## Generating forecasts
 
@@ -521,7 +521,7 @@ autoplot(train_forecast) +
 
 ---
 
-# Part 7: Ecological Case Studies
+## Part 7: Ecological Case Studies
 
 ## Case Study 1: Population trends
 
@@ -656,7 +656,7 @@ autoplot(phenology_forecast) +
 
 ---
 
-# Part 8: Advanced Topics (Brief Introduction)
+## Part 8: Advanced Topics (Brief Introduction)
 
 ## State-space models
 
@@ -705,7 +705,7 @@ forecast(model, xreg = future_temperature)
 
 ---
 
-# Part 9: Practical Tips
+## Part 9: Practical Tips
 
 ## Common pitfalls
 
@@ -752,7 +752,7 @@ legend("topleft", c("Missing", "Interpolated", "Kalman"),
 
 ---
 
-# Part 10: Reporting
+## Part 10: Reporting
 
 ## What to report
 

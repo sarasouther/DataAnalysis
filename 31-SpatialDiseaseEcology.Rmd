@@ -68,7 +68,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Disease Data Structure
+## Part 1: Disease Data Structure
 
 ## Types of disease data
 
@@ -155,7 +155,7 @@ cat("Infection prevalence:", round(mean(oak_data$infected) * 100, 1), "%\n")
 
 ---
 
-# Part 2: Mapping Disease Patterns
+## Part 2: Mapping Disease Patterns
 
 ## Basic disease map
 
@@ -215,7 +215,7 @@ ggplot(oak_data, aes(x = x, y = y)) +
 
 ---
 
-# Part 3: Testing for Spatial Clustering
+## Part 3: Testing for Spatial Clustering
 
 ## Is disease clustered beyond what tree distribution explains?
 
@@ -269,7 +269,7 @@ print(moran_resid)
 
 ---
 
-# Part 4: Point Pattern Analysis
+## Part 4: Point Pattern Analysis
 
 ## Using spatstat for formal point pattern tests
 
@@ -329,7 +329,7 @@ plot(Kcross_env, main = "Cross K-function: Infected vs Healthy",
 
 ---
 
-# Part 5: Spatial Disease Regression
+## Part 5: Spatial Disease Regression
 
 ## Building a risk model
 
@@ -394,7 +394,7 @@ cat("                 ", round(neighbor_or, 1), "× higher odds than one with no
 
 ---
 
-# Part 6: Temporal Spread Analysis
+## Part 6: Temporal Spread Analysis
 
 ## Does the spatial pattern change over time?
 
@@ -447,7 +447,7 @@ ggplot(infected_only, aes(x = dist_to_nearest_focus, y = year_detected)) +
 
 ---
 
-# Part 7: Predicting At-Risk Areas
+## Part 7: Predicting At-Risk Areas
 
 ## Building a risk surface
 
@@ -533,7 +533,7 @@ ggplot(oak_data, aes(x = x, y = y, color = priority, size = priority)) +
 
 ---
 
-# Part 8: Distinguishing Hypotheses
+## Part 8: Distinguishing Hypotheses
 
 ## Summary of evidence
 
@@ -608,7 +608,7 @@ if (spread_evidence >= 2 & stress_evidence >= 1) {
 
 ---
 
-# Part 9: Management Recommendations
+## Part 9: Management Recommendations
 
 ## Actionable outputs
 
@@ -656,7 +656,7 @@ ggplot(management_zones, aes(x = x, y = y, fill = zone)) +
 
 ---
 
-# Part 10: Reporting
+## Part 10: Reporting
 
 ## Sample methods and results
 

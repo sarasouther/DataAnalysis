@@ -43,7 +43,7 @@ set.seed(42)
 
 ---
 
-# Part 1: Challenges of Data You Didn't Collect
+## Part 1: Challenges of Data You Didn't Collect
 
 ## The hidden assumptions
 
@@ -102,7 +102,7 @@ Before using external data, ask:
 
 ---
 
-# Part 2: Introduction to Time Series
+## Part 2: Introduction to Time Series
 
 When you have long sequences of observations over time (not just repeated measures on subjects), you enter **time series analysis**. This is a vast field; here we cover the essential concepts for ecologists.
 
@@ -243,7 +243,7 @@ The difference is that ARIMA models the temporal structure directly, rather than
 
 ---
 
-# Part 3: Combining Datasets
+## Part 3: Combining Datasets
 
 Synthesis often requires combining data from multiple sources. This is harder than it sounds.
 
@@ -310,7 +310,7 @@ This documentation is essential for reproducibility and for understanding what y
 
 ---
 
-# Part 4: Introduction to Meta-analysis
+## Part 4: Introduction to Meta-analysis
 
 **Meta-analysis** is the statistical synthesis of results from multiple independent studies. Rather than combining raw data (which is often unavailable), you combine **effect sizes** extracted from published papers.
 
@@ -448,7 +448,7 @@ summary(mod_model)
 
 ---
 
-# Part 5: Practical Guidance
+## Part 5: Practical Guidance
 
 ## When to use what
 

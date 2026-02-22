@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 7 Experimental Design: From Question to Study Structure | Applied Statistics for the Natural Sciences</title>
+  <meta name="description" content="Chapter 7 Experimental Design: From Question to Study Structure | Applied Statistics for the Natural Sciences" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 7 Experimental Design: From Question to Study Structure | Applied Statistics for the Natural Sciences" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="sarasouther/DataAnalysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 7 Experimental Design: From Question to Study Structure | Applied Statistics for the Natural Sciences" />
+  
+  
+  
+
+<meta name="author" content="Sara Souther" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="ecological-sampling.html"/>
+<link rel="next" href="power-analysis.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet" />
+<script src="libs/bsTable-3.3.7/bootstrapTable.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.11/grViz.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Applied Statistics for the Natural Sciences</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#learning-objectives"><i class="fa fa-check"></i><b>1.1</b> Learning Objectives</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#using-r-in-this-course"><i class="fa fa-check"></i><b>1.2</b> Using R in This Course</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#what-you-need-to-use-r"><i class="fa fa-check"></i><b>1.2.1</b> What you need to use R</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#create-an-r-file"><i class="fa fa-check"></i><b>1.2.2</b> Create an R file</a></li>
+<li class="chapter" data-level="1.2.3" data-path="index.html"><a href="index.html#using-working-directories-and-opening-files"><i class="fa fa-check"></i><b>1.2.3</b> Using working directories and opening files</a></li>
+<li class="chapter" data-level="1.2.4" data-path="index.html"><a href="index.html#r-packages"><i class="fa fa-check"></i><b>1.2.4</b> R Packages</a></li>
+<li class="chapter" data-level="1.2.5" data-path="index.html"><a href="index.html#other-information-about-r-code"><i class="fa fa-check"></i><b>1.2.5</b> Other information about R code</a></li>
+<li class="chapter" data-level="1.2.6" data-path="index.html"><a href="index.html#getting-started-with-r"><i class="fa fa-check"></i><b>1.2.6</b> Getting started with R</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#how-to-use-this-online-manual"><i class="fa fa-check"></i><b>1.3</b> How to use this online manual</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="index.html"><a href="index.html#how-this-manual-fits-into-the-course"><i class="fa fa-check"></i><b>1.3.1</b> How this manual fits into the course</a></li>
+<li class="chapter" data-level="1.3.2" data-path="index.html"><a href="index.html#tips-for-getting-the-most-out-of-this-book"><i class="fa fa-check"></i><b>1.3.2</b> Tips for getting the most out of this book</a></li>
+<li class="chapter" data-level="1.3.3" data-path="index.html"><a href="index.html#a-note-on-r-code-in-this-book"><i class="fa fa-check"></i><b>1.3.3</b> A note on R code in this book</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#course-structure"><i class="fa fa-check"></i><b>1.4</b> Course structure</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html"><i class="fa fa-check"></i><b>2</b> Back to the basics</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#watch-the-video"><i class="fa fa-check"></i><b>2.1</b> Watch the video</a></li>
+<li class="chapter" data-level="2.2" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-can-statistics-tell-us"><i class="fa fa-check"></i><b>2.2</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="2.3" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#the-frequentist-framework"><i class="fa fa-check"></i><b>2.3</b> The Frequentist Framework</a></li>
+<li class="chapter" data-level="2.4" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#bayesian-statistics"><i class="fa fa-check"></i><b>2.4</b> Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#when-might-you-choose-bayesian-statistics"><i class="fa fa-check"></i><b>2.4.1</b> When might you choose Bayesian statistics?</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#fundaments-of-frequentist-statistics"><i class="fa fa-check"></i><b>2.5</b> Fundaments of frequentist statistics</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#statistical-error"><i class="fa fa-check"></i><b>2.5.1</b> Statistical error</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#what-is-a-model"><i class="fa fa-check"></i><b>2.6</b> What is a model?</a></li>
+<li class="chapter" data-level="2.7" data-path="back-to-the-basics.html"><a href="back-to-the-basics.html#assignment"><i class="fa fa-check"></i><b>2.7</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html"><i class="fa fa-check"></i><b>3</b> Probability: The Language of Uncertainty</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#watch-the-video-1"><i class="fa fa-check"></i><b>3.1</b> Watch the video</a></li>
+<li class="chapter" data-level="3.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#probability-is-everywhere-and-we-often-get-it-wrong"><i class="fa fa-check"></i><b>3.2</b> Probability is everywhere, and we often get it wrong</a></li>
+<li class="chapter" data-level="3.3" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#from-uncertainty-to-inference"><i class="fa fa-check"></i><b>3.3</b> From uncertainty to inference</a></li>
+<li class="chapter" data-level="3.4" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#samplespace"><i class="fa fa-check"></i><b>3.4</b> Defining the sample space</a></li>
+<li class="chapter" data-level="3.5" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#longrun"><i class="fa fa-check"></i><b>3.5</b> Probability as long-run frequency</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#simulation-watching-probability-stabilize"><i class="fa fa-check"></i><b>3.5.1</b> Simulation: watching probability stabilize</a></li>
+<li class="chapter" data-level="3.5.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#what-long-run-frequency-means-for-your-research"><i class="fa fa-check"></i><b>3.5.2</b> What long-run frequency means for your research</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#conditional"><i class="fa fa-check"></i><b>3.6</b> Conditional probability and dependence</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#how-knowing-one-thing-changes-what-we-expect"><i class="fa fa-check"></i><b>3.6.1</b> How knowing one thing changes what we expect</a></li>
+<li class="chapter" data-level="3.6.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#independence-when-knowing-one-thing-changes-nothing"><i class="fa fa-check"></i><b>3.6.2</b> Independence: when knowing one thing changes nothing</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#nullmodels"><i class="fa fa-check"></i><b>3.7</b> From probability to statistical thinking</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#probability-distributions-the-full-picture-of-uncertainty"><i class="fa fa-check"></i><b>3.7.1</b> Probability distributions: the full picture of uncertainty</a></li>
+<li class="chapter" data-level="3.7.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#nullmodel"><i class="fa fa-check"></i><b>3.7.2</b> Null models: what does chance alone look like?</a></li>
+<li class="chapter" data-level="3.7.3" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#permtest"><i class="fa fa-check"></i><b>3.7.3</b> A permutation test: building a null distribution</a></li>
+<li class="chapter" data-level="3.7.4" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#pvalue"><i class="fa fa-check"></i><b>3.7.4</b> The p-value: measuring surprise</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#roadmap"><i class="fa fa-check"></i><b>3.8</b> Where probability appears in ecology and statistics</a></li>
+<li class="chapter" data-level="3.9" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#probsummary"><i class="fa fa-check"></i><b>3.9</b> Summary</a></li>
+<li class="chapter" data-level="3.10" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#probassignment"><i class="fa fa-check"></i><b>3.10</b> Assignment: Probability thinking in your research system</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-1-defining-the-sample-space"><i class="fa fa-check"></i><b>3.10.1</b> Part 1: Defining the sample space</a></li>
+<li class="chapter" data-level="3.10.2" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-2-probability-as-long-run-frequency"><i class="fa fa-check"></i><b>3.10.2</b> Part 2: Probability as long-run frequency</a></li>
+<li class="chapter" data-level="3.10.3" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-3-conditional-probability"><i class="fa fa-check"></i><b>3.10.3</b> Part 3: Conditional probability</a></li>
+<li class="chapter" data-level="3.10.4" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-4-independence-and-dependence"><i class="fa fa-check"></i><b>3.10.4</b> Part 4: Independence and dependence</a></li>
+<li class="chapter" data-level="3.10.5" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-5-null-model-thinking"><i class="fa fa-check"></i><b>3.10.5</b> Part 5: Null model thinking</a></li>
+<li class="chapter" data-level="3.10.6" data-path="probability-the-language-of-uncertainty.html"><a href="probability-the-language-of-uncertainty.html#part-6-connecting-to-your-analyses"><i class="fa fa-check"></i><b>3.10.6</b> Part 6: Connecting to your analyses</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html"><i class="fa fa-check"></i><b>4</b> Data Types and Why They Matter</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#vartypes"><i class="fa fa-check"></i><b>4.1</b> Types of variables</a>
+<ul>
+<li class="chapter" data-level="4.1.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#categorical-variables"><i class="fa fa-check"></i><b>4.1.1</b> Categorical variables</a></li>
+<li class="chapter" data-level="4.1.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#numerical-variables"><i class="fa fa-check"></i><b>4.1.2</b> Numerical variables</a></li>
+<li class="chapter" data-level="4.1.3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#ordinal-variables"><i class="fa fa-check"></i><b>4.1.3</b> Ordinal variables</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#residuals"><i class="fa fa-check"></i><b>4.2</b> From data to residuals</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#what-is-a-residual"><i class="fa fa-check"></i><b>4.2.1</b> What is a residual?</a></li>
+<li class="chapter" data-level="4.2.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#why-the-shape-of-residuals-matters"><i class="fa fa-check"></i><b>4.2.2</b> Why the shape of residuals matters</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#errorstructure"><i class="fa fa-check"></i><b>4.3</b> Normal vs. non-normal error</a></li>
+<li class="chapter" data-level="4.4" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#distribution-table"><i class="fa fa-check"></i><b>4.4</b> Linking data types to distributions and models</a></li>
+<li class="chapter" data-level="4.5" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#distributions"><i class="fa fa-check"></i><b>4.5</b> Common statistical distributions</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-normal-distribution"><i class="fa fa-check"></i><b>4.5.1</b> The normal distribution</a></li>
+<li class="chapter" data-level="4.5.2" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-binomial-distribution"><i class="fa fa-check"></i><b>4.5.2</b> The binomial distribution</a></li>
+<li class="chapter" data-level="4.5.3" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-poisson-distribution"><i class="fa fa-check"></i><b>4.5.3</b> The Poisson distribution</a></li>
+<li class="chapter" data-level="4.5.4" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-negative-binomial-distribution"><i class="fa fa-check"></i><b>4.5.4</b> The negative binomial distribution</a></li>
+<li class="chapter" data-level="4.5.5" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#the-uniform-distribution"><i class="fa fa-check"></i><b>4.5.5</b> The uniform distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#datatypes-summary"><i class="fa fa-check"></i><b>4.6</b> Summary</a></li>
+<li class="chapter" data-level="4.7" data-path="data-types-and-why-they-matter.html"><a href="data-types-and-why-they-matter.html#datatypes-assignment"><i class="fa fa-check"></i><b>4.7</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="data-exploration-and-assumption-checking.html"><a href="data-exploration-and-assumption-checking.html"><i class="fa fa-check"></i><b>5</b> Data Exploration and Assumption Checking</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="data-exploration-and-assumption-checking.html"><a href="data-exploration-and-assumption-checking.html#describing-data"><i class="fa fa-check"></i><b>5.1</b> Describing data</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="ecological-sampling.html"><a href="ecological-sampling.html"><i class="fa fa-check"></i><b>6</b> Ecological sampling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#background"><i class="fa fa-check"></i><b>6.1</b> Background</a></li>
+<li class="chapter" data-level="6.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#what-kind-of-study-are-you-designing"><i class="fa fa-check"></i><b>6.2</b> What kind of study are you designing?</a></li>
+<li class="chapter" data-level="6.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-approaches"><i class="fa fa-check"></i><b>6.3</b> Sampling approaches</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-sampling"><i class="fa fa-check"></i><b>6.3.1</b> Random sampling</a></li>
+<li class="chapter" data-level="6.3.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#stratified-random-sampling"><i class="fa fa-check"></i><b>6.3.2</b> Stratified random sampling</a></li>
+<li class="chapter" data-level="6.3.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#gridded-random-sampling"><i class="fa fa-check"></i><b>6.3.3</b> Gridded random sampling</a></li>
+<li class="chapter" data-level="6.3.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#random-cluster-sampling"><i class="fa fa-check"></i><b>6.3.4</b> Random cluster sampling</a></li>
+<li class="chapter" data-level="6.3.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#grts-sampling-generalized-random-tessellation-stratified-sampling"><i class="fa fa-check"></i><b>6.3.5</b> GRTS Sampling (Generalized Random-Tessellation Stratified Sampling)</a></li>
+<li class="chapter" data-level="6.3.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#understanding-design-weights"><i class="fa fa-check"></i><b>6.3.6</b> Understanding Design Weights</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#systematic-sampling"><i class="fa fa-check"></i><b>6.4</b> Systematic Sampling</a></li>
+<li class="chapter" data-level="6.5" data-path="ecological-sampling.html"><a href="ecological-sampling.html#adaptive-sampling-sampling-rare-or-patchy-species"><i class="fa fa-check"></i><b>6.5</b> Adaptive Sampling (Sampling Rare or Patchy Species)</a></li>
+<li class="chapter" data-level="6.6" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-along-gradients"><i class="fa fa-check"></i><b>6.6</b> Sampling Along Gradients</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#what-is-a-gradient-study"><i class="fa fa-check"></i><b>6.6.1</b> What is a gradient study?</a></li>
+<li class="chapter" data-level="6.6.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#designing-a-gradient-study"><i class="fa fa-check"></i><b>6.6.2</b> Designing a gradient study</a></li>
+<li class="chapter" data-level="6.6.3" data-path="ecological-sampling.html"><a href="ecological-sampling.html#gradient-sampling-in-r"><i class="fa fa-check"></i><b>6.6.3</b> Gradient sampling in R</a></li>
+<li class="chapter" data-level="6.6.4" data-path="ecological-sampling.html"><a href="ecological-sampling.html#common-pitfalls-in-gradient-studies"><i class="fa fa-check"></i><b>6.6.4</b> Common pitfalls in gradient studies</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="ecological-sampling.html"><a href="ecological-sampling.html#imperfect-detection-in-ecological-sampling"><i class="fa fa-check"></i><b>6.7</b> Imperfect Detection in Ecological Sampling</a></li>
+<li class="chapter" data-level="6.8" data-path="ecological-sampling.html"><a href="ecological-sampling.html#temporal-sampling-and-study-designs-through-time"><i class="fa fa-check"></i><b>6.8</b> Temporal Sampling and Study Designs Through Time</a>
+<ul>
+<li class="chapter" data-level="6.8.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sampling-panels"><i class="fa fa-check"></i><b>6.8.1</b> Sampling Panels</a></li>
+<li class="chapter" data-level="6.8.2" data-path="ecological-sampling.html"><a href="ecological-sampling.html#baci-and-other-experimental-designs"><i class="fa fa-check"></i><b>6.8.2</b> BACI and Other Experimental Designs</a></li>
+</ul></li>
+<li class="chapter" data-level="6.9" data-path="ecological-sampling.html"><a href="ecological-sampling.html#plot-shapes-sizes-and-transects"><i class="fa fa-check"></i><b>6.9</b> Plot shapes, sizes, and transects</a></li>
+<li class="chapter" data-level="6.10" data-path="ecological-sampling.html"><a href="ecological-sampling.html#distance-sampling-and-point-counts"><i class="fa fa-check"></i><b>6.10</b> Distance Sampling and Point Counts</a></li>
+<li class="chapter" data-level="6.11" data-path="ecological-sampling.html"><a href="ecological-sampling.html#reducing-sampling-error"><i class="fa fa-check"></i><b>6.11</b> Reducing sampling error</a></li>
+<li class="chapter" data-level="6.12" data-path="ecological-sampling.html"><a href="ecological-sampling.html#sample-size-determination-in-ecology-effect-sizes-and-precision"><i class="fa fa-check"></i><b>6.12</b> Sample Size Determination in Ecology: Effect Sizes and Precision</a></li>
+<li class="chapter" data-level="6.13" data-path="ecological-sampling.html"><a href="ecological-sampling.html#variables-of-interest"><i class="fa fa-check"></i><b>6.13</b> Variables of interest</a></li>
+<li class="chapter" data-level="6.14" data-path="ecological-sampling.html"><a href="ecological-sampling.html#test-your-knowledge"><i class="fa fa-check"></i><b>6.14</b> Test your knowledge</a></li>
+<li class="chapter" data-level="6.15" data-path="ecological-sampling.html"><a href="ecological-sampling.html#assignment-1"><i class="fa fa-check"></i><b>6.15</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="6.15.1" data-path="ecological-sampling.html"><a href="ecological-sampling.html#example-methods-sampling-design"><i class="fa fa-check"></i><b>6.15.1</b> Example Methods: Sampling Design</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html"><i class="fa fa-check"></i><b>7</b> Experimental Design: From Question to Study Structure</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#studytypes"><i class="fa fa-check"></i><b>7.1</b> Observational vs. manipulative studies</a>
+<ul>
+<li class="chapter" data-level="7.1.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#manipulative-experiments"><i class="fa fa-check"></i><b>7.1.1</b> Manipulative experiments</a></li>
+<li class="chapter" data-level="7.1.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#observational-studies"><i class="fa fa-check"></i><b>7.1.2</b> Observational studies</a></li>
+<li class="chapter" data-level="7.1.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#natural-experiments-and-quasi-experiments"><i class="fa fa-check"></i><b>7.1.3</b> Natural experiments and quasi-experiments</a></li>
+<li class="chapter" data-level="7.1.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#space-for-time-substitution"><i class="fa fa-check"></i><b>7.1.4</b> Space-for-time substitution</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#controls"><i class="fa fa-check"></i><b>7.2</b> The logic of controls and comparison</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#what-makes-a-good-control"><i class="fa fa-check"></i><b>7.2.1</b> What makes a good control?</a></li>
+<li class="chapter" data-level="7.2.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#procedural-controls"><i class="fa fa-check"></i><b>7.2.2</b> Procedural controls</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#randomization"><i class="fa fa-check"></i><b>7.3</b> Randomization: why and how</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#what-randomization-does"><i class="fa fa-check"></i><b>7.3.1</b> What randomization does</a></li>
+<li class="chapter" data-level="7.3.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#how-to-randomize"><i class="fa fa-check"></i><b>7.3.2</b> How to randomize</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#designs"><i class="fa fa-check"></i><b>7.4</b> Common experimental designs</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#completely-randomized-design-crd"><i class="fa fa-check"></i><b>7.4.1</b> Completely Randomized Design (CRD)</a></li>
+<li class="chapter" data-level="7.4.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#blocking"><i class="fa fa-check"></i><b>7.4.2</b> Randomized Complete Block Design (RCBD)</a></li>
+<li class="chapter" data-level="7.4.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#factorial"><i class="fa fa-check"></i><b>7.4.3</b> Factorial designs</a></li>
+<li class="chapter" data-level="7.4.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#nested"><i class="fa fa-check"></i><b>7.4.4</b> Nested designs</a></li>
+<li class="chapter" data-level="7.4.5" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#splitplot"><i class="fa fa-check"></i><b>7.4.5</b> Split-plot designs</a></li>
+<li class="chapter" data-level="7.4.6" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#repeatedmeasures"><i class="fa fa-check"></i><b>7.4.6</b> Repeated measures and longitudinal designs</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#baci"><i class="fa fa-check"></i><b>7.5</b> Before-After-Control-Impact (BACI) designs</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#the-problem-baci-solves"><i class="fa fa-check"></i><b>7.5.1</b> The problem BACI solves</a></li>
+<li class="chapter" data-level="7.5.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#the-four-standard-baci-designs"><i class="fa fa-check"></i><b>7.5.2</b> The four standard BACI designs</a></li>
+<li class="chapter" data-level="7.5.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#the-baci-interaction"><i class="fa fa-check"></i><b>7.5.3</b> The BACI interaction</a></li>
+<li class="chapter" data-level="7.5.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#statistical-model-for-baci"><i class="fa fa-check"></i><b>7.5.4</b> Statistical model for BACI</a></li>
+<li class="chapter" data-level="7.5.5" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#baci-pitfalls"><i class="fa fa-check"></i><b>7.5.5</b> BACI pitfalls</a></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#replication"><i class="fa fa-check"></i><b>7.6</b> Identifying your unit of replication</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#the-rule"><i class="fa fa-check"></i><b>7.6.1</b> The rule</a></li>
+<li class="chapter" data-level="7.6.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#what-to-do-with-subsamples"><i class="fa fa-check"></i><b>7.6.2</b> What to do with subsamples</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#design-to-analysis"><i class="fa fa-check"></i><b>7.7</b> Connecting design to analysis</a></li>
+<li class="chapter" data-level="7.8" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#designsummary"><i class="fa fa-check"></i><b>7.8</b> Summary</a></li>
+<li class="chapter" data-level="7.9" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#designassignment"><i class="fa fa-check"></i><b>7.9</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="7.9.1" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#part-1-study-type"><i class="fa fa-check"></i><b>7.9.1</b> Part 1: Study type</a></li>
+<li class="chapter" data-level="7.9.2" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#part-2-design-structure"><i class="fa fa-check"></i><b>7.9.2</b> Part 2: Design structure</a></li>
+<li class="chapter" data-level="7.9.3" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#part-3-controls-and-confounds"><i class="fa fa-check"></i><b>7.9.3</b> Part 3: Controls and confounds</a></li>
+<li class="chapter" data-level="7.9.4" data-path="experimental-design-from-question-to-study-structure.html"><a href="experimental-design-from-question-to-study-structure.html#part-4-design-to-model-connection"><i class="fa fa-check"></i><b>7.9.4</b> Part 4: Design-to-model connection</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="power-analysis.html"><a href="power-analysis.html"><i class="fa fa-check"></i><b>8</b> Power analysis</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="power-analysis.html"><a href="power-analysis.html#prework"><i class="fa fa-check"></i><b>8.1</b> Prework</a></li>
+<li class="chapter" data-level="8.2" data-path="power-analysis.html"><a href="power-analysis.html#statistical-power"><i class="fa fa-check"></i><b>8.2</b> Statistical power</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html"><i class="fa fa-check"></i><b>9</b> Selecting statistical tests</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-foray-into-statistics"><i class="fa fa-check"></i><b>9.1</b> A foray into statistics</a></li>
+<li class="chapter" data-level="9.2" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#pick-the-explanatory-and-response-variable"><i class="fa fa-check"></i><b>9.2</b> Pick the explanatory and response variable</a></li>
+<li class="chapter" data-level="9.3" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#variable-types-refresher"><i class="fa fa-check"></i><b>9.3</b> Variable types refresher</a></li>
+<li class="chapter" data-level="9.4" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#more-examples"><i class="fa fa-check"></i><b>9.4</b> More examples</a></li>
+<li class="chapter" data-level="9.5" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#the-decision-matrix"><i class="fa fa-check"></i><b>9.5</b> The decision matrix</a></li>
+<li class="chapter" data-level="9.6" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#a-note-on-assumptions"><i class="fa fa-check"></i><b>9.6</b> A note on assumptions</a></li>
+<li class="chapter" data-level="9.7" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#learning-goals"><i class="fa fa-check"></i><b>9.7</b> Learning goals</a></li>
+<li class="chapter" data-level="9.8" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#downloads-for-this-class"><i class="fa fa-check"></i><b>9.8</b> Downloads for this class</a></li>
+<li class="chapter" data-level="9.9" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#in-class-practice"><i class="fa fa-check"></i><b>9.9</b> In-class practice</a></li>
+<li class="chapter" data-level="9.10" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#assignment-choosing-and-running-the-right-test"><i class="fa fa-check"></i><b>9.10</b> Assignment: Choosing and Running the Right Test</a>
+<ul>
+<li class="chapter" data-level="9.10.1" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#deliverables"><i class="fa fa-check"></i><b>9.10.1</b> Deliverables</a></li>
+</ul></li>
+<li class="chapter" data-level="9.11" data-path="selecting-statistical-tests.html"><a href="selecting-statistical-tests.html#statistical-analyses-for-your-species-interaction-lab"><i class="fa fa-check"></i><b>9.11</b> Statistical analyses for your species interaction lab</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html"><i class="fa fa-check"></i><b>10</b> Basic statistical testing</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#a-short-statistical-review"><i class="fa fa-check"></i><b>10.1</b> A short statistical review</a>
+<ul>
+<li class="chapter" data-level="10.1.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#what-can-statistics-tell-us-1"><i class="fa fa-check"></i><b>10.1.1</b> What can statistics tell us?</a></li>
+<li class="chapter" data-level="10.1.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#sampling-populations"><i class="fa fa-check"></i><b>10.1.2</b> Sampling populations</a></li>
+</ul></li>
+<li class="chapter" data-level="10.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#hypothesis-testing-review"><i class="fa fa-check"></i><b>10.2</b> Hypothesis testing review</a></li>
+<li class="chapter" data-level="10.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#downloads-for-this-module"><i class="fa fa-check"></i><b>10.3</b> Downloads for this module</a></li>
+<li class="chapter" data-level="10.4" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#objectives"><i class="fa fa-check"></i><b>10.4</b> Objectives</a></li>
+<li class="chapter" data-level="10.5" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#tailed-tests"><i class="fa fa-check"></i><b>10.5</b> Tailed tests</a>
+<ul>
+<li class="chapter" data-level="10.5.1" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#generate-hypotheses"><i class="fa fa-check"></i><b>10.5.1</b> Generate hypotheses</a></li>
+<li class="chapter" data-level="10.5.2" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#calculate-a-test-statistic"><i class="fa fa-check"></i><b>10.5.2</b> Calculate a test statistic</a></li>
+<li class="chapter" data-level="10.5.3" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#determine-the-p-value"><i class="fa fa-check"></i><b>10.5.3</b> Determine the p-value</a></li>
+</ul></li>
+<li class="chapter" data-level="10.6" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#drawing-conclusions-from-statistics"><i class="fa fa-check"></i><b>10.6</b> Drawing conclusions from statistics</a></li>
+<li class="chapter" data-level="10.7" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#reporting-results"><i class="fa fa-check"></i><b>10.7</b> Reporting results</a></li>
+<li class="chapter" data-level="10.8" data-path="basic-statistical-testing.html"><a href="basic-statistical-testing.html#assignment-2"><i class="fa fa-check"></i><b>10.8</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html"><i class="fa fa-check"></i><b>11</b> Generalized Linear Models (GLMs)</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="generalized-linear-models-glms.html"><a href="generalized-linear-models-glms.html#linear-models"><i class="fa fa-check"></i><b>11.1</b> Linear models</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>12</b> Generalized Linear Models</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#link-functions"><i class="fa fa-check"></i><b>12.1</b> Link functions</a></li>
+<li class="chapter" data-level="12.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#glms-in-r"><i class="fa fa-check"></i><b>12.2</b> GLMs in R</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html"><i class="fa fa-check"></i><b>13</b> Mixed Effects Models</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="mixed-effects-models.html"><a href="mixed-effects-models.html#examples-in-r"><i class="fa fa-check"></i><b>13.1</b> Examples in R</a></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html"><i class="fa fa-check"></i><b>14</b> Describing ecological patterns</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#when-to-use-model-selection"><i class="fa fa-check"></i><b>14.1</b> When to use model selection?</a></li>
+<li class="chapter" data-level="14.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-1-identifying-predictor-variables-or-co-variates-of-importance"><i class="fa fa-check"></i><b>14.2</b> Step 1: Identifying predictor variables or co-variates of importance</a></li>
+<li class="chapter" data-level="14.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-2-removing-colinear-variables"><i class="fa fa-check"></i><b>14.3</b> Step 2: Removing colinear variables</a>
+<ul>
+<li class="chapter" data-level="14.3.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#automated-variable-removal"><i class="fa fa-check"></i><b>14.3.1</b> Automated Variable Removal</a></li>
+<li class="chapter" data-level="14.3.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#expert-knowledge-driven-selection"><i class="fa fa-check"></i><b>14.3.2</b> Expert Knowledge-Driven Selection</a></li>
+<li class="chapter" data-level="14.3.3" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#blended-strategy-recommended"><i class="fa fa-check"></i><b>14.3.3</b> Blended Strategy (Recommended)</a></li>
+</ul></li>
+<li class="chapter" data-level="14.4" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#example-reducing-colinear-climate-variables"><i class="fa fa-check"></i><b>14.4</b> Example: Reducing colinear climate variables</a></li>
+<li class="chapter" data-level="14.5" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#step-3-select-the-best-model"><i class="fa fa-check"></i><b>14.5</b> Step 3: Select the best model</a>
+<ul>
+<li class="chapter" data-level="14.5.1" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#major-types-of-model-selection-overview-benefits-drawbacks-and-applications"><i class="fa fa-check"></i><b>14.5.1</b> Major Types of Model Selection: Overview, Benefits, Drawbacks, and Applications</a></li>
+<li class="chapter" data-level="14.5.2" data-path="describing-ecological-patterns.html"><a href="describing-ecological-patterns.html#stepwise-regression-based-on-aic-akaike-information-criterion."><i class="fa fa-check"></i><b>14.5.2</b> Stepwise regression based on AIC (Akaike Information Criterion).</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="15" data-path="plot-establishment.html"><a href="plot-establishment.html"><i class="fa fa-check"></i><b>15</b> Plot establishment</a></li>
+<li class="chapter" data-level="16" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html"><i class="fa fa-check"></i><b>16</b> Before-After-Control-Impact</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#which-design"><i class="fa fa-check"></i><b>16.1</b> Which design</a></li>
+<li class="chapter" data-level="16.2" data-path="before-after-control-impact.html"><a href="before-after-control-impact.html#baci-design-2"><i class="fa fa-check"></i><b>16.2</b> BACI Design 2</a></li>
+</ul></li>
+<li class="chapter" data-level="17" data-path="time-is-a-flat-circle.html"><a href="time-is-a-flat-circle.html"><i class="fa fa-check"></i><b>17</b> Time is a flat circle</a></li>
+<li class="chapter" data-level="18" data-path="bootstrapping-and-resampling.html"><a href="bootstrapping-and-resampling.html"><i class="fa fa-check"></i><b>18</b> Bootstrapping and resampling</a></li>
+<li class="chapter" data-level="19" data-path="permuting-your-brains-out.html"><a href="permuting-your-brains-out.html"><i class="fa fa-check"></i><b>19</b> Permuting your brains out</a></li>
+<li class="chapter" data-level="20" data-path="spatial-data.html"><a href="spatial-data.html"><i class="fa fa-check"></i><b>20</b> Spatial data</a></li>
+<li class="chapter" data-level="21" data-path="read.html"><a href="read.html"><i class="fa fa-check"></i><b>21</b> Read</a></li>
+<li class="chapter" data-level="22" data-path="check-structure.html"><a href="check-structure.html"><i class="fa fa-check"></i><b>22</b> Check structure</a></li>
+<li class="chapter" data-level="23" data-path="write.html"><a href="write.html"><i class="fa fa-check"></i><b>23</b> Write</a></li>
+<li class="chapter" data-level="24" data-path="read-1.html"><a href="read-1.html"><i class="fa fa-check"></i><b>24</b> Read</a></li>
+<li class="chapter" data-level="25" data-path="check-properties.html"><a href="check-properties.html"><i class="fa fa-check"></i><b>25</b> Check properties</a></li>
+<li class="chapter" data-level="26" data-path="write-1.html"><a href="write-1.html"><i class="fa fa-check"></i><b>26</b> Write</a></li>
+<li class="chapter" data-level="27" data-path="create-neighbor-list.html"><a href="create-neighbor-list.html"><i class="fa fa-check"></i><b>27</b> Create neighbor list</a></li>
+<li class="chapter" data-level="28" data-path="test-residuals.html"><a href="test-residuals.html"><i class="fa fa-check"></i><b>28</b> Test residuals</a></li>
+<li class="chapter" data-level="29" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html"><i class="fa fa-check"></i><b>29</b> Species Distribution Modeling</a>
+<ul>
+<li class="chapter" data-level="29.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#introduction-1"><i class="fa fa-check"></i><b>29.1</b> Introduction</a></li>
+<li class="chapter" data-level="29.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#a-brief-review-of-niche-theory"><i class="fa fa-check"></i><b>29.2</b> A brief review of niche theory</a></li>
+<li class="chapter" data-level="29.3" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#downloads-for-this-lab"><i class="fa fa-check"></i><b>29.3</b> Downloads for this lab</a></li>
+<li class="chapter" data-level="29.4" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#objectives-1"><i class="fa fa-check"></i><b>29.4</b> Objectives</a></li>
+<li class="chapter" data-level="29.5" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#methods"><i class="fa fa-check"></i><b>29.5</b> Methods</a>
+<ul>
+<li class="chapter" data-level="29.5.1" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#lets-get-modeling"><i class="fa fa-check"></i><b>29.5.1</b> Let’s get modeling</a></li>
+<li class="chapter" data-level="29.5.2" data-path="species-distribution-modeling.html"><a href="species-distribution-modeling.html#run-the-r-code"><i class="fa fa-check"></i><b>29.5.2</b> Run the R code</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="30" data-path="diversity-statistics.html"><a href="diversity-statistics.html"><i class="fa fa-check"></i><b>30</b> Diversity statistics</a>
+<ul>
+<li class="chapter" data-level="30.1" data-path="diversity-statistics.html"><a href="diversity-statistics.html#inext"><i class="fa fa-check"></i><b>30.1</b> iNext</a></li>
+<li class="chapter" data-level="30.2" data-path="diversity-statistics.html"><a href="diversity-statistics.html#coveragebased-re-sampling-curves"><i class="fa fa-check"></i><b>30.2</b> Coverage‐based R/E sampling curves</a></li>
+<li class="chapter" data-level="30.3" data-path="diversity-statistics.html"><a href="diversity-statistics.html#data-manipulation"><i class="fa fa-check"></i><b>30.3</b> Data manipulation</a></li>
+</ul></li>
+<li class="chapter" data-level="31" data-path="ordination-station.html"><a href="ordination-station.html"><i class="fa fa-check"></i><b>31</b> Ordination station</a></li>
+<li class="chapter" data-level="32" data-path="population-sensation.html"><a href="population-sensation.html"><i class="fa fa-check"></i><b>32</b> Population sensation</a>
+<ul>
+<li class="chapter" data-level="32.1" data-path="population-sensation.html"><a href="population-sensation.html#population-characteristics"><i class="fa fa-check"></i><b>32.1</b> Population characteristics</a></li>
+<li class="chapter" data-level="32.2" data-path="population-sensation.html"><a href="population-sensation.html#planning-a-census"><i class="fa fa-check"></i><b>32.2</b> Planning a census</a></li>
+<li class="chapter" data-level="32.3" data-path="population-sensation.html"><a href="population-sensation.html#life-cycle-diagrams"><i class="fa fa-check"></i><b>32.3</b> Life cycle diagrams</a></li>
+<li class="chapter" data-level="32.4" data-path="population-sensation.html"><a href="population-sensation.html#population-demographic-models"><i class="fa fa-check"></i><b>32.4</b> Population demographic models</a>
+<ul>
+<li class="chapter" data-level="32.4.1" data-path="population-sensation.html"><a href="population-sensation.html#unstructured-models"><i class="fa fa-check"></i><b>32.4.1</b> Unstructured Models</a></li>
+<li class="chapter" data-level="32.4.2" data-path="population-sensation.html"><a href="population-sensation.html#structured-models"><i class="fa fa-check"></i><b>32.4.2</b> Structured Models</a></li>
+</ul></li>
+<li class="chapter" data-level="32.5" data-path="population-sensation.html"><a href="population-sensation.html#integral-projection-models"><i class="fa fa-check"></i><b>32.5</b> Integral projection models</a></li>
+<li class="chapter" data-level="32.6" data-path="population-sensation.html"><a href="population-sensation.html#population-dynamics"><i class="fa fa-check"></i><b>32.6</b> Population dynamics</a>
+<ul>
+<li class="chapter" data-level="32.6.1" data-path="population-sensation.html"><a href="population-sensation.html#population-growth-rate"><i class="fa fa-check"></i><b>32.6.1</b> Population growth rate</a></li>
+<li class="chapter" data-level="32.6.2" data-path="population-sensation.html"><a href="population-sensation.html#stable-stage-distribution"><i class="fa fa-check"></i><b>32.6.2</b> Stable stage distribution</a></li>
+<li class="chapter" data-level="32.6.3" data-path="population-sensation.html"><a href="population-sensation.html#reproductive-value"><i class="fa fa-check"></i><b>32.6.3</b> Reproductive value</a></li>
+<li class="chapter" data-level="32.6.4" data-path="population-sensation.html"><a href="population-sensation.html#sensitivities-absolute-effects"><i class="fa fa-check"></i><b>32.6.4</b> Sensitivities: absolute effects</a></li>
+<li class="chapter" data-level="32.6.5" data-path="population-sensation.html"><a href="population-sensation.html#elasticities-proportional-effects"><i class="fa fa-check"></i><b>32.6.5</b> Elasticities: proportional effects</a></li>
+<li class="chapter" data-level="32.6.6" data-path="population-sensation.html"><a href="population-sensation.html#beyond-asymptotic-dynamics-transient-behavior"><i class="fa fa-check"></i><b>32.6.6</b> Beyond asymptotic dynamics: transient behavior</a></li>
+</ul></li>
+<li class="chapter" data-level="32.7" data-path="population-sensation.html"><a href="population-sensation.html#chapter-summary"><i class="fa fa-check"></i><b>32.7</b> Chapter summary</a></li>
+<li class="chapter" data-level="32.8" data-path="population-sensation.html"><a href="population-sensation.html#test-your-knowledge-1"><i class="fa fa-check"></i><b>32.8</b> Test your knowledge</a></li>
+<li class="chapter" data-level="32.9" data-path="population-sensation.html"><a href="population-sensation.html#assignment-3"><i class="fa fa-check"></i><b>32.9</b> Assignment</a>
+<ul>
+<li class="chapter" data-level="32.9.1" data-path="population-sensation.html"><a href="population-sensation.html#your-task"><i class="fa fa-check"></i><b>32.9.1</b> Your task</a></li>
+<li class="chapter" data-level="32.9.2" data-path="population-sensation.html"><a href="population-sensation.html#guidelines"><i class="fa fa-check"></i><b>32.9.2</b> Guidelines</a></li>
+<li class="chapter" data-level="32.9.3" data-path="population-sensation.html"><a href="population-sensation.html#what-to-submit"><i class="fa fa-check"></i><b>32.9.3</b> What to submit</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="33" data-path="integral-population-models.html"><a href="integral-population-models.html"><i class="fa fa-check"></i><b>33</b> Integral Population Models</a>
+<ul>
+<li class="chapter" data-level="33.1" data-path="integral-population-models.html"><a href="integral-population-models.html#case-study-modeling-an-endangered-hawaiian-plant"><i class="fa fa-check"></i><b>33.1</b> Case Study: Modeling an Endangered Hawaiian Plant</a>
+<ul>
+<li class="chapter" data-level="33.1.1" data-path="integral-population-models.html"><a href="integral-population-models.html#why-model-s.-lanceolata-populations"><i class="fa fa-check"></i><b>33.1.1</b> Why model S. lanceolata populations?</a></li>
+<li class="chapter" data-level="33.1.2" data-path="integral-population-models.html"><a href="integral-population-models.html#the-management-question"><i class="fa fa-check"></i><b>33.1.2</b> The management question:</a></li>
+</ul></li>
+<li class="chapter" data-level="33.2" data-path="integral-population-models.html"><a href="integral-population-models.html#designing-a-demographic-census-timing-and-measurements"><i class="fa fa-check"></i><b>33.2</b> Designing a Demographic Census: Timing and Measurements</a>
+<ul>
+<li class="chapter" data-level="33.2.1" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-1-census-timing-must-align-with-the-organisms-life-cycle"><i class="fa fa-check"></i><b>33.2.1</b> Principle 1: Census Timing Must Align with the Organism’s Life Cycle</a></li>
+<li class="chapter" data-level="33.2.2" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-2-measurements-must-link-to-vital-rates"><i class="fa fa-check"></i><b>33.2.2</b> Principle 2: Measurements Must Link to Vital Rates</a></li>
+<li class="chapter" data-level="33.2.3" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-3-track-individual-fates-through-time"><i class="fa fa-check"></i><b>33.2.3</b> Principle 3: Track Individual Fates Through Time</a></li>
+<li class="chapter" data-level="33.2.4" data-path="integral-population-models.html"><a href="integral-population-models.html#principle-4-document-context-and-threats"><i class="fa fa-check"></i><b>33.2.4</b> Principle 4: Document Context and Threats</a></li>
+<li class="chapter" data-level="33.2.5" data-path="integral-population-models.html"><a href="integral-population-models.html#understanding-state-variables-in-ipms"><i class="fa fa-check"></i><b>33.2.5</b> Understanding State Variables in IPMs</a></li>
+<li class="chapter" data-level="33.2.6" data-path="integral-population-models.html"><a href="integral-population-models.html#explore-potential-state-variables"><i class="fa fa-check"></i><b>33.2.6</b> Explore Potential State Variables</a></li>
+<li class="chapter" data-level="33.2.7" data-path="integral-population-models.html"><a href="integral-population-models.html#visualize-distribution-of-candidate-state-variables"><i class="fa fa-check"></i><b>33.2.7</b> Visualize Distribution of Candidate State Variables</a></li>
+<li class="chapter" data-level="33.2.8" data-path="integral-population-models.html"><a href="integral-population-models.html#selecting-our-state-variable"><i class="fa fa-check"></i><b>33.2.8</b> Selecting Our State Variable</a></li>
+<li class="chapter" data-level="33.2.9" data-path="integral-population-models.html"><a href="integral-population-models.html#the-dimensionality-problem"><i class="fa fa-check"></i><b>33.2.9</b> The dimensionality problem</a></li>
+</ul></li>
+<li class="chapter" data-level="33.3" data-path="integral-population-models.html"><a href="integral-population-models.html#packages-and-approaches-to-creating-ipms"><i class="fa fa-check"></i><b>33.3</b> Packages and approaches to creating IPMs</a>
+<ul>
+<li class="chapter" data-level="33.3.1" data-path="integral-population-models.html"><a href="integral-population-models.html#ipmr-a-modern-flexible-ipm-framework"><i class="fa fa-check"></i><b>33.3.1</b> ipmr: a modern, flexible IPM framework</a></li>
+<li class="chapter" data-level="33.3.2" data-path="integral-population-models.html"><a href="integral-population-models.html#ipmpack-a-more-automated-ipm-workflow"><i class="fa fa-check"></i><b>33.3.2</b> IPMpack: a more automated IPM workflow</a></li>
+<li class="chapter" data-level="33.3.3" data-path="integral-population-models.html"><a href="integral-population-models.html#hand-coded-ipms-maximum-transparency"><i class="fa fa-check"></i><b>33.3.3</b> Hand-coded IPMs: maximum transparency</a></li>
+</ul></li>
+<li class="chapter" data-level="33.4" data-path="integral-population-models.html"><a href="integral-population-models.html#building-an-ipm-structuring-linear-models-variable-transformations-and-dealing-with-outliers"><i class="fa fa-check"></i><b>33.4</b> Building an IPM: Structuring linear models, variable transformations, and dealing with outliers</a>
+<ul>
+<li class="chapter" data-level="33.4.1" data-path="integral-population-models.html"><a href="integral-population-models.html#variable-transformations-and-scale"><i class="fa fa-check"></i><b>33.4.1</b> Variable transformations and scale</a></li>
+<li class="chapter" data-level="33.4.2" data-path="integral-population-models.html"><a href="integral-population-models.html#dealing-with-zeros-missing-values-and-outliers"><i class="fa fa-check"></i><b>33.4.2</b> Dealing with zeros, missing values, and outliers</a></li>
+<li class="chapter" data-level="33.4.3" data-path="integral-population-models.html"><a href="integral-population-models.html#parallel-ipm-workflows"><i class="fa fa-check"></i><b>33.4.3</b> Parallel IPM workflows</a></li>
+<li class="chapter" data-level="33.4.4" data-path="integral-population-models.html"><a href="integral-population-models.html#growth-transitions"><i class="fa fa-check"></i><b>33.4.4</b> Growth transitions</a></li>
+</ul></li>
+<li class="chapter" data-level="33.5" data-path="integral-population-models.html"><a href="integral-population-models.html#constructing-a-transition-matrix"><i class="fa fa-check"></i><b>33.5</b> Constructing a transition matrix</a></li>
+<li class="chapter" data-level="33.6" data-path="integral-population-models.html"><a href="integral-population-models.html#building-an-ipm-boundary-points-mesh-points-and-step-size"><i class="fa fa-check"></i><b>33.6</b> Building an IPM: Boundary points, mesh points, and step size</a></li>
+<li class="chapter" data-level="33.7" data-path="integral-population-models.html"><a href="integral-population-models.html#model-evaluation-eviction"><i class="fa fa-check"></i><b>33.7</b> Model Evaluation: Eviction</a>
+<ul>
+<li class="chapter" data-level="33.7.1" data-path="integral-population-models.html"><a href="integral-population-models.html#why-eviction-matters"><i class="fa fa-check"></i><b>33.7.1</b> Why Eviction Matters</a></li>
+<li class="chapter" data-level="33.7.2" data-path="integral-population-models.html"><a href="integral-population-models.html#eviction-correction-strategies"><i class="fa fa-check"></i><b>33.7.2</b> Eviction Correction Strategies</a></li>
+<li class="chapter" data-level="33.7.3" data-path="integral-population-models.html"><a href="integral-population-models.html#summary"><i class="fa fa-check"></i><b>33.7.3</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="33.8" data-path="integral-population-models.html"><a href="integral-population-models.html#estimating-population-dynamics-parameters"><i class="fa fa-check"></i><b>33.8</b> Estimating population dynamics parameters</a></li>
+<li class="chapter" data-level="33.9" data-path="integral-population-models.html"><a href="integral-population-models.html#calculating-confidence-intervals"><i class="fa fa-check"></i><b>33.9</b> Calculating confidence intervals</a></li>
+<li class="chapter" data-level="33.10" data-path="integral-population-models.html"><a href="integral-population-models.html#putting-this-all-together-in-code-form"><i class="fa fa-check"></i><b>33.10</b> Putting this all together in code form!</a></li>
+<li class="chapter" data-level="33.11" data-path="integral-population-models.html"><a href="integral-population-models.html#test-your-knowledge-2"><i class="fa fa-check"></i><b>33.11</b> Test your knowledge</a></li>
+<li class="chapter" data-level="33.12" data-path="integral-population-models.html"><a href="integral-population-models.html#assignment-4"><i class="fa fa-check"></i><b>33.12</b> Assignment</a></li>
+</ul></li>
+<li class="chapter" data-level="34" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html"><i class="fa fa-check"></i><b>34</b> What are structural equation models?</a>
+<ul>
+<li class="chapter" data-level="34.0.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#when-should-you-use-sem"><i class="fa fa-check"></i><b>34.0.1</b> When Should You Use SEM?</a></li>
+<li class="chapter" data-level="34.0.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#how-is-sem-different-from-multiple-regression"><i class="fa fa-check"></i><b>34.0.2</b> How is SEM Different from Multiple Regression?</a></li>
+<li class="chapter" data-level="34.0.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-1"><i class="fa fa-check"></i><b>34.0.3</b> Summary</a></li>
+<li class="chapter" data-level="34.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#anatomy-of-a-structural-equation-model"><i class="fa fa-check"></i><b>34.1</b> Anatomy of a Structural Equation Model</a>
+<ul>
+<li class="chapter" data-level="34.1.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#types-of-variables"><i class="fa fa-check"></i><b>34.1.1</b> Types of Variables</a></li>
+<li class="chapter" data-level="34.1.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#path-diagrams"><i class="fa fa-check"></i><b>34.1.2</b> Path Diagrams</a></li>
+</ul></li>
+<li class="chapter" data-level="34.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#building-multivariate-models"><i class="fa fa-check"></i><b>34.2</b> Building Multivariate Models</a>
+<ul>
+<li class="chapter" data-level="34.2.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-causality"><i class="fa fa-check"></i><b>34.2.1</b> What is Causality?</a></li>
+<li class="chapter" data-level="34.2.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#why-move-beyond-multiple-regression"><i class="fa fa-check"></i><b>34.2.2</b> Why move beyond Multiple Regression?</a></li>
+<li class="chapter" data-level="34.2.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#meta-modeling-your-system"><i class="fa fa-check"></i><b>34.2.3</b> Meta-Modeling Your System</a></li>
+</ul></li>
+<li class="chapter" data-level="34.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#from-concept-to-model"><i class="fa fa-check"></i><b>34.3</b> From Concept to Model</a></li>
+<li class="chapter" data-level="34.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#common-structures-in-causal-diagrams"><i class="fa fa-check"></i><b>34.4</b> Common Structures in Causal Diagrams</a>
+<ul>
+<li class="chapter" data-level="34.4.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chains-mediation-paths"><i class="fa fa-check"></i><b>34.4.1</b> Chains (Mediation Paths)</a></li>
+<li class="chapter" data-level="34.4.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#colliders"><i class="fa fa-check"></i><b>34.4.2</b> Colliders</a></li>
+<li class="chapter" data-level="34.4.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#forks-confounding-paths"><i class="fa fa-check"></i><b>34.4.3</b> Forks (Confounding Paths)</a></li>
+<li class="chapter" data-level="34.4.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#descendants-of-colliders"><i class="fa fa-check"></i><b>34.4.4</b> Descendants of Colliders</a></li>
+<li class="chapter" data-level="34.4.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-of-strcutures"><i class="fa fa-check"></i><b>34.4.5</b> Summary of strcutures</a></li>
+<li class="chapter" data-level="34.4.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifying-causality"><i class="fa fa-check"></i><b>34.4.6</b> Identifying Causality</a></li>
+<li class="chapter" data-level="34.4.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#backdoor-criterion"><i class="fa fa-check"></i><b>34.4.7</b> Backdoor Criterion</a></li>
+<li class="chapter" data-level="34.4.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#frontdoor-criterion"><i class="fa fa-check"></i><b>34.4.8</b> Frontdoor Criterion</a></li>
+<li class="chapter" data-level="34.4.9" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#build-your-own-dag-sem-case-study-on-pollinator-impacts-of-vegetation-management"><i class="fa fa-check"></i><b>34.4.9</b> Build your own DAG: SEM Case Study on Pollinator Impacts of Vegetation Management</a></li>
+<li class="chapter" data-level="34.4.10" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#adjustment-sets"><i class="fa fa-check"></i><b>34.4.10</b> Adjustment Sets</a></li>
+</ul></li>
+<li class="chapter" data-level="34.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-5-covariance-based-estimation-in-sem"><i class="fa fa-check"></i><b>34.5</b> Chapter 5: Covariance-Based Estimation in SEM</a>
+<ul>
+<li class="chapter" data-level="34.5.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#what-is-covariance-based-sem"><i class="fa fa-check"></i><b>34.5.1</b> What is Covariance-Based SEM?</a></li>
+<li class="chapter" data-level="34.5.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#maximum-likelihood-estimation"><i class="fa fa-check"></i><b>34.5.2</b> Maximum Likelihood Estimation</a></li>
+<li class="chapter" data-level="34.5.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#assumptions-behind-ml-estimation"><i class="fa fa-check"></i><b>34.5.3</b> Assumptions Behind ML Estimation</a></li>
+<li class="chapter" data-level="34.5.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#identifiability"><i class="fa fa-check"></i><b>34.5.4</b> Identifiability</a></li>
+<li class="chapter" data-level="34.5.5" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#degrees-of-freedom"><i class="fa fa-check"></i><b>34.5.5</b> Degrees of Freedom</a></li>
+<li class="chapter" data-level="34.5.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#sample-size-considerations"><i class="fa fa-check"></i><b>34.5.6</b> Sample Size Considerations</a></li>
+<li class="chapter" data-level="34.5.7" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#summary-2"><i class="fa fa-check"></i><b>34.5.7</b> Summary</a></li>
+<li class="chapter" data-level="34.5.8" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-6-structural-equation-modeling-in-r-with-lavaan"><i class="fa fa-check"></i><b>34.5.8</b> Chapter 6: Structural Equation Modeling in R with lavaan</a></li>
+</ul></li>
+<li class="chapter" data-level="34.6" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#getting-started-with-lavaan-model-specification-estimation-and-interpretation"><i class="fa fa-check"></i><b>34.6</b> Getting Started with lavaan – Model Specification, Estimation, and Interpretation</a>
+<ul>
+<li class="chapter" data-level="34.6.1" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-7assessing-fit-and-normality"><i class="fa fa-check"></i><b>34.6.1</b> Chapter 7:Assessing Fit and Normality</a></li>
+<li class="chapter" data-level="34.6.2" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-comparing-models-and-testing-mediation"><i class="fa fa-check"></i><b>34.6.2</b> Chapter 8: Comparing Models and Testing Mediation</a></li>
+<li class="chapter" data-level="34.6.3" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-8-latent-variables-as-drivers"><i class="fa fa-check"></i><b>34.6.3</b> Chapter 8: Latent Variables as Drivers</a></li>
+<li class="chapter" data-level="34.6.4" data-path="what-are-structural-equation-models.html"><a href="what-are-structural-equation-models.html#chapter-10-latent-responses-and-measurement-error"><i class="fa fa-check"></i><b>34.6.4</b> Chapter 10: Latent Responses and Measurement Error</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="35" data-path="piecewise-sems.html"><a href="piecewise-sems.html"><i class="fa fa-check"></i><b>35</b> Piecewise SEMs</a>
+<ul>
+<li class="chapter" data-level="35.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview"><i class="fa fa-check"></i><b>35.1</b> Overview</a></li>
+<li class="chapter" data-level="35.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#why-use-piecewise-sem-instead-of-a-covariance-sem"><i class="fa fa-check"></i><b>35.2</b> Why Use Piecewise SEM, instead of a covariance SEM?</a>
+<ul>
+<li class="chapter" data-level="35.2.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#comparison-of-sem-approaches"><i class="fa fa-check"></i><b>35.2.1</b> Comparison of SEM Approaches</a></li>
+<li class="chapter" data-level="35.2.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-covariance-based-sem"><i class="fa fa-check"></i><b>35.2.2</b> Benefits of Covariance-Based SEM</a></li>
+<li class="chapter" data-level="35.2.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#benefits-of-piecewise-sem"><i class="fa fa-check"></i><b>35.2.3</b> Benefits of Piecewise SEM</a></li>
+<li class="chapter" data-level="35.2.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#when-to-use-each-approach"><i class="fa fa-check"></i><b>35.2.4</b> When to Use Each Approach</a></li>
+<li class="chapter" data-level="35.2.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#models-differ-in-approach"><i class="fa fa-check"></i><b>35.2.5</b> Models differ in approach</a></li>
+</ul></li>
+<li class="chapter" data-level="35.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#sem-example-resilience-to-drought-in-arizona"><i class="fa fa-check"></i><b>35.3</b> SEM Example: Resilience to Drought in Arizona</a>
+<ul>
+<li class="chapter" data-level="35.3.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-12-introduction-to-piecewise-sem-in-r"><i class="fa fa-check"></i><b>35.3.1</b> Chapter 12: Introduction to Piecewise SEM in R</a></li>
+</ul></li>
+<li class="chapter" data-level="35.4" data-path="piecewise-sems.html"><a href="piecewise-sems.html#part-1-what-is-piecewise-sem"><i class="fa fa-check"></i><b>35.4</b> Part 1: What is Piecewise SEM?</a>
+<ul>
+<li class="chapter" data-level="35.4.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-13-nonlinearity-and-interaction-in-sem"><i class="fa fa-check"></i><b>35.4.1</b> Chapter 13: Nonlinearity and Interaction in SEM</a></li>
+<li class="chapter" data-level="35.4.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-14-glms-with-sem-using-piecewisesem"><i class="fa fa-check"></i><b>35.4.2</b> Chapter 14: GLMs with SEM using PiecewiseSEM</a></li>
+</ul></li>
+<li class="chapter" data-level="35.5" data-path="piecewise-sems.html"><a href="piecewise-sems.html#overview-1"><i class="fa fa-check"></i><b>35.5</b> Overview</a>
+<ul>
+<li class="chapter" data-level="35.5.1" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-15-categorical-predictors-multigroup-sem"><i class="fa fa-check"></i><b>35.5.1</b> Chapter 15: Categorical Predictors &amp; Multigroup SEM</a></li>
+<li class="chapter" data-level="35.5.2" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-16-multigroup-sem-in-r"><i class="fa fa-check"></i><b>35.5.2</b> Chapter 16: Multigroup SEM in R</a></li>
+<li class="chapter" data-level="35.5.3" data-path="piecewise-sems.html"><a href="piecewise-sems.html#chapter-17"><i class="fa fa-check"></i><b>35.5.3</b> Chapter 17:</a></li>
+</ul></li>
+<li class="chapter" data-level="35.6" data-path="piecewise-sems.html"><a href="piecewise-sems.html#example-with-powerline-data"><i class="fa fa-check"></i><b>35.6</b> Example with Powerline Data</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/sarasouther/DataAnalysis" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Applied Statistics for the Natural Sciences</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="experimental-design-from-question-to-study-structure" class="section level1 hasAnchor" number="7">
+<h1><span class="header-section-number">Chapter 7</span> Experimental Design: From Question to Study Structure<a href="experimental-design-from-question-to-study-structure.html#experimental-design-from-question-to-study-structure" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>In the previous chapter, we focused on <strong>where and how to select sampling units</strong>—choosing plot locations, balancing spatial coverage, and ensuring that our sample represents the population we want to study. Sampling design answers the question: <em>Where do I collect data?</em></p>
+<p>This chapter addresses a different question: <strong>How do I structure my study to answer a causal question?</strong> Specifically, how do I assign treatments, arrange controls, handle sources of unwanted variation, and ensure that my design supports the statistical analysis I plan to run?</p>
+<p>The distinction matters. You can have a beautifully balanced GRTS sampling design and still draw incorrect conclusions if your experimental structure is flawed—if treatments are confounded with sites, if you mistake subsamples for true replicates, or if you ignore known sources of variation that could be controlled through blocking. Conversely, a well-designed experiment at poorly selected sites may not generalize beyond the study area.</p>
+<p><strong>Sampling design and experimental design work together.</strong> Sampling tells you <em>where</em> to look; experimental design tells you <em>what to do once you get there</em>. This chapter covers the second half of that partnership.</p>
+<div id="studytypes" class="section level2 hasAnchor" number="7.1">
+<h2><span class="header-section-number">7.1</span> Observational vs. manipulative studies<a href="experimental-design-from-question-to-study-structure.html#studytypes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Before choosing a specific design, you need to be honest about what kind of study you are running. The answer determines what you can and cannot conclude.</p>
+<div id="manipulative-experiments" class="section level3 hasAnchor" number="7.1.1">
+<h3><span class="header-section-number">7.1.1</span> Manipulative experiments<a href="experimental-design-from-question-to-study-structure.html#manipulative-experiments" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In a <strong>manipulative experiment</strong>, the researcher controls and assigns the treatment. You decide which plots get burned, which seedlings get watered, which enclosures exclude herbivores. Because you assigned the treatment randomly, you can (in principle) attribute differences in the response to the treatment itself rather than to some other factor that happened to differ between groups.</p>
+<p>Manipulative experiments are the gold standard for causal inference, but they are not always possible in ecology. You cannot randomly assign drought to a watershed or fire to a national forest. You cannot retroactively assign land-use history to a landscape.</p>
+</div>
+<div id="observational-studies" class="section level3 hasAnchor" number="7.1.2">
+<h3><span class="header-section-number">7.1.2</span> Observational studies<a href="experimental-design-from-question-to-study-structure.html#observational-studies" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In an <strong>observational study</strong>, the researcher does not control the treatment. Instead, you observe variation that already exists—comparing burned and unburned sites after a wildfire, measuring tree growth across a natural elevation gradient, or comparing species composition in grazed and ungrazed pastures where grazing was determined by the rancher, not by you.</p>
+<p>Observational studies can reveal patterns and associations, but attributing those patterns to a specific cause is harder because <strong>confounding variables</strong> may differ between groups. A site that burned in a wildfire may also differ from an unburned site in elevation, slope, soil type, or pre-fire vegetation. Without randomization, you cannot be certain which of these factors is responsible for the observed difference.</p>
+<p>This does not make observational studies useless—far from it. Most landscape-scale ecology is observational. But it does mean that the language you use matters: observational studies support statements like “sites that burned had lower canopy cover” rather than “fire reduced canopy cover.” The difference is subtle but important, and reviewers will notice.</p>
+</div>
+<div id="natural-experiments-and-quasi-experiments" class="section level3 hasAnchor" number="7.1.3">
+<h3><span class="header-section-number">7.1.3</span> Natural experiments and quasi-experiments<a href="experimental-design-from-question-to-study-structure.html#natural-experiments-and-quasi-experiments" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Sometimes nature provides something close to a manipulative experiment. A wildfire burns half of a watershed but not the other. A policy change protects one river but not an adjacent one. A beaver colonizes one stream reach but not the next. These are <strong>natural experiments</strong>: the “treatment” was not assigned by the researcher, but it was applied in a way that approximates random assignment.</p>
+<p><strong>Quasi-experiments</strong> are similar but involve deliberate human actions without researcher control—a restoration project implemented by a land management agency, a logging operation that creates treated and untreated stands, or a grazing exclosure built by a rancher. The researcher takes advantage of an existing intervention rather than creating one.</p>
+<p>Natural and quasi-experiments are powerful because they operate at realistic scales and involve real ecological processes. Their weakness is the same as any observational study: without randomization, confounding factors may explain the results.</p>
+</div>
+<div id="space-for-time-substitution" class="section level3 hasAnchor" number="7.1.4">
+<h3><span class="header-section-number">7.1.4</span> Space-for-time substitution<a href="experimental-design-from-question-to-study-structure.html#space-for-time-substitution" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>One of the most common approaches in ecology—and one of the most commonly misunderstood—is <strong>space-for-time substitution</strong>. Instead of waiting decades to observe succession after disturbance, you sample sites of different ages <em>right now</em> and treat the spatial gradient as a proxy for temporal change. Instead of experimentally manipulating climate, you compare populations across a temperature gradient.</p>
+<p>This approach assumes that the sites differ only in the variable of interest (time since disturbance, temperature, elevation) and are otherwise comparable. That assumption is often violated: a site that burned 5 years ago and a site that burned 50 years ago may also differ in soil type, aspect, land-use history, and the species pool available for recolonization. These differences are confounded with time.</p>
+<p>Space-for-time substitution is not inherently wrong—it is often the only practical option. But it requires careful thought about what might be confounded with the gradient, and the conclusions should acknowledge this limitation.</p>
+<table>
+<caption><span id="tab:study-type-table">Table 7.1: </span>Study types differ in who controls the treatment and how strongly you can infer causation.</caption>
+<colgroup>
+<col width="19%" />
+<col width="24%" />
+<col width="21%" />
+<col width="34%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Study Type</th>
+<th align="left">Who assigns treatment?</th>
+<th align="left">Causal inference?</th>
+<th align="left">Ecological example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Manipulative experiment</td>
+<td align="left">Researcher (randomly)</td>
+<td align="left">Strong</td>
+<td align="left">Randomly assign fire treatments to plots</td>
+</tr>
+<tr class="even">
+<td align="left">Natural experiment</td>
+<td align="left">Nature (approximately random)</td>
+<td align="left">Moderate (depends on context)</td>
+<td align="left">Wildfire burns half a watershed</td>
+</tr>
+<tr class="odd">
+<td align="left">Quasi-experiment</td>
+<td align="left">Manager/agency (not random)</td>
+<td align="left">Moderate (check for confounds)</td>
+<td align="left">Agency thins some stands but not others</td>
+</tr>
+<tr class="even">
+<td align="left">Observational (gradient)</td>
+<td align="left">No one (pre-existing variation)</td>
+<td align="left">Weak (association only)</td>
+<td align="left">Measure species along a natural elevation gradient</td>
+</tr>
+<tr class="odd">
+<td align="left">Space-for-time substitution</td>
+<td align="left">No one (spatial variation as proxy)</td>
+<td align="left">Weak (confounds likely)</td>
+<td align="left">Sample sites burned 5, 20, 50 years ago</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why this matters for your statistics:</strong> The type of study you are running should influence both the language of your results and the statistical model you choose. Manipulative experiments support strong causal language; observational studies call for more cautious interpretation. Many of the design principles in the rest of this chapter—randomization, blocking, controls—are strategies for strengthening causal inference, whether your study is manipulative or observational.</p>
+</div>
+</div>
+<div id="controls" class="section level2 hasAnchor" number="7.2">
+<h2><span class="header-section-number">7.2</span> The logic of controls and comparison<a href="experimental-design-from-question-to-study-structure.html#controls" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Every study involves comparison. You compare treated plots to untreated plots, burned sites to unburned sites, or populations across an environmental gradient. The purpose of a <strong>control</strong> is to provide a baseline: what would have happened in the absence of the treatment or the factor of interest?</p>
+<div id="what-makes-a-good-control" class="section level3 hasAnchor" number="7.2.1">
+<h3><span class="header-section-number">7.2.1</span> What makes a good control?<a href="experimental-design-from-question-to-study-structure.html#what-makes-a-good-control" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>A good control differs from the treatment group in <strong>one thing only</strong>: the treatment. Everything else—soil type, elevation, canopy cover, sampling effort, timing of measurement—should be as similar as possible. When this condition is met, any difference in the response can be attributed to the treatment rather than to some other factor.</p>
+<p>In practice, perfect controls are rare. But the closer you get, the stronger your inference.</p>
+<p><strong>Common control failures in ecology:</strong></p>
+<ul>
+<li><strong>Spatial confounding</strong>: All treatment plots are on one slope and all controls are on another. Differences might reflect aspect, not treatment.</li>
+<li><strong>Temporal confounding</strong>: Treatment plots are measured in June and controls in August. Differences might reflect phenology, not treatment.</li>
+<li><strong>Effort confounding</strong>: More time is spent sampling treatment plots because they are “more interesting.” Detection probability differs between groups.</li>
+<li><strong>No control at all</strong>: Measuring a site before and after treatment without a reference site. Any change might reflect weather, succession, or other factors unrelated to treatment.</li>
+</ul>
+</div>
+<div id="procedural-controls" class="section level3 hasAnchor" number="7.2.2">
+<h3><span class="header-section-number">7.2.2</span> Procedural controls<a href="experimental-design-from-question-to-study-structure.html#procedural-controls" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In some experiments, the act of applying a treatment introduces effects unrelated to the treatment itself. Walking to a plot and setting up equipment creates disturbance. Clipping vegetation to simulate herbivory involves cutting. In these cases, a <strong>procedural control</strong> mimics the disturbance of treatment application without applying the treatment itself. For example, if your treatment involves spraying herbicide, a procedural control might involve spraying water.</p>
+</div>
+</div>
+<div id="randomization" class="section level2 hasAnchor" number="7.3">
+<h2><span class="header-section-number">7.3</span> Randomization: why and how<a href="experimental-design-from-question-to-study-structure.html#randomization" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><strong>Randomization</strong> is the single most powerful tool for causal inference. When you randomly assign treatments to experimental units, you eliminate systematic bias—any factor that might confound the treatment effect is equally likely to occur in both groups.</p>
+<p>Note the difference from the previous chapter: in sampling design, randomization ensures that your <strong>sample is representative</strong> of the population. In experimental design, randomization ensures that your <strong>treatment groups are comparable</strong> to each other. Same tool, different purpose.</p>
+<div id="what-randomization-does" class="section level3 hasAnchor" number="7.3.1">
+<h3><span class="header-section-number">7.3.1</span> What randomization does<a href="experimental-design-from-question-to-study-structure.html#what-randomization-does" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Imagine you have 20 plots and want to assign 10 to a burning treatment and 10 to a control. If you let the land manager choose which plots to burn, they might avoid steep slopes, rocky areas, or plots near roads. The burned plots would then differ from unburned plots in ways that have nothing to do with fire.</p>
+<p>Random assignment eliminates this problem. With randomization, steep slopes and gentle slopes, rocky and sandy soils, near-road and remote plots are all equally likely to end up in either group. On average, the two groups will be balanced on every variable—including variables you did not measure or did not think to control.</p>
+<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="experimental-design-from-question-to-study-structure.html#cb93-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb93-2"><a href="experimental-design-from-question-to-study-structure.html#cb93-2" tabindex="-1"></a></span>
+<span id="cb93-3"><a href="experimental-design-from-question-to-study-structure.html#cb93-3" tabindex="-1"></a><span class="co"># Imagine 20 plots with varying elevation (a potential confound)</span></span>
+<span id="cb93-4"><a href="experimental-design-from-question-to-study-structure.html#cb93-4" tabindex="-1"></a>n_plots <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb93-5"><a href="experimental-design-from-question-to-study-structure.html#cb93-5" tabindex="-1"></a>elevations <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(n_plots, <span class="at">min =</span> <span class="dv">1500</span>, <span class="at">max =</span> <span class="dv">2500</span>))</span>
+<span id="cb93-6"><a href="experimental-design-from-question-to-study-structure.html#cb93-6" tabindex="-1"></a></span>
+<span id="cb93-7"><a href="experimental-design-from-question-to-study-structure.html#cb93-7" tabindex="-1"></a><span class="co"># Randomly assign treatments</span></span>
+<span id="cb93-8"><a href="experimental-design-from-question-to-study-structure.html#cb93-8" tabindex="-1"></a>treatment <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;Burn&quot;</span>, <span class="st">&quot;Control&quot;</span>), <span class="at">each =</span> n_plots <span class="sc">/</span> <span class="dv">2</span>))</span>
+<span id="cb93-9"><a href="experimental-design-from-question-to-study-structure.html#cb93-9" tabindex="-1"></a></span>
+<span id="cb93-10"><a href="experimental-design-from-question-to-study-structure.html#cb93-10" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb93-11"><a href="experimental-design-from-question-to-study-structure.html#cb93-11" tabindex="-1"></a>  <span class="at">plot =</span> <span class="dv">1</span><span class="sc">:</span>n_plots,</span>
+<span id="cb93-12"><a href="experimental-design-from-question-to-study-structure.html#cb93-12" tabindex="-1"></a>  <span class="at">elevation =</span> elevations,</span>
+<span id="cb93-13"><a href="experimental-design-from-question-to-study-structure.html#cb93-13" tabindex="-1"></a>  <span class="at">treatment =</span> treatment</span>
+<span id="cb93-14"><a href="experimental-design-from-question-to-study-structure.html#cb93-14" tabindex="-1"></a>)</span>
+<span id="cb93-15"><a href="experimental-design-from-question-to-study-structure.html#cb93-15" tabindex="-1"></a></span>
+<span id="cb93-16"><a href="experimental-design-from-question-to-study-structure.html#cb93-16" tabindex="-1"></a><span class="co"># Compare group means --- randomization approximately balances elevation</span></span>
+<span id="cb93-17"><a href="experimental-design-from-question-to-study-structure.html#cb93-17" tabindex="-1"></a><span class="fu">tapply</span>(plot_data<span class="sc">$</span>elevation, plot_data<span class="sc">$</span>treatment, mean)</span></code></pre></div>
+<pre><code>##    Burn Control 
+##  2025.2  2201.0</code></pre>
+<div class="sourceCode" id="cb95"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb95-1"><a href="experimental-design-from-question-to-study-structure.html#cb95-1" tabindex="-1"></a><span class="fu">tapply</span>(plot_data<span class="sc">$</span>elevation, plot_data<span class="sc">$</span>treatment, sd)</span></code></pre></div>
+<pre><code>##     Burn  Control 
+## 261.4119 267.1899</code></pre>
+<p>The group means for elevation will not be exactly equal, but they will be close. With enough replicates, randomization balances all potential confounds—even ones you did not measure.</p>
+</div>
+<div id="how-to-randomize" class="section level3 hasAnchor" number="7.3.2">
+<h3><span class="header-section-number">7.3.2</span> How to randomize<a href="experimental-design-from-question-to-study-structure.html#how-to-randomize" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In R, randomization is straightforward:</p>
+<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="experimental-design-from-question-to-study-structure.html#cb97-1" tabindex="-1"></a><span class="co"># Completely randomized assignment of 3 treatments to 30 plots</span></span>
+<span id="cb97-2"><a href="experimental-design-from-question-to-study-structure.html#cb97-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb97-3"><a href="experimental-design-from-question-to-study-structure.html#cb97-3" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb97-4"><a href="experimental-design-from-question-to-study-structure.html#cb97-4" tabindex="-1"></a>treatments <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;Control&quot;</span>, <span class="st">&quot;Low fertilizer&quot;</span>, <span class="st">&quot;High fertilizer&quot;</span>), <span class="at">each =</span> n <span class="sc">/</span> <span class="dv">3</span>)</span>
+<span id="cb97-5"><a href="experimental-design-from-question-to-study-structure.html#cb97-5" tabindex="-1"></a>assignment <span class="ot">&lt;-</span> <span class="fu">sample</span>(treatments)  <span class="co"># shuffle randomly</span></span>
+<span id="cb97-6"><a href="experimental-design-from-question-to-study-structure.html#cb97-6" tabindex="-1"></a></span>
+<span id="cb97-7"><a href="experimental-design-from-question-to-study-structure.html#cb97-7" tabindex="-1"></a><span class="fu">table</span>(assignment)</span></code></pre></div>
+<pre><code>## assignment
+##         Control High fertilizer  Low fertilizer 
+##              10              10              10</code></pre>
+<p>In the field, randomization should happen <strong>before</strong> you visit the sites. Generate your random assignments in R, print a field sheet with plot-treatment pairings, and follow the sheet regardless of what the plots look like when you arrive. Changing assignments in the field because a plot “doesn’t look right” defeats the purpose of randomization.</p>
+</div>
+</div>
+<div id="designs" class="section level2 hasAnchor" number="7.4">
+<h2><span class="header-section-number">7.4</span> Common experimental designs<a href="experimental-design-from-question-to-study-structure.html#designs" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The following designs represent the most common ways ecologists structure manipulative experiments and observational studies. Each design addresses a specific problem—controlling for known variation, accommodating logistical constraints, or isolating treatment effects in complex systems.</p>
+<p>Understanding these designs matters because <strong>your design determines your statistical model</strong>. A completely randomized design leads to a simple ANOVA or regression. A blocked design requires a term for blocks. A split-plot design requires a mixed model with nested error terms. If you do not understand your design, you cannot write the correct model—and the wrong model gives wrong answers.</p>
+<div id="completely-randomized-design-crd" class="section level3 hasAnchor" number="7.4.1">
+<h3><span class="header-section-number">7.4.1</span> Completely Randomized Design (CRD)<a href="experimental-design-from-question-to-study-structure.html#completely-randomized-design-crd" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The simplest experimental design: treatments are assigned entirely at random to experimental units with no additional structure.</p>
+<p><strong>When it works:</strong> Experimental units are reasonably homogeneous. There are no strong spatial, temporal, or other gradients that might confound treatment effects.</p>
+<p><strong>When it fails:</strong> If there is a major source of variation across experimental units (such as a moisture gradient across a greenhouse bench, or elevation differences among field plots), a CRD wastes statistical power by treating that variation as unexplained noise.</p>
+<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="experimental-design-from-question-to-study-structure.html#cb99-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">226</span>)</span>
+<span id="cb99-2"><a href="experimental-design-from-question-to-study-structure.html#cb99-2" tabindex="-1"></a></span>
+<span id="cb99-3"><a href="experimental-design-from-question-to-study-structure.html#cb99-3" tabindex="-1"></a><span class="co"># 4 treatments, 5 replicates each = 20 plots</span></span>
+<span id="cb99-4"><a href="experimental-design-from-question-to-study-structure.html#cb99-4" tabindex="-1"></a>treatments <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;Control&quot;</span>, <span class="st">&quot;Low N&quot;</span>, <span class="st">&quot;High N&quot;</span>, <span class="st">&quot;N + P&quot;</span>), <span class="at">each =</span> <span class="dv">5</span>)</span>
+<span id="cb99-5"><a href="experimental-design-from-question-to-study-structure.html#cb99-5" tabindex="-1"></a>plots <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb99-6"><a href="experimental-design-from-question-to-study-structure.html#cb99-6" tabindex="-1"></a>  <span class="at">plot_id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>,</span>
+<span id="cb99-7"><a href="experimental-design-from-question-to-study-structure.html#cb99-7" tabindex="-1"></a>  <span class="at">treatment =</span> <span class="fu">sample</span>(treatments),  <span class="co"># randomize</span></span>
+<span id="cb99-8"><a href="experimental-design-from-question-to-study-structure.html#cb99-8" tabindex="-1"></a>  <span class="at">row =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">each =</span> <span class="dv">5</span>),</span>
+<span id="cb99-9"><a href="experimental-design-from-question-to-study-structure.html#cb99-9" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">times =</span> <span class="dv">4</span>)</span>
+<span id="cb99-10"><a href="experimental-design-from-question-to-study-structure.html#cb99-10" tabindex="-1"></a>)</span>
+<span id="cb99-11"><a href="experimental-design-from-question-to-study-structure.html#cb99-11" tabindex="-1"></a></span>
+<span id="cb99-12"><a href="experimental-design-from-question-to-study-structure.html#cb99-12" tabindex="-1"></a><span class="co"># Visualize the layout</span></span>
+<span id="cb99-13"><a href="experimental-design-from-question-to-study-structure.html#cb99-13" tabindex="-1"></a><span class="fu">plot</span>(plots<span class="sc">$</span>col, plots<span class="sc">$</span>row,</span>
+<span id="cb99-14"><a href="experimental-design-from-question-to-study-structure.html#cb99-14" tabindex="-1"></a>     <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="dv">3</span>,</span>
+<span id="cb99-15"><a href="experimental-design-from-question-to-study-structure.html#cb99-15" tabindex="-1"></a>     <span class="at">col =</span> <span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(plots<span class="sc">$</span>treatment)),</span>
+<span id="cb99-16"><a href="experimental-design-from-question-to-study-structure.html#cb99-16" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;Column&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Row&quot;</span>,</span>
+<span id="cb99-17"><a href="experimental-design-from-question-to-study-structure.html#cb99-17" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Completely Randomized Design&quot;</span>,</span>
+<span id="cb99-18"><a href="experimental-design-from-question-to-study-structure.html#cb99-18" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">5.5</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">4.5</span>))</span>
+<span id="cb99-19"><a href="experimental-design-from-question-to-study-structure.html#cb99-19" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">legend =</span> <span class="fu">levels</span>(<span class="fu">as.factor</span>(plots<span class="sc">$</span>treatment)),</span>
+<span id="cb99-20"><a href="experimental-design-from-question-to-study-structure.html#cb99-20" tabindex="-1"></a>       <span class="at">col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.8</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:crd-example"></span>
+<img src="_main_files/figure-html/crd-example-1.png" alt="A completely randomized design assigns treatments without regard to spatial or environmental structure. This works well when experimental units are homogeneous." width="960" />
+<p class="caption">
+Figure 7.1: A completely randomized design assigns treatments without regard to spatial or environmental structure. This works well when experimental units are homogeneous.
+</p>
+</div>
+<p><strong>Statistical model:</strong> One-way ANOVA or linear model with treatment as the sole explanatory variable.</p>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="experimental-design-from-question-to-study-structure.html#cb100-1" tabindex="-1"></a><span class="co"># Analysis for a CRD</span></span>
+<span id="cb100-2"><a href="experimental-design-from-question-to-study-structure.html#cb100-2" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(response <span class="sc">~</span> treatment, <span class="at">data =</span> my_data)</span>
+<span id="cb100-3"><a href="experimental-design-from-question-to-study-structure.html#cb100-3" tabindex="-1"></a><span class="fu">anova</span>(model)</span></code></pre></div>
+</div>
+<div id="blocking" class="section level3 hasAnchor" number="7.4.2">
+<h3><span class="header-section-number">7.4.2</span> Randomized Complete Block Design (RCBD)<a href="experimental-design-from-question-to-study-structure.html#blocking" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Blocking is one of the most important concepts in experimental design, and one of the most underused by beginning researchers.</p>
+<p>A <strong>block</strong> is a group of experimental units that are similar to each other in some important way. Within each block, every treatment appears exactly once. This ensures that treatment comparisons are made within relatively homogeneous groups, removing the block-to-block variation from the comparison.</p>
+<p><strong>The key insight:</strong> Blocking controls for a known source of variation by removing it from the error term. This increases statistical power—the ability to detect a real treatment effect—without requiring more replicates.</p>
+<p><strong>When to block:</strong></p>
+<ul>
+<li>Greenhouse benches differ in light or temperature → block by bench</li>
+<li>Field plots span an elevation gradient → block by elevation zone<br />
+</li>
+<li>Experimental runs happen on different days → block by day</li>
+<li>Sites have different soil types → block by soil type</li>
+<li>Individual animals or plants vary in size → block by initial size class</li>
+</ul>
+<p><strong>The rule of thumb:</strong> If you can identify a source of variation that is not your treatment but might affect the response, block on it.</p>
+<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="experimental-design-from-question-to-study-structure.html#cb101-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb101-2"><a href="experimental-design-from-question-to-study-structure.html#cb101-2" tabindex="-1"></a></span>
+<span id="cb101-3"><a href="experimental-design-from-question-to-study-structure.html#cb101-3" tabindex="-1"></a><span class="co"># 3 treatments, 4 blocks</span></span>
+<span id="cb101-4"><a href="experimental-design-from-question-to-study-structure.html#cb101-4" tabindex="-1"></a>n_blocks <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb101-5"><a href="experimental-design-from-question-to-study-structure.html#cb101-5" tabindex="-1"></a>treatments <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Control&quot;</span>, <span class="st">&quot;Thinned&quot;</span>, <span class="st">&quot;Burned&quot;</span>)</span>
+<span id="cb101-6"><a href="experimental-design-from-question-to-study-structure.html#cb101-6" tabindex="-1"></a>n_treats <span class="ot">&lt;-</span> <span class="fu">length</span>(treatments)</span>
+<span id="cb101-7"><a href="experimental-design-from-question-to-study-structure.html#cb101-7" tabindex="-1"></a></span>
+<span id="cb101-8"><a href="experimental-design-from-question-to-study-structure.html#cb101-8" tabindex="-1"></a><span class="co"># Within each block, randomize treatment order</span></span>
+<span id="cb101-9"><a href="experimental-design-from-question-to-study-structure.html#cb101-9" tabindex="-1"></a>rcbd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb101-10"><a href="experimental-design-from-question-to-study-structure.html#cb101-10" tabindex="-1"></a>  <span class="at">block =</span> <span class="fu">rep</span>(<span class="fu">paste</span>(<span class="st">&quot;Block&quot;</span>, <span class="dv">1</span><span class="sc">:</span>n_blocks), <span class="at">each =</span> n_treats),</span>
+<span id="cb101-11"><a href="experimental-design-from-question-to-study-structure.html#cb101-11" tabindex="-1"></a>  <span class="at">treatment =</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span>n_blocks, <span class="cf">function</span>(b) <span class="fu">sample</span>(treatments)))</span>
+<span id="cb101-12"><a href="experimental-design-from-question-to-study-structure.html#cb101-12" tabindex="-1"></a>)</span>
+<span id="cb101-13"><a href="experimental-design-from-question-to-study-structure.html#cb101-13" tabindex="-1"></a></span>
+<span id="cb101-14"><a href="experimental-design-from-question-to-study-structure.html#cb101-14" tabindex="-1"></a>rcbd<span class="sc">$</span>plot_num <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(rcbd)</span>
+<span id="cb101-15"><a href="experimental-design-from-question-to-study-structure.html#cb101-15" tabindex="-1"></a>rcbd<span class="sc">$</span>x <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_treats, <span class="at">times =</span> n_blocks)</span>
+<span id="cb101-16"><a href="experimental-design-from-question-to-study-structure.html#cb101-16" tabindex="-1"></a>rcbd<span class="sc">$</span>y <span class="ot">&lt;-</span> <span class="fu">rep</span>(n_blocks<span class="sc">:</span><span class="dv">1</span>, <span class="at">each =</span> n_treats)</span>
+<span id="cb101-17"><a href="experimental-design-from-question-to-study-structure.html#cb101-17" tabindex="-1"></a></span>
+<span id="cb101-18"><a href="experimental-design-from-question-to-study-structure.html#cb101-18" tabindex="-1"></a><span class="co"># Visualize</span></span>
+<span id="cb101-19"><a href="experimental-design-from-question-to-study-structure.html#cb101-19" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Control&quot;</span> <span class="ot">=</span> <span class="st">&quot;gray70&quot;</span>, <span class="st">&quot;Thinned&quot;</span> <span class="ot">=</span> <span class="st">&quot;goldenrod&quot;</span>, <span class="st">&quot;Burned&quot;</span> <span class="ot">=</span> <span class="st">&quot;firebrick&quot;</span>)</span>
+<span id="cb101-20"><a href="experimental-design-from-question-to-study-structure.html#cb101-20" tabindex="-1"></a><span class="fu">plot</span>(rcbd<span class="sc">$</span>x, rcbd<span class="sc">$</span>y,</span>
+<span id="cb101-21"><a href="experimental-design-from-question-to-study-structure.html#cb101-21" tabindex="-1"></a>     <span class="at">pch =</span> <span class="dv">22</span>, <span class="at">cex =</span> <span class="dv">5</span>, <span class="at">bg =</span> cols[rcbd<span class="sc">$</span>treatment],</span>
+<span id="cb101-22"><a href="experimental-design-from-question-to-study-structure.html#cb101-22" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;&quot;</span>, <span class="at">axes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb101-23"><a href="experimental-design-from-question-to-study-structure.html#cb101-23" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Randomized Complete Block Design&quot;</span>,</span>
+<span id="cb101-24"><a href="experimental-design-from-question-to-study-structure.html#cb101-24" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, n_treats <span class="sc">+</span> <span class="fl">0.5</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, n_blocks <span class="sc">+</span> <span class="fl">0.7</span>))</span>
+<span id="cb101-25"><a href="experimental-design-from-question-to-study-structure.html#cb101-25" tabindex="-1"></a><span class="fu">text</span>(rcbd<span class="sc">$</span>x, rcbd<span class="sc">$</span>y, rcbd<span class="sc">$</span>treatment, <span class="at">cex =</span> <span class="fl">0.6</span>)</span>
+<span id="cb101-26"><a href="experimental-design-from-question-to-study-structure.html#cb101-26" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">2</span>, <span class="at">at =</span> n_blocks<span class="sc">:</span><span class="dv">1</span>, <span class="at">labels =</span> <span class="fu">paste</span>(<span class="st">&quot;Block&quot;</span>, <span class="dv">1</span><span class="sc">:</span>n_blocks), <span class="at">las =</span> <span class="dv">1</span>, <span class="at">tick =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:rcbd-diagram"></span>
+<img src="_main_files/figure-html/rcbd-diagram-1.png" alt="In a Randomized Complete Block Design, each block contains all treatments. Treatments are randomized within each block. This removes block-to-block variation from the treatment comparison." width="960" />
+<p class="caption">
+Figure 7.2: In a Randomized Complete Block Design, each block contains all treatments. Treatments are randomized within each block. This removes block-to-block variation from the treatment comparison.
+</p>
+</div>
+<p><strong>Statistical model:</strong> The block is included as an additive term but is not the focus of inference. We are not interested in <em>whether</em> blocks differ; we know they do. We include blocks to remove that variation from the error term.</p>
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="experimental-design-from-question-to-study-structure.html#cb102-1" tabindex="-1"></a><span class="co"># RCBD analysis: treatment is the focus, block removes known variation</span></span>
+<span id="cb102-2"><a href="experimental-design-from-question-to-study-structure.html#cb102-2" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(response <span class="sc">~</span> treatment <span class="sc">+</span> block, <span class="at">data =</span> my_data)</span>
+<span id="cb102-3"><a href="experimental-design-from-question-to-study-structure.html#cb102-3" tabindex="-1"></a><span class="fu">anova</span>(model)</span></code></pre></div>
+<p><strong>Ecological example:</strong> You want to test whether prescribed fire increases native grass cover. Your study area spans a 500 m elevation gradient. Without blocking, elevation differences add noise to the treatment comparison. With blocking by elevation zone, each treatment is compared to its control <em>at the same elevation</em>, and the analysis is more powerful.</p>
+<p><strong>A common mistake:</strong> Some researchers put “block” as a random effect in a mixed model. This is appropriate when you have many blocks sampled from a larger population of possible blocks (e.g., sites randomly selected from a region). When blocks are few and fixed (e.g., 3 greenhouse benches), treating block as a fixed additive term is simpler and often more appropriate. We will revisit this distinction in the Mixed Effects Models chapter.</p>
+</div>
+<div id="factorial" class="section level3 hasAnchor" number="7.4.3">
+<h3><span class="header-section-number">7.4.3</span> Factorial designs<a href="experimental-design-from-question-to-study-structure.html#factorial" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>A <strong>factorial design</strong> includes two or more treatment factors, with every combination of factor levels represented. This is extremely common in ecology, where organisms respond to multiple interacting environmental drivers simultaneously.</p>
+<p><strong>Example:</strong> You want to test the effects of fire and grazing on plant community composition. You have two factors:</p>
+<ul>
+<li>Fire: burned vs. unburned (2 levels)</li>
+<li>Grazing: grazed vs. ungrazed (2 levels)</li>
+</ul>
+<p>A full factorial design includes all 4 combinations: burned + grazed, burned + ungrazed, unburned + grazed, unburned + ungrazed.</p>
+<p><strong>Why factorial designs are powerful:</strong> They allow you to test for <strong>interactions</strong>—situations where the effect of one factor depends on the level of another. Fire might reduce shrub cover in ungrazed areas but have no effect in grazed areas (because grazing already reduced shrubs). Without the factorial design, you would miss this interaction entirely.</p>
+<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="experimental-design-from-question-to-study-structure.html#cb103-1" tabindex="-1"></a><span class="co"># 2 x 2 factorial: fire and grazing</span></span>
+<span id="cb103-2"><a href="experimental-design-from-question-to-study-structure.html#cb103-2" tabindex="-1"></a>fire <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;Burned&quot;</span>, <span class="st">&quot;Unburned&quot;</span>), <span class="at">each =</span> <span class="dv">2</span>)</span>
+<span id="cb103-3"><a href="experimental-design-from-question-to-study-structure.html#cb103-3" tabindex="-1"></a>grazing <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;Grazed&quot;</span>, <span class="st">&quot;Ungrazed&quot;</span>), <span class="at">times =</span> <span class="dv">2</span>)</span>
+<span id="cb103-4"><a href="experimental-design-from-question-to-study-structure.html#cb103-4" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(fire, grazing)</span>
+<span id="cb103-5"><a href="experimental-design-from-question-to-study-structure.html#cb103-5" tabindex="-1"></a>combinations<span class="sc">$</span>treatment <span class="ot">&lt;-</span> <span class="fu">paste</span>(fire, grazing, <span class="at">sep =</span> <span class="st">&quot; + &quot;</span>)</span>
+<span id="cb103-6"><a href="experimental-design-from-question-to-study-structure.html#cb103-6" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(combinations, <span class="at">caption =</span> <span class="st">&quot;All treatment combinations in a 2 x 2 factorial design&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:factorial-example">Table 7.2: </span>All treatment combinations in a 2 x 2 factorial design</caption>
+<thead>
+<tr class="header">
+<th align="left">fire</th>
+<th align="left">grazing</th>
+<th align="left">treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Burned</td>
+<td align="left">Grazed</td>
+<td align="left">Burned + Grazed</td>
+</tr>
+<tr class="even">
+<td align="left">Burned</td>
+<td align="left">Ungrazed</td>
+<td align="left">Burned + Ungrazed</td>
+</tr>
+<tr class="odd">
+<td align="left">Unburned</td>
+<td align="left">Grazed</td>
+<td align="left">Unburned + Grazed</td>
+</tr>
+<tr class="even">
+<td align="left">Unburned</td>
+<td align="left">Ungrazed</td>
+<td align="left">Unburned + Ungrazed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Statistical model:</strong> A factorial design is analyzed with main effects and their interaction.</p>
+<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb104-1"><a href="experimental-design-from-question-to-study-structure.html#cb104-1" tabindex="-1"></a><span class="co"># Factorial ANOVA</span></span>
+<span id="cb104-2"><a href="experimental-design-from-question-to-study-structure.html#cb104-2" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(response <span class="sc">~</span> fire <span class="sc">*</span> grazing, <span class="at">data =</span> my_data)</span>
+<span id="cb104-3"><a href="experimental-design-from-question-to-study-structure.html#cb104-3" tabindex="-1"></a><span class="co"># Equivalent to: response ~ fire + grazing + fire:grazing</span></span>
+<span id="cb104-4"><a href="experimental-design-from-question-to-study-structure.html#cb104-4" tabindex="-1"></a><span class="fu">anova</span>(model)</span></code></pre></div>
+<p>The interaction term (<code>fire:grazing</code>) tests whether the effect of fire depends on grazing status. If the interaction is significant, interpret the interaction rather than the main effects alone—because the main effects are misleading when the factors interact.</p>
+<p><strong>Design consideration:</strong> Factorial designs grow quickly. A 2 × 2 design has 4 combinations; a 3 × 3 has 9; a 2 × 3 × 4 has 24. Each combination needs replication, so the total number of experimental units can become large. If resources are limited, consider dropping factor levels or using a fractional factorial design.</p>
+</div>
+<div id="nested" class="section level3 hasAnchor" number="7.4.4">
+<h3><span class="header-section-number">7.4.4</span> Nested designs<a href="experimental-design-from-question-to-study-structure.html#nested" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In a <strong>nested design</strong>, the levels of one factor are unique to each level of another factor. This is different from a factorial design, where every level of each factor appears with every level of every other factor.</p>
+<p><strong>The classic ecological example:</strong> You study plant growth across 3 sites. Within each site, you establish 4 plots. Within each plot, you measure 5 individual plants. The structure is:</p>
+<ul>
+<li>Plants are nested within plots</li>
+<li>Plots are nested within sites</li>
+</ul>
+<p>The 4 plots at Site A are <em>different physical locations</em> from the 4 plots at Site B. Plot 1 at Site A is not the same as Plot 1 at Site B—they just share a label. This is nesting, not crossing.</p>
+<pre><code>## Nested structure:</code></pre>
+<pre><code>##   3 Sites</code></pre>
+<pre><code>##     └── 4 Plots per site (12 plots total)</code></pre>
+<pre><code>##         └── 5 Plants per plot (60 plants total)</code></pre>
+<pre><code>## 
+## True replicates for site-level effects: 3 sites</code></pre>
+<pre><code>## NOT 60 plants.</code></pre>
+<p><strong>Why nesting matters:</strong> The 60 plants are not independent observations for testing site effects. Plants within the same plot share microsite conditions; plots within the same site share climate and soils. If you analyze this as <code>lm(growth ~ site)</code> with 60 observations, you are pretending that you have 60 independent replicates when you actually have 3 (the sites). This is <strong>pseudoreplication</strong> (see Chapter 6), and it dramatically inflates your Type I error rate.</p>
+<p><strong>Statistical model:</strong> Nested designs are analyzed with mixed effects models, which we will cover in detail later. The key is recognizing the nesting in your design <em>before</em> you analyze the data.</p>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="experimental-design-from-question-to-study-structure.html#cb111-1" tabindex="-1"></a><span class="co"># Nested design analyzed with mixed model</span></span>
+<span id="cb111-2"><a href="experimental-design-from-question-to-study-structure.html#cb111-2" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb111-3"><a href="experimental-design-from-question-to-study-structure.html#cb111-3" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(growth <span class="sc">~</span> site <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>plot), <span class="at">data =</span> my_data)</span></code></pre></div>
+</div>
+<div id="splitplot" class="section level3 hasAnchor" number="7.4.5">
+<h3><span class="header-section-number">7.4.5</span> Split-plot designs<a href="experimental-design-from-question-to-study-structure.html#splitplot" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>A <strong>split-plot design</strong> arises when one treatment factor is applied to large experimental units (whole plots) and a second treatment factor is applied to smaller units within them (subplots). This often occurs when one treatment is logistically difficult to apply at a small scale.</p>
+<p><strong>Ecological example:</strong> You are testing the effects of prescribed fire (hard to apply to small areas) and nitrogen addition (easy to apply to small areas). Each large plot (1 hectare) is randomly assigned to either burned or unburned. Within each large plot, small subplots (5 × 5 m) are randomly assigned to nitrogen addition or control.</p>
+<pre><code>## Split-plot structure:</code></pre>
+<pre><code>##   Whole plot factor: Fire (burned vs. unburned)</code></pre>
+<pre><code>##     Applied to: 1-hectare plots</code></pre>
+<pre><code>##   Subplot factor: Nitrogen (added vs. control)</code></pre>
+<pre><code>##     Applied to: 5 x 5 m subplots within each whole plot</code></pre>
+<pre><code>## Key consequence: the error term for testing the whole-plot factor (fire)</code></pre>
+<pre><code>## is different from the error term for testing the subplot factor (nitrogen).</code></pre>
+<pre><code>## This requires a mixed model or split-plot ANOVA.</code></pre>
+<p><strong>Why it matters:</strong> In a split-plot design, the whole-plot treatment (fire) has fewer true replicates than the subplot treatment (nitrogen), because fire was only applied to whole plots. A standard factorial ANOVA would incorrectly pool the error terms, leading to inflated significance for the whole-plot factor. A mixed model with whole-plot as a random effect handles this correctly.</p>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb120-1"><a href="experimental-design-from-question-to-study-structure.html#cb120-1" tabindex="-1"></a><span class="co"># Split-plot analysis with mixed model</span></span>
+<span id="cb120-2"><a href="experimental-design-from-question-to-study-structure.html#cb120-2" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb120-3"><a href="experimental-design-from-question-to-study-structure.html#cb120-3" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(response <span class="sc">~</span> fire <span class="sc">*</span> nitrogen <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> whole_plot), <span class="at">data =</span> my_data)</span></code></pre></div>
+<p><strong>How to recognize a split-plot:</strong> Ask yourself: “Is one treatment applied at a larger scale than the other?” If yes, you likely have a split-plot design, even if you did not plan it that way.</p>
+</div>
+<div id="repeatedmeasures" class="section level3 hasAnchor" number="7.4.6">
+<h3><span class="header-section-number">7.4.6</span> Repeated measures and longitudinal designs<a href="experimental-design-from-question-to-study-structure.html#repeatedmeasures" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>When you measure the same experimental units over time, observations within each unit are not independent. A plant measured in June and again in August is likely to have correlated growth measurements—a large plant in June is probably still relatively large in August.</p>
+<p><strong>Repeated measures</strong> designs are the temporal equivalent of nesting: observations are nested within time points within subjects. Ignoring this non-independence (analyzing each time point as an independent observation) is a form of pseudoreplication.</p>
+<p><strong>Common ecological examples:</strong></p>
+<ul>
+<li>Measuring tree diameter annually for 10 years</li>
+<li>Sampling species composition at permanent plots across seasons</li>
+<li>Tracking individual survival through monthly surveys</li>
+<li>Monitoring water quality at fixed stations over time</li>
+</ul>
+<p><strong>Statistical approaches:</strong></p>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="experimental-design-from-question-to-study-structure.html#cb121-1" tabindex="-1"></a><span class="co"># Option 1: Mixed model with random intercept for subject</span></span>
+<span id="cb121-2"><a href="experimental-design-from-question-to-study-structure.html#cb121-2" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb121-3"><a href="experimental-design-from-question-to-study-structure.html#cb121-3" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(response <span class="sc">~</span> treatment <span class="sc">*</span> time <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> subject), <span class="at">data =</span> my_data)</span>
+<span id="cb121-4"><a href="experimental-design-from-question-to-study-structure.html#cb121-4" tabindex="-1"></a></span>
+<span id="cb121-5"><a href="experimental-design-from-question-to-study-structure.html#cb121-5" tabindex="-1"></a><span class="co"># Option 2: If trajectories differ, allow random slopes</span></span>
+<span id="cb121-6"><a href="experimental-design-from-question-to-study-structure.html#cb121-6" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(response <span class="sc">~</span> treatment <span class="sc">*</span> time <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> time <span class="sc">|</span> subject), <span class="at">data =</span> my_data)</span></code></pre></div>
+<p>We will cover these models in detail in the Mixed Effects Models chapter. For now, the design principle is: <strong>if you measure the same unit more than once, you need a model that accounts for that.</strong></p>
+</div>
+</div>
+<div id="baci" class="section level2 hasAnchor" number="7.5">
+<h2><span class="header-section-number">7.5</span> Before-After-Control-Impact (BACI) designs<a href="experimental-design-from-question-to-study-structure.html#baci" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>BACI designs deserve special attention because they are among the most common designs in applied ecology—restoration monitoring, impact assessment, and adaptive management all rely on some form of BACI logic.</p>
+<div id="the-problem-baci-solves" class="section level3 hasAnchor" number="7.5.1">
+<h3><span class="header-section-number">7.5.1</span> The problem BACI solves<a href="experimental-design-from-question-to-study-structure.html#the-problem-baci-solves" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Suppose a mining company plans to discharge treated wastewater into a stream, and you are asked to assess the impact on aquatic invertebrate communities. You have two options:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Before-After only:</strong> Sample the stream before and after the discharge begins. Problem: any change you observe might be caused by the discharge, or by a drought, a flood, natural seasonal variation, or anything else that changed between your two sampling periods.</p></li>
+<li><p><strong>Control-Impact only:</strong> Sample the affected stream and an unaffected reference stream at the same time, after the discharge begins. Problem: any difference between streams might be caused by the discharge, or by pre-existing differences between the two streams.</p></li>
+</ol>
+<p>BACI combines both comparisons. By measuring both sites at both times, you can test whether the <strong>change over time differs between sites</strong>. This is the interaction term in your statistical model, and it is the key test in a BACI design.</p>
+</div>
+<div id="the-four-standard-baci-designs" class="section level3 hasAnchor" number="7.5.2">
+<h3><span class="header-section-number">7.5.2</span> The four standard BACI designs<a href="experimental-design-from-question-to-study-structure.html#the-four-standard-baci-designs" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>BACI designs vary in complexity depending on replication in space and time:</p>
+<table>
+<caption><span id="tab:baci-table">Table 7.3: </span>BACI designs vary in replication. The full ‘Beyond BACI’ design with multiple control sites and multiple time periods before and after provides the strongest inference.</caption>
+<colgroup>
+<col width="24%" />
+<col width="9%" />
+<col width="10%" />
+<col width="11%" />
+<col width="10%" />
+<col width="32%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Design</th>
+<th align="left">Impact sites</th>
+<th align="left">Control sites</th>
+<th align="left">Before periods</th>
+<th align="left">After periods</th>
+<th align="left">Strength</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Basic BACI</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">Weak: no replication in space or time</td>
+</tr>
+<tr class="even">
+<td align="left">BACI with multiple controls</td>
+<td align="left">1+</td>
+<td align="left">Multiple</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">Moderate: spatial replication of controls</td>
+</tr>
+<tr class="odd">
+<td align="left">BACI with multiple time periods</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">Multiple</td>
+<td align="left">Multiple</td>
+<td align="left">Moderate: temporal replication</td>
+</tr>
+<tr class="even">
+<td align="left">Full BACI (Beyond BACI)</td>
+<td align="left">1+</td>
+<td align="left">Multiple</td>
+<td align="left">Multiple</td>
+<td align="left">Multiple</td>
+<td align="left">Strong: replication in both space and time</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="the-baci-interaction" class="section level3 hasAnchor" number="7.5.3">
+<h3><span class="header-section-number">7.5.3</span> The BACI interaction<a href="experimental-design-from-question-to-study-structure.html#the-baci-interaction" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The core of a BACI analysis is a two-way interaction between <strong>period</strong> (before vs. after) and <strong>site type</strong> (impact vs. control). If the discharge has no effect, both sites should change by roughly the same amount over time. If the discharge has an effect, the change at the impact site will differ from the change at the control site.</p>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb122-1"><a href="experimental-design-from-question-to-study-structure.html#cb122-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb122-2"><a href="experimental-design-from-question-to-study-structure.html#cb122-2" tabindex="-1"></a></span>
+<span id="cb122-3"><a href="experimental-design-from-question-to-study-structure.html#cb122-3" tabindex="-1"></a><span class="co"># No impact scenario</span></span>
+<span id="cb122-4"><a href="experimental-design-from-question-to-study-structure.html#cb122-4" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">45</span>), <span class="at">type =</span> <span class="st">&quot;b&quot;</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>,</span>
+<span id="cb122-5"><a href="experimental-design-from-question-to-study-structure.html#cb122-5" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">2.5</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">60</span>),</span>
+<span id="cb122-6"><a href="experimental-design-from-question-to-study-structure.html#cb122-6" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Invertebrate abundance&quot;</span>,</span>
+<span id="cb122-7"><a href="experimental-design-from-question-to-study-structure.html#cb122-7" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;No impact (parallel change)&quot;</span>, <span class="at">xaxt =</span> <span class="st">&quot;n&quot;</span>)</span>
+<span id="cb122-8"><a href="experimental-design-from-question-to-study-structure.html#cb122-8" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">35</span>), <span class="at">type =</span> <span class="st">&quot;b&quot;</span>, <span class="at">pch =</span> <span class="dv">17</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>)</span>
+<span id="cb122-9"><a href="experimental-design-from-question-to-study-structure.html#cb122-9" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Before&quot;</span>, <span class="st">&quot;After&quot;</span>))</span>
+<span id="cb122-10"><a href="experimental-design-from-question-to-study-structure.html#cb122-10" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">&quot;Control&quot;</span>, <span class="st">&quot;Impact&quot;</span>),</span>
+<span id="cb122-11"><a href="experimental-design-from-question-to-study-structure.html#cb122-11" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;firebrick&quot;</span>), <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">17</span>), <span class="at">cex =</span> <span class="fl">0.8</span>)</span>
+<span id="cb122-12"><a href="experimental-design-from-question-to-study-structure.html#cb122-12" tabindex="-1"></a></span>
+<span id="cb122-13"><a href="experimental-design-from-question-to-study-structure.html#cb122-13" tabindex="-1"></a><span class="co"># Impact scenario</span></span>
+<span id="cb122-14"><a href="experimental-design-from-question-to-study-structure.html#cb122-14" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">45</span>), <span class="at">type =</span> <span class="st">&quot;b&quot;</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>,</span>
+<span id="cb122-15"><a href="experimental-design-from-question-to-study-structure.html#cb122-15" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">2.5</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">60</span>),</span>
+<span id="cb122-16"><a href="experimental-design-from-question-to-study-structure.html#cb122-16" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Invertebrate abundance&quot;</span>,</span>
+<span id="cb122-17"><a href="experimental-design-from-question-to-study-structure.html#cb122-17" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Impact detected (divergence)&quot;</span>, <span class="at">xaxt =</span> <span class="st">&quot;n&quot;</span>)</span>
+<span id="cb122-18"><a href="experimental-design-from-question-to-study-structure.html#cb122-18" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">25</span>), <span class="at">type =</span> <span class="st">&quot;b&quot;</span>, <span class="at">pch =</span> <span class="dv">17</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>)</span>
+<span id="cb122-19"><a href="experimental-design-from-question-to-study-structure.html#cb122-19" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Before&quot;</span>, <span class="st">&quot;After&quot;</span>))</span>
+<span id="cb122-20"><a href="experimental-design-from-question-to-study-structure.html#cb122-20" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">&quot;Control&quot;</span>, <span class="st">&quot;Impact&quot;</span>),</span>
+<span id="cb122-21"><a href="experimental-design-from-question-to-study-structure.html#cb122-21" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;firebrick&quot;</span>), <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">17</span>), <span class="at">cex =</span> <span class="fl">0.8</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:baci-concept"></span>
+<img src="_main_files/figure-html/baci-concept-1.png" alt="The BACI design tests whether the change from before to after differs between impact and control sites. If both sites change in parallel (left), there is no impact. If the impact site diverges (right), the discharge likely had an effect." width="960" />
+<p class="caption">
+Figure 7.3: The BACI design tests whether the change from before to after differs between impact and control sites. If both sites change in parallel (left), there is no impact. If the impact site diverges (right), the discharge likely had an effect.
+</p>
+</div>
+</div>
+<div id="statistical-model-for-baci" class="section level3 hasAnchor" number="7.5.4">
+<h3><span class="header-section-number">7.5.4</span> Statistical model for BACI<a href="experimental-design-from-question-to-study-structure.html#statistical-model-for-baci" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="experimental-design-from-question-to-study-structure.html#cb123-1" tabindex="-1"></a><span class="co"># Basic BACI: the interaction is the test of impact</span></span>
+<span id="cb123-2"><a href="experimental-design-from-question-to-study-structure.html#cb123-2" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(response <span class="sc">~</span> period <span class="sc">*</span> site_type, <span class="at">data =</span> my_data)</span>
+<span id="cb123-3"><a href="experimental-design-from-question-to-study-structure.html#cb123-3" tabindex="-1"></a></span>
+<span id="cb123-4"><a href="experimental-design-from-question-to-study-structure.html#cb123-4" tabindex="-1"></a><span class="co"># With multiple time periods and sites: use mixed model</span></span>
+<span id="cb123-5"><a href="experimental-design-from-question-to-study-structure.html#cb123-5" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb123-6"><a href="experimental-design-from-question-to-study-structure.html#cb123-6" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(response <span class="sc">~</span> period <span class="sc">*</span> site_type <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> year),</span>
+<span id="cb123-7"><a href="experimental-design-from-question-to-study-structure.html#cb123-7" tabindex="-1"></a>              <span class="at">data =</span> my_data)</span></code></pre></div>
+<p>The coefficient for <code>period:site_type</code> is the BACI interaction—it estimates the difference in the before-to-after change between impact and control sites. This is the quantity of interest.</p>
+</div>
+<div id="baci-pitfalls" class="section level3 hasAnchor" number="7.5.5">
+<h3><span class="header-section-number">7.5.5</span> BACI pitfalls<a href="experimental-design-from-question-to-study-structure.html#baci-pitfalls" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><strong>Too few control sites:</strong> A single control site might be unusual for reasons unrelated to the impact. Multiple control sites strengthen inference.</li>
+<li><strong>Too few time periods:</strong> A single before and single after measurement cannot distinguish an impact from natural year-to-year variation. Multiple before and after periods are strongly preferred.</li>
+<li><strong>Spatial confounding:</strong> If the impact and control sites were already different before the impact, the BACI interaction might reflect pre-existing divergence.</li>
+<li><strong>Delayed or gradual effects:</strong> If the impact takes years to manifest, a simple before/after comparison might miss it. Consider staggered after-periods.</li>
+</ul>
+<p>We will work through a complete BACI analysis with real data in a later chapter when we cover mixed effects models and time series approaches.</p>
+</div>
+</div>
+<div id="replication" class="section level2 hasAnchor" number="7.6">
+<h2><span class="header-section-number">7.6</span> Identifying your unit of replication<a href="experimental-design-from-question-to-study-structure.html#replication" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>This is arguably the most important practical skill in experimental design. Getting it wrong—treating subsamples as independent replicates—is <strong>pseudoreplication</strong>, which was introduced in Chapter 6 but deserves deeper treatment here because it is the single most common statistical error in ecology (Hurlbert, 1984).</p>
+<div id="the-rule" class="section level3 hasAnchor" number="7.6.1">
+<h3><span class="header-section-number">7.6.1</span> The rule<a href="experimental-design-from-question-to-study-structure.html#the-rule" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <strong>unit of replication</strong> is the smallest unit to which a treatment is independently applied. Everything measured within that unit is a subsample, not a replicate.</p>
+<table>
+<caption><span id="tab:replication-examples">Table 7.4: </span>Identifying the unit of replication. The treatment is applied at the level of the replicate, not the subsample.</caption>
+<colgroup>
+<col width="43%" />
+<col width="20%" />
+<col width="14%" />
+<col width="22%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Scenario</th>
+<th align="left">Unit of replication</th>
+<th align="left">Subsamples</th>
+<th align="left">Problem?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">3 fire treatments applied to 3 watersheds; 10 plots per watershed</td>
+<td align="left">Watershed (n = 1 per treatment!)</td>
+<td align="left">Plots within watersheds</td>
+<td align="left">Yes: n = 1 per treatment, no replication</td>
+</tr>
+<tr class="even">
+<td align="left">Herbicide sprayed on 6 garden beds (3 treated, 3 control); 20 plants per bed</td>
+<td align="left">Garden bed (n = 3 per treatment)</td>
+<td align="left">Plants within beds</td>
+<td align="left">No: adequate replication</td>
+</tr>
+<tr class="odd">
+<td align="left">4 grazing exclosures and 4 grazed areas; species counted in 5 quadrats per area</td>
+<td align="left">Exclosure/area (n = 4 per treatment)</td>
+<td align="left">Quadrats within areas</td>
+<td align="left">No: adequate replication</td>
+</tr>
+<tr class="even">
+<td align="left">Fertilizer applied to individual pots; 1 plant per pot; 15 pots per treatment</td>
+<td align="left">Pot (n = 15 per treatment)</td>
+<td align="left">None (1 plant per pot)</td>
+<td align="left">No: adequate replication</td>
+</tr>
+<tr class="odd">
+<td align="left">2 greenhouses set to different temperatures; 50 plants per greenhouse</td>
+<td align="left">Greenhouse (n = 1 per treatment!)</td>
+<td align="left">Plants within greenhouses</td>
+<td align="left">Yes: n = 1 per treatment, no replication</td>
+</tr>
+</tbody>
+</table>
+<p>Notice the first and last examples: even with many individual measurements (10 plots, 50 plants), you have <strong>no replication</strong> of the treatment if the treatment was applied to only one unit per level. Two greenhouses set to different temperatures gives you n = 1 for each temperature, regardless of how many plants are inside. This is a design problem that no statistical model can fix.</p>
+</div>
+<div id="what-to-do-with-subsamples" class="section level3 hasAnchor" number="7.6.2">
+<h3><span class="header-section-number">7.6.2</span> What to do with subsamples<a href="experimental-design-from-question-to-study-structure.html#what-to-do-with-subsamples" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Subsamples are not useless—they help you better estimate the condition at each replicate. But they must be handled correctly in analysis:</p>
+<div class="sourceCode" id="cb124"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb124-1"><a href="experimental-design-from-question-to-study-structure.html#cb124-1" tabindex="-1"></a><span class="co"># Option 1: Average subsamples to the replicate level first</span></span>
+<span id="cb124-2"><a href="experimental-design-from-question-to-study-structure.html#cb124-2" tabindex="-1"></a>plot_means <span class="ot">&lt;-</span> my_data <span class="sc">%&gt;%</span></span>
+<span id="cb124-3"><a href="experimental-design-from-question-to-study-structure.html#cb124-3" tabindex="-1"></a>  <span class="fu">group_by</span>(plot, treatment) <span class="sc">%&gt;%</span></span>
+<span id="cb124-4"><a href="experimental-design-from-question-to-study-structure.html#cb124-4" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_response =</span> <span class="fu">mean</span>(response), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>)</span>
+<span id="cb124-5"><a href="experimental-design-from-question-to-study-structure.html#cb124-5" tabindex="-1"></a></span>
+<span id="cb124-6"><a href="experimental-design-from-question-to-study-structure.html#cb124-6" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(mean_response <span class="sc">~</span> treatment, <span class="at">data =</span> plot_means)</span>
+<span id="cb124-7"><a href="experimental-design-from-question-to-study-structure.html#cb124-7" tabindex="-1"></a></span>
+<span id="cb124-8"><a href="experimental-design-from-question-to-study-structure.html#cb124-8" tabindex="-1"></a><span class="co"># Option 2: Use a mixed model that accounts for nesting</span></span>
+<span id="cb124-9"><a href="experimental-design-from-question-to-study-structure.html#cb124-9" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb124-10"><a href="experimental-design-from-question-to-study-structure.html#cb124-10" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(response <span class="sc">~</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> plot), <span class="at">data =</span> my_data)</span></code></pre></div>
+<p>Both approaches are valid. Option 1 (averaging) is simpler and makes the sample size transparent. Option 2 (mixed model) preserves all the data and can estimate within-plot variation, but requires correctly specifying the random effects.</p>
+</div>
+</div>
+<div id="design-to-analysis" class="section level2 hasAnchor" number="7.7">
+<h2><span class="header-section-number">7.7</span> Connecting design to analysis<a href="experimental-design-from-question-to-study-structure.html#design-to-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Every design decision you make has a direct consequence for your statistical model. The table below summarizes the connections we have built in this chapter:</p>
+<table>
+<caption><span id="tab:design-analysis-table">Table 7.5: </span>Each experimental design maps to a specific statistical model. Understanding your design is a prerequisite for writing the correct model.</caption>
+<colgroup>
+<col width="21%" />
+<col width="41%" />
+<col width="36%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Design</th>
+<th align="left">Statistical model</th>
+<th align="left">Key feature</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Completely Randomized (CRD)</td>
+<td align="left">One-way ANOVA / lm(y ~ treatment)</td>
+<td align="left">Treatment as only predictor</td>
+</tr>
+<tr class="even">
+<td align="left">Randomized Complete Block (RCBD)</td>
+<td align="left">lm(y ~ treatment + block)</td>
+<td align="left">Block removes known variation (not tested)</td>
+</tr>
+<tr class="odd">
+<td align="left">Factorial</td>
+<td align="left">lm(y ~ A * B) [two-way ANOVA]</td>
+<td align="left">Interaction tests whether effects depend on each other</td>
+</tr>
+<tr class="even">
+<td align="left">Nested</td>
+<td align="left">lmer(y ~ treatment + (1 | group))</td>
+<td align="left">Random effect accounts for non-independence</td>
+</tr>
+<tr class="odd">
+<td align="left">Split-plot</td>
+<td align="left">lmer(y ~ whole_plot_trt * subplot_trt + (1 | whole_plot))</td>
+<td align="left">Different error terms for whole-plot and subplot</td>
+</tr>
+<tr class="even">
+<td align="left">Repeated measures</td>
+<td align="left">lmer(y ~ treatment * time + (1 | subject))</td>
+<td align="left">Random effect for repeated observations on same unit</td>
+</tr>
+<tr class="odd">
+<td align="left">BACI</td>
+<td align="left">lmer(y ~ period * site_type + (1 | site))</td>
+<td align="left">Interaction is the test of impact</td>
+</tr>
+</tbody>
+</table>
+<p>If you cannot write down the correct statistical model for your design before you collect data, that is a signal that the design needs more thought.</p>
+</div>
+<div id="designsummary" class="section level2 hasAnchor" number="7.8">
+<h2><span class="header-section-number">7.8</span> Summary<a href="experimental-design-from-question-to-study-structure.html#designsummary" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Experimental design is about structuring your study to support the conclusions you want to draw. The core principles are:</p>
+<ul>
+<li><p><strong>Identify your study type.</strong> Are you running a manipulative experiment, observing natural variation, or exploiting a natural experiment? This determines how strongly you can infer causation.</p></li>
+<li><p><strong>Use controls.</strong> Every comparison needs a baseline. Good controls differ from the treatment group in one thing only: the treatment.</p></li>
+<li><p><strong>Randomize.</strong> Random assignment of treatments eliminates systematic bias and balances confounding variables across groups.</p></li>
+<li><p><strong>Block when you can.</strong> If you know of a source of variation (elevation, bench, day, site), block on it. Blocking removes that variation from your error term and increases power.</p></li>
+<li><p><strong>Identify your unit of replication.</strong> The treatment is applied at the replicate level. Everything measured within a replicate is a subsample. Getting this wrong is pseudoreplication.</p></li>
+<li><p><strong>Know your design before you analyze.</strong> Your design dictates your statistical model. A blocked design needs a block term. A nested design needs a random effect. A factorial design needs an interaction term. Plan the analysis at the design stage, not after data collection.</p></li>
+</ul>
+</div>
+<div id="designassignment" class="section level2 hasAnchor" number="7.9">
+<h2><span class="header-section-number">7.9</span> Assignment<a href="experimental-design-from-question-to-study-structure.html#designassignment" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><strong>Goal:</strong> Develop and justify the experimental or observational design for your research project.</p>
+<div id="part-1-study-type" class="section level3 hasAnchor" number="7.9.1">
+<h3><span class="header-section-number">7.9.1</span> Part 1: Study type<a href="experimental-design-from-question-to-study-structure.html#part-1-study-type" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol style="list-style-type: decimal">
+<li><p>Is your study manipulative, observational, a natural experiment, or a quasi-experiment? Explain why.</p></li>
+<li><p>What are the implications for causal inference? What can and cannot you conclude from your design?</p></li>
+</ol>
+</div>
+<div id="part-2-design-structure" class="section level3 hasAnchor" number="7.9.2">
+<h3><span class="header-section-number">7.9.2</span> Part 2: Design structure<a href="experimental-design-from-question-to-study-structure.html#part-2-design-structure" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol start="3" style="list-style-type: decimal">
+<li>Draw or describe your design structure. Include:
+<ul>
+<li>Treatment factors and their levels (if applicable)</li>
+<li>How treatments are assigned (randomly? by nature? by a manager?)</li>
+<li>Whether you are using blocking, and if so, what the blocks are</li>
+<li>Whether your design has nesting, and if so, what is nested within what</li>
+</ul></li>
+<li>Identify your <strong>unit of replication</strong> and your <strong>subsamples</strong> (if any). How many true replicates do you have per treatment level?</li>
+</ol>
+</div>
+<div id="part-3-controls-and-confounds" class="section level3 hasAnchor" number="7.9.3">
+<h3><span class="header-section-number">7.9.3</span> Part 3: Controls and confounds<a href="experimental-design-from-question-to-study-structure.html#part-3-controls-and-confounds" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol start="5" style="list-style-type: decimal">
+<li><p>What serves as your control or baseline for comparison?</p></li>
+<li><p>Identify at least two potential <strong>confounding variables</strong> in your study. For each, explain whether your design controls for it (and how) or whether it remains a limitation.</p></li>
+</ol>
+</div>
+<div id="part-4-design-to-model-connection" class="section level3 hasAnchor" number="7.9.4">
+<h3><span class="header-section-number">7.9.4</span> Part 4: Design-to-model connection<a href="experimental-design-from-question-to-study-structure.html#part-4-design-to-model-connection" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ol start="7" style="list-style-type: decimal">
+<li>Based on your design, write the R formula for the statistical model you expect to use. If you have a blocked design, include the block term. If you have nesting, indicate which effects are random.</li>
+</ol>
+<p><em>Example: If your design is a randomized complete block with 2 treatments and 4 blocks, your model might be: <code>lm(biomass ~ treatment + block, data = my_data)</code></em></p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="ecological-sampling.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="power-analysis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/sarasouther/DataAnalysis/edit/main/08-ExperimentalDesign.Rmd",
+    "text": "Edit this page"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["_main.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,9 +1,4 @@
----
-title: "Working with Spatial Data in R"
-output: html_document
----
-
-# Introduction: Why Spatial Data Matters in Ecology
+# Introduction: Working with Spatial Data in R
 
 Almost all ecological data has a spatial component. Where you collect data matters as much as what you collect.
 
@@ -43,7 +38,7 @@ if (has_gstat) {
 
 ---
 
-# Part 1: Understanding Coordinate Reference Systems (CRS)
+## Part 1: Understanding Coordinate Reference Systems (CRS)
 
 ## The fundamental problem
 
@@ -243,7 +238,7 @@ cat("\nAfter transformation, both layers use:", st_crs(layer1_transformed)$input
 
 ---
 
-# Part 2: Types of Spatial Data
+## Part 2: Types of Spatial Data
 
 ## Vector Data
 
@@ -408,7 +403,7 @@ MANY ANALYSES NEED BOTH:
 
 ---
 
-# Part 3: Reading and Writing Spatial Data
+## Part 3: Reading and Writing Spatial Data
 
 ## Vector Data with sf
 ```{r sf-io, eval=FALSE}
@@ -472,7 +467,7 @@ writeRaster(elevation, "output/elevation.tif", overwrite = TRUE)
 
 ---
 
-# Part 4: Basic Spatial Operations
+## Part 4: Basic Spatial Operations
 
 ## Vector Operations
 ```{r vector-ops}
@@ -536,7 +531,7 @@ print(points_with_topo)
 
 ---
 
-# Part 5: Spatial Autocorrelation
+## Part 5: Spatial Autocorrelation
 
 ## What is Spatial Autocorrelation?
 
@@ -681,7 +676,7 @@ ACCOMMODATION (Model-based solutions)
 
 ---
 
-# Part 6: Complete Worked Example
+## Part 6: Complete Worked Example
 ```{r ch 28 complete-example spatial}
 # Simulate a realistic ecological dataset
 set.seed(42)
